@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title><%= title %></title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
+    <link rel="stylesheet" href="stylesheets/main.css">
+    <link rel="stylesheet" href="stylesheets/ticket.css">
+  </head>
+  <body>
+
+    <div id="wrapper">
+      <!-- Navigation -->
+      <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+          <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                  <span class="sr-only">Toggle navigation</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="/">PS Admin</a>
+          </div>
+          <!-- /.navbar-header -->
+
+          <ul class="nav navbar-top-links navbar-right">
+              <!-- /.dropdown -->
+              <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                      <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                  </a>
+                  <ul class="dropdown-menu dropdown-user">
+                      <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                      </li>
+                      <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                      </li>
+                      <li class="divider"></li>
+                      <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                      </li>
+                  </ul>
+                  <!-- /.dropdown-user -->
+              </li>
+              <!-- /.dropdown -->
+          </ul>
+          <!-- /.navbar-top-links -->
+
+          <div class="navbar-default sidebar" role="navigation">
+              <div class="sidebar-nav navbar-collapse">
+                  <ul class="nav" id="side-menu">
+                    <li>
+                        <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                    </li>
+
+                    <li>
+                        <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
+                    </li>
+                    <li>
+                        <a href="/chat"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                    </li>
+                    <li>
+                        <a href="/ticket" class="active"><i class="fa fa-ticket fa-fw"></i> Support</a>
+                    </li>
+                  </ul>
+              </div>
+              <!-- /.sidebar-collapse -->
+          </div>
+          <!-- /.navbar-static-side -->
+      </nav>
+    </div>
+
+    <!-- Form -->
+    <div id="view-wrap">
+      <form>
+        <!-- 編號 -->
+        <div class="form-group row">
+          <label for="task-name" class="col-2 col-form-label">編號</label>
+          <span id="view-id"></span>
+        </div>
+        <!-- 任務內容 -->
+        <div class="form-group row">
+          <label for="task-name" class="col-2 col-form-label">任務內容</label>
+          <span id="view-name"></span>
+        </div>
+        <!-- 分類 -->
+        <div class="form-group row">
+          <label for="category">分類</label>
+          <span id="view-cate"></span>
+        </div>
+        <!-- 狀態 -->
+        <div class="form-group row">
+          <label for="status">狀態</label>
+          <span id="view-stat"></span>
+        </div>
+        <!-- 緊急 -->
+        <div class="form-group row">
+          <label for="priority">緊急程度</label>
+          <span id="view-prio"></span>
+        </div>
+        <!-- 負責人 -->
+        <div class="form-group row">
+          <label for="owner" class="col-2 col-form-label">負責人</label>
+          <span id="view-owne"></span>
+        </div>
+        <!-- 說明 -->
+        <div class="form-group row">
+          <label for="description">說明</label>
+          <span id="view-desc"></span>
+        </div>
+        <!-- 建立人 -->
+        <div class="form-group row">
+          <label for="description">建立人</label>
+          <span id="view-inir"></span>
+        </div>
+        <!-- 建立日期 -->
+        <div class="form-group row">
+          <label for="description">建立日期</label>
+          <span id="view-inid"></span>
+        </div>
+        <!-- 修改人 -->
+        <div class="form-group row">
+          <label for="description">修改人</label>
+          <span id="view-modr"></span>
+        </div>
+        <!-- 修改日期 -->
+        <div class="form-group row">
+          <label for="description">修改日期</label>
+          <span id="view-modd"></span>
+        </div>
+        <!-- 子任務 -->
+        <div class="form-group row">
+          <label for="subtasks">子任務</label>
+          <br />
+          <ul id="view-list"></ul>
+        </div>
+        <br /><br />
+        <button type="button" onclick="goback()">Back</button>
+        <br /><br />
+      </form>
+    </div>
+
+    <script src='javascripts/jquery.min.js'></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+    <script src="javascripts/sb-admin-2.js"></script>
+    <script src="javascripts/ticket.js"></script>
+  </body>
+</html>

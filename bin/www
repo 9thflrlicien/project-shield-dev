@@ -1,0 +1,286 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app   = require('../app');
+var debug = require('debug')('project-shield:server');
+var http  = require('http');
+var firebase = require('firebase');
+var config = {
+  apiKey: "AIzaSyAqzIra9YkeE0HZZBSwXrjh4GemO7yVdmI",
+  authDomain: "shield-88fd0.firebaseapp.com",
+  databaseURL: "https://shield-88fd0.firebaseio.com",
+  projectId: "shield-88fd0",
+  storageBucket: "shield-88fd0.appspot.com",
+  messagingSenderId: "376341346069"
+};
+firebase.initializeApp(config);
+
+const usersRef = firebase.database().ref().child('chats/users');
+const agentsRef = firebase.database().ref().child('chats/agents');
+
+// chatsRef.on('value', snap => {
+//   console.log(snap);
+// });
+// Get a reference to the database service
+
+// var mongoose = require('mongoose');
+
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+const io = require('socket.io').listen(server);
+
+//連結到
+// mongoose.connect('mongodb://localhost/shield-chat', (err) => {
+//   if(err){
+//     console.log(err);
+//   } else {
+//     console.log('Connected to MongoDB');
+//   }
+// });
+
+/**
+ * Variables
+ */
+var line = require('../line');
+var users = {};
+//webhook event
+var message_lineTochat;
+var receiverId = 'Ue369116591fbd2d13a7eb5f0ff12547b';
+
+
+/**
+ * Database Setup
+ */
+// var Schema = mongoose.Schema;
+//
+// var lineSchema = new Schema({
+//   id: String,
+//   type: String,
+//   text: String,
+//   date: { type: Date, default: Date.now }
+// });
+//
+// var chatSchema = new Schema({
+//   text: String,
+//   date: { type: Date, default: Date.now }
+// });
+
+//Collections
+// var chatMessage = mongoose.model('chatMessage', chatSchema);
+// var lineMessage = mongoose.model('lineMessage', lineSchema);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+
+// //initialize Line
+// line.init({
+//   accessToken: 'yeeDeC5dExJDeVEPPf2dMTlAoZE4izrqX6bBaldhddpG7esOFEpxm5m5dMIIB7pz0zIS49QZxJBFgAkxQZWmfy9toaiTR+B/q1pz7F5xkf+dljkSJV1krOOtrT93BSSYydIZLnt0zxX8JCqWF4uE4wdB04t89/1O/w1cDnyilFU=',
+//   // (Optional) for webhook signature validation
+//   channelSecret: 'd89c9a5ef9ae83fbdfd2fc59ab451f98'
+// })
+
+//initialize Line
+line.init({
+  accessToken: 'J0ZaPXezIyz7FD3utw02svtajuc8ltRquEcVjkdVtpxWI7a8x8eTot8AJdu5caN/apTOGP3Qb1efkwmGDDP4OflorqBFRjgxBDvzYcKK+iB7EPa21kPu+BmQ1FD6hCDAF7EVdtjf2wNn55G0vclO4AdB04t89/1O/w1cDnyilFU=',
+  channelSecret: '6f25463b03e621a57e378acf6729cb83'
+})
+
+// //替你聊
+// line.init({
+//   accessToken: 'fETsKAhUKc5yuY5XnK1WEto3RGTUxYSAp5BUHR9ccaSd/hafxJdcbJyPsifJ0FTqXzlJmpAf8baYz/brWInZdpWm/WcWQVGnOOo1fhotK8Bo1blWIWxVDR0TkQMisd7jZB7g0MnKomgXJ/wqLB1xOAdB04t89/1O/w1cDnyilFU=',
+//   channelSecret: 'dfe7fb683f7f16b6cfd493e2cb73ff1e'
+// })
+
+//群組訊息接收
+app.post('/webhook/', line.validator.validateSignature(), (req, res, next) => {
+  // get content from request body
+  const promises = req.body.events.map(event => {
+    // reply message
+    let d = Date.now()
+    let date = new Date(d);
+    message_lineTochat = event.message.text;
+    receiverId = event.source.userId;
+
+    io.sockets.emit('new message', {msg: message_lineTochat, name: 'Visitor'});
+
+    usersRef.push({
+      message: message_lineTochat,
+      user: receiverId,
+      messageTime: date.toString()
+    });
+    // console.log(event);
+    // console.log(message_lineTochat);
+    // console.log(receiverId);
+
+
+  });
+  Promise
+    .all(promises)
+    .then(() => res.json({success: true}));
+});
+
+/**
+ * Socket.io
+ */
+//連接
+io.sockets.on('connection', (socket) => {
+
+  // 新使用者
+  socket.on('new user', (data, callback) => {
+    // if(nicknames.indexOf(data) != -1){
+    if(data in users){
+      callback(false);
+    } else {
+      callback(true);
+      socket.nickname = data;
+      users[socket.nickname] = socket;
+      // nicknames.push(socket.nickname);
+      updateNicknames();
+    }
+  });
+
+  function updateNicknames(){
+    io.sockets.emit('usernames', Object.keys(users));
+  }
+
+  socket.on('send message', (data, callback) => {
+    var msg = data.trim();
+    let d = Date.now();
+    let date = new Date(d);
+    io.sockets.emit('new message', {msg: msg, name: socket.nickname});
+    line.client.pushMessage({
+        to: receiverId,
+        messages: [
+            {
+                "type":"text",
+                "text": msg
+            }
+        ]
+      })
+      .then(() => console.log('Message Sent'))
+      .catch(err => console.log(err));
+
+    agentsRef.push({
+      message: msg,
+      agent: socket.nickname,
+      messageTime: date.toString()
+    });
+
+    // var chatMsg = new chatMessage({
+    //   text: msg
+    // });
+    // chatMsg.save(err => {
+    //   if(err) {
+    //     console.log('Message save error' + err);
+    //   } else {
+    //     console.log('Chat Saved!');
+    //   }
+    // });
+
+  });
+
+  socket.on('disconnect', (data) => {
+    if(!socket.nickname) return;
+    delete users[socket.nickname];
+    // nicknames.splice(nicknames.indexOf(socket.nickname), 1);
+    updateNicknames();
+  });
+});
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
