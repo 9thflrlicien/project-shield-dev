@@ -78,18 +78,26 @@ function facebookLog() {
   });
 }
 
-function lineLog() {
+/*function lineLog() {
   var URL = 'https://access.line.me/dialog/oauth/weblogin?';
   URL += 'response_type=code';
   // URL += '&client_id=1520029431';
   URL += '&client_id=1520803908';
   // URL += '&redirect_uri=https://desolate-tor-67580.herokuapp.com/';
-  URL += '&redirect_uri=https://localhost:3000/';
+  URL += '&redirect_uri=https://localhost:3000';
   URL += '&state=abcde';
 
   window.location.href = URL;
-}
+}*/
 
+function lineLog() {
+            var URL = 'https://access.line.me/dialog/oauth/weblogin?';
+            URL += 'response_type=code';
+            URL += '&client_id=1522540595';
+            URL += '&redirect_uri=http://localhost:3000';
+            URL += '&state=abcde';
+            window.location.href = URL;
+}
 
 
 function showError(msg) {

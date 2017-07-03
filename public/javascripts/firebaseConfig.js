@@ -39,3 +39,55 @@ function logout(){
     window.location.assign("/login");
   })
 }
+
+//connect firebase with line login
+app.post('/verifyToken', (req, res) => {
+  if (!req.body.token) {
+    return res.status(400).send('Access Token not found');
+  }
+  const reqToken = req.body.token;
+
+  // Send request to LINE server for access token verification
+  const options = {
+    url: 'https://api.line.me/v1/oauth/verify',
+    headers: {
+      'Authorization': `Bearer ${reqToken}`
+    }
+  };
+  request(options, (error, response, body) => {
+    if (!error && response.statusCode === 200) {
+      const lineObj = JSON.parse(body);
+       // Don't forget to verify the token's channelId to prevent spoof attack
+      if ((typeof lineObj.mid !== 'undefined') 
+               && (lineObj.channelId === myLINEChannelId)) {
+        // Access Token Validation succeed with LINE server
+        // Generate Firebase token and return to device
+        const firebaseToken = generateFirebaseToken(lineObj.mid);
+
+        // Update Firebase user profile with LINE profile
+        updateUserProfile(reqToken, firebaseToken, lineObj.mid, () => {
+          const ret = {
+            firebase_token: firebaseToken
+          };
+          return res.status(200).send(ret);
+        });
+      }
+    }
+
+    const ret = {
+      error_message: 'Authentication error: Cannot verify access token.'
+    };
+    return res.status(403).send(ret);
+     
+    });
+
+});
+
+//---- reuse line tocken
+function generateFirebaseToken(lineMid) {
+  var firebaseUid = 'line:' + lineMid;
+  var additionalClaims = {
+    provider: 'LINE'
+  };
+  return firebase.auth().createCustomToken(firebaseUid);
+}
