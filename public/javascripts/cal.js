@@ -17,8 +17,8 @@ var keyId;
 $(document).ready(function() {
   $('#details').val('');
 
-  setTimeout(loadEvents, 500);
-  setTimeout(loadCalTable, 1500);
+  setTimeout(loadEvents, 1000);
+  setTimeout(loadCalTable, 2000);
 
   $(document).on('change', '#allday', () => { allday = !allday });
   $(document).on('click', '#cls-cal-btn', clearModal); //關
@@ -77,51 +77,65 @@ function loadCalTable() {
       // console.log(convert_start, convert_end);
       // console.log(new_start, new_end);
 
+      // 錯誤訊息隱藏
       $('#cal-error-msg').hide();
+      $('#tim-error-msg').hide();
+      // 新增視窗
       $('#myModal').modal('show');
+      // 按鈕設定
       $('#add-cal-btn').show();
       $('#save-cal-btn').hide();
+      $('#del-cal-btn').hide();
+      // 時間input設定
       $('#startDate').val(convert_start); //
       $('#endDate').val(convert_end); //
+
 			$(document).on('click', '#add-cal-btn', () => {
         let title      = $('#title').val();
         let start_date = $('#startDate').val();
         let end_date   = $('#endDate').val();
         let userId     = auth.currentUser.uid;
+        // console.log( typeof(Date.parse(start_date)), Date.parse(end_date) );
 
         if(title !== '' && start_date !== ''){
-          // show on calendar
-          calendar.fullCalendar('renderEvent',
-  					{
-  						title: title,
-  						start: start_date,
-  						end: end_date,
-  						allDay: allday
-  					},
-  					true // make the event "stick"
-  				);
-          keyId = $('#keyId').text();
-          // save data
-          if(keyId === ''){
-            database.ref('cal-events/' + userId).push({
-              title: title,
-              start: start_date,
-              end: end_date,
-              allDay: allday
-            });
+          if(Date.parse(end_date) > Date.parse(start_date)){
+            // show on calendar
+            calendar.fullCalendar('renderEvent',
+    					{
+    						title: title,
+    						start: start_date,
+    						end: end_date,
+    						allDay: allday
+    					},
+    					true // make the event "stick"
+    				);
+
+            keyId = $('#keyId').text();
+            // save data
+            if(keyId === ''){
+              database.ref('cal-events/' + userId).push({
+                title: title,
+                start: start_date,
+                end: end_date,
+                allDay: allday
+              });
+            } else {
+              database.ref('cal-events/' + userId + '/' + keyId).set({
+                title: title,
+                start: start_date,
+                end: end_date,
+                allDay: allday
+              });
+            }
+            $('#title').val('');
+            $('#startDate').val('');
+            $('#endDate').val('');
+            $('#myModal').modal('hide');
+            $('#add-cal-btn').hide();
           } else {
-            database.ref('cal-events/' + userId + '/' + keyId).set({
-              title: title,
-              start: start_date,
-              end: end_date,
-              allDay: allday
-            });
+            $('#tim-error-msg').show();
           }
-          $('#title').val('');
-          $('#startDate').val('');
-          $('#endDate').val('');
-          $('#myModal').modal('hide');
-          $('#add-cal-btn').hide();
+
         } else {
           $('#cal-error-msg').show();
         }
@@ -138,7 +152,9 @@ function loadCalTable() {
 
       let userId = auth.currentUser.uid;
       let eventObj = [];
+      // 隱藏錯誤訊息
       $('#cal-error-msg').hide();
+      $('#tim-error-msg').hide();
 
       database.ref('cal-events/' + userId).on('value', snap => {
         let eventId  = snap.val();
@@ -152,6 +168,7 @@ function loadCalTable() {
           });
         }
       });
+      // 資料的值放進對應的input
       $('#keyId').text(keyId);
       $('#title').val(event.title);
 
@@ -166,6 +183,7 @@ function loadCalTable() {
       }
       $('#myModal').modal('show');
       $('#save-cal-btn').show();
+      $('#del-cal-btn').show();
       $('#add-cal-btn').hide();
 
       $(document).on('click', '#save-cal-btn', () => {
@@ -175,48 +193,62 @@ function loadCalTable() {
         let ad         = $('#allday');
 
         if(title !== '' && start_date !== ''){
+          if(Date.parse(end_date) > Date.parse(start_date)){
+            if(ad.is('checked')){
+              start_date = ISODateString(start_date);
+              end_date   = '';
+              calendar.fullCalendar('renderEvent', {
+                title: title,
+                start: start_date,
+                allDay: true
+              });
+            } else {
+              // allday = ad.val();
+              calendar.fullCalendar('renderEvent', {
+                title: title,
+                start: start_date,
+                end: end_date,
+                allDay: false
+              });
+            }
 
-          if(ad.is('checked')){
-            start_date = ISODateString(start_date);
-            end_date   = '';
-            calendar.fullCalendar('renderEvent', {
-              title: title,
-              start: start_date,
-              allDay: true
-            });
-          } else {
-            // allday = ad.val();
-            calendar.fullCalendar('renderEvent', {
+            // save data
+            let userId = auth.currentUser.uid;
+            keyId      = $('#keyId').text();
+            database.ref('cal-events/' + userId + '/' + keyId).set({
               title: title,
               start: start_date,
               end: end_date,
-              allDay: false
+              allDay: allday
             });
-          }
+            // clear the form
+            $('#title').val('');
+            $('#startDate').val('');
+            $('#endDate').val('');
+            $('#myModal').modal('hide');
+            $('#save-cal-btn').hide();
+            $('#cal-error-msg').hide();
+            $('#del-cal-btn').hide();
 
-          // save data
-          let userId = auth.currentUser.uid;
-          keyId      = $('#keyId').text();
-          database.ref('cal-events/' + userId + '/' + keyId).set({
-            title: title,
-            start: start_date,
-            end: end_date,
-            allDay: allday
-          });
-          // clear the form
-          $('#title').val('');
-          $('#startDate').val('');
-          $('#endDate').val('');
-          $('#myModal').modal('hide');
-          $('#save-cal-btn').hide();
-          $('#cal-error-msg').hide();
+            window.location = '/calendar'
+          } else {
+            $('#tim-error-msg').show();
+          }
 
         } else {
           $('#cal-error-msg').show();
         }
 
-        window.location = '/calendar'
       });
+
+      $(document).on('click', '#del-cal-btn', () => {
+        let userId = auth.currentUser.uid;
+        keyId      = $('#keyId').text();
+        database.ref('cal-events/' + userId + '/' + keyId).remove();
+
+        window.location = '/calendar';
+      });
+
 			calendar.fullCalendar('unselect');
       event_list = [];
     },
@@ -281,18 +313,18 @@ function ISODateTimeString(d) {
          + pad(d.getMinutes())
 }
 
-function convertUTCDateToLocalDate(date) {
-    var newDate = new Date(date.getTime()+date.getTimezoneOffset()*60*1000);
-
-    var offset = date.getTimezoneOffset() / 60;
-    console.log(offset);
-    var hours = date.getHours();//動到小時這一塊時間上才會是正確的
-    console.log(hours, offset);
-
-    newDate.setHours(hours - offset);
-
-    return newDate;
-}
+// function convertUTCDateToLocalDate(date) {
+//     var newDate = new Date(date.getTime()+date.getTimezoneOffset()*60*1000);
+//
+//     var offset = date.getTimezoneOffset() / 60;
+//     console.log(offset);
+//     var hours = date.getHours();//動到小時這一塊時間上才會是正確的
+//     console.log(hours, offset);
+//
+//     newDate.setHours(hours - offset);
+//
+//     return newDate;
+// }
 
 function convertTime(date) {
     let newDate = new Date(date.getTime()+date.getTimezoneOffset()*60*1000);

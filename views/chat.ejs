@@ -17,7 +17,6 @@
   </head>
   <body>
 
-
     <div id="wrapper">
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
@@ -39,10 +38,7 @@
                       <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
                   </a>
                   <ul class="dropdown-menu dropdown-user">
-                      <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a>
-                      </li>
-                      <!-- <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
-                      </li> -->
+                      <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
                       <li class="divider"></li>
                       <li><a href="#" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
                   </ul>
@@ -101,6 +97,9 @@
       </div>
     </div>
 
+    <!-- FOR BTN TEST  -->
+    <div id="canvas">DIV IS HERE</div>
+
 
     <script src='javascripts/jquery.min.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -109,6 +108,17 @@
     <script src="javascripts/sb-admin-2.js"></script>
     <script src="javascripts/socket.io.js"></script>
     <script src="javascripts/chat.js"></script>
+    <script>
+     var ctx = document.getElementById('canvas').getContext('2d');
+
+socket.on("image", function(info) {
+  if (info.image) {
+    var img = new Image();
+    img.src = 'data:image/jpeg;base64,' + info.buffer;
+    ctx.drawImage(img, 0, 0);
+  }
+}); 
+    </script>
 
   </body>
 </html>

@@ -16,10 +16,12 @@ router.get('/calendar', function(req, res, next) {
 //   res.render('todolist', { title: 'SHIELD to do list' });
 // });
 
-
+/* GET chat page. */
 router.get('/chat', function(req, res, next) {
   res.render('chat', { title: 'SHIELD chat' });
 });
+
+
 
 //authentication
 router.get('/login', function(req, res, next) {

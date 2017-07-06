@@ -9164,7 +9164,7 @@ jQuery._evalUrl = function( url ) {
 		type: "GET",
 		dataType: "script",
 		cache: true,
-		async: false,
+		async: true,
 		global: false,
 		"throws": true
 	} );

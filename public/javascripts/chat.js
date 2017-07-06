@@ -10,6 +10,7 @@ $(document).ready(function() {
 
   $(document).on('click', '#signout-btn', logout); //登出
 
+
   nicknameForm.submit((e) => {
     e.preventDefault();
     socket.emit('new user', nicknameInput.val(), (data) => {

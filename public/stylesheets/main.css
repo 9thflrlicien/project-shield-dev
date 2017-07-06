@@ -184,8 +184,9 @@ input {
 
 #home, #calendar-wrap, #profile-wrap, #ticket-wrap {
   position: relative;
-  left: 250px;
-  width: 78%;
+  left: 20%;
+  right:3%;
+  width: 70%;
 }
 
 #form-wrap, #view-wrap  {
@@ -230,7 +231,7 @@ input {
   color: grey;
   font-style: italic;
 }
-.error, #cal-error-msg {
+.error, #cal-error-msg, #tim-error-msg {
   color: red;
 }
 
@@ -268,8 +269,9 @@ input {
 @media (max-width: 767px) {
   #home, #calendar-wrap, #profile-wrap, #ticket-wrap  {
     position: relative;
-    left: 0;
-    width: 100%;
+    left: 40%;
+    right:5%;
+    width: 70%;
   }
 
   #search-category {
@@ -289,8 +291,9 @@ input {
 @media (max-width: 414px) {
   #home, #calendar-wrap, #profile-wrap, #ticket-wrap  {
     position: relative;
-    left: 0;
-    width: 100%;
+    left: 40%;
+    right:5%;
+    width: 70%;
   }
 
   .inner-add-complete, .owner, .category, #search-category {

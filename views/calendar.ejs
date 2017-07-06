@@ -107,6 +107,7 @@
             <input type="checkbox" id="allday" value="false"/> <span class="alldaylabel">All Day</span><br /><br />
 
             <div id="cal-error-msg" hidden>Please fill in the event name or start date</div>
+            <div id="tim-error-msg" hidden>Start date cannot be greater than end date</div>
             <!-- <textarea id="details" placeholder="Details">
             </textarea> -->
           </form>
@@ -114,6 +115,7 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" id="add-cal-btn">Add</button>
           <button type="button" class="btn btn-primary" id="save-cal-btn">Save changes</button>
+          <button type="button" class="btn btn-primary" id="del-cal-btn">Delete</button>
           <button type="button" class="btn btn-secondary" id="cls-cal-btn" data-dismiss="modal">Close</button>
         </div>
       </div>
