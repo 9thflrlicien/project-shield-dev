@@ -98,7 +98,7 @@ bot.on('message', event => {
     receiverId = event.source.userId;
 
 
-    //  ===================  KINDS ====================
+    //  ===================  TYPES ====================
     if (event.message.type === 'sticker') {
         
         io.sockets.emit('new message', {
@@ -107,58 +107,14 @@ bot.on('message', event => {
         });
         
         type_sticker += 1;
-        
-        io.sockets.emit('new message', {msg: ({
 
-            "type": "template",
-            "altText": "this is a confirm template",
-        
-            "template": {
-                "type": "confirm",
-                "text": "Are you sure?",
-                "actions": [{
-                        "type": "message",
-                        "label": "Yes",
-                        "text": "yes"
-                    },
-
-                    {
-                        "type": "message",
-                        "label": "No",
-                        "text": "no"
-                    }
-                ]
-            }
-
-        }), name: 'Admin'
-    });
+         event.message.content().then(function (content) {
+            /*'base64'是圖片的編碼*/
+    console.log(content.toString('base64'));
+         io.sockets.emit('new message', {msg: '<a target="_blank" href="data:sticker/jpg;base64,'+content.toString('base64')+'" >STICKER LINK(not available yet)</a>', name: 'Visitor'});
 
 
-        event.reply({
-
-            "type": "template",
-            "altText": "this is a confirm template",
-        
-            "template": {
-                "type": "confirm",
-                "text": "Are you sure?",
-                "actions": [{
-                        "type": "message",
-                        "label": "Yes",
-                        "text": "yes"
-                    },
-
-                    {
-                        "type": "message",
-                        "label": "No",
-                        "text": "no"
-                    }
-                ]
-            }
-
-        });
-
-
+});
 
 
 /*Bot.reply(event.replyToken, {type: 'image',
@@ -264,6 +220,8 @@ bot.on('message', event => {
     // error
 });
 */
+
+/* ================  LINKS  ================  */
     } else if (event.message.type === 'text' && message_showText.indexOf('http') !== -1) {
         io.sockets.emit('new message', {
             msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
@@ -274,6 +232,196 @@ bot.on('message', event => {
             user: receiverId,
             messageTime: date.toString()
         });
+    } else if (event.message.type === 'text' && message_showText.indexOf('.com') !== -1) {
+        io.sockets.emit('new message', {
+            msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
+            name: 'Visitor'
+        });
+        usersRef.push({
+            message: message_showText,
+            user: receiverId,
+            messageTime: date.toString()
+        });    
+    } else if (event.message.type === 'text' && message_showText.indexOf('.org') !== -1) {
+        io.sockets.emit('new message', {
+            msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
+            name: 'Visitor'
+        });
+        usersRef.push({
+            message: message_showText,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
+    } else if (event.message.type === 'text' && message_showText.indexOf('.net') !== -1) {
+        io.sockets.emit('new message', {
+            msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
+            name: 'Visitor'
+        });
+        usersRef.push({
+            message: message_showText,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
+    } else if (event.message.type === 'text' && message_showText.indexOf('.edu') !== -1) {
+        io.sockets.emit('new message', {
+            msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
+            name: 'Visitor'
+        });
+        usersRef.push({
+            message: message_showText,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
+    } else if (event.message.type === 'text' && message_showText.indexOf('.io') !== -1) {
+        io.sockets.emit('new message', {
+            msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
+            name: 'Visitor'
+        });
+        usersRef.push({
+            message: message_showText,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
+
+
+/* ================  TEMPLATES  ================  */
+    } else if (event.message.type === 'text' && message_showText.indexOf('菜單') !== -1) {
+        io.sockets.emit('new message', {
+            msg: '已發送菜單',
+            name: 'notice'
+        });
+        event.reply({
+  "type": "template",
+  "altText": "this is a buttons template",
+  "template": {
+      "type": "buttons",
+      "thumbnailImageUrl": "https://example.com/bot/images/image.jpg",
+      "title": "Menu",
+      "text": "Please select",
+      "actions": [
+          {
+            "type": "postback",
+            "label": "Buy",
+            "data": "action=buy&itemid=123"
+          },
+          {
+            "type": "postback",
+            "label": "Add to cart",
+            "data": "action=add&itemid=123"
+          },
+          {
+            "type": "uri",
+            "label": "View detail",
+            "uri": "http://example.com/page/123"
+          }
+      ]
+  }
+})
+        usersRef.push({
+            message: message_showText,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
+
+    } else if (event.message.type === 'text' && message_showText.indexOf('選項') !== -1) {
+        io.sockets.emit('new message', {
+            msg: '已發送選項',
+            name: 'notice'
+        });
+        event.reply({
+  "type": "template",
+  "altText": "this is a confirm template",
+  "template": {
+      "type": "confirm",
+      "text": "Are you sure?",
+      "actions": [
+          {
+            "type": "message",
+            "label": "Yes",
+            "text": "yes"
+          },
+          {
+            "type": "message",
+            "label": "No",
+            "text": "no"
+          }
+      ]
+  }
+})
+        usersRef.push({
+            message: message_showText,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
+
+    } else if (event.message.type === 'text' && message_showText.indexOf('旋轉盤') !== -1) {
+        io.sockets.emit('new message', {
+            msg: '已發送旋轉盤',
+            name: 'notice'
+        });
+        event.reply({
+  "type": "template",
+  "altText": "this is a carousel template",
+  "template": {
+      "type": "carousel",
+      "columns": [
+          {
+            "thumbnailImageUrl": "https://example.com/bot/images/item1.jpg",
+            "title": "this is menu",
+            "text": "description",
+            "actions": [
+                {
+                    "type": "postback",
+                    "label": "Buy",
+                    "data": "action=buy&itemid=111"
+                },
+                {
+                    "type": "postback",
+                    "label": "Add to cart",
+                    "data": "action=add&itemid=111"
+                },
+                {
+                    "type": "uri",
+                    "label": "View detail",
+                    "uri": "http://example.com/page/111"
+                }
+            ]
+          },
+          {
+            "thumbnailImageUrl": "https://example.com/bot/images/item2.jpg",
+            "title": "this is menu",
+            "text": "description",
+            "actions": [
+                {
+                    "type": "postback",
+                    "label": "Buy",
+                    "data": "action=buy&itemid=222"
+                },
+                {
+                    "type": "postback",
+                    "label": "Add to cart",
+                    "data": "action=add&itemid=222"
+                },
+                {
+                    "type": "uri",
+                    "label": "View detail",
+                    "uri": "http://example.com/page/222"
+                }
+            ]
+          }
+      ]
+  }
+})
+        usersRef.push({
+            message: message_showText,
+            user: receiverId,
+            messageTime: date.toString()
+        });
+
+
+/*  ===============  TEXTS  ===============  */
+
+
     } else {
         io.sockets.emit('new message', {
             msg: message_showText,

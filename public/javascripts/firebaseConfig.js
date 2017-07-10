@@ -81,7 +81,8 @@ app.post('/verifyToken', (req, res) => {
      
     });
 
-});
+  });
+
 
 //---- reuse line tocken
 function generateFirebaseToken(lineMid) {
