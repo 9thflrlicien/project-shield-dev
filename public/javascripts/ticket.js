@@ -23,6 +23,8 @@ $(document).ready(function() {
   $(document).on('click', '#tform-submit', formSubmit); //一般新增
   $(document).on('click', '#tform-goback', goback); //回上一頁
 
+
+
   //=========[SEARCH by TEXT]=========
   $("#exampleInputAmount").keyup(function() {
     var $rows = $('#open-ticket-list tr');

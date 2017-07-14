@@ -48,7 +48,7 @@ var line1 = require('../line');
 var users = {};
 //webhook event
 var message_lineTochat;
-var receiverId = 'U0cbbba0d281fc5b095caaacac73fd1b5';
+var receiverId = '';
 // LINE bot
 var bot = linebot({
     channelId: '1522975413',
@@ -81,7 +81,29 @@ server.on('listening', onListening);
   channelSecret: '6f25463b03e621a57e378acf6729cb83'
 })*/
 
-
+/* ====================================== */
+/* =========  MULTICAST TRYING  ========= */
+/* ====================================== */
+/* let userId = auth.currentUser.uid;
+console.log(auth);
+database.ref('chats/' + userId).on('value', snap => {
+    let dataArray = [];
+    let testVal = snap.val();
+    let myIds = Object.keys(testVal);
+    // console.log(myIds.length);
+    for (var i = 0; i < myIds.length; i++) {
+        dataArray.push(snap.child(myIds[i]).val());
+        $('#loadMsg').append(
+            ' < tr >' +
+            ' < td > ' +'Youre now connected to client: '+ receiverId + ' < /td>' +
+            ' < td > ' + dataArray[i].msg + ' < /td>' +
+            ' < /tr>'
+        );
+    }
+});
+*/
+/*  =========================================================  */
+/*  =========================================================  */
 
 
 // LINE bot implement
@@ -103,15 +125,21 @@ bot.on('message', event => {
         
         io.sockets.emit('new message', {
             msg: 'Sticker received. Please check your phone.',
-            name: 'Visitor'
+            name: receiverId
         });
+
+            usersRef.push({
+            
+            message: message_lineTochat,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
         
-        type_sticker += 1;
 
          event.message.content().then(function (content) {
             /*'base64'是圖片的編碼*/
     console.log(content.toString('base64'));
-         io.sockets.emit('new message', {msg: '<a target="_blank" href="data:sticker/jpg;base64,'+content.toString('base64')+'" >STICKER LINK(not available yet)</a>', name: 'Visitor'});
+         io.sockets.emit('new message', {msg: '<a target="_blank" href="data:sticker/jpg;base64,'+content.toString('base64')+'" >STICKER LINK(not available yet)</a>', receiverId: 'Visitor'});
 
 
 });
@@ -126,17 +154,25 @@ bot.on('message', event => {
     } else if (event.message.type === 'location') {
         io.sockets.emit('new message', {
             msg: 'Location received: ',
-            name: 'Visitor'
+            name: receiverId
         });
         io.sockets.emit('new message', {
             msg: address,
-            name: 'Visitor'
+            name: receiverId
         });
+
+                    usersRef.push({
+            
+            message: message_lineTochat,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
+
                 event.message.content().then(function (content) {
             /*'base64'是圖片的編碼*/
     console.log(content.toString('base64'));
             /*把編碼轉換成圖片(image/png)做成連結的方式*/
-                io.sockets.emit('new message', {msg: '<a target="_blank" href=" https://www.google.com.tw/maps/place/'+content.toString('base64')+'/@'+latitude+','+longitude+',15z/data=!4m5!3m4!1s0x0:0x496596e7748a5757!8m2!3d'+latitude+'!4d'+longitude+'">LOCATION LINK</a>', name: 'Visitor'});
+                io.sockets.emit('new message', {msg: '<a target="_blank" href=" https://www.google.com.tw/maps/place/'+content.toString('base64')+'/@'+latitude+','+longitude+',15z/data=!4m5!3m4!1s0x0:0x496596e7748a5757!8m2!3d'+latitude+'!4d'+longitude+'">LOCATION LINK</a>', receiverId: 'Visitor'});
 }).catch(function (error) {
     // error
 });
@@ -144,15 +180,22 @@ bot.on('message', event => {
     } else if (event.message.type === 'image') {
         io.sockets.emit('new message', {
             msg: 'Image received. Please check link',
-            name: 'Visitor'
+            name: receiverId
         });
+
+                usersRef.push({
+            
+            message: message_lineTochat,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
 
         event.message.content().then(function (content) {
             /*'base64'是圖片的編碼*/
     console.log(content.toString('base64'));
             /*把編碼轉換成圖片(image/png)做成連結的方式*/
     io.sockets.emit('new message', {msg: '<a target="_blank" href="data:image/png;base64,'+content.toString('base64')+'" '+
-  'width="70" height="38" alt="image embedded using base64 encoding!">IMAGE LINK</a>', name: 'Visitor'});
+  'width="70" height="38" alt="image embedded using base64 encoding!">IMAGE LINK</a>', name: receiverId});
 
 }).catch(function (error) {
     // error
@@ -181,12 +224,20 @@ bot.on('message', event => {
     } else if (event.message.type === 'audio') {
         io.sockets.emit('new message', {
             msg: 'Audio received. Please check link.',
-            name: 'Visitor'
+            name: receiverId
         });
+
+                    usersRef.push({
+            
+            message: message_lineTochat,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
+
         event.message.content().then(function (content) {
     console.log(content.toString('base64'));
     io.sockets.emit('new message', {msg: '<a target="_blank" href="data:audio/mp4;base64,'+content.toString('base64')+'" '+
-  '">AUDIO LINK</a>', name: 'Visitor'});
+  '">AUDIO LINK</a>', name: receiverId});
 
 }).catch(function (error) {
     // error
@@ -194,12 +245,19 @@ bot.on('message', event => {
     } else if (event.message.type === 'video') {
         io.sockets.emit('new message', {
             msg: 'Video received. Please check link.',
-            name: 'Visitor'
+            name: receiverId
         });
+
+                    usersRef.push({
+            
+            message: message_lineTochat,
+            user: receiverId,
+            messageTime: date.toString()
+        }); 
                event.message.content().then(function (content) {
     console.log(content.toString('base64'));
     io.sockets.emit('new message', {msg: '<a target="_blank" href="data:video/mp4;base64,'+content.toString('base64')+'" '+
-  '">VIDEO LINK</a>', name: 'Visitor'});
+  '">VIDEO LINK</a>', name: receiverId});
 
 }).catch(function (error) {
     // error
@@ -225,7 +283,7 @@ bot.on('message', event => {
     } else if (event.message.type === 'text' && message_showText.indexOf('http') !== -1) {
         io.sockets.emit('new message', {
             msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
-            name: 'Visitor'
+            name: receiverId
         });
         usersRef.push({
             message: message_showText,
@@ -235,7 +293,7 @@ bot.on('message', event => {
     } else if (event.message.type === 'text' && message_showText.indexOf('.com') !== -1) {
         io.sockets.emit('new message', {
             msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
-            name: 'Visitor'
+            name: receiverId
         });
         usersRef.push({
             message: message_showText,
@@ -245,7 +303,7 @@ bot.on('message', event => {
     } else if (event.message.type === 'text' && message_showText.indexOf('.org') !== -1) {
         io.sockets.emit('new message', {
             msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
-            name: 'Visitor'
+            name: receiverId
         });
         usersRef.push({
             message: message_showText,
@@ -255,7 +313,7 @@ bot.on('message', event => {
     } else if (event.message.type === 'text' && message_showText.indexOf('.net') !== -1) {
         io.sockets.emit('new message', {
             msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
-            name: 'Visitor'
+            name: receiverId
         });
         usersRef.push({
             message: message_showText,
@@ -265,7 +323,7 @@ bot.on('message', event => {
     } else if (event.message.type === 'text' && message_showText.indexOf('.edu') !== -1) {
         io.sockets.emit('new message', {
             msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
-            name: 'Visitor'
+            name: receiverId
         });
         usersRef.push({
             message: message_showText,
@@ -275,7 +333,7 @@ bot.on('message', event => {
     } else if (event.message.type === 'text' && message_showText.indexOf('.io') !== -1) {
         io.sockets.emit('new message', {
             msg: '<a href=' + message_showText + '>' + message_showText + '</a>',
-            name: 'Visitor'
+            name: receiverId
         });
         usersRef.push({
             message: message_showText,
@@ -425,7 +483,7 @@ bot.on('message', event => {
     } else {
         io.sockets.emit('new message', {
             msg: message_showText,
-            name: 'Visitor'
+            name: receiverId
         });
         usersRef.push({
             message: message_showText,
@@ -433,6 +491,20 @@ bot.on('message', event => {
             messageTime: date.toString()
         });
     }
+    //============================================
+
+//  ================================================
+
+
+  usersRef.push({
+    message: message_lineTochat,
+    user: receiverId,
+    messageTime: date.toString()
+  });
+});
+app.post('/webhook/', linebotParser);
+
+
     //============================================
     //========= GET REQUEST LINE CONTENT  =========
 
@@ -496,14 +568,6 @@ bot.on('message', event => {
     */
 
     //  ================================================
-    usersRef.push({
-        message: message_lineTochat,
-        user: receiverId,
-        messageTime: date.toString()
-    });
-});
-app.post('/webhook/', linebotParser);
-
 
 
 
@@ -545,32 +609,34 @@ io.sockets.on('connection', (socket) => {
             callback(false);
         } else {
             callback(true);
-            socket.nickname = data;
-            users[socket.nickname] = socket;
+            socket.person = data;
+            users[socket.person] = socket;
             // nicknames.push(socket.nickname);
-            updateNicknames();
+//            updateNicknames();
         }
     });
 
-    function updateNicknames() {
+/*    function updateNicknames() {
         io.sockets.emit('usernames', Object.keys(users));
     }
-
+*/
     socket.on('send message', (data, callback) => {
         var msg = data.trim();
         let d = Date.now();
         let date = new Date(d);
         io.sockets.emit('new message', {
             msg: msg,
-            name: socket.nickname
+            name: 'you'
         });
-        bot.push(receiverId, msg);
+        // bot.push(receiverId, msg);
 
-        agentsRef.push({
-            message: msg,
-            agent: socket.nickname,
-            messageTime: date.toString()
-        });
+        // console.log(socket);
+
+        // agentsRef.push({
+        //     message: msg,
+        //     agent: socket.person,
+        //     messageTime: date.toString()
+        // });
 
     });
 
@@ -659,3 +725,16 @@ function onListening() {
         'port ' + addr.port;
     debug('Listening on ' + bind);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
