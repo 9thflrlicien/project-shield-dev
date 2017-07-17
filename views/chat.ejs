@@ -121,8 +121,23 @@ div.tab button.active {
     width: 70%;
     border-left: none;
     height: 300px;
-    display:none;
+    display:block;
+    background-color: lightblue;
+    overflow: scroll;
 }
+#user1{
+  display: none;
+}
+#user2{ display: none;}
+#user3{
+ display: none;
+}
+#user4{ display: none;}
+#user5{ display: none;}
+#canvas1{ display: none;}
+#canvas2{ display: none;}
+#canvas3{ display: none;}
+
 
 </style>
 </head>
@@ -134,17 +149,32 @@ div.tab button.active {
    <ol class="list-group" id="clients"></ol>
 </div>
 
-<section id="canvas">
-   <span onclick="this.parentElement.style.display='none'" class="topright">x</span>
 
-         <form action="" id="send-message">
-            <input size="35" id="message" />
-            <input type="submit"/>
-         </form>
-      
-</div>
+<section id="canvas">
+<form action="" id="send-message"><input size="35" id="message" /><input type="submit"/></form>
+
 </section>
-   
+
+<section class="tabcontent" id="user1">
+<h5>User1</h5>
+</section>
+<section class="tabcontent" id="user2">
+  <h5>User2</h5>
+</section>
+<section class="tabcontent" id="user3">
+  <h5>User3</h5>
+</section>
+<section class="tabcontent" id="user4">
+  <h5>User4</h5>
+</section>
+<section class="tabcontent" id="user5">
+  <h5>User5</h5>
+</section>
+<section class="tabcontent" id="canvas1"></section>
+<section class="tabcontent" id="canvas2"></section>
+<section class="tabcontent" id="canvas3"></section>
+
+
 </div>
 </div>
 

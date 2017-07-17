@@ -6,7 +6,17 @@ $(document).ready(function() {
   if(window.location.pathname === '/ticket'){
     document.getElementById("defaultOpen").click();
     setTimeout(loadTable, 1000);
+        setTimeout(agentName, 100);
+
   }
+
+      function agentName() {
+    var person = prompt("Please enter your name");
+    if (person != null) {
+        printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
+    }//'name already taken'功能未做
+}
+ 
 
   //modal actions
   $(document).on('click', '#modal-submit', modalSubmit); //新增
