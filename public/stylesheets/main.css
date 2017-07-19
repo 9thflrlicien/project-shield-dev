@@ -181,12 +181,15 @@ input {
 .alignCenter{
   text-align: center;
 }
-
-#home, #calendar-wrap, #profile-wrap, #ticket-wrap {
+#home {
   position: relative;
-  left: 20%;
-  right:3%;
-  width: 70%;
+  left: 300px;
+  width: 73%;
+}
+#calendar-wrap, #profile-wrap, #ticket-wrap {
+  position: relative;
+  left: 250px;
+  width: 78%;
 }
 
 #form-wrap, #view-wrap  {
@@ -218,15 +221,18 @@ input {
 /*Chat*/
 #chat {
   height: 500px;
-  background-color: #ffedd6;
+  background-color: lightblue;
+  display:block;
 }
 #contentWrap {
-  display: none;
+  display: block;
 }
 #chatWrap {
   float: left;
   border: 1px #000, solid;
+  width: 45%;
 }
+
 .whisper {
   color: grey;
   font-style: italic;
@@ -269,9 +275,8 @@ input {
 @media (max-width: 767px) {
   #home, #calendar-wrap, #profile-wrap, #ticket-wrap  {
     position: relative;
-    left: 40%;
-    right:5%;
-    width: 70%;
+    left: 0;
+    width: 100%;
   }
 
   #search-category {
@@ -291,9 +296,8 @@ input {
 @media (max-width: 414px) {
   #home, #calendar-wrap, #profile-wrap, #ticket-wrap  {
     position: relative;
-    left: 40%;
-    right:5%;
-    width: 70%;
+    left: 0;
+    width: 100%;
   }
 
   .inner-add-complete, .owner, .category, #search-category {

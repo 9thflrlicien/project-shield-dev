@@ -11,12 +11,6 @@ router.get('/calendar', function(req, res, next) {
   res.render('calendar', { title: 'SHIELD calendar' });
 });
 
-/* GET todolist page. */
-// router.get('/todolist', function(req, res, next) {
-//   res.render('todolist', { title: 'SHIELD to do list' });
-// });
-
-
 router.get('/chat', function(req, res, next) {
   res.render('chat', { title: 'SHIELD chat' });
 });

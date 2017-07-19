@@ -36,13 +36,9 @@
                       <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
                   </a>
                   <ul class="dropdown-menu dropdown-user">
-                      <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a>
-                      </li>
-                      <!-- <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
-                      </li> -->
+                      <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
                       <li class="divider"></li>
-                      <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
-                      </li>
+                      <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
                   </ul>
                   <!-- /.dropdown-user -->
               </li>
@@ -57,11 +53,12 @@
                         <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                     </li>
                     <li>
-                        <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
-                    </li>
-                    <li>
                         <a href="/chat"><i class="fa fa-commenting fa-fw"></i> Chat</a>
                     </li>
+                    <li>
+                        <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
+                    </li>
+
                     <li>
                         <a href="/ticket" class="active"><i class="fa fa-ticket fa-fw"></i> Support</a>
                     </li>
@@ -115,15 +112,15 @@
         </div>
 
         <div id="Open" class="tabcontent">
-          <table class="table table-striped" id="myTable">
+          <table class="table table-striped" id="open-Table">
             <thead>
               <tr>
                 <th hidden> ID </th>
-                <th id="co" onclick="sortTable(1)"> Content </th>
-                <th id="ca" onclick="sortTable(2)"> Category </th>
-                <th id="st" onclick="sortTable(3)"> Status </th>
-                <th id="pr" onclick="sortTable(4)"> Priority </th>
-                <th id="ow" onclick="sortTable(5)"> Owner </th>
+                <th id="co" onclick="sortOpenTable(1)"> Content </th>
+                <th id="ca" onclick="sortOpenTable(2)"> Category </th>
+                <th id="st" onclick="sortOpenTable(3)"> Status </th>
+                <th id="pr" onclick="sortOpenTable(4)"> Priority </th>
+                <th id="ow" onclick="sortOpenTable(5)"> Owner </th>
                 <th>  </th>
               </tr>
             </thead>
@@ -133,15 +130,15 @@
         </div>
 
         <div id="Closed" class="tabcontent">
-          <table class="table table-striped">
+          <table class="table table-striped" id="close-Table">
             <thead>
               <tr>
                 <th hidden> ID </th>
-                <th id="co" onclick="sortTable(1)"> Content </th>
-                <th id="ca" onclick="sortTable(2)"> Category </th>
-                <th id="st" onclick="sortTable(3)"> Status </th>
-                <th id="pr" onclick="sortTable(4)"> Priority </th>
-                <th id="ow" onclick="sortTable(5)"> Owner </th>
+                <th id="co" onclick="sortCloseTable(1)"> Content </th>
+                <th id="ca" onclick="sortCloseTable(2)"> Category </th>
+                <th id="st" onclick="sortCloseTable(3)"> Status </th>
+                <th id="pr" onclick="sortCloseTable(4)"> Priority </th>
+                <th id="ow" onclick="sortCloseTable(5)"> Owner </th>
                 <th>  </th>
               </tr>
             </thead>
@@ -397,7 +394,7 @@
       </div>
     </div>
 
-    <script src='javascripts/jquery.min.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
     <script src="javascripts/firebaseConfig.js"></script>

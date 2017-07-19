@@ -3,21 +3,21 @@
 /**
  * Module dependencies.
  */
-
-var app   = require('../app');
+var app = require('../app');
 var debug = require('debug')('project-shield:server');
-var http  = require('http');
+var http = require('http');
 var firebase = require('firebase');
 var linebot = require('linebot');
-
+const line = require('@line/bot-sdk');
+var apiai = require('apiai');
 
 var config = {
-  apiKey: "AIzaSyAqzIra9YkeE0HZZBSwXrjh4GemO7yVdmI",
-  authDomain: "shield-88fd0.firebaseapp.com",
-  databaseURL: "https://shield-88fd0.firebaseio.com",
-  projectId: "shield-88fd0",
-  storageBucket: "shield-88fd0.appspot.com",
-  messagingSenderId: "376341346069"
+    apiKey: "AIzaSyAqzIra9YkeE0HZZBSwXrjh4GemO7yVdmI",
+    authDomain: "shield-88fd0.firebaseapp.com",
+    databaseURL: "https://shield-88fd0.firebaseio.com",
+    projectId: "shield-88fd0",
+    storageBucket: "shield-88fd0.appspot.com",
+    messagingSenderId: "376341346069"
 };
 firebase.initializeApp(config);
 
@@ -44,21 +44,24 @@ const io = require('socket.io').listen(server);
 /**
  * Variables
  */
-var line = require('../line');
 var users = {};
+var type_sticker = 0;
 //webhook event
 var message_lineTochat;
-var receiverId = 'U0cbbba0d281fc5b095caaacac73fd1b5';
-// LINE bot
+var receiverId = 'Ue369116591fbd2d13a7eb5f0ff12547b';
+// LINE bot設定
 var bot = linebot({
-  channelId: '1522975413',
-  channelSecret: '76ec9ad0fb95dd1917608c8d83a25ff7',
-  channelAccessToken: '0XS5Y+StitfcNywfNM5CFEyzsJ8WxSgIuQMQAQ71qWTmqlJbyrZ6cieQjUqQ+twvtjtNIAtiU4nU2STh1VNQ13sfwtGNxK+pKP3t01xp6sBDcHbRfzHWVrgoPQ2kkllKFeZV6y3+Z8eQLONcU4iubAdB04t89/1O/w1cDnyilFU='
+    channelId: '1522975413',
+    channelSecret: '76ec9ad0fb95dd1917608c8d83a25ff7',
+    channelAccessToken: '0XS5Y+StitfcNywfNM5CFEyzsJ8WxSgIuQMQAQ71qWTmqlJbyrZ6cieQjUqQ+twvtjtNIAtiU4nU2STh1VNQ13sfwtGNxK+pKP3t01xp6sBDcHbRfzHWVrgoPQ2kkllKFeZV6y3+Z8eQLONcU4iubAdB04t89/1O/w1cDnyilFU='
 });
 const linebotParser = bot.parser();
+const client = new line.Client({
+    channelAccessToken: '0XS5Y+StitfcNywfNM5CFEyzsJ8WxSgIuQMQAQ71qWTmqlJbyrZ6cieQjUqQ+twvtjtNIAtiU4nU2STh1VNQ13sfwtGNxK+pKP3t01xp6sBDcHbRfzHWVrgoPQ2kkllKFeZV6y3+Z8eQLONcU4iubAdB04t89/1O/w1cDnyilFU='
+});
 
-
-
+// api ai setting
+var appApiai = apiai("6fd13e1dd00b4d93881e1e75cdf02bd4");
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -68,121 +71,283 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-// //initialize Line
-/*line.init({
-  accessToken: 'J0ZaPXezIyz7FD3utw02svtajuc8ltRquEcVjkdVtpxWI7a8x8eTot8AJdu5caN/apTOGP3Qb1efkwmGDDP4OflorqBFRjgxBDvzYcKK+iB7EPa21kPu+BmQ1FD6hCDAF7EVdtjf2wNn55G0vclO4AdB04t89/1O/w1cDnyilFU=',
-  channelSecret: '6f25463b03e621a57e378acf6729cb83'
-})*/
-
-//替你聊
-// line.init({
-//   accessToken: 'fETsKAhUKc5yuY5XnK1WEto3RGTUxYSAp5BUHR9ccaSd/hafxJdcbJyPsifJ0FTqXzlJmpAf8baYz/brWInZdpWm/WcWQVGnOOo1fhotK8Bo1blWIWxVDR0TkQMisd7jZB7g0MnKomgXJ/wqLB1xOAdB04t89/1O/w1cDnyilFU=',
-//   channelSecret: 'dfe7fb683f7f16b6cfd493e2cb73ff1e'
-// })
-
-
+// 接收訊息
 // LINE bot implement
 bot.on('message', event => {
+    console.log(event);
+    let d = Date.now();
+    let date = new Date(d);
+    let message_type = event.message.type;
+    let address = event.message.address;
+    let latitude = event.message.latitude;
+    let longitude = event.message.longitude;
+    message_lineTochat = event.message.text;
+    receiverId = event.source.userId;
+    console.log(receiverId);
 
-//  ============  DETECT LINK ==============
-/*    var str = message_lineTochat;
-    var n = str.startsWith("http://");
-    if n {
-    console.log('<a href='+str+'/a>');      
+    // from wenyen
+    //  ===================  KINDS ====================
+    if (message_type === 'sticker') {
+
+        io.sockets.emit('new message', {
+            msg: 'Sticker received. Please check your phone.',
+            name: receiverId
+        });
+
+        type_sticker += 1;
+
+
+    } else if (message_type === 'location') {
+        io.sockets.emit('new message', {
+            msg: 'Location received: ',
+            name: receiverId
+        });
+        io.sockets.emit('new message', {
+            msg: address,
+            name: receiverId
+        });
+        event.message.content().then(function(content) {
+            /*'base64'是圖片的編碼*/
+            console.log(content.toString('base64'));
+            /*把編碼轉換成圖片(image/png)做成連結的方式*/
+            io.sockets.emit('new message', {
+                msg: '<a target="_blank" href=" https://www.google.com.tw/maps/place/' + content.toString('base64') + '/@' + latitude + ',' + longitude + ',15z/data=!4m5!3m4!1s0x0:0x496596e7748a5757!8m2!3d' + latitude + '!4d' + longitude + '">LOCATION LINK</a>',
+                name: receiverId
+            });
+        }).catch(function(error) {
+            // error
+        });
+
+    } else if (message_type === 'image') {
+        io.sockets.emit('new message', {
+            msg: 'Image received. Please wait for the link below',
+            name: receiverId
+        });
+
+        event.message.content().then(function(content) {
+            /*'base64'是圖片的編碼*/
+            console.log(content.toString('base64'));
+            /*把編碼轉換成圖片(image/png)做成連結的方式*/
+            io.sockets.emit('new message', {
+                msg: '<a target="_blank" href="data:image/png;base64,' + content.toString('base64') + '" ' +
+                    'width="70" height="38" alt="image embedded using base64 encoding!">IMAGE LINK</a>',
+                name: receiverId
+            });
+
+        }).catch(function(error) {
+            // error
+            console.log(error);
+        });
+
+    } else if (message_type === 'audio') {
+        io.sockets.emit('new message', {
+            msg: 'Audio received. Please wait for the link below.',
+            name: receiverId
+        });
+        event.message.content().then(function(content) {
+            console.log(content.toString('base64'));
+            io.sockets.emit('new message', {
+                msg: '<a target="_blank" href="data:audio/mp4;base64,' + content.toString('base64') + '" ' +
+                    '">AUDIO LINK</a>',
+                name: receiverId
+            });
+
+        }).catch(function(error) {
+            // error
+            console.log(error);
+        });
+    } else if (message_type === 'video') {
+        io.sockets.emit('new message', {
+            msg: 'Video received. Please wait for the link below.',
+            name: receiverId
+        });
+        event.message.content().then(function(content) {
+            console.log(content.toString('base64'));
+            io.sockets.emit('new message', {
+                msg: '<a target="_blank" href="data:video/mp4;base64,' + content.toString('base64') + '" ' +
+                    '">VIDEO LINK</a>',
+                name: receiverId
+            });
+
+        }).catch(function(error) {
+            // error
+            console.log(error);
+        });
+    } else if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
+        if (message_lineTochat.indexOf('https') !== -1 || message_lineTochat.indexOf('http') !== -1) {
+            io.sockets.emit('new message', {
+                msg: '<a href=' + message_lineTochat + '>' + message_lineTochat + '</a>',
+                name: receiverId
+            });
+        } else {
+            io.sockets.emit('new message', {
+                msg: '<a href="https://' + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>',
+                name: receiverId
+            });
+        }
+
+        usersRef.push({
+            message: message_lineTochat,
+            user: receiverId,
+            messageTime: date.toString()
+        });
+    } else if (event.message.type === 'text' && message_lineTochat.trim() === '購買方案') {
+        io.sockets.emit('new message', {
+            msg: '已接收購買方案'+"4小時方案  "+"8小時方案  "+"16小時方案  ",
+            name: receiverId,
+        });
+        event.reply({
+            "type": "template",
+            "altText": "this is a buttons template",
+            "template": {
+                "type": "buttons",
+                "title": "購買方案說明",
+                "text": "請選擇一個方案",
+                "actions": [{
+                        "type": "message",
+                        "label": "4小時方案",
+                        "text": "4小時方案"
+                    },
+                    {
+                        "type": "message",
+                        "label": "8小時方案",
+                        "text": "8小時方案"
+                    },
+                    {
+                        "type": "message",
+                        "label": "16小時方案",
+                        "text": "16小時方案"
+                    }
+                ]
+            }
+        })
+        usersRef.push({
+            message: message_lineTochat,
+            user: receiverId,
+            messageTime: date.toString()
+        });
+
+    } else if (event.message.type === 'text' && message_lineTochat.trim() === 'Hi') {
+        io.sockets.emit('new message', {
+            msg: '已接收選項'+"購買方案, "+"服務時段",
+            name: receiverId,
+        });
+        event.reply({
+            "type": "template",
+            "altText": "this is a buttons template",
+            "template": {
+                "type": "buttons",
+                "title": "問題選項",
+                "text": "請選擇一個詢問主題",
+                "actions": [{
+                        "type": "message",
+                        "label": "購買方案",
+                        "text": "購買方案"
+                    },
+                    {
+                        "type": "message",
+                        "label": "服務時段",
+                        "text": "服務時段"
+                    },
+
+                ]
+
+                            }
+        })
+        usersRef.push({
+            message: message_lineTochat,
+            user: receiverId,
+            messageTime: date.toString()
+        });
+
+
+
+            }else if (event.message.type === 'text' && message_lineTochat.trim() === '服務時段') {
+        let service_time = '「0700~1100」 \n 「1100~1500」 \n 「1500~1900」 \n 「1900~2300」 \n 兩個時段必須是「連續的」 \n 「0700~1100」及「1100~1500」 \n 「1100~1500」及「1500~1900」 \n 「1500~1900」及「1900~2300」。';
+        io.sockets.emit('new message', {
+            msg: '已發送服務時段'+"「0700~1100」"+"「1100~1500」"+"「1500~1900」"+"「1900~2300」",
+            name: receiverId
+        });
+        event.reply({
+            type: 'text',
+            text: 'BOT：\n' + service_time
+        });
+        usersRef.push({
+            message: '已發送服務時段'+"0700~1100」"+"「1100~1500」"+"「1500~1900」"+"「1900~2300」",
+            user: receiverId,
+            messageTime: date.toString()
+        });
+
+    } else if (event.message.type === 'text' && message_lineTochat.trim() === '4小時方案') {
+      let four = '4小時方案 \n 15,888 元 \n 4小時方案/每天 \n $15,888每月';
+      io.sockets.emit('new message', {
+          msg: four,
+          name: receiverId
+      });
+      event.reply({
+          type: 'text',
+          text: 'BOT：' + four
+      });
+    } else if (event.message.type === 'text' && message_lineTochat.trim() === '8小時方案') {
+      let eight = '8小時方案 \n 21,888 元 \n 8小時方案/每天 \n $21,888每月';
+      io.sockets.emit('new message', {
+          msg: eight,
+          name: receiverId
+      });
+      event.reply({
+          type: 'text',
+          text: 'BOT：' + eight
+      });
+    } else if (event.message.type === 'text' && message_lineTochat.trim() === '16小時方案') {
+      let sixteen = '16小時方案 \n 39,888 元 \n 16小時方案/每天 \n $39,888每月';
+      io.sockets.emit('new message', {
+          msg: sixteen,
+          name: receiverId
+      });
+      event.reply({
+          type: 'text',
+          text: 'BOT：' + sixteen
+      });
+    } else {
+        io.sockets.emit('new message', {
+            msg: message_lineTochat,
+            name: receiverId
+                    });
+        usersRef.push({
+            message: message_lineTochat,
+            user: receiverId,
+            messageTime: date.toString()
+        });
     }
-*/
-//  ========================================
+    // 訊息是xxxxxx, template message
+    // AI 機器人 設定
+    // var request = appApiai.textRequest(message_lineTochat, {
+    //     sessionId: '46110120-6a78-4a0e-a5f0-a8596b53d37e'
+    // });
+    // request.on('response', function(response) {
+    //     console.log(response);
+    //     let res_msg = response.result.fulfillment.speech
+    //     if (response.result.action !== 'input.unknown') {
+    //         io.sockets.emit('new message', {
+    //             msg: res_msg,
+    //             name: 'BOT'
+    //         });
+    //         event.reply({
+    //             type: 'text',
+    //             text: 'BOT：' + res_msg
+    //         });
+    //     }
+    // });
+    // request.on('error', function(error) {
+    //     console.log(error);
+    // });
+    // request.end();
+    // AI  機器人 end
 
-  console.log(event);
-  let d = Date.now();
-  let date = new Date(d);
-  message_lineTochat = event.message.text;
-  receiverId = event.source.userId;
-
-  // ===================  KINDS ====================
-if(event.message.type === 'sticker') {
-    io.sockets.emit('new message', {msg: 'Sticker Sent. Please check your phone.', name: 'Visitor'});
-
-  } else if(event.message.type === 'location') {
-    
-  } else if(event.message.type === 'text' && event.message.text.indexOf('http'|| '.com' || '.net' || '.org') !== -1) {
-    io.sockets.emit('new message', {msg: '<a href=' + message_lineTochat + '>' + message_lineTochat + '</a>', name: 'Visitor'});
-    usersRef.push({
-      message: message_lineTochat,
-      user: receiverId,
-      messageTime: date.toString()
-    });
-  } else {
-    io.sockets.emit('new message', {msg: message_lineTochat, name: 'Visitor'});
-    usersRef.push({
-      message: message_lineTochat,
-      user: receiverId,
-      messageTime: date.toString()
-    });
-  }
-  //============================================
-
-
-
-
-//  ============  AUTO REPLY: REPEAT ===============
-/*
-  event.reply(message_lineTochat).then(function(data) {
-      // success 
-      console.log(message_lineTochat);
-    }).catch(function(error) {
-      // error 
-      console.log('error');
-    });
-*/
-//  =========== AUTO REPLY: GREETINGS ==============
-    setTimeout(function(){
-    var userId = 'U0cbbba0d281fc5b095caaacac73fd1b5';
-    var sendMsg = '歡迎';
-    bot.push(userId,sendMsg);
-    console.log('send: '+sendMsg);
-},1000);
-
-//  ================================================
-
-  io.sockets.emit('new message', {msg: message_lineTochat, name: 'Visitor'});
-
-  usersRef.push({
-    message: message_lineTochat,
-    user: receiverId,
-    messageTime: date.toString()
-  });
 });
 app.post('/webhook/', linebotParser);
 
 
-
-
-
-//群組訊息接收
-// app.post('/webhook/', line.validator.validateSignature(), (req, res, next) => {
-//   // get content from request body
-//   const promises = req.body.events.map(event => {
-//     console.log(event);
-//     // reply message
-//     let d = Date.now();
-//     let date = new Date(d);
-//     message_lineTochat = event.message.text;
-//     receiverId = event.source.userId;
-//
-//     io.sockets.emit('new message', {msg: message_lineTochat, name: 'Visitor'});
-//
-//     usersRef.push({
-//       message: message_lineTochat,
-//       user: receiverId,
-//       messageTime: date.toString()
-//     });
-//
-//   });
-//   Promise
-//     .all(promises)
-//     .then(() => res.json({success: true}));
-// });
 
 /**
  * Socket.io
@@ -190,63 +355,115 @@ app.post('/webhook/', linebotParser);
 //連接
 io.sockets.on('connection', (socket) => {
 
-  // 新使用者
-  socket.on('new user', (data, callback) => {
-    // if(nicknames.indexOf(data) != -1){
-    if(data in users){
-      callback(false);
-    } else {
-      callback(true);
-      socket.nickname = data;
-      users[socket.nickname] = socket;
-      // nicknames.push(socket.nickname);
-      updateNicknames();
-    }
-  });
-
-  function updateNicknames(){
-    io.sockets.emit('usernames', Object.keys(users));
-  }
-
-  socket.on('send message', (data, callback) => {
-    var msg = data.trim();
-    let d = Date.now();
-    let date = new Date(d);
-    io.sockets.emit('new message', {msg: msg, name: socket.nickname});
-    bot.push(receiverId, msg);
-
-    agentsRef.push({
-      message: msg,
-      agent: socket.nickname,
-      messageTime: date.toString()
+    // 新使用者
+    socket.on('new user', (data, callback) => {
+        // if(nicknames.indexOf(data) != -1){
+        if (data in users) {
+            callback(false);
+        } else {
+            callback(true);
+            socket.nickname = data;
+            users[socket.nickname] = socket;
+            // nicknames.push(socket.nickname);
+            updateNicknames();
+        }
     });
 
-  });
+    function updateNicknames() {
+        io.sockets.emit('usernames', Object.keys(users));
+    }
 
-  socket.on('disconnect', (data) => {
-    if(!socket.nickname) return;
-    delete users[socket.nickname];
-    // nicknames.splice(nicknames.indexOf(socket.nickname), 1);
-    updateNicknames();
-  });
+    // 從SHIELD chat傳送訊息
+    socket.on('send message', (data, callback) => {
+        console.log(data, receiverId);
+        var msg = data.trim();
+        var message;
+
+        if (msg.includes('/sticker')) {
+            message = {
+                type: "sticker",
+                packageId: "1",
+                stickerId: "10"
+            };
+        } else {
+            message = {
+                type: "text",
+                text: msg
+            };
+        }
+
+        let d = Date.now();
+        let date = new Date(d);
+
+        // 訊息傳到後台介面上
+        if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
+            if (message_lineTochat.indexOf('https') !== -1 || message_lineTochat.indexOf('http') !== -1) {
+                io.sockets.emit('new message', {
+                    msg: '<a href=' + message_lineTochat + '>' + message_lineTochat + '</a>',
+                    name: socket.nickname,
+                    id: receiverId
+                });
+            } else {
+                io.sockets.emit('new message', {
+                    msg: '<a href="https://' + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>',
+                    name: socket.nickname,
+                    id: receiverId
+
+                });
+            }
+        } else if (msg.includes('/sticker')) {
+            io.sockets.emit('new message', {
+                msg: 'Send sticker to user',
+                name: socket.nickname,
+                    id: receiverId
+
+            });
+        } else {
+            io.sockets.emit('new message', {
+                msg: msg,
+                name: socket.nickname,
+                    id: receiverId
+
+            });
+        }
+
+        // 訊息傳到LINE
+        if (receiverId !== undefined) {
+            bot.push(receiverId, message);
+        }
+
+        // 訊息儲存到firebase資料庫
+        agentsRef.push({
+            message: msg,
+            agent: socket.nickname,
+            messageTime: date.toString()
+        });
+    });
+
+    socket.on('disconnect', (data) => {
+        if (!socket.nickname) return;
+        delete users[socket.nickname];
+        // nicknames.splice(nicknames.indexOf(socket.nickname), 1);
+        updateNicknames();
+    });
 });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 /**
@@ -254,19 +471,19 @@ app.use(function(err, req, res, next) {
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+    var port = parseInt(val, 10);
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+    if (port >= 0) {
+        // port number
+        return port;
+    }
 
-  return false;
+    return false;
 }
 
 /**
@@ -274,27 +491,27 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+    var bind = typeof port === 'string' ?
+        'Pipe ' + port :
+        'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }
 
 /**
@@ -302,9 +519,11 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+    var addr = server.address();
+    var bind = typeof addr === 'string' ?
+        'pipe ' + addr :
+        'port ' + addr.port;
+    debug('Listening on ' + bind);
 }
+
+
