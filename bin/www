@@ -48,7 +48,7 @@ var users = {};
 var type_sticker = 0;
 //webhook event
 var message_lineTochat;
-var receiverId = 'Ue369116591fbd2d13a7eb5f0ff12547b';
+var receiverId = '';
 // LINE bot設定
 var bot = linebot({
     channelId: '1522975413',
@@ -369,6 +369,8 @@ io.sockets.on('connection', (socket) => {
         }
     });
 
+
+
     function updateNicknames() {
         io.sockets.emit('usernames', Object.keys(users));
     }
@@ -427,10 +429,27 @@ io.sockets.on('connection', (socket) => {
             });
         }
 
+
+ /*  =======  Define Receiver  ========  */
+    var defReceiver;
+    socket.on('receiver', (data, callback) => {
+        callback(true);
+        socket.defReceiver = data;
+        console.log('Just arived in www, tell me whats socket.defReceiver');
+        console.log(socket.defReceiver);
+        
+    });
+
+
+/*  ==================================  */
+
+        console.log('before bot push, tell me what is socket.defReceiver');
+        console.log(socket.defReceiver);
         // 訊息傳到LINE
         if (receiverId !== undefined) {
-            bot.push(receiverId, message);
+            bot.push(socket.defReceiver, message);
         }
+
 
         // 訊息儲存到firebase資料庫
         agentsRef.push({
@@ -438,7 +457,7 @@ io.sockets.on('connection', (socket) => {
             agent: socket.nickname,
             messageTime: date.toString()
         });
-    });
+    });//sent message
 
     socket.on('disconnect', (data) => {
         if (!socket.nickname) return;

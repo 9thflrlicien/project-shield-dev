@@ -57,7 +57,11 @@ $('button').on('click', function(){
 
 -----------------  NOTES  ------------------
 
-AGENT PART NOT DONE : who should agent msg append to
+AGENT PART NOT DONE : working on sending the msg to right person through line
+
+
+
+--------------------------------------------
 
 
 

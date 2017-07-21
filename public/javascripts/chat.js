@@ -25,6 +25,7 @@ $(document).ready(function() {
     var t = [];   
     var t_value;
     var t_key;
+    var receiver;
   
    
         // function getObjectKeyIndex(obj, keyToFind) {
@@ -316,7 +317,15 @@ $(document).ready(function() {
 
     }
 
-/*  =======  CODES FROM GTIHUB: NICKNAME  ======  */
+/*  =======  To indentify the right receiver  =====  */
+    function defReceiver(){
+        socket.emit('receiver', receiver, (data) => {
+
+        });
+        console.log('receiver sent to www');
+    }
+
+/*  =======  CODES FROM GITHUB: NICKNAME  ======  */
 
   nicknameForm.submit((e) => {
     e.preventDefault();
@@ -334,6 +343,7 @@ $(document).ready(function() {
   messageForm.submit((e) => {
     e.preventDefault();
     socket.emit('send message', messageInput.val(), (data) => {
+
       messageContent.append('<span class="error">' + data + "</span><br/>");
     });
     messageInput.val('');
@@ -347,6 +357,11 @@ $(document).ready(function() {
     users.html(html);
   });
 
+/*  =========== to assign the right receiverId  =========  */
+    
+    socket.on('send message', messageInput.val(), (data) =>{
+
+    })
 
 /*  =================================  */
 // // nickname
@@ -403,10 +418,6 @@ $(document).ready(function() {
 
         // console.log(data);
 
-        //         if(i == person && data.id !== undefined){
-        //   if(data.id === 'U0cbbba0d281fc5b095caaacac73fd1b5') {
-        //     canvas1.append("<p>" + data.msg + "<br/></p>");
-        //   }
         // } else {
 
         //    var namefound = (t_value > -1); //if client existed retrieved by key value
@@ -421,17 +432,74 @@ $(document).ready(function() {
 
         if (namefound == true) {
             //append new msg in existed window
+            console.log('im: '+i);
 
             console.log('namefound');
 
 
 
+                if(i == person && data.id !== undefined){
+                    console.log('yes existed agent msg identified');
+                    var n;
+                    for (n=0; n < t_value+1; n++){
+                        console.log('yes it gets to the for loop');
+                        console.log('n is currently looping to')
+                        console.log(n);
+                        console.log('Is n already == t_value?')
+                        console.log(n == t_value);
 
-                if (i){
+                        var k = t[n].key;
+                        console.log('the below is t[n].key');
+                        console.log(t[n].key);
+
+                        if ( $("#"+k).is(':visible')){
+                            console.log('yes it knows what is visible');
+                            var gotIt;
+                            gotIt = k;
+                            console.log('the following is gotIt');
+                            console.log(gotIt);
+                            receiver = gotIt;
+                            console.log('tell me whats receiver');
+                            console.log(receiver);
+                            defReceiver();
+
+                            $("#"+gotIt).append("<p><strong>"+data.name+": </strong>"+ data.msg + "<br/></p>");
+                            console.log('agent reply appended to according canvas');
+
+                           }//if if
+                        else{
+                            console.log('no the n is not visible, do it again')
+
+                        }
+                        }//for
+
+                    }//if agent
+
+
+
+
+             else if (i){
 
                     $("#"+i).append("<p><strong>"+data.name+": </strong>"+ data.msg + "<br/></p>"); 
                     console.log('appended to according canvas');
                 }//if
+
+                // else if (i == person && data.id != undefined){
+
+                //                                 for (var n=0; n < length.t_value; n++){
+
+                //                 var k = t[n].key;
+
+
+                //         if ($("#"+k).style.dispaly="block"){
+                //             $("#"+k).append("<p><strong>"+data.name+": </strong>"+ data.msg + "<br/></p>");
+                //             console.log('agent reply appended to according canvas')
+                //             }//if block
+
+                //         }//for
+
+
+                // }//else if i == agent
                     
 
 //             if ( i == 'U0cbbba0d281fc5b095caaacac73fd1b5') {
@@ -512,6 +580,8 @@ $(document).ready(function() {
 
 //         }else{
 
+            
+
             canvas.append(
 
 
@@ -522,7 +592,6 @@ $(document).ready(function() {
                 "<p>" +
                 "<strong>" + data.name + ": </strong>" + data.msg + "<br/></p></div>");// close append
 
-            chat_number++;
 
         // }
 
@@ -548,6 +617,52 @@ $(document).ready(function() {
         }else {
            if (i == person){
                     console.log('agent username loaded');
+                    name_list.push(data.name);
+                    t.push({key:data.name, value:count});
+                    console.log(t);
+                    t_value = t[count].value ;
+                    console.log('the below is t_value');
+                    console.log(t_value);
+                    t_key = t[count].key;
+                    count ++;
+
+                    console.log('is data.name == person? \(should be yes coz were now in the if agent');
+                    console.log(i == person);
+
+                    if   (data.name == person && data.id != undefined){
+                                console.log('yes agent msg identified');
+
+                               for (var n=0; n < t_value; n++){
+                                console.log('yes it gets to the for loop');
+
+
+                                var k = t[n].key;
+
+
+                        if ( $("#"+k).is(':visible')){
+                            console.log('yes it knows it is visible');
+                            var gotIt;
+                            gotIt = k;
+                            console.log('the following is gotIt');
+                            console.log(gotIt);
+                            receiver = gotIt;
+                            console.log('Tell me whats receiver');
+                            console.log(receiver);
+                            defReceiver();
+
+
+                            $("#"+gotIt).append("<p><strong>"+data.name+": </strong>"+ data.msg + "<br/></p>");
+                            console.log('agent reply appended to according canvas');
+
+
+                           }//if if
+
+                        }//for
+
+                    }//if agent
+
+
+
            }else{
 
 
@@ -558,10 +673,11 @@ $(document).ready(function() {
             console.log(t);
             t_value = t[count].value ;
             t_key = t[count].key;
+            count ++;
 
 
 
-            count ++
+
 
 
 
