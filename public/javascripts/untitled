@@ -1,0 +1,75 @@
+
+var count = 0;
+var t = ['test':0,];    
+
+=================================================================
+
+if (t[i] < = count){
+	go into the current namefound loop
+}
+
+=========  message part  ===========
+
+[example]
+
+var canvas1 = $(#canvas1)  //  CURRENTLY MANUAL: THE MOST UNDOABLE PART
+
+
+if (t[i] == 1) {
+	append to canvas1    //  ALSO A CRUCIAL UNDOABLE PART
+}
+
+
+=========  client part including button ===========
+
+[example]
+
+id = count  (maybe this is unnecessary)
+
+rel = "original uid"
+
+count ++
+
+
+------------------------------------------
+
+
+ 
+function add() { 
+    var t1 = name.data;
+    var t2 = count;
+    t.push({key:t1, value:t2});
+}
+
+
+------------------------------------------
+
+
+
+add()
+
+$('button').on('click', function(){
+   var target = $(this).attr('rel');
+   $("#"+target).show().canvas("div").hide();
+});
+
+
+
+-----------------  NOTES  ------------------
+
+AGENT PART NOT DONE : who should agent msg append to
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

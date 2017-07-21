@@ -6,17 +6,7 @@ $(document).ready(function() {
   if(window.location.pathname === '/ticket'){
     document.getElementById("defaultOpen").click();
     setTimeout(loadTable, 1000);
-        setTimeout(agentName, 100);
-
   }
-
-      function agentName() {
-    var person = prompt("Please enter your name");
-    if (person != null) {
-        printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
-    }//'name already taken'功能未做
-}
- 
 
   //modal actions
   $(document).on('click', '#modal-submit', modalSubmit); //新增
@@ -33,18 +23,23 @@ $(document).ready(function() {
   $(document).on('click', '#tform-submit', formSubmit); //一般新增
   $(document).on('click', '#tform-goback', goback); //回上一頁
 
-
-
   //=========[SEARCH by TEXT]=========
   $("#exampleInputAmount").keyup(function() {
-    var $rows = $('#open-ticket-list tr');
+    var open_rows = $('#open-ticket-list tr');
+    var close_rows = $('#closed-ticket-list tr');
     var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
 
-    $rows.show().filter(function() {
-      var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
-      return !~text.indexOf(val);
+    open_rows.show().filter(function() {
+      var text1 = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+      return !~text1.indexOf(val);
+    }).hide();
+
+    close_rows.show().filter(function() {
+      var text2 = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+      return !~text2.indexOf(val);
     }).hide();
   });
+
 });
 
 //functions
@@ -407,10 +402,67 @@ function deleteSub() {
   $(this).parent().remove();
 }
 
-//=========[SORT ALL]=========
-function sortTable(n) {
+//=========[SORT OPEN]=========
+function sortOpenTable(n) {
   var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-  table = document.getElementById("myTable");
+  table = document.getElementById("open-Table");
+  switching = true;
+  //Set the sorting direction to ascending:
+  dir = "asc";
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.getElementsByTagName("TR");
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 1; i < (rows.length - 1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      console.log(x, y);
+      /*check if the two rows should switch place,
+      based on the direction, asc or desc:*/
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      //Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /*If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again.*/
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+
+//=========[SORT CLOSE]=========
+function sortCloseTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("close-Table");
   switching = true;
   //Set the sorting direction to ascending:
   dir = "asc";
