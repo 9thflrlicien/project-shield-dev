@@ -113,7 +113,6 @@
             background-color: lightblue;
             overflow: scroll;
             display: none;
-
             }
             .topright{
                float:right;
@@ -124,19 +123,22 @@
             .reply{
                float:top;
                }
+            .tablinks{
+               padding-left: 10px
+            }
          </style>
          </head>
-    <section>     
+
          <div class="tab">
-            <h4 class="tablinks">Users Online</h4>
+            <h4 class="tablinks_head">Users Online</h4>
             <ol class="list-group" id="clients"></ol>
          </div>
-     
+
 
          <section id="canvas">
 
          </section>
-         <div>
+<!--          <div>
             <section class="tabcontent" id="user1">
                <h5>User1</h5>
                <div id="user1"></div>
@@ -165,25 +167,15 @@
                <h5>User7</h5>
                <div id="user7_inn"></div>
             </section>
-            <section class="tabcontent" id="canvas1"></section>
-            <section class="tabcontent" id="canvas2"></section>
-            <section class="tabcontent" id="canvas3"></section>
-         </div>
-
-    </section>
-
-    <section>
-
-
+         </div> -->
 
 
           <form action="" id="send-message">
             <input size="35" id="message" />
             <input type="submit"/>
           </form>
+          <input type="text" id="searchBox" placeholder="Search for names..">
 
-   </section>
-         
       </div>
       </div>
       <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
@@ -193,5 +185,6 @@
       <script src="javascripts/sb-admin-2.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
       <script src="javascripts/chat.js"></script>
+
    </body>
 </html>
