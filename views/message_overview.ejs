@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <title><%= title %></title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+      <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
+      <%# 自己的code%>
+      <link rel="stylesheet" href="stylesheets/main.css" />
+   </head>
+   <body>
+      <div id="wrapper">
+         <!-- Navigation -->
+         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+               <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+               <span class="sr-only">Toggle navigation</span>
+               <span class="icon-bar"></span>
+               <span class="icon-bar"></span>
+               <span class="icon-bar"></span>
+               </button>
+               <a class="navbar-brand" href="/">PS Admin</a>
+            </div>
+            <!-- /.navbar-header -->
+            <ul class="nav navbar-top-links navbar-right">
+               <!-- /.dropdown -->
+               <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                  <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                  </a>
+                  <ul class="dropdown-menu dropdown-user">
+                     <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                     </li>
+                     <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                     </li>
+                     <li class="divider"></li>
+                     <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                     </li>
+                  </ul>
+                  <!-- /.dropdown-user -->
+               </li>
+               <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+            <div class="navbar-default sidebar" role="navigation">
+               <div class="sidebar-nav navbar-collapse">
+                  <ul class="nav" id="side-menu">
+                     <li>
+                        <a href="/" class="active"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                     </li>
+                     <li>
+                        <a href="/chat"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                     </li>
+                     <li>
+                        <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
+                     </li>
+
+                     <li>
+                        <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
+                     </li>
+
+                     <li id="message">
+                        <a href="#"><i class="fa fa-indent" aria-hidden="true"></i> Message</a>
+                     </li>
+                     <li class="subTag" style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_overview"> Overview</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_newtopic"> New Topic</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_autoreply"> Auto Reply</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_keywordsreply"> Keywords Reply</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_addfriendreply"> Add Friend Reply</a>
+                     </li>
+
+                  </ul>
+               </div>
+               <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+         </nav>
+      </div>
+      <div id="home">
+		<h3> Message Overview</h3>
+		<p>You can add, edit, and test the message you want to send to LINE@</p>
+		<div class="tab">
+  <button class="tablinks" rel="Appointment">Appointment</button>
+  <button class="tablinks" rel="Draft" >Draft</button>
+  <button class="tablinks" rel="History">History</button>
+</div>
+
+<section>
+<div id="Appointment" class="tabcontent" style="display:block"> 
+THIS IS APPOINTMENT
+  <div class="tab">
+  				<div style="width:15%; position:absolute; float:left;margin: 1% "> 
+  				<input type="text" name="search" class="form-control" placeholder="Search by text.."><br>
+  				</div>
+                <div style="width:15%; position:absolute; float:left; margin: 1% 1% 1% 16.5%">
+                <select class="form-control" id="modal-category">
+                  <option>Category</option>
+                  <option>Text</option>
+                  <option>Image</option>
+                  <option>Video</option>
+                  <option>Audio</option>
+                  <option>Location</option>
+                  <option>Sticker</option>
+
+                </select>
+                </div>
+
+                 <div style="width:15%; position:relative; float:left; margin: 1% 1% 1% 32.8%">
+                <select class="form-control" id="modal-priority">
+                  <option>Status</option>
+                  <option>Ready</option>
+                  <option>Sending</option>
+                  <option>Error</option>
+                </select>
+              </div>
+
+  </div>
+        <div class="tab">
+          	<button class="tablinks" style="width:5%">No.</button>
+          	<button class="tablinks" style="width:20%">Content</button>
+          	<button class="tablinks" style="width:10%">Category</button>
+          	<button class="tablinks" style="width:10%">Tags</button>
+          	<button class="tablinks" style="width:10%">Status</button>
+          	<button class="tablinks" style="width:20%">Appointment</button>
+        </div>
+
+</div>
+
+        <div class="tabcontent">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th hidden> ID </th>
+                <th id="co" onclick="sortOpenTable(1)"> Content </th>
+                <th id="ca" onclick="sortOpenTable(2)"> Category </th>
+                <th id="st" onclick="sortOpenTable(3)"> Status </th>
+                <th id="pr" onclick="sortOpenTable(4)"> Priority </th>
+                <th id="ow" onclick="sortOpenTable(5)"> Owner </th>
+                <th>  </th>
+              </tr>
+            </thead>
+            <tbody id="open-ticket-list"></tbody>
+
+          </table>
+        </div>
+
+
+<div id="Draft" class="tabcontent">
+THIS IS DRAFT
+  <div class="tab">
+  				<div style="width:15%; position:absolute; float:left;margin: 1% "> 
+  				<input type="text" name="search" class="form-control" placeholder="Search by text.."><br>
+  				</div>
+                <div style="width:15%; position:absolute; float:left; margin: 1% 1% 1% 16.5%">
+                <select class="form-control" id="modal-category">
+                  <option>Category</option>
+                  <option>Text</option>
+                  <option>Image</option>
+                  <option>Video</option>
+                  <option>Audio</option>
+                  <option>Location</option>
+                  <option>Sticker</option>
+
+                </select>
+                </div>
+
+                 <div style="width:15%; position:relative; float:left; margin: 1% 1% 1% 32.8%">
+                <select class="form-control" id="modal-priority">
+                  <option>Status</option>
+                  <option>Ready</option>
+                  <option>Sending</option>
+                  <option>Error</option>
+                </select>
+              </div>
+
+  </div>
+          <div class="tab">
+          	<button class="tablinks" style="width:5%">No.</button>
+          	<button class="tablinks" style="width:20%">Content</button>
+          	<button class="tablinks" style="width:10%">Category</button>
+          	<button class="tablinks" style="width:10%">Tags</button>
+          	<button class="tablinks" style="width:10%">Status</button>
+          	<button class="tablinks" style="width:20%">Appointment</button>
+        </div>
+
+                <div class="tabcontent">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th hidden> ID </th>
+                <th id="co" onclick="sortOpenTable(1)"> Content </th>
+                <th id="ca" onclick="sortOpenTable(2)"> Category </th>
+                <th id="st" onclick="sortOpenTable(3)"> Status </th>
+                <th id="pr" onclick="sortOpenTable(4)"> Priority </th>
+                <th id="ow" onclick="sortOpenTable(5)"> Owner </th>
+                <th>  </th>
+              </tr>
+            </thead>
+            <tbody id="open-ticket-list"></tbody>
+
+          </table>
+        </div>
+
+
+
+</div>
+
+<div id="History" class="tabcontent">
+THIS IS HISTORY
+  <div class="tab">
+  				<div style="width:15%; position:absolute; float:left;margin: 1% "> 
+  				<input type="text" name="search" class="form-control" placeholder="Search by text.."><br>
+  				</div>
+                <div style="width:15%; position:absolute; float:left; margin: 1% 1% 1% 16.5%">
+                <select class="form-control" id="modal-category">
+                  <option>Category</option>
+                  <option>Text</option>
+                  <option>Image</option>
+                  <option>Video</option>
+                  <option>Audio</option>
+                  <option>Location</option>
+                  <option>Sticker</option>
+
+                </select>
+                </div>
+
+                 <div style="width:15%; position:relative; float:left; margin: 1% 1% 1% 32.8%">
+                <select class="form-control" id="modal-priority">
+                  <option>Status</option>
+                  <option>Ready</option>
+                  <option>Sending</option>
+                  <option>Error</option>
+                </select>
+              </div>
+
+  </div>
+          <div class="tab">
+          	<button class="tablinks" style="width:5%">No.</button>
+          	<button class="tablinks" style="width:20%">Content</button>
+          	<button class="tablinks" style="width:10%">Category</button>
+          	<button class="tablinks" style="width:10%">Tags</button>
+          	<button class="tablinks" style="width:10%">Status</button>
+          	<button class="tablinks" style="width:20%">Appointment</button>
+        </div>
+
+                <div class="tabcontent">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th hidden> ID </th>
+                <th id="co" onclick="sortOpenTable(1)"> Content </th>
+                <th id="ca" onclick="sortOpenTable(2)"> Category </th>
+                <th id="st" onclick="sortOpenTable(3)"> Status </th>
+                <th id="pr" onclick="sortOpenTable(4)"> Priority </th>
+                <th id="ow" onclick="sortOpenTable(5)"> Owner </th>
+                <th>  </th>
+              </tr>
+            </thead>
+            <tbody id="open-ticket-list"></tbody>
+
+          </table>
+        </div>
+
+
+</div>
+</section>
+
+      </div>
+      <style>
+body {font-family: "Lato", sans-serif;}
+
+/* Style the tab */
+div.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    height:auto;
+
+}
+
+/* Style the buttons inside the tab */
+div.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+div.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+div.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+    height:500px;
+}
+
+/* Style the close button */
+.topright {
+    float: right;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.topright:hover {color: red;}
+</style>
+
+
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>      
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
+      <script src="javascripts/firebaseConfig.js"></script>
+      <script src="javascripts/message_overview.js"></script>
+
+
+   </body>
+</html>

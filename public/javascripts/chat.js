@@ -26,6 +26,18 @@ $(document).ready(function() {
     var t_value;
     var t_key;
     var receiver;
+
+
+
+$(document).on('click', '#message', subMessage);//Message 導覽標籤 subtags
+
+  function subMessage(){
+    if ($('.subTag').is(':visible')){
+      $('.subTag').hide();
+    }else{
+    $('.subTag').show();
+  }
+  }
   
    
         // function getObjectKeyIndex(obj, keyToFind) {
@@ -633,9 +645,6 @@ $(document).ready(function() {
                                 console.log('yes agent msg identified');
 
                                for (var n=0; n < t_value; n++){
-                                console.log('yes it gets to the for loop');
-
-
                                 var k = t[n].key;
 
 

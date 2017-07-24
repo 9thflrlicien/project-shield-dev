@@ -62,6 +62,25 @@
                     <li>
                         <a href="/ticket" class="active"><i class="fa fa-ticket fa-fw"></i> Support</a>
                     </li>
+                    <li id="message">
+                        <a href="#"><i class="fa fa-indent" aria-hidden="true"></i> Message</a>
+                     </li>
+                     <li class="subTag" style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_overview"> Overview</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_newtopic"> New Topic</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_autoreply"> Auto Reply</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_keywordsreply"> Keywords Reply</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_addfriendreply"> Add Friend Reply</a>
+                     </li>
+
                   </ul>
               </div>
               <!-- /.sidebar-collapse -->
@@ -194,6 +213,25 @@
                 <label for="modal-description">Description:  </label>
                 <textarea class="form-control" id="modal-description" rows="3"></textarea>
               </div>
+              <!-- 月曆添加 -->
+              <div>
+                <span id="keyId" hidden></span><br />
+                <input type="text" placeholder="Event" id="title" required="true" />CAL EVENT TITLE<br /><br />
+                <input type="datetime-local" id="startDate" required="true" />
+                <!-- <input type="time" id="startTime" /> -->
+            
+                <input type="datetime-local" id="endDate" />
+                <!-- <input type="time" id="endTime" /> -->
+                <br /><br />
+
+                <input type="checkbox" id="allday" value="false"/> <span class="alldaylabel">All Day</span><br /><br />
+
+            <div id="cal-error-msg" hidden>Please fill in the event name or start date</div>
+            <div id="tim-error-msg" hidden>Start date cannot be greater than end date</div>
+            <!-- <textarea id="details" placeholder="Details">
+            </textarea> -->
+
+              </div>
 
             </form>
 
@@ -280,6 +318,25 @@
                 <br />
                 <ul id="view-subt"></ul>
               </div>
+              <!-- 月曆添加 -->
+              <div>
+                <span id="keyId" hidden></span><br />
+                <input type="datetime-local" id="startDate" required="true" />
+                <!-- <input type="time" id="startTime" /> -->
+            
+                <input type="datetime-local" id="endDate" />
+                <!-- <input type="time" id="endTime" /> -->
+                <br /><br />
+
+                <input type="checkbox" id="allday" value="false"/> <span class="alldaylabel">All Day</span><br /><br />
+
+            <div id="cal-error-msg" hidden>Please fill in the event name or start date</div>
+            <div id="tim-error-msg" hidden>Start date cannot be greater than end date</div>
+            <!-- <textarea id="details" placeholder="Details">
+            </textarea> -->
+
+              </div>
+
 
             </form>
 

@@ -1,8 +1,18 @@
 
+PRIORITY: 製作UI介面 the same as LINE@ Manager 訊息 and sub
+1. 在每個menu加上訊息的欄位 V
+2. 點開訊息出現sub欄位 V
+3. 每個sub連接到新的頁面 V
+4. 新增到每一頁上 
+
+
+
+===========================================
+
 var count = 0;
 var t = ['test':0,];    
 
-=================================================================
+===========================================
 
 if (t[i] < = count){
 	go into the current namefound loop
@@ -63,16 +73,44 @@ AGENT PART NOT DONE : working on sending the msg to right person through line
 
 --------------------------------------------
 
+source.id (from www > js)
+
+if (source.id == visible){
+
+send msg to the one that is visible (js > www)
+
+}
+
+
+------------------------------------------------------
+
+(js) socket.on, 'send message'  =>  (www) socket.on 'send message'  =>  (js) append msg  =>  
+(js)socket.emit receiver (my new plan)=> 'new mes'
 
 
 
+NOTEEEEE:
+change 'new message' in www to 'new mes'
 
+------------------------------------------------------
 
+Add time form into ticket, including ticket(priority), edit, view...
+add cal.js into ticket.js
 
+--> try connect cal and ticket (priority)
+--> expected finish time: Wed.
 
+-----------------------------------------------------
+CALENDAR 順序！
+1. add new data  (written in ticket.ejs line198) V
+2. function the submit btn  (copied from cal.js line93 to ticket.js line137-178) V
+3. write into firebase (@ticket.js line160,167) V
+4. download from firebase  
+5. display in calendar
+6. write name(in ticket) = title(in calendar)
+* priority depends on deadline
 
-
-
+---------------------------------------------------
 
 
 

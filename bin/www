@@ -375,6 +375,8 @@ io.sockets.on('connection', (socket) => {
         io.sockets.emit('usernames', Object.keys(users));
     }
 
+
+
     // 從SHIELD chat傳送訊息
     socket.on('send message', (data, callback) => {
         console.log(data, receiverId);
@@ -391,6 +393,7 @@ io.sockets.on('connection', (socket) => {
             message = {
                 type: "text",
                 text: msg
+                
             };
         }
 
@@ -429,19 +432,21 @@ io.sockets.on('connection', (socket) => {
             });
         }
 
-
- /*  =======  Define Receiver  ========  */
+    /*  =======  Define Receiver  ========  */
     var defReceiver;
     socket.on('receiver', (data, callback) => {
         callback(true);
         socket.defReceiver = data;
-        console.log('Just arived in www, tell me whats socket.defReceiver');
+        console.log('Just arrived in www, tell me whats socket.defReceiver');
         console.log(socket.defReceiver);
         
     });
 
 
 /*  ==================================  */
+
+
+
 
         console.log('before bot push, tell me what is socket.defReceiver');
         console.log(socket.defReceiver);
@@ -458,6 +463,12 @@ io.sockets.on('connection', (socket) => {
             messageTime: date.toString()
         });
     });//sent message
+
+    
+
+ 
+
+
 
     socket.on('disconnect', (data) => {
         if (!socket.nickname) return;

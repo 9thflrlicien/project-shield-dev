@@ -7,7 +7,16 @@ $(document).ready(function() {
     document.getElementById("defaultOpen").click();
     setTimeout(loadTable, 1000);
   }
+    $(document).on('click', '#message', subMessage);//Message 導覽標籤 subtags
 
+  function subMessage(){
+    if ($('.subTag').is(':visible')){
+      $('.subTag').hide();
+    }else{
+    $('.subTag').show();
+  }
+  }//end subMessage
+  
   //modal actions
   $(document).on('click', '#modal-submit', modalSubmit); //新增
   $('#viewModal').on('hidden.bs.modal', reset); //viewModal 收起來
@@ -132,6 +141,58 @@ function modalSubmit() {
   let cate = $('#modal-category').val();
   let prio = $('#modal-priority').val();
   let desc = $('#modal-description').val();
+
+  //----------  ADD CALENDAR DATA  ----------
+
+        let title      = $('#title').val();
+        let start_date = $('#startDate').val();
+        let end_date   = $('#endDate').val();
+        let userId     = auth.currentUser.uid;
+        // console.log( typeof(Date.parse(start_date)), Date.parse(end_date) );
+
+        if(title !== '' && start_date !== ''){
+          if(Date.parse(end_date) > Date.parse(start_date)){
+            // show on calendar
+            calendar.fullCalendar('renderEvent',
+              {
+                title: title,
+                start: start_date,
+                end: end_date,
+                allDay: allday
+              },
+              true // make the event "stick"
+            );
+
+            keyId = $('#keyId').text();
+            // save data
+            if(keyId === ''){
+              database.ref('cal-events/' + userId).push({
+                title: title,
+                start: start_date,
+                end: end_date,
+                allDay: allday
+              });
+            } else {
+              database.ref('cal-events/' + userId + '/' + keyId).set({
+                title: title,
+                start: start_date,
+                end: end_date,
+                allDay: allday
+              });
+            }
+            $('#startDate').val('');
+            $('#endDate').val('');
+            $('#myModal').modal('hide');
+            $('#add-cal-btn').hide();
+          } else {
+            $('#tim-error-msg').show();
+          }
+
+        } else {
+          $('#cal-error-msg').show();
+        }
+
+//  ------  END CALENDAR DATA  ----------
 
   // console.log(auth.currentUser.uid, name, cate, 'Pending', prio, desc, auth.currentUser.email, date.toString());
 

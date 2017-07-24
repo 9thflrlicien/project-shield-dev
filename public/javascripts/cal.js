@@ -23,6 +23,16 @@ $(document).ready(function() {
   $(document).on('change', '#allday', () => { allday = !allday });
   $(document).on('click', '#cls-cal-btn', clearModal); //關
   $(document).on('click', '#signout-btn', logout); //登出
+
+    $(document).on('click', '#message', subMessage);//Message 導覽標籤 subtags
+
+  function subMessage(){
+    if ($('.subTag').is(':visible')){
+      $('.subTag').hide();
+    }else{
+    $('.subTag').show();
+  }
+  }
 });
 
 
