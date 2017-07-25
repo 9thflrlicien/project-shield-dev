@@ -56,9 +56,7 @@ var bot = linebot({
     channelAccessToken: 'RUStzbie3C1mTpE3Y2IHgeD9HVZZdrSnESjiGPjtLyLZPbxg4Ibt4Rx/wmCvRECZotk9XWRg/tx0tGpf+6O0FcoPpWYO/kNs54kh4pHdH8AR/KLky9R8OpMQelQOzZqWd5MYLF3xZxhrbnnvq6rslQdB04t89/1O/w1cDnyilFU='
 });
 const linebotParser = bot.parser();
-const client = new line.Client({
-    channelAccessToken: 'RUStzbie3C1mTpE3Y2IHgeD9HVZZdrSnESjiGPjtLyLZPbxg4Ibt4Rx/wmCvRECZotk9XWRg/tx0tGpf+6O0FcoPpWYO/kNs54kh4pHdH8AR/KLky9R8OpMQelQOzZqWd5MYLF3xZxhrbnnvq6rslQdB04t89/1O/w1cDnyilFU='
-});
+
 
 // api ai setting
 var appApiai = apiai("6fd13e1dd00b4d93881e1e75cdf02bd4");
@@ -96,7 +94,7 @@ bot.on('message', event => {
             // msg: 'Sticker received. Please check your phone.',
             msg: 'Sticker packageId = ('+packageId+', '+stickerId+')',
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
         usersRef.push({
             message: 'Sticker packageId = ('+packageId+', '+stickerId+')',
@@ -110,12 +108,12 @@ bot.on('message', event => {
         io.sockets.emit('new message', {
             msg: 'Location received: ',
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
         io.sockets.emit('new message', {
             msg: address,
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
         event.message.content().then(function(content) {
             /*'base64'是圖片的編碼*/
@@ -124,7 +122,7 @@ bot.on('message', event => {
             io.sockets.emit('new message', {
                 msg: '<a target="_blank" href=" https://www.google.com.tw/maps/place/' + content.toString('base64') + '/@' + latitude + ',' + longitude + ',15z/data=!4m5!3m4!1s0x0:0x496596e7748a5757!8m2!3d' + latitude + '!4d' + longitude + '">LOCATION LINK</a>',
                 name: receiverId,
-                time: msgTime
+                time: date.toString()
             });
         }).catch(function(error) {
             // error
@@ -134,7 +132,7 @@ bot.on('message', event => {
         io.sockets.emit('new message', {
             msg: 'Image received. Please wait for the link below',
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
 
         event.message.content().then(function(content) {
@@ -145,7 +143,7 @@ bot.on('message', event => {
                 msg: '<a target="_blank" href="data:image/png;base64,' + content.toString('base64') + '" ' +
                     'width="70" height="38" alt="image embedded using base64 encoding!">IMAGE LINK</a>',
                 name: receiverId,
-                time: msgTime
+                time: date.toString()
             });
 
         }).catch(function(error) {
@@ -157,7 +155,7 @@ bot.on('message', event => {
         io.sockets.emit('new message', {
             msg: 'Audio received. Please wait for the link below.',
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
         event.message.content().then(function(content) {
             console.log(content.toString('base64'));
@@ -165,7 +163,7 @@ bot.on('message', event => {
                 msg: '<a target="_blank" href="data:audio/mp4;base64,' + content.toString('base64') + '" ' +
                     '">AUDIO LINK</a>',
                 name: receiverId,
-                time: msgTime
+                time: date.toString()
             });
 
         }).catch(function(error) {
@@ -176,7 +174,7 @@ bot.on('message', event => {
         io.sockets.emit('new message', {
             msg: 'Video received. Please wait for the link below.',
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
         event.message.content().then(function(content) {
             console.log(content.toString('base64'));
@@ -184,7 +182,7 @@ bot.on('message', event => {
                 msg: '<a target="_blank" href="data:video/mp4;base64,' + content.toString('base64') + '" ' +
                     '">VIDEO LINK</a>',
                 name: receiverId,
-                time: msgTime
+                time: date.toString()
             });
 
         }).catch(function(error) {
@@ -196,13 +194,13 @@ bot.on('message', event => {
             io.sockets.emit('new message', {
                 msg: '<a href=' + message_lineTochat + '>' + message_lineTochat + '</a>',
                 name: receiverId,
-                time: msgTime
+                time: date.toString()
             });
         } else {
             io.sockets.emit('new message', {
                 msg: '<a href="https://' + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>',
                 name: receiverId,
-                time: msgTime
+                time: date.toString()
             });
         }
 
@@ -215,7 +213,7 @@ bot.on('message', event => {
         io.sockets.emit('new message', {
             msg: '已接收購買方案'+"4小時方案  "+"8小時方案  "+"16小時方案  ",
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
         event.reply({
             "type": "template",
@@ -252,7 +250,7 @@ bot.on('message', event => {
         io.sockets.emit('new message', {
             msg: '已接收選項'+"購買方案, "+"服務時段",
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
         event.reply({
             "type": "template",
@@ -287,7 +285,7 @@ bot.on('message', event => {
         io.sockets.emit('new message', {
             msg: '已發送服務時段'+"「0700~1100」"+"「1100~1500」"+"「1500~1900」"+"「1900~2300」",
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
         event.reply({
             type: 'text',
@@ -304,7 +302,7 @@ bot.on('message', event => {
       io.sockets.emit('new message', {
           msg: four,
           name: receiverId,
-          time: msgTime
+          time: date.toString()
       });
       event.reply({
           type: 'text',
@@ -315,7 +313,7 @@ bot.on('message', event => {
       io.sockets.emit('new message', {
           msg: eight,
           name: receiverId,
-          time: msgTime
+          time: date.toString()
       });
       event.reply({
           type: 'text',
@@ -326,7 +324,7 @@ bot.on('message', event => {
       io.sockets.emit('new message', {    //to service
           msg: sixteen,
           name: receiverId,
-          time: msgTime
+          time: date.toString()
       });
       event.reply({               //to customer
           type: 'text',
@@ -336,7 +334,7 @@ bot.on('message', event => {
         io.sockets.emit('new message', {
             msg: message_lineTochat,
             name: receiverId,
-            time: msgTime
+            time: date.toString()
         });
         usersRef.push({
             message: message_lineTochat,
@@ -429,14 +427,14 @@ io.sockets.on('connection', (socket) => {
                     msg: '<a href=' + message_lineTochat + '>' + message_lineTochat + '</a>',
                     name: socket.nickname,
                     id: receiverId,
-                    time: msgTime
+                    time: date.toString()
                 });
             } else {
                 io.sockets.emit('new message', {
                     msg: '<a href="https://' + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>',
                     name: socket.nickname,
                     id: receiverId,
-                    time: msgTime
+                    time: date.toString()
                 });
             }
         } else if (msg.includes('/sticker')) {
@@ -444,14 +442,14 @@ io.sockets.on('connection', (socket) => {
                 msg: 'Send sticker to user',
                 name: socket.nickname,
                 id: receiverId,
-                time: msgTime
+                time: date.toString()
             });
         } else {
             io.sockets.emit('new message', {
                 msg: msg,
                 name: socket.nickname,
                 id: receiverId,
-                time: msgTime
+                time: date.toString()
             });
         }
 
