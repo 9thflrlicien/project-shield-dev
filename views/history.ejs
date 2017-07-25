@@ -56,7 +56,7 @@
                         <a href="/chat" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
                      </li>
                      <li>
-                        <a href="/history" class="active"><i class="fa fa-commenting fa-fw"></i> History</a>
+                        <a href="/history" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
                      </li>
                      <li>
                         <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
@@ -72,13 +72,13 @@
          <h4 style="text-align: center" id="printAgent"></h4>
          <style>
             div.tab {
-            float: left;
-            border: 1px solid #ccc;
-            background-color: #f1f1f1;
-            width: 30%;
-            height: 300px;
-            text-align: center;
-            padding:10px 0;
+              float: left;
+              border: 1px solid #ccc;
+              background-color: #f1f1f1;
+              width: 30%;
+              height: 500px;
+              text-align: center;
+              padding:10px 0;
             }
             /* Style the buttons inside the tab */
             div.tab button {
@@ -106,16 +106,16 @@
             }
             /* Style the tab content */
             .tabcontent {
-            float: left;
-            padding: 12px 12px;
-            border: 1px solid #ccc;
-            width: 70%;
-            border-left: none;
-            height: 300px;
-            display:block;
-            background-color: lightblue;
-            overflow: scroll;
-            display: none;
+              float: left;
+              padding: 12px 12px;
+              border: 1px solid #ccc;
+              width: 70%;
+              border-left: none;
+              height: 500px;
+              display:block;
+              background-color: lightblue;
+              overflow: scroll;
+              display: none;
             }
             .topright{
                float:right;
@@ -125,7 +125,17 @@
             }
             .reply{
                float:top;
-               }
+            }
+            .list-group{
+              float: left;
+              padding: 12px 12px;
+              border: 1px solid #ccc;
+              width: 100%;
+              border-left: none;
+              height: 95%;
+              display:block;
+              overflow: scroll;
+            }
             .tablinks{
                padding-left: 10px
             }
@@ -133,51 +143,16 @@
          </head>
 
          <div class="tab">
-            <h4 class="tablinks_head">Users Online</h4>
-            <ol class="list-group" id="clients"></ol>
+            <h4 class="tablinks_head">Users List</h4>
+            <ol class="list-group" id="clients">
+              <b>LOADING...</b>
+            </ol>
          </div>
 
-
          <section id="canvas">
-
          </section>
-<!--          <div>
-            <section class="tabcontent" id="user1">
-               <h5>User1</h5>
-               <div id="user1"></div>
-            </section>
-            <section class="tabcontent" id="user2">
-               <h5>User2</h5>
-               <div id="user2"></div>
-            </section>
-            <section class="tabcontent" id="user3">
-               <h5>User3</h5>
-               <div id="user3"></div>
-            </section>
-            <section class="tabcontent" id="user4">
-               <h5>User4</h5>
-               <div id="user4"></div>
-            </section>
-            <section class="tabcontent" id="user5">
-               <h5>User5</h5>
-               <div id="user5"></div>
-            </section>
-            <section class="tabcontent" id="user6">
-               <h5>User6</h5>
-               <div id="user6_inn"></div>
-            </section>
-            <section class="tabcontent" id="user7">
-               <h5>User7</h5>
-               <div id="user7_inn"></div>
-            </section>
-         </div> -->
 
-
-          <form action="" id="send-message">
-            <input size="35" id="message" />
-            <input type="submit"/>
-          </form>
-          <input type="text" id="searchBox" placeholder="Search for names..">
+         <input type="text" id="searchBox" placeholder="Search for messages..">
 
       </div>
       </div>
@@ -187,7 +162,7 @@
       <script src="javascripts/firebaseConfig.js"></script>
       <script src="javascripts/sb-admin-2.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
-      <script src="javascripts/chat.js"></script>
+      <script src="javascripts/history.js"></script>
 
    </body>
 </html>
