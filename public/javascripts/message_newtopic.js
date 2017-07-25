@@ -10,10 +10,19 @@ $(document).ready(function() {
 
 
     $(document).on('click', '.tablinks' , clickMsg);
+    $(document).on('click', '#emojis' , clickEmo);
+    $(document).on('click', '#setlimit', clickMsg);
+
+    // $(document).on('click', '.tablinks' , showEmo);
+
 
 
 });
 
+
+  function clickEmo(){
+      $('#textinput').val(rel);
+  }
 
   function subMessage(){
     if ($('.subTag').is(':visible')){
@@ -23,11 +32,18 @@ $(document).ready(function() {
   }
   }
 
+
+
       function clickMsg(){
         var target = $(this).attr('rel');
-        $("#"+target).show().siblings().hide();
-        console.log('clickMsg executed')
-    }
+      if ($("#"+target).is(':visible')){
+      $("#"+target).hide();
+    }else{
+    $("#"+target).show();
+  }
+
+      }
+    
 
 
 

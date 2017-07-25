@@ -1,9 +1,7 @@
 
-PRIORITY: 製作UI介面 the same as LINE@ Manager 訊息 and sub
-1. 在每個menu加上訊息的欄位 V
-2. 點開訊息出現sub欄位 V
-3. 每個sub連接到新的頁面 V
-4. 新增到每一頁上 
+PRIORITY: 製作 Auto Reply
+1. Load msg from firebase (2)
+2. Save msg to firebase(1)
 
 
 
@@ -111,6 +109,64 @@ CALENDAR 順序！
 * priority depends on deadline
 
 ---------------------------------------------------
+
+
+  <h3>Appointment</h3>
+  <div class="tab">
+  				<div style="width:15%; position:absolute; float:left;margin: 1% "> 
+  				<input type="text" name="search" class="form-control" placeholder="Search by text.."><br>
+  				</div>
+                <div style="width:15%; position:absolute; float:left; margin: 1% 1% 1% 16.5%">
+                <select class="form-control" id="modal-category">
+                  <option>Category</option>
+                  <option>Text</option>
+                  <option>Image</option>
+                  <option>Video</option>
+                  <option>Audio</option>
+                  <option>Location</option>
+                  <option>Sticker</option>
+
+                </select>
+                </div>
+
+                 <div style="width:15%; position:relative; float:left; margin: 1% 1% 1% 32.8%">
+                <select class="form-control" id="modal-priority">
+                  <option>Status</option>
+                  <option>Ready</option>
+                  <option>Sending</option>
+                  <option>Error</option>
+                </select>
+              </div>
+
+  </div>
+
+      <div id="ticket-tab">
+        <div class="tab">
+          	<button class="tablinks" style="width:5%">No.</button>
+          	<button class="tablinks" style="width:20%">Content</button>
+          	<button class="tablinks" style="width:10%">Category</button>
+          	<button class="tablinks" style="width:10%">Tags</button>
+          	<button class="tablinks" style="width:10%">Status</button>
+          	<button class="tablinks" style="width:20%">Appointment</button>
+        </div>
+
+        <div class="tabcontent">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th hidden> ID </th>
+                <th id="co" onclick="sortOpenTable(1)"> Content </th>
+                <th id="ca" onclick="sortOpenTable(2)"> Category </th>
+                <th id="st" onclick="sortOpenTable(3)"> Status </th>
+                <th id="pr" onclick="sortOpenTable(4)"> Priority </th>
+                <th id="ow" onclick="sortOpenTable(5)"> Owner </th>
+                <th>  </th>
+              </tr>
+            </thead>
+            <tbody id="open-ticket-list"></tbody>
+
+          </table>
+        </div>
 
 
 
