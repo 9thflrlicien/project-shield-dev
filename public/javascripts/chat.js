@@ -31,121 +31,10 @@ $(document).ready(function() {
   var historyMsg_agents = [];
   var avgChatTime;
   var sumChatTime;
-  var sortUp = true;
-
-  //extend jquery, let searching case insensitive
-  $.extend($.expr[':'], {
-    'containsi': function(elem, i, match, array) {
-      return (elem.textContent || elem.innerText || '').toLowerCase()
-      .indexOf((match[3] || "").toLowerCase()) >= 0;
-    }
-  });
-  searchBox.change(function () {
-    var FIND_COLOR = "rgb(255, 255, 192)";
-    var searchStr = searchBox.val();
-
-    if( searchStr == "" ) {
-      displayAll();
-    }
-    else {
-      $('.tablinks').each( function() {
-        //find his content parent
-        let id = $(this).attr('rel');
-
-        //hide no search_str msg
-        $("div #"+id+" .random").css("display", "none");
-        $("div #"+id+" .message").css("display", "none");
-
-        //display searched msg
-        $("div #"+id+" .random:containsi("+searchStr+")").css("display", "");
-        $("div #"+id+" .message:containsi("+searchStr+")").css("display", "");
-
-        //get search_str msg # link
-        $("div #"+id+" .random:containsi("+searchStr+")").on("click", function() {    //when clicing searched msg
-
-          $(this).attr("id", "ref");    //msg immediately add link
-
-          searchBox.val("");    //then cancel searching mode,
-          displayAll();         //display all msg
-
-          window.location.replace("/chat#ref"); //then jump to the #link added
-          $(this).attr("id", "");   //last remove link
-        });
-
-        //if this customer already no msg...    (dont know how to clean code QQ)
-        let flag = false;
-        for( let i=0; i<$("div #"+id+" .random").length; i++ ) {
-          if( $("div #"+id+" .random").eq(i).css("display") != "none" ) {
-            flag = true;
-            break;
-          }
-        }
-        if( !flag ) for( let i=0; i<$("div #"+id+" .message").length; i++ ) {
-          if( $("div #"+id+" .message").eq(i).css("display") != "none" ) {
-            flag = true;
-            break;
-          }
-        }
-
-        //then hide the customer's tablinks
-        if( !flag ) $(this).css("background-color", "");
-        else $(this).css("background-color", FIND_COLOR);
-
-      });
-    }
-    function displayAll() {
-      $('.tablinks').each( function() {
-        let id = $(this).attr('rel');
-        $("div #"+id+" .random").css({
-          "background-color": "",
-          "display": ""
-        }).off("click");
-
-        $("div #"+id+" .message").css({
-          "background-color": "",
-          "display": ""
-        }).off("click");
-
-        $(this).css("background-color","").show();
-      });
-    }
-  });   //end searchBox change func
-
-  function clickMsg(){
-    var target = $(this).attr('rel');
-    $("#"+target).show().siblings().hide();
-
-    let CLICKED_COLOR = "rgba(221,221,221,1)";
-    let DEFAULT_COLOR = "rgba(0,0,0,0)"
-    $(".tablinks").css("background-color",DEFAULT_COLOR);
-    $(this).css("background-color",CLICKED_COLOR);
-
-    console.log('clickMsg executed');
-  }
-
-  function sortUsers() {
-    let arr = $('.list-group .tablinks');
-    if( sortUp ) {
-      console.log("Sort up!");
-      arr.sort(function(a,b) {
-        return ( $(a).attr("data-avg_chat_time") < $(b).attr("data-avg_chat_time") );
-      });
-      sortUp = false;
-      $('.list-group').append(arr);
-    }
-    else {
-      console.log("Sort down!");
-      arr.sort(function(a,b) {
-        return ( $(a).attr("data-avg_chat_time") > $(b).attr("data-avg_chat_time") );
-      });
-      sortUp = true;
-      $('.list-group').append(arr);
-    }
-  } //end sortUsers func
-
-  $(document).on('click', '.tablinks' , clickMsg);
-  $(document).on('click', '#signout-btn', logout); //登出
-  $(document).on('click', '.tablinks_head', sortUsers);
+  var sortAvgBool = true;
+  var FIND_COLOR = "rgb(255, 255, 192)";
+  var CLICKED_COLOR = "rgba(221,221,221,1)";
+  var DEFAULT_COLOR = "rgba(0,0,0,0)"
 
   if (window.location.pathname === '/chat') {
     console.log("Start loading history message...");
@@ -162,15 +51,18 @@ $(document).ready(function() {
         historyMsg_users.push(snap.child(myIds[i]).val());
       }
       console.log("User history msg load complete");
-    });
-    database.ref('chats/agents').once('value', snap => {
-      console.log("Loading agent history msg...");
-      let testVal = snap.val();
-      let myIds = Object.keys(testVal);
-      for (var i = 0; i < myIds.length; i++) {
-        historyMsg_agents.push(snap.child(myIds[i]).val());
-      }
-      console.log("Agent history msg load complete");
+
+      database.ref('chats/agents').once('value', snap => {
+        console.log("Loading agent history msg...");
+        let testVal = snap.val();
+        let myIds = Object.keys(testVal);
+        for (var i = 0; i < myIds.length; i++) {
+          historyMsg_agents.push(snap.child(myIds[i]).val());
+        }
+        console.log("Agent history msg load complete");
+
+        $('.tablinks_head').text("Users Online");
+      });
     });
   } //end loadMsg func
 
@@ -190,6 +82,47 @@ $(document).ready(function() {
     else {
       window.location.replace("/");
     } //'name already taken'功能未做、push agent name 未做
+  }
+
+  $(document).on('click', '.tablinks' , clickMsg);
+  $(document).on('click', '#signout-btn', logout); //登出
+  $(document).on('click', '.tablinks_head', sortAvgChatTime);
+
+  function clickMsg(){
+    let cleancolor = "";
+    if( searchBox.val()!="" ) {
+      cleancolor = FIND_COLOR;
+    }
+    $("#selected").attr('id','').css("background-color", cleancolor);
+    $(this).attr('id','selected').css("background-color",CLICKED_COLOR);
+
+    var target = $(this).attr('rel');
+    $("#"+target).show().siblings().hide();
+
+    console.log('clickMsg executed');
+  }
+
+  function sortUsers(ref, up_or_down, operate) {
+    let arr = $('.list-group b');
+    for( let i=0; i<arr.length-1; i++ ) {
+      for( let j=i+1; j<arr.length; j++ ) {
+        let a = arr.eq(i).children(".tablinks").attr("data-"+ref)-'0';
+        let b = arr.eq(j).children(".tablinks").attr("data-"+ref)-'0';
+        if( up_or_down == operate(a, b) ) {
+          let tmp = arr[i];   arr[i] = arr[j];    arr[j] = tmp;
+        }
+      }
+    }
+    $('.list-group').append(arr);
+  } //end sort func
+
+  function sortTotalChatTime() {
+    sortUsers("totalTime", sortTotalBool, function(a,b){ return a<b; } );
+    sortAvgBool = !sortAvgBool;
+  }
+  function sortAvgChatTime() {
+    sortUsers("avgTime", sortAvgBool, function(a,b){ return a<b; } );
+    sortAvgBool = !sortAvgBool;
   }
 
   /*  =======  To indentify the right receiver  =====  */
@@ -238,32 +171,6 @@ $(document).ready(function() {
   socket.on('send message', messageInput.val(), (data) =>{
 
   })
-
-  /*  =================================  */
-  // // nickname
-  //   person.submit((e) => {
-
-  //     e.preventDefault();
-  //     socket.emit('new user', person.val(), (data) => {
-
-  //     if (data){
-  //         console.log('nickname successfully input');
-  //       } else {
-  //         nicknameError.html('username is already taken');
-  //       }
-  //     });
-
-  //     person.val('');
-  //   });
-
-
-  // socket.on('usernames', (data) => {
-  //   var html = '';
-  //   for(i=0; i < data.length; i++){
-  //     html += data[i] + '<br />';
-  //   }
-  //   users.html(html);
-  // });
 
   socket.on('new message', (data) => {
     displayMessage(data);
@@ -347,7 +254,6 @@ $(document).ready(function() {
 
       //THIS PART SORT USER & AGENT HISTORY MSG INTO TIME CONTINUOUS
       let historyMsg = [];
-//      let historyMsgStr = "";
       let timeArr = [];
       let i=0;
       let j=0;
@@ -514,8 +420,8 @@ $(document).ready(function() {
 
       }else{
         clients.append("<b><button  rel=\""+data.name+"\" class=\"tablinks\""
-        + "data-avg_chat_time=\""+ avgChatTime.toFixed(0)+"\" "
-        + "data-sum_chat_time=\""+ sumChatTime.toFixed(0)+"\"> "
+        + "data-avgTime=\""+ avgChatTime.toFixed(0)+"\" "
+        + "data-totalTime=\""+ sumChatTime.toFixed(0)+"\"> "
         + data.name + " avg chat time = " + avgChatTime.toFixed(0)+ "</button></b>");
         name_list.push(data.name);
         t.push({key:data.name, value:count});
@@ -529,6 +435,84 @@ $(document).ready(function() {
     }//close else
 
   }//close client function
+
+  //extend jquery, let searching case insensitive
+  $.extend($.expr[':'], {
+    'containsi': function(elem, i, match, array) {
+      return (elem.textContent || elem.innerText || '').toLowerCase()
+      .indexOf((match[3] || "").toLowerCase()) >= 0;
+    }
+  });
+
+  searchBox.change(function () {
+    var searchStr = searchBox.val();
+
+    if( searchStr == "" ) {
+      displayAll();
+    }
+    else {
+      $('.tablinks').each( function() {
+        //find his content parent
+        let id = $(this).attr('rel');
+
+        //hide no search_str msg
+        $("div #"+id+" .random").css("display", "none");
+        $("div #"+id+" .message").css("display", "none");
+
+        //display searched msg
+        $("div #"+id+" .random:containsi("+searchStr+")").css("display", "");
+        $("div #"+id+" .message:containsi("+searchStr+")").css("display", "");
+
+        //get search_str msg # link
+        $("div #"+id+" .random:containsi("+searchStr+")").on("click", function() {    //when clicing searched msg
+
+          $(this).attr("id", "ref");    //msg immediately add link
+
+          searchBox.val("");    //then cancel searching mode,
+          displayAll();         //display all msg
+
+          window.location.replace("/chat#ref"); //then jump to the #link added
+          $(this).attr("id", "");   //last remove link
+        });
+
+        //if this customer already no msg...    (dont know how to clean code QQ)
+        let flag = false;
+        for( let i=0; i<$("div #"+id+" .random").length; i++ ) {
+          if( $("div #"+id+" .random").eq(i).css("display") != "none" ) {
+            flag = true;
+            break;
+          }
+        }
+        if( !flag ) for( let i=0; i<$("div #"+id+" .message").length; i++ ) {
+          if( $("div #"+id+" .message").eq(i).css("display") != "none" ) {
+            flag = true;
+            break;
+          }
+        }
+
+        //then hide the customer's tablinks
+        if( !flag ) $(this).css("background-color", "");
+        else $(this).css("background-color", FIND_COLOR);
+
+      });
+    }
+    function displayAll() {
+      $('.tablinks').each( function() {
+        let id = $(this).attr('rel');
+        $("div #"+id+" .random").css({
+          "background-color": "",
+          "display": ""
+        }).off("click");
+
+        $("div #"+id+" .message").css({
+          "background-color": "",
+          "display": ""
+        }).off("click");
+
+        $(this).css("background-color","").show();
+      });
+    }
+  });   //end searchBox change func
 
   function toDateStr( input ) {
     var str = " ";

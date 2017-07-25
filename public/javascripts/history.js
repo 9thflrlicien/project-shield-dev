@@ -1,30 +1,43 @@
 $(document).ready(function() {
-  var users = $('#users');
-  var nicknameError = $('#nickError');
   var clients = $('#clients');
   var printAgent = $('#printAgent');
   var canvas = $("#canvas");
   var searchBox = $('#searchBox');
-  var socket = io.connect();
-  var person = "";
   var historyMsg_users = [];
   var historyMsg_agents = [];
   var historyMsgList = [];
-  var avgChatTime;
-  var sumChatTime;
-  var sortUp = true;
+  var sortAvgBool = true;
+  var sortTotalBool = true;
+  var sortFirstBool = true;
+  var sortRecentBool = true;
   var FIND_COLOR = "rgb(255, 255, 192)";
   var CLICKED_COLOR = "rgba(221,221,221,1)";
   var DEFAULT_COLOR = "rgba(0,0,0,0)"
 
   $(document).on('click', '.tablinks' , clickMsg);
   $(document).on('click', '#signout-btn', logout); //登出
-  $(document).on('click', '.tablinks_head', sortUsers);
+  $(document).on('click', '#sortAvg', sortAvgChatTime);
+  $(document).on('click', '#sortTotal', sortTotalChatTime);
+  $(document).on('click', '#sortFirst', sortFirstChatTime);
+  $(document).on('click', '#sortRecent', sortRecentChatTime);
+
+  function clickMsg(){
+    let cleancolor = "";
+    if( searchBox.val()!="" ) {
+      cleancolor = FIND_COLOR;
+    }
+    $("#selected").attr('id','').css("background-color", cleancolor);
+    $(this).attr('id','selected').css("background-color",CLICKED_COLOR);
+
+    var target = $(this).attr('rel');
+    $("#"+target).show().siblings().hide();
+
+    console.log('clickMsg executed');
+  }
 
   if (window.location.pathname === '/history') {
     console.log("Start loading history message...");
     loadMsg();  //Colman: dont know how to execute func in order QQ
-    setTimeout(agentName, 100);
 
   } // set agent name
 
@@ -46,7 +59,7 @@ $(document).ready(function() {
           historyMsg_agents.push(snap.child(myIds[i]).val());
         }
         console.log("Agent history msg load complete");
-        filterMsg();
+        divide_Msg_by_diff_user();
       });
     });
   } //end loadMsg func
@@ -57,7 +70,7 @@ $(document).ready(function() {
     this.cutIndex = cutIndex;
   }
 
-  function filterMsg(){
+  function divide_Msg_by_diff_user(){
 
     // historyMsg_agents = historyMsg_agents.filter(msg => {
     //   return msg.user != undefined;
@@ -109,16 +122,15 @@ $(document).ready(function() {
     console.log(historyMsgList);
 
     clients.html("");
-    for( i in historyMsgList ) doMsgs(historyMsgList[i]);
+    for( i in historyMsgList ) combine_and_push_Msgs(historyMsgList[i]);
   }
 
-  function doMsgs( msgList ) {
+  function combine_and_push_Msgs( msgList ) {
     let agents_pastMsg = msgList.messages.slice( 0, msgList.cutIndex );
     let users_pastMsg = msgList.messages.slice( msgList.cutIndex, msgList.length );
 
     //THIS PART SORT USER & AGENT HISTORY MSG INTO TIME CONTINUOUS
     let historyMsg = [];
-  //      let historyMsgStr = "";
     let timeArr = [];
     let i=0;
     let j=0;
@@ -193,9 +205,15 @@ $(document).ready(function() {
       return "<p class='random'>" + msg.agent + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
     }
 
+    let firstTime = new Date(historyMsg[0].messageTime).getTime();
+    let recentTime = new Date(historyMsg[historyMsg.length-1].messageTime).getTime();
+    let avgChatTime;
+    let totalChatTime;
+
     computeChatTime(timeArr);
     if( isNaN(avgChatTime)||avgChatTime<1 ) avgChatTime = 1;
-    if( isNaN(sumChatTime)||sumChatTime<1 ) sumChatTime = 1;
+    if( isNaN(totalChatTime)||totalChatTime<1 ) totalChatTime = 1;
+
     function computeChatTime(timeArr) {
       let times = [];
       let i=0;
@@ -216,9 +234,10 @@ $(document).ready(function() {
       let sum = 0;
       for( let i in times ) sum += times[i];
       sum /= 60000;
-      sumChatTime = sum;
+      totalChatTime = sum;
       avgChatTime = sum/times.length;
     }
+
 
     canvas.append(
       "<div id=\"" + msgList.userName + "\" class=\"tabcontent\"style=\"display: none;\">" +
@@ -227,28 +246,12 @@ $(document).ready(function() {
     );// close append
 
     clients.append("<b><button  rel=\""+msgList.userName+"\" class=\"tablinks\""
-    + "data-avg_chat_time=\""+ avgChatTime.toFixed(0)+"\" "
-    + "data-sum_chat_time=\""+ sumChatTime.toFixed(0)+"\"> "
-    + msgList.userName + " avg chat time = " + avgChatTime.toFixed(0)+ "</button></b>");
+    + "data-avgTime=\""+ avgChatTime.toFixed(0)+"\" "
+    + "data-totalTime=\"" + totalChatTime.toFixed(0)+"\" "
+    + "data-firstTime=\"" + firstTime+"\" "
+    + "data-recentTime=\"" + recentTime+"\"> "
+    + msgList.userName + "</button></b>");
 
-  }
-
-  function agentName() {
-    while( person=="" ) {
-      person = prompt("Please enter your name");
-    }
-    if (person != null) {
-      socket.emit('new user', person, (data) => {
-        if(data){
-        } else {
-          nicknameError.html('username is already taken');
-        }
-      });
-      printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
-    }
-    else {
-      window.location.replace("/");
-    } //'name already taken'功能未做、push agent name 未做
   }
 
   //extend jquery, let searching case insensitive
@@ -258,6 +261,7 @@ $(document).ready(function() {
       .indexOf((match[3] || "").toLowerCase()) >= 0;
     }
   });
+
   searchBox.change(function () {
     var searchStr = searchBox.val();
 
@@ -328,52 +332,70 @@ $(document).ready(function() {
     }
   });   //end searchBox change func
 
-  function clickMsg(){
-    let cleancolor = "";
-    if( searchBox.val()!="" ) {
-    //  console.log("val ="+searchBox.va)
-      cleancolor = FIND_COLOR;
+  function sortUsers(ref, up_or_down, operate) {
+    let arr = $('.list-group b');
+    for( let i=0; i<arr.length-1; i++ ) {
+      for( let j=i+1; j<arr.length; j++ ) {
+        let a = arr.eq(i).children(".tablinks").attr("data-"+ref)-'0';
+        let b = arr.eq(j).children(".tablinks").attr("data-"+ref)-'0';
+        if( up_or_down == operate(a, b) ) {
+          let tmp = arr[i];   arr[i] = arr[j];    arr[j] = tmp;
+        }
+      }
     }
-    $("#selected").attr('id','').css("background-color", cleancolor);
-    $(this).attr('id','selected').css("background-color",CLICKED_COLOR);
+    $('.list-group').append(arr);
 
-    var target = $(this).attr('rel');
-    $("#"+target).show().siblings().hide();
+  } //end sort func
 
-    console.log('clickMsg executed');
+  function sortAvgChatTime() {
+    sortUsers("avgTime", sortAvgBool, function(a,b){ return a<b; } );
+    sortAvgBool = !sortAvgBool;
+  }
+  function sortTotalChatTime() {
+    sortUsers("totalTime", sortTotalBool, function(a,b){ return a<b; } );
+    sortTotalBool = !sortTotalBool;
+  }
+  function sortFirstChatTime() {
+    sortUsers("firstTime", sortFirstBool, function(a,b){ return a>b; } );
+    sortFirstBool = !sortFirstBool;
+  }
+  function sortRecentChatTime() {
+    sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
+    sortRecentBool = !sortRecentBool;
   }
 
-  function sortUsers() {
-    let arr = $('.list-group b');
-    if( sortUp ) {
-      console.log("Sort up!");
-      for( let i=0; i<arr.length-1; i++ ) {
-        for( let j=i+1; j<arr.length; j++ ) {
-          let a = arr.eq(i).children(".tablinks").attr("data-avg_chat_time")-'0';
-          let b = arr.eq(j).children(".tablinks").attr("data-avg_chat_time")-'0';
-          if( a<b ) {
-            let tmp = arr[i];   arr[i] = arr[j];    arr[j] = tmp;
-          }
-        }
-      }
-      sortUp = false;
-      $('.list-group').append(arr);
-    }
-    else {
-      console.log("Sort down!");
-      for( let i=0; i<arr.length-1; i++ ) {
-        for( let j=i+1; j<arr.length; j++ ) {
-          let a = arr.eq(i).children(".tablinks").attr("data-avg_chat_time")-'0';
-          let b = arr.eq(j).children(".tablinks").attr("data-avg_chat_time")-'0';
-          if( a>b ) {
-            let tmp = arr[i];   arr[i] = arr[j];    arr[j] = tmp;
-          }
-        }
-      }
-      sortUp = true;
-      $('.list-group').append(arr);
-    }
-  } //end sortUsers func
+  //  abandon func
+  // function sortAvgChatTime() {
+  //   let arr = $('.list-group b');
+  //   if( sortAvgBool ) {
+  //     console.log("Sort up!");
+  //     for( let i=0; i<arr.length-1; i++ ) {
+  //       for( let j=i+1; j<arr.length; j++ ) {
+  //         let a = arr.eq(i).children(".tablinks").attr("data-avgTime")-'0';
+  //         let b = arr.eq(j).children(".tablinks").attr("data-avgTime")-'0';
+  //         if( a<b ) {
+  //           let tmp = arr[i];   arr[i] = arr[j];    arr[j] = tmp;
+  //         }
+  //       }
+  //     }
+  //     sortAvgBool = false;
+  //     $('.list-group').append(arr);
+  //   }
+  //   else {
+  //     console.log("Sort down!");
+  //     for( let i=0; i<arr.length-1; i++ ) {
+  //       for( let j=i+1; j<arr.length; j++ ) {
+  //         let a = arr.eq(i).children(".tablinks").attr("data-avgTime")-'0';
+  //         let b = arr.eq(j).children(".tablinks").attr("data-avgTime")-'0';
+  //         if( a>b ) {
+  //           let tmp = arr[i];   arr[i] = arr[j];    arr[j] = tmp;
+  //         }
+  //       }
+  //     }
+  //     sortAvgBool = true;
+  //     $('.list-group').append(arr);
+  //   }
+  // } //end sortAvgChatTime func
 
   function toDateStr( input ) {
     var str = " ";
@@ -388,7 +410,6 @@ $(document).ready(function() {
     let date = new Date(input);
     return " (" + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ") ";
   }
-
   function addZero(val){
     return val<10 ? '0'+val : val;
   }

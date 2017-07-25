@@ -117,6 +117,14 @@
               overflow: scroll;
               display: none;
             }
+            #searchBox {
+              padding-left: 10px;
+              float: left;
+              border: 1px solid #ccc;
+              width: 70%;
+              border-left: none;
+              display:block;
+            }
             .topright{
                float:right;
             }
@@ -139,6 +147,9 @@
             .tablinks{
                padding-left: 10px
             }
+            .sortlinks {
+              margin: 5px;
+            }
          </style>
          </head>
 
@@ -149,10 +160,20 @@
             </ol>
          </div>
 
+         <section id="sortBar">
+            <div>
+              <button type="button" class="sortlinks" id="sortAvg">sort by average chat times</button>
+              <button type="button" class="sortlinks" id="sortTotal">sort by total chat times</button>
+              <button type="button" class="sortlinks" id="sortFirst">sort by first chat time</button>
+              <button type="button" class="sortlinks" id="sortRecent">sort by recent chat time</button>
+            </div>
+         </section>
+
+        <input type="text" id="searchBox" placeholder="Search for messages.." width="100%">
+
          <section id="canvas">
          </section>
 
-         <input type="text" id="searchBox" placeholder="Search for messages..">
 
       </div>
       </div>
