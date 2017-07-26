@@ -1,49 +1,59 @@
 $(document).ready(function() {
+  var socket = io.connect();
   var users = $('#users');
-  var nicknameForm = $('#setNick');
-  var nicknameError = $('#nickError');
-  var nicknameInput = $('#nickname');
   var messageForm = $('#send-message');
   var messageInput = $('#message');
   var messageContent = $('#chat');
   var clients = $('#clients');
-  var name_list = ['test'];
-  var newUsers = $('#newUsers');
   var printAgent = $('#printAgent');
   var canvas = $("#canvas");
-  var user1 = $("#user1");
-  var user2 = $("#user2");
-  var user3 = $("#user3");
-  var user4 = $("#user4");
-  var user5 = $("#user5");
-  var user6 = $("#user6_inn");
-  var user7 = $("#user7_inn");
   var searchBox = $('#searchBox');
-  var socket = io.connect();
-  var user_list = [];
-  var person = "";
-  var count = 0;
-  var t = [];
-  var t_value;
-  var t_key;
-  var receiver;
+  var name_list = [];
+  var person = prompt("Please enter your name");
   var historyMsg_users = [];
   var historyMsg_agents = [];
   var avgChatTime;
   var sumChatTime;
   var sortAvgBool = true;
-  var FIND_COLOR = "rgb(255, 255, 192)";
-  var CLICKED_COLOR = "rgba(221,221,221,1)";
-  var DEFAULT_COLOR = "rgba(0,0,0,0)"
+  const COLOR = {
+    FIND: "rgb(255, 255, 192)",
+    CLICKED: "#ccc",
+  }
+  const IDENTITY = {
+    USER: 1,
+    AGENT: 2,
+    NEW_USER: 3
+  };
+
+  function clickMsg(){
+    ///let the clicked tablinks change color, cancel previous clicked button's color
+    let cleancolor = "";
+    if( searchBox.val()!="" ) {
+      cleancolor = COLOR.FIND;
+    }
+    $("#selected").attr('id','').css("background-color", cleancolor);
+    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);
+
+    var target = $(this).attr('rel');
+    $("#"+target).show().siblings().hide();
+
+    console.log('click tablink executed');
+  }
+
+  $(document).on('click', '.tablinks', clickMsg);
+  $(document).on('click', '#signout-btn', logout); //登出
+  //$(document).on('click', '.tablinks_head', sortAvgChatTime);
 
   if (window.location.pathname === '/chat') {
     console.log("Start loading history message...");
     setTimeout(loadMsg, 10);
     setTimeout(agentName, 100);
+    //   setTimeout(loadMsg, 100);
   } // set agent name
 
   function loadMsg() {
-    database.ref('chats/users').once('value', snap => {
+    console.log("Start loading msg...");
+    database.ref('chats/users2').once('value', snap => {
       console.log("Loading user history msg...");
       let testVal = snap.val();
       let myIds = Object.keys(testVal);
@@ -52,7 +62,7 @@ $(document).ready(function() {
       }
       console.log("User history msg load complete");
 
-      database.ref('chats/agents').once('value', snap => {
+      database.ref('chats/agents2').once('value', snap => {
         console.log("Loading agent history msg...");
         let testVal = snap.val();
         let myIds = Object.keys(testVal);
@@ -73,10 +83,12 @@ $(document).ready(function() {
     if (person != null) {
       socket.emit('new user', person, (data) => {
         if(data){
+
         } else {
-          nicknameError.html('username is already taken');
+          alert('username is already taken');
         }
       });
+      name_list.push(person); //Colman: add agent name into list here
       printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
     }
     else {
@@ -84,357 +96,180 @@ $(document).ready(function() {
     } //'name already taken'功能未做、push agent name 未做
   }
 
-  $(document).on('click', '.tablinks' , clickMsg);
-  $(document).on('click', '#signout-btn', logout); //登出
-  $(document).on('click', '.tablinks_head', sortAvgChatTime);
-
-  function clickMsg(){
-    let cleancolor = "";
-    if( searchBox.val()!="" ) {
-      cleancolor = FIND_COLOR;
-    }
-    $("#selected").attr('id','').css("background-color", cleancolor);
-    $(this).attr('id','selected').css("background-color",CLICKED_COLOR);
-
-    var target = $(this).attr('rel');
-    $("#"+target).show().siblings().hide();
-
-    console.log('clickMsg executed');
-  }
-
-  function sortUsers(ref, up_or_down, operate) {
-    let arr = $('.list-group b');
-    for( let i=0; i<arr.length-1; i++ ) {
-      for( let j=i+1; j<arr.length; j++ ) {
-        let a = arr.eq(i).children(".tablinks").attr("data-"+ref)-'0';
-        let b = arr.eq(j).children(".tablinks").attr("data-"+ref)-'0';
-        if( up_or_down == operate(a, b) ) {
-          let tmp = arr[i];   arr[i] = arr[j];    arr[j] = tmp;
-        }
-      }
-    }
-    $('.list-group').append(arr);
-  } //end sort func
-
-  function sortTotalChatTime() {
-    sortUsers("totalTime", sortTotalBool, function(a,b){ return a<b; } );
-    sortAvgBool = !sortAvgBool;
-  }
-  function sortAvgChatTime() {
-    sortUsers("avgTime", sortAvgBool, function(a,b){ return a<b; } );
-    sortAvgBool = !sortAvgBool;
-  }
-
-  /*  =======  To indentify the right receiver  =====  */
-  function defReceiver(){
-    socket.emit('receiver', receiver, (data) => {
-      console.log("data:");
-      console.log(data);
-    });
-    console.log('receiver sent to www');
-  }
-
-  /*  =======  CODES FROM GITHUB: NICKNAME  ======  */
-
-  nicknameForm.submit((e) => {
-    e.preventDefault();
-    socket.emit('new user', nicknameInput.val(), (data) => {
-      if(data){
-        $('#nickWrap').hide();
-        $('#contentWrap').show();
-      } else {
-        nicknameError.html('username is already taken');
-      }
-    });
-    nicknameInput.val('');
-  });
-
   messageForm.submit((e) => {
     e.preventDefault();
-    socket.emit('send message', messageInput.val(), (data) => {
-
+    let designated_user_id = $( "#user-rooms option:selected" ).val();
+    socket.emit('send message', {id: designated_user_id , msg: messageInput.val()}, (data) => {
       messageContent.append('<span class="error">' + data + "</span><br/>");
     });
+    // socket.emit('send message', messageInput.val(), (data) => {
+    //     messageContent.append('<span class="error">' + data + "</span><br/>");
+    // });
     messageInput.val('');
   });
 
   socket.on('usernames', (data) => {
     var html = '';
-    for(i=0; i < data.length; i++){
+    for (i = 0; i < data.length; i++) {
       html += data[i] + '<br />';
     }
     users.html(html);
   });
 
-  /*  =========== to assign the right receiverId  =========  */
 
-  socket.on('send message', messageInput.val(), (data) =>{
-
-  })
+  /*  =================================  */
 
   socket.on('new message', (data) => {
-    displayMessage(data);
-    displayClient(data);
+    var msgOwner = "";  ///userName or agentName
+    var identity = -1;  ///user, agent or new_user
+    if( data.hasOwnProperty("agentName") ) {
+      msgOwner = data.agentName;
+      identity = IDENTITY.AGENT;
+    }
+    else if( data.hasOwnProperty("userName") ) {
+      msgOwner = data.userName;
+      if( name_list.indexOf(msgOwner) > -1 ) identity = IDENTITY.USER;
+      else identity = IDENTITY.NEW_USER;
+    }
+    else console.log("ERROR! no agentName, no userName. so what is this???");
+
+    console.log("Message get! identity = " + identity + ", msgOwner = " + msgOwner);
+    if( identity == IDENTITY.NEW_USER ) {
+      name_list.push(msgOwner);
+      console.log("push into name_list!");
+    }
+    else console.log("this msgOwner already exist");
+
+    displayMessage( data, msgOwner, identity );
+    displayClient( data, msgOwner, identity );
 
     // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
   });
 
-  socket.on('whisper', (data) => {
-    messageContent.append('<span class="whisper"><b>' + data.name + ': </b>' + data.msg + "</span><br/>");
-  });
+  function displayMessage( data, msgOwner, identity ) {
 
-  function displayMessage(data) {
-
-    let chat_number = 1;
-    var dataName = data.name;
-
-    var namefound = (name_list.indexOf(dataName) > -1); //if client exists
-    /*     var n, dataName ;
-    dataName = document.getElementsById(data.name);
-    for (n = 0; n < dataName.length; n++) { */
-
-    //  messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
-
-    if (namefound == true) {
+    if (identity != IDENTITY.NEW_USER) {
       //append new msg in existed window
-      console.log('namefound');
-      console.log('im: '+dataName);
+      ///no matter he's agent or user, just push name and msg into correct canvas BY ID
+      $("#" + data.id + "-content").append("<p class=\"message\"><strong>" + msgOwner + toTimeStr(data.messageTime) + ": </strong>"+ data.message + "<br/></p>");
 
-      if(dataName == person && data.id !== undefined){
+    } //close if
+    else {
+      if (msgOwner == person && data.id !== undefined) {
+        ///dont understand this if statement QQ
+        console.log("Get into 160 if");
         console.log('yes existed agent msg identified');
-        var n;
-        for (n=0; n < t_value+1; n++){
-          console.log('yes it gets to the for loop');
-          console.log('n is currently looping to')
-          console.log(n);
-          console.log('Is n already == t_value?')
-          console.log(n == t_value);
-
-          var k = t[n].key;
-          console.log('the below is t[n].key');
-          console.log(t[n].key);
-
-          if ( $("#"+k).is(':visible')){
-            console.log('yes it knows what is visible');
-            var gotIt;
-            gotIt = k;
-            console.log('the following is gotIt');
-            console.log(gotIt);
-            receiver = gotIt;
-            console.log('tell me whats receiver');
-            console.log(receiver);
-            defReceiver();
-
-            $("#"+gotIt).append("<p class=\"message\"><strong>" + data.name + toTimeStr(data.time) + ": </strong>"+ data.msg + "<br/></p>");
-            console.log('agent reply appended to according canvas');
-
-          }//if if
-          else{
-            console.log('no the n is not visible, do it again')
-
-          }
-        }//for
-
-      }//if agent
-      else if (dataName){
-
-        $("#"+dataName).append("<p class=\"message\"><strong>" + data.name + toTimeStr(data.time) + ": </strong>"+ data.msg + "<br/></p>");
-        console.log('appended to according canvas');
-      }//if
-
-    }//close if
-    else{
-      console.log('new msg append to canvas');
-      let users_pastMsg = historyMsg_users.filter(msg => {
-        return msg.user == data.name;
-      });
-      let agents_pastMsg = historyMsg_agents.filter(msg => {
-        return msg.user == data.name;
-      });
-
-      //THIS PART SORT USER & AGENT HISTORY MSG INTO TIME CONTINUOUS
-      let historyMsg = [];
-      let timeArr = [];
-      let i=0;
-      let j=0;
-      let iFlag = (users_pastMsg.length==0);
-      let jFlag = (agents_pastMsg.length==0);
-      if( users_pastMsg.length==0 && agents_pastMsg.length==0 ) {
-        //you are agent or you are new new user
+        // for (let n = 0; n < t_value + 1; n++) {
+        if ($("#" + data.id).is(':visible')) {
+          console.log('appended agent message');
+          $("#" + data.id + "-content").append("<p class=\"message\"><strong>" + data.agentName + toTimeStr(data.messageTime) + ": </strong>"+ data.message + "<br/></p>");
+        } //if if
+        else {
+          console.log('no the n is not visible, do it again')
+        }
+        // } //for
       }
       else {
-        //you are user
-        while( ! ( iFlag && jFlag ) ) {
-          while( ( !iFlag ) && (jFlag || isEarly ( users_pastMsg[i].messageTime, agents_pastMsg[j].messageTime ) ) ) {
-            //↑ while ( still exist unloaded user msg )
-            // && (there's no unloaded agent msg || now user msg is early then now agent msg )
-            //then { load next index user msg; }
-            historyMsg.push(users_pastMsg[i]);
-        //    historyMsgStr += toUserStr( users_pastMsg[i] );
-            timeArr.push(new Date(users_pastMsg[i].messageTime).getTime());
-            i++;
-            if( i==users_pastMsg.length ) {
-              iFlag = true;
-              break;
-            };
-          }
-          while( (!jFlag ) && ( iFlag || isEarly ( agents_pastMsg[j].messageTime, users_pastMsg[i].messageTime ) ) ) {
+        ///identity = NEW_USER
+        console.log('new user msg append to canvas');
+        $('#user-rooms').append('<option value="' + data.id + '">' + msgOwner + '</option>');
 
-            historyMsg.push(agents_pastMsg[j]);
-        //    historyMsgStr += toAgentStr( agents_pastMsg[j] );
-            timeArr.push(new Date(agents_pastMsg[j].messageTime).getTime());
-            j++;
-            if( j==agents_pastMsg.length ) {
-              jFlag = true;
-              break;
-            };
-          }
-        }
-      }
-      //SORT BOTH MSG DONE
+        ///loading that user's history msg
+        let users_pastMsg = historyMsg_users.filter(msg => {
+          return msg.id == data.id;
+        });
+        let agents_pastMsg = historyMsg_agents.filter(msg => {
+          return msg.id == data.id;
+        });
 
-      //THIS PART DIVIDE HISTORY MSG INTO DIFFERENT DAYS
-      let historyMsgStr = "<p class='randomDay' style='text-align: center'><strong><italic>"
-        + "-------------------------------------------------------No More History Message-------------------------------------------------------"
-        + "</italic></strong></p>";
-      let nowDateStr = "";
-      for( let i in historyMsg ) {
-        let d = new Date(historyMsg[i].messageTime );
-        if( d.toDateString()!=nowDateStr ) {  //change day
-          nowDateStr = d.toDateString();
-          historyMsgStr += "<p class='randomDay' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";
-        }
-        if( historyMsg[i].hasOwnProperty("agent") ) {
-          historyMsgStr += toAgentStr( historyMsg[i] );
-        }
-        else historyMsgStr += toUserStr( historyMsg[i] );
-      }
-      historyMsgStr += "<p class='randomDay' style='text-align: center'><strong><italic>"
-        + "-------------------------------------------------------Present Message-------------------------------------------------------"
-        +" </italic></strong></p>";
-      //DIVIDE MSG INTO DIFFERENT DAYS DONE
-
-      //some liitle function here
-      function isEarly( in1, in2 ) {
-        time1 = new Date(in1).getTime();
-        time2 = new Date(in2).getTime();
-        return ( time1 < time2 );
-      }
-      function toUserStr( msg ) {
-        return "<p class='random'>" + msg.user + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
-      }
-      function toAgentStr( msg ) {
-        return "<p class='random'>" + msg.agent + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
-      }
-
-      computeChatTime(timeArr)/60000;
-      if( isNaN(avgChatTime) ) avgChatTime = 0;
-      if( isNaN(sumChatTime) ) sumChatTime = 0;
-      function computeChatTime(timeArr) {
-        let times = [];
+        //THIS PART SORT USER & AGENT HISTORY MSG INTO TIME CONTINUOUS
+        let historyMsg = [];
         let i=0;
-        const GAP = 1000*60*10; //10 min
-        let headTime;
-        let tailTime;
-        while( i<timeArr.length ) {
-          headTime = tailTime = timeArr[i];
-          while( timeArr[i]-tailTime < GAP ) {
-            tailTime = timeArr[i];
-            i++;
-            if( i==timeArr.length ) break;
-          }
-          var num = tailTime-headTime;
-          if( num<1000 ) num = 1000;
-          times.push(num);
+        let j=0;
+        let iFlag = (users_pastMsg.length==0);
+        let jFlag = (agents_pastMsg.length==0);
+        if( users_pastMsg.length==0 && agents_pastMsg.length==0 ) {
+          //you are agent or you are new user who never chat before
         }
-        let sum = 0;
-        for( let i in times ) sum += times[i];
-        sum /= 60000;
-        sumChatTime = sum;
-        avgChatTime = sum/times.length;
-      }
+        else {
+          //you are user
+          while( !iFlag && !jFlag ) {
+            while( ( !iFlag ) && (jFlag || users_pastMsg[i].messageTime < agents_pastMsg[j].messageTime ) ) {
+              //↑ while ( still exist unloaded user msg  && (there's no unloaded agent msg || now user msg is early then now agent msg ) )
+              //then { load next index user msg; }
+              historyMsg.push(users_pastMsg[i]);
+              i++;
+              if( i==users_pastMsg.length ) iFlag = true;
+            }
+            while( (!jFlag ) && ( iFlag || agents_pastMsg[j].messageTime< users_pastMsg[i].messageTime ) ) {
 
+              historyMsg.push(agents_pastMsg[j]);
+              j++;
+              if( j==agents_pastMsg.length ) jFlag = true;
+            }
+          }
+        }
+        //SORT BOTH MSG DONE
 
-      canvas.append(
-        "<div id=\"" + data.name + "\" class=\"tabcontent\"style=\"display: none;\">" +
-        "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x</span>" +
-        historyMsgStr+
-        "<p class=\"message\"><strong>" + data.name + toTimeStr(data.time) + ": </strong>" + data.msg + "<br/></p></div>"
-      );// close append
+        //THIS PART DIVIDE HISTORY MSG INTO DIFFERENT DAYS
+        let historyMsgStr = "<p class='randomDay' style='text-align: center'><strong><italic>"
+          + "-------------------------------------------------------No More History Message-------------------------------------------------------"
+          + "</italic></strong></p>";
+        let nowDateStr = "";
+        for( let i in historyMsg ) {
+          let d = new Date( historyMsg[i].messageTime );
+          if( d.toDateString()!=nowDateStr ) {  //two msg'day is diff => change day, push day msg
+            nowDateStr = d.toDateString();
+            historyMsgStr += "<p class='randomDay' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";
+          }
+          if( historyMsg[i].hasOwnProperty("agentName") ) {
+            historyMsgStr += toAgentStr( historyMsg[i] );
+          }
+          else historyMsgStr += toUserStr( historyMsg[i] );
+        }
+        historyMsgStr += "<p class='randomDay' style='text-align: center'><strong><italic>"
+          + "-------------------------------------------------------Present Message-------------------------------------------------------"
+          +" </italic></strong></p>";
+        //DIVIDE MSG INTO DIFFERENT DAYS DONE
 
-    }//else
+        //some liitle function here
+        function toUserStr( msg ) {
+          return "<p class='random'>" + msg.userName + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
+        }
+        function toAgentStr( msg ) {
+          return "<p class='random'>" + msg.agentName + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
+        }
+        ///if want to sort online user, compute information here
 
-    // }// if
-
+        canvas.append(
+          "<div id=\"" + data.id + "\" class=\"tabcontent\"style=\"display: none;\">"
+          + "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x</span>"
+          + "<div id='" + data.id + "-content'>" + historyMsgStr
+          + "<p class=\"message\"><strong>" + data.userName + toTimeStr(data.messageTime) + ": </strong>" + data.message + "<br/></p>"
+          + "</div></div>"
+        );// close append
+      } //else
+    }
   }//function
 
-  function displayClient(data) {
-    var i = data.name;
-    var namefound = (name_list.indexOf(i) > -1);
-    //       var namefound = (t_value > -1); //if client existed retrieved by key value
-
-    if (namefound) {
+  function displayClient( data, msgOwner, identity ) {
+    if (identity != IDENTITY.NEW_USER) {
+      ///agent or already online user , update tablinks' latest msg BY ID
       console.log('user existed');
-    }else if (i == 'notice'){
-      console.log('notice sent');
-    }else {
-      if (i == person){
-        console.log('agent username loaded');
-        name_list.push(data.name);
-        t.push({key:data.name, value:count});
-        console.log(t);
-        t_value = t[count].value ;
-        console.log('the below is t_value');
-        console.log(t_value);
-        t_key = t[count].key;
-        count ++;
-
-        console.log('is data.name == person? \(should be yes coz were now in the if agent');
-        console.log(i == person);
-
-        if   (data.name == person && data.id != undefined){
-          console.log('yes agent msg identified');
-
-          for (var n=0; n < t_value; n++){
-            console.log('yes it gets to the for loop');
-            var k = t[n].key;
-
-            if ( $("#"+k).is(':visible')){
-              console.log('yes it knows it is visible');
-              var gotIt;
-              gotIt = k;
-              console.log('the following is gotIt');
-              console.log(gotIt);
-              receiver = gotIt;
-              console.log('Tell me whats receiver');
-              console.log(receiver);
-              defReceiver();
-
-              $("#"+gotIt).append("<p class=\"message\"><strong>" + data.name + toTimeStr(data.time) + ": </strong>"+ data.msg + "<br/></p>");
-              console.log('agent reply appended to according canvas');
-            }//if if
-
-          }//for
-
-        }//if agent
-
-      }else{
-        clients.append("<b><button  rel=\""+data.name+"\" class=\"tablinks\""
-        + "data-avgTime=\""+ avgChatTime.toFixed(0)+"\" "
-        + "data-totalTime=\""+ sumChatTime.toFixed(0)+"\"> "
-        + data.name + " avg chat time = " + avgChatTime.toFixed(0)+ "</button></b>");
-        name_list.push(data.name);
-        t.push({key:data.name, value:count});
-        console.log(t);
-        t_value = t[count].value ;
-        t_key = t[count].key;
-        count ++;
-
-        //            console.log(name_list);
-      }//close else
+      $(".tablinks[rel='"+data.id+"'] span").text(toTimeStr(data.messageTime) + data.message);
+    }
+    else if(identity == IDENTITY.NEW_USER){
+      ///new user, make a tablinks
+      clients.append("<b><button rel=\"" + data.id + "\" class=\"tablinks\" >" + data.userName
+        + "<br><span style='font-weight: normal'>" + toTimeStr(data.messageTime) + data.message +  "</span>"
+        + "</button></b>"
+      );
+    }
+    else {
+      console.log("271 its imposibble");
     }//close else
 
-  }//close client function
+  } //close client function
 
   //extend jquery, let searching case insensitive
   $.extend($.expr[':'], {
@@ -531,4 +366,5 @@ $(document).ready(function() {
   function addZero(val){
     return val<10 ? '0'+val : val;
   }
+
 }); //document ready close tag
