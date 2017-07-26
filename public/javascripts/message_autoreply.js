@@ -14,7 +14,7 @@ $(document).ready(function() {
   $(document).on('click', '#modal-submit', modalSubmit); //新增
 
 
-    if(window.location.pathname === '/message'){
+    if(window.location.pathname === '/message_autoreply'){
     setTimeout(loadAutoReply, 1000);
   }
 
@@ -44,7 +44,7 @@ $(document).ready(function() {
   database.ref('message-autoreply/' + userId).push({
     taskName: name,
     // datetime: datetime,
-    text: text,
+    taskText: text,
     owner: auth.currentUser.email,
   });
 }
@@ -76,7 +76,6 @@ $(document).ready(function() {
     function loadAutoReply(){
         console.log('loadAutoReply executed')
         $('#autoreply-list').empty();
-
         let userId = auth.currentUser.uid;
         database.ref('message-autoreply/' + userId).on('value', snap => {
         let dataArray = [];
@@ -93,14 +92,13 @@ $(document).ready(function() {
                 '<td>' + 'No Setup' + '</td>' +
                 '<td><a href="#">' + dataArray[i].taskName + '</a></td>' +
                 '<td>' + 'Not Assigned' + '</td>' +
-                '<td class="category">' + dataArray[i].taskName + '</td>' +
-                '<td>' + dataArray[i].text + '</td>' +
+                '<td>' + dataArray[i].taskText + '</td>' +
                 '<td>' +
-                '<button type="button" id="editBtn" data-toggle="modal" data-target="#editModal">Edit</button>' +
+                '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal">Edit</a>' +
                 ' ' +
-                '<button type="button" id="viewBtn" data-toggle="modal" data-target="#viewModal">View</button>' +
+                '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal">View</a>' +
                 ' ' +
-                '<button type="button" id="deleBtn">Delete</button>' +
+                '<a href="#" id="deleBtn">Delete</a>' +
                 '</td>' +
               '</tr>'
         );
