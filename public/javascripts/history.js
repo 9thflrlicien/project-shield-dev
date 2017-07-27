@@ -1,8 +1,7 @@
 $(document).ready(function() {
   var clients = $('#clients');
-  var printAgent = $('#printAgent');
   var canvas = $("#canvas");
-  var searchBox = $('#searchBox');
+  var searchBox = $('.searchBox');
   var historyMsg_users = [];
   var historyMsg_agents = [];
   var historyMsgList = [];
@@ -10,39 +9,53 @@ $(document).ready(function() {
   var sortTotalBool = true;
   var sortFirstBool = true;
   var sortRecentBool = true;
-  var FIND_COLOR = "rgb(255, 255, 192)";
-  var CLICKED_COLOR = "rgba(221,221,221,1)";
-  var DEFAULT_COLOR = "rgba(0,0,0,0)"
+  const COLOR = {
+    FIND: "rgb(255, 255, 192)",
+    CLICKED: "#ccc",
+    DEFAULT: ""
+  }
+  var QQcount = 0;
 
-  $(document).on('click', '.tablinks' , clickMsg);
+  $(document).on('click', '.tablinks' , clickUser);
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '#sortAvg', sortAvgChatTime);
   $(document).on('click', '#sortTotal', sortTotalChatTime);
   $(document).on('click', '#sortFirst', sortFirstChatTime);
   $(document).on('click', '#sortRecent', sortRecentChatTime);
 
-  function clickMsg(){
+  function clickUser(){
+    //let the user tablinks lighting, other user dis-lighting
     let cleancolor = "";
     if( searchBox.val()!="" ) {
-      cleancolor = FIND_COLOR;
+      cleancolor = COLOR.FIND;
     }
     $("#selected").attr('id','').css("background-color", cleancolor);
-    $(this).attr('id','selected').css("background-color",CLICKED_COLOR);
+    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);
+    // $(".active").attr('class','tablinks').css("background-color", cleancolor);
+    // $(this).attr('class','active');//.css("background-color",CLICKED_COLOR);
 
+    //let message content panel show, other user's hide
     var target = $(this).attr('rel');
     $("#"+target).show().siblings().hide();
 
-    console.log('clickMsg executed');
+    //push user info
+    let str="";
+    str += "avgTime = " + $(this).attr('data-avgTime') + "min";
+    str += "<br>totalTime = " + $(this).attr('data-totalTime') + "min";
+    str += "<br>firstTime = " + toDateStr( $(this).attr('data-firstTime')-'0' );
+    str += "<br>recentTime = " + toDateStr( $(this).attr('data-recentTime')-'0' );
+    $('.tab_user-info').html(str);
+    console.log('clickUser executed');
   }
 
   if (window.location.pathname === '/history') {
-    console.log("Start loading history message...");
     loadMsg();  //Colman: dont know how to execute func in order QQ
 
   } // set agent name
 
   function loadMsg(){
-    database.ref('chats/users').once('value', snap => {
+    console.log("Start loading history message...");
+    database.ref('chats/users2').once('value', snap => {
       console.log("Loading user history msg...");
       let testVal = snap.val();
       let myIds = Object.keys(testVal);
@@ -51,7 +64,7 @@ $(document).ready(function() {
       }
       console.log("User history msg load complete");
 
-      database.ref('chats/agents').once('value', snap => {
+      database.ref('chats/agents2').once('value', snap => {
         console.log("Loading agent history msg...");
         let testVal = snap.val();
         let myIds = Object.keys(testVal);
@@ -64,31 +77,26 @@ $(document).ready(function() {
     });
   } //end loadMsg func
 
-  var MsgList = function(userName, messages, cutIndex) {
-    this.userName = userName;
+  var MsgList = function(id, messages, cutIndex) {
+    this.id = id;
     this.messages = messages;
     this.cutIndex = cutIndex;
   }
 
   function divide_Msg_by_diff_user(){
-
-    // historyMsg_agents = historyMsg_agents.filter(msg => {
-    //   return msg.user != undefined;
-    // });
-
     while( historyMsg_agents.length>0 ) {
       var msgList = [];
-      let nowUser = historyMsg_agents[0].user;
+      let nowId = historyMsg_agents[0].id;
       let i=0;
       while( i<historyMsg_agents.length ) {
-        if( historyMsg_agents[i].user == nowUser ) {
+        if( historyMsg_agents[i].id == nowId ) {
           msgList.push(historyMsg_agents[i]);
           historyMsg_agents.splice(i,1);
         }
         else i++;
       }
-      console.log("finish, now msgList = "+msgList.length+", user = "+nowUser+", remain length = "+historyMsg_agents.length);
-      historyMsgList.push(new MsgList(nowUser, msgList, msgList.length));
+      console.log("finish, now msgList = "+msgList.length+", user = "+nowId+", remain length = "+historyMsg_agents.length);
+      historyMsgList.push(new MsgList(nowId, msgList, msgList.length));
 
     }
     console.log("agentList : ");
@@ -96,39 +104,44 @@ $(document).ready(function() {
 
     while( historyMsg_users.length>0 ) {
       var msgList = [];
-      let nowUser = historyMsg_users[0].user;
+      let nowId = historyMsg_users[0].id;
       let i=0;
       while( i<historyMsg_users.length ) {
-        if( historyMsg_users[i].user == nowUser ) {
+        if( historyMsg_users[i].id == nowId ) {
           msgList.push(historyMsg_users[i]);
           historyMsg_users.splice(i,1);
         }
         else i++;
       }
-      console.log("finish, now msgList = "+msgList.length+", user = "+nowUser+", remain length = "+historyMsg_users.length);
+      console.log("finish, now msgList = "+msgList.length+", user = "+nowId+", remain length = "+historyMsg_users.length);
 
       for( i=0; i<historyMsgList.length; i++ ) {
-        if( nowUser == historyMsgList[i].userName ) {
+        if( nowId == historyMsgList[i].id ) {
           historyMsgList[i].messages = historyMsgList[i].messages.concat(msgList);
           break;
         }
       }
       if( i==historyMsgList.length ) {
-        historyMsgList.push(new MsgList(nowUser, msgList, 0));
+        historyMsgList.push(new MsgList(nowId, msgList, 0));
       }
 
     }
+      console.log(100);
     console.log("Final History Messages List : ");
+      console.log(120);
     console.log(historyMsgList);
+      console.log(130);
 
     clients.html("");
     for( i in historyMsgList ) combine_and_push_Msgs(historyMsgList[i]);
   }
 
   function combine_and_push_Msgs( msgList ) {
+    console.log(140);
     let agents_pastMsg = msgList.messages.slice( 0, msgList.cutIndex );
     let users_pastMsg = msgList.messages.slice( msgList.cutIndex, msgList.length );
-
+    console.log(144);
+    let userName = users_pastMsg[0].userName;
     //THIS PART SORT USER & AGENT HISTORY MSG INTO TIME CONTINUOUS
     let historyMsg = [];
     let timeArr = [];
@@ -136,77 +149,60 @@ $(document).ready(function() {
     let j=0;
     let iFlag = (users_pastMsg.length==0);
     let jFlag = (agents_pastMsg.length==0);
-    if( users_pastMsg.length==0 && agents_pastMsg.length==0 ) {
-      //you are agent or you are new new user
-    }
-    else {
-      //you are user
-      while( ! ( iFlag && jFlag ) ) {
-        while( ( !iFlag ) && (jFlag || isEarly ( users_pastMsg[i].messageTime, agents_pastMsg[j].messageTime ) ) ) {
-          //↑ while ( still exist unloaded user msg )
-          // && (there's no unloaded agent msg || now user msg is early then now agent msg )
-          //then { load next index user msg; }
-          historyMsg.push(users_pastMsg[i]);
-      //    historyMsgStr += toUserStr( users_pastMsg[i] );
-          timeArr.push(new Date(users_pastMsg[i].messageTime).getTime());
-          i++;
-          if( i==users_pastMsg.length ) {
-            iFlag = true;
-            break;
-          };
-        }
-        while( (!jFlag ) && ( iFlag || isEarly ( agents_pastMsg[j].messageTime, users_pastMsg[i].messageTime ) ) ) {
+    console.log(150);
+    while( !iFlag && !jFlag ) {
+      while( ( !iFlag ) && (jFlag || users_pastMsg[i].messageTime < agents_pastMsg[j].messageTime ) ) {
+        //↑ while ( still exist unloaded user msg )
+        // && (there's no unloaded agent msg || now user msg is early then now agent msg )
+        //then { load next index user msg; }
+        historyMsg.push(users_pastMsg[i]);
+        timeArr.push(users_pastMsg[i].messageTime);
+        i++;
+        if( i==users_pastMsg.length ) iFlag = true;
+      }
+      while( (!jFlag ) && ( iFlag || agents_pastMsg[j].messageTime < users_pastMsg[i].messageTime ) ) {
 
-          historyMsg.push(agents_pastMsg[j]);
-      //    historyMsgStr += toAgentStr( agents_pastMsg[j] );
-          timeArr.push(new Date(agents_pastMsg[j].messageTime).getTime());
-          j++;
-          if( j==agents_pastMsg.length ) {
-            jFlag = true;
-            break;
-          };
-        }
+        historyMsg.push(agents_pastMsg[j]);
+        timeArr.push(agents_pastMsg[j].messageTime);
+        j++;
+        if( j==agents_pastMsg.length ) jFlag = true;
       }
     }
     //SORT BOTH MSG DONE
 
     //THIS PART DIVIDE HISTORY MSG INTO DIFFERENT DAYS
-    let historyMsgStr = "<p class='randomDay' style='text-align: center'><strong><i>"
+    let historyMsgStr = "<p class='random-day' style='text-align: center'><strong><i>"
       + "-------------------------------------------------------No More History Message-------------------------------------------------------"
       + "</i></strong></p>";
     let nowDateStr = "";
     for( let i in historyMsg ) {
-      let d = new Date(historyMsg[i].messageTime );
+      let d = new Date( historyMsg[i].messageTime );
       if( d.toDateString()!=nowDateStr ) {  //change day
         nowDateStr = d.toDateString();
-        historyMsgStr += "<p class='randomDay' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";
+        historyMsgStr += "<p class='random-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";
       }
-      if( historyMsg[i].hasOwnProperty("agent") ) {
+      if( historyMsg[i].hasOwnProperty("agentName") ) {
         historyMsgStr += toAgentStr( historyMsg[i] );
       }
       else historyMsgStr += toUserStr( historyMsg[i] );
     }
-    historyMsgStr += "<p class='randomDay' style='text-align: center'><strong><i>"
-      +"<a href='/chat?id="+msgList.userName+"'>"
-      + "-------------------------------------------------------Chat With User-------------------------------------------------------"
-      +"</a></i></strong></p>";
+    //to chat with user:
+      // historyMsgStr += "<p class='random-day' style='text-align: center'><strong><i>"
+      //   +"<a href='/chat?id="+msgList.id+"'>"
+      //   + "-------------------------------------------------------Chat With User-------------------------------------------------------"
+      //   +"</a></i></strong></p>";
     //DIVIDE MSG INTO DIFFERENT DAYS DONE
 
     //some liitle function here
-    function isEarly( in1, in2 ) {
-      time1 = new Date(in1).getTime();
-      time2 = new Date(in2).getTime();
-      return ( time1 < time2 );
-    }
     function toUserStr( msg ) {
-      return "<p class='random'>" + msg.user + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
+      return "<p class='random'>" + msg.userName + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
     }
     function toAgentStr( msg ) {
-      return "<p class='random'>" + msg.agent + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
+      return "<p class='random'>" + msg.agentName + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
     }
 
-    let firstTime = new Date(historyMsg[0].messageTime).getTime();
-    let recentTime = new Date(historyMsg[historyMsg.length-1].messageTime).getTime();
+    let firstTime = historyMsg[0].messageTime;
+    let recentTime = historyMsg[historyMsg.length-1].messageTime;
     let avgChatTime;
     let totalChatTime;
 
@@ -238,19 +234,18 @@ $(document).ready(function() {
       avgChatTime = sum/times.length;
     }
 
-
     canvas.append(
-      "<div id=\"" + msgList.userName + "\" class=\"tabcontent\"style=\"display: none;\">" +
-      "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x</span>" +
-      historyMsgStr
+      "<div id=\"" + msgList.id + "\" class=\"tabcontent\"style=\"display: none;\">"
+       + "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x&nbsp;&nbsp;&nbsp;</span>"
+       + "<div id='" + msgList.id + "-content' class='messagePanel'>" + historyMsgStr + "</div>"
+       + "</div>"
     );// close append
-
-    clients.append("<b><button  rel=\""+msgList.userName+"\" class=\"tablinks\""
+    clients.append("<b><button  rel=\""+msgList.id+"\" class=\"tablinks\""
     + "data-avgTime=\""+ avgChatTime.toFixed(0)+"\" "
     + "data-totalTime=\"" + totalChatTime.toFixed(0)+"\" "
     + "data-firstTime=\"" + firstTime+"\" "
     + "data-recentTime=\"" + recentTime+"\"> "
-    + msgList.userName + "</button></b>");
+    + userName + "</button></b>");
 
   }
 
@@ -274,15 +269,17 @@ $(document).ready(function() {
         let id = $(this).attr('rel');
 
         //hide no search_str msg
-        $("div #"+id+" .random").css("display", "none");
-        $("div #"+id+" .message").css("display", "none");
+        $("div #"+id+"-content"+" .random").css("display", "none");
+        $("div #"+id+"-content"+" .message").css("display", "none");
 
-        //display searched msg
-        $("div #"+id+" .random:containsi("+searchStr+")").css("display", "");
-        $("div #"+id+" .message:containsi("+searchStr+")").css("display", "");
+        //display searched msg & push #link when onclick
+        $("div #"+id+"-content"+" .random:containsi("+searchStr+")")
+          .css("display", "").on( "click", when_click_msg );
+        $("div #"+id+"-content"+" .message:containsi("+searchStr+")")
+          .css("display", "").on( "click", when_click_msg );
 
-        //get search_str msg # link
-        $("div #"+id+" .random:containsi("+searchStr+")").on("click", function() {    //when clicing searched msg
+        //when onclick, get search_str msg # link
+        function when_click_msg() {    //when clicing searched msg
 
           $(this).attr("id", "ref");    //msg immediately add link
 
@@ -291,18 +288,18 @@ $(document).ready(function() {
 
           window.location.replace("/history#ref"); //then jump to the #link added
           $(this).attr("id", "");   //last remove link
-        });
+        };
 
         //if this customer already no msg...    (dont know how to clean code QQ)
         let flag = false;
-        for( let i=0; i<$("div #"+id+" .random").length; i++ ) {
-          if( $("div #"+id+" .random").eq(i).css("display") != "none" ) {
+        for( let i=0; i<$("div #"+id+"-content"+" .random").length; i++ ) {
+          if( $("div #"+id+"-content"+" .random").eq(i).css("display") != "none" ) {
             flag = true;
             break;
           }
         }
-        if( !flag ) for( let i=0; i<$("div #"+id+" .message").length; i++ ) {
-          if( $("div #"+id+" .message").eq(i).css("display") != "none" ) {
+        if( !flag ) for( let i=0; i<$("div #"+id+"-content"+" .message").length; i++ ) {
+          if( $("div #"+id+"-content"+" .message").eq(i).css("display") != "none" ) {
             flag = true;
             break;
           }
@@ -310,7 +307,7 @@ $(document).ready(function() {
 
         //then hide the customer's tablinks
         if( !flag ) $(this).css("background-color", "");
-        else $(this).css("background-color", FIND_COLOR);
+        else $(this).css("background-color", COLOR.FIND);
 
       });
     }
@@ -349,19 +346,27 @@ $(document).ready(function() {
 
   function sortAvgChatTime() {
     sortUsers("avgTime", sortAvgBool, function(a,b){ return a<b; } );
-    sortAvgBool = !sortAvgBool;
+    var tmp = !sortAvgBool;
+    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
+    sortAvgBool = tmp;
   }
   function sortTotalChatTime() {
     sortUsers("totalTime", sortTotalBool, function(a,b){ return a<b; } );
-    sortTotalBool = !sortTotalBool;
+    var tmp = !sortTotalBool;
+    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
+    sortTotalBool = tmp;
   }
   function sortFirstChatTime() {
     sortUsers("firstTime", sortFirstBool, function(a,b){ return a>b; } );
-    sortFirstBool = !sortFirstBool;
+    var tmp = !sortFirstBool;
+    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
+    sortFirstBool = tmp;
   }
   function sortRecentChatTime() {
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
-    sortRecentBool = !sortRecentBool;
+    var tmp = !sortRecentBool;
+    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
+    sortRecentBool = tmp;
   }
 
   //  abandon func

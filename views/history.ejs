@@ -12,6 +12,7 @@
       <!-- Morris Charts CSS -->
       <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
       <link rel="stylesheet" href="stylesheets/main.css" />
+      <link rel="stylesheet" href="stylesheets/history.css" />
    </head>
    <body>
       <div id="wrapper">
@@ -42,6 +43,7 @@
                </li>
                <!-- /.dropdown -->
             </ul>
+
             <!-- /.navbar-top-links -->
             <div class="navbar-default sidebar" role="navigation">
                <div class="sidebar-nav navbar-collapse">
@@ -53,10 +55,10 @@
                         <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
                      </li>
                      <li>
-                        <a href="/chat" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                        <a href="/chat"><i class="fa fa-commenting fa-fw"></i> Chat</a>
                      </li>
                      <li>
-                        <a href="/history" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                        <a href="/history" class="active"><i class="fa fa-commenting fa-fw"></i> History</a>
                      </li>
                      <li>
                         <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
@@ -65,118 +67,38 @@
                </div>
                <!-- /.sidebar-collapse -->
             </div>
+
             <!-- /.navbar-static-side -->
          </nav>
       </div>
       <div id="home">
          <h4 style="text-align: center" id="printAgent"></h4>
-         <style>
-            div.tab {
-              float: left;
-              border: 1px solid #ccc;
-              background-color: #f1f1f1;
-              width: 30%;
-              height: 500px;
-              text-align: center;
-              padding:10px 0;
-            }
-            /* Style the buttons inside the tab */
-            div.tab button {
-            display: block;
-            background-color: inherit;
-            color: black;
-            padding: 10px 0px 10px 0px;
-            width: 100%;
-            border: none;
-            outline: none;
-            text-align: left;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 14px;
-            text-align: center;
-            font-weight: bold;
-            }
-            /* Change background color of buttons on hover */
-            div.tab button:hover {
-            background-color: #ddd;
-            }
-            /* Create an active/current "tab button" class */
-            div.tab button.active {
-            background-color: #ccc;
-            }
-            /* Style the tab content */
-            .tabcontent {
-              float: left;
-              padding: 12px 12px;
-              border: 1px solid #ccc;
-              width: 70%;
-              border-left: none;
-              height: 500px;
-              display:block;
-              background-color: lightblue;
-              overflow: scroll;
-              display: none;
-            }
-            #searchBox {
-              padding-left: 10px;
-              float: left;
-              border: 1px solid #ccc;
-              width: 70%;
-              border-left: none;
-              display:block;
-            }
-            .topright{
-               float:right;
-            }
-            p {
-               padding-left: 2px;
-            }
-            .reply{
-               float:top;
-            }
-            .list-group{
-              float: left;
-              padding: 12px 12px;
-              border: 1px solid #ccc;
-              width: 100%;
-              border-left: none;
-              height: 95%;
-              display:block;
-              overflow: scroll;
-            }
-            .tablinks{
-               padding-left: 10px
-            }
-            .sortlinks {
-              margin: 5px;
-            }
-         </style>
-         </head>
 
          <div class="tab">
             <h4 class="tablinks_head">Users List</h4>
+            <h4 class="tab_user-info">Users Info</h4>
             <ol class="list-group" id="clients">
               <b>LOADING...</b>
             </ol>
          </div>
 
-         <section id="sortBar">
+        <div class="contentPanel">
+          <section id="sortBar">
             <div>
               <button type="button" class="sortlinks" id="sortAvg">sort by average chat times</button>
               <button type="button" class="sortlinks" id="sortTotal">sort by total chat times</button>
               <button type="button" class="sortlinks" id="sortFirst">sort by first chat time</button>
               <button type="button" class="sortlinks" id="sortRecent">sort by recent chat time</button>
             </div>
-         </section>
+          </section>
 
-        <input type="text" id="searchBox" placeholder="Search for messages.." width="100%">
+          <input type="text" class="searchBox" placeholder="Search for messages.." width="100%">
+          <section id="canvas">
+          </section>
 
-         <section id="canvas">
-         </section>
-
-
+        </div>
       </div>
-      </div>
+
       <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
       <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
@@ -184,6 +106,5 @@
       <script src="javascripts/sb-admin-2.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
       <script src="javascripts/history.js"></script>
-
    </body>
 </html>

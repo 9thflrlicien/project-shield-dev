@@ -39,9 +39,14 @@ $(document).ready(function() {
 
     console.log('click tablink executed');
   }
+  function clickSpan() {
+    let userId = $(this).parent().css("display", "none").attr("id");
+    $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");
+  }
 
   $(document).on('click', '.tablinks', clickMsg);
   $(document).on('click', '#signout-btn', logout); //登出
+  $(document).on('click', '.topright', clickSpan);
   //$(document).on('click', '.tablinks_head', sortAvgChatTime);
 
   if (window.location.pathname === '/chat') {
@@ -101,6 +106,7 @@ $(document).ready(function() {
     let designated_user_id = $( "#user-rooms option:selected" ).val();
     socket.emit('send message', {id: designated_user_id , msg: messageInput.val()}, (data) => {
       messageContent.append('<span class="error">' + data + "</span><br/>");
+      ///no this thing QQ
     });
     // socket.emit('send message', messageInput.val(), (data) => {
     //     messageContent.append('<span class="error">' + data + "</span><br/>");
@@ -188,31 +194,25 @@ $(document).ready(function() {
         let j=0;
         let iFlag = (users_pastMsg.length==0);
         let jFlag = (agents_pastMsg.length==0);
-        if( users_pastMsg.length==0 && agents_pastMsg.length==0 ) {
-          //you are agent or you are new user who never chat before
-        }
-        else {
-          //you are user
-          while( !iFlag && !jFlag ) {
-            while( ( !iFlag ) && (jFlag || users_pastMsg[i].messageTime < agents_pastMsg[j].messageTime ) ) {
-              //↑ while ( still exist unloaded user msg  && (there's no unloaded agent msg || now user msg is early then now agent msg ) )
-              //then { load next index user msg; }
-              historyMsg.push(users_pastMsg[i]);
-              i++;
-              if( i==users_pastMsg.length ) iFlag = true;
-            }
-            while( (!jFlag ) && ( iFlag || agents_pastMsg[j].messageTime< users_pastMsg[i].messageTime ) ) {
+        while( !iFlag && !jFlag ) {
+          while( ( !iFlag ) && (jFlag || users_pastMsg[i].messageTime < agents_pastMsg[j].messageTime ) ) {
+            //↑ while ( still exist unloaded user msg  && (there's no unloaded agent msg || now user msg is early then now agent msg ) )
+            //then { load next index user msg; }
+            historyMsg.push(users_pastMsg[i]);
+            i++;
+            if( i==users_pastMsg.length ) iFlag = true;
+          }
+          while( (!jFlag ) && ( iFlag || agents_pastMsg[j].messageTime< users_pastMsg[i].messageTime ) ) {
 
-              historyMsg.push(agents_pastMsg[j]);
-              j++;
-              if( j==agents_pastMsg.length ) jFlag = true;
-            }
+            historyMsg.push(agents_pastMsg[j]);
+            j++;
+            if( j==agents_pastMsg.length ) jFlag = true;
           }
         }
         //SORT BOTH MSG DONE
 
         //THIS PART DIVIDE HISTORY MSG INTO DIFFERENT DAYS
-        let historyMsgStr = "<p class='randomDay' style='text-align: center'><strong><italic>"
+        let historyMsgStr = "<p class='random-day' style='text-align: center'><strong><italic>"
           + "-------------------------------------------------------No More History Message-------------------------------------------------------"
           + "</italic></strong></p>";
         let nowDateStr = "";
@@ -220,14 +220,14 @@ $(document).ready(function() {
           let d = new Date( historyMsg[i].messageTime );
           if( d.toDateString()!=nowDateStr ) {  //two msg'day is diff => change day, push day msg
             nowDateStr = d.toDateString();
-            historyMsgStr += "<p class='randomDay' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";
+            historyMsgStr += "<p class='random-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";
           }
-          if( historyMsg[i].hasOwnProperty("agentName") ) {
+          if( identity==IDENTITY.AGENT ) {
             historyMsgStr += toAgentStr( historyMsg[i] );
           }
           else historyMsgStr += toUserStr( historyMsg[i] );
         }
-        historyMsgStr += "<p class='randomDay' style='text-align: center'><strong><italic>"
+        historyMsgStr += "<p class='random-day' style='text-align: center'><strong><italic>"
           + "-------------------------------------------------------Present Message-------------------------------------------------------"
           +" </italic></strong></p>";
         //DIVIDE MSG INTO DIFFERENT DAYS DONE
@@ -243,7 +243,7 @@ $(document).ready(function() {
 
         canvas.append(
           "<div id=\"" + data.id + "\" class=\"tabcontent\"style=\"display: none;\">"
-          + "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x</span>"
+          + "<span class=\"topright\">x</span>"
           + "<div id='" + data.id + "-content'>" + historyMsgStr
           + "<p class=\"message\"><strong>" + data.userName + toTimeStr(data.messageTime) + ": </strong>" + data.message + "<br/></p>"
           + "</div></div>"
@@ -256,18 +256,36 @@ $(document).ready(function() {
     if (identity != IDENTITY.NEW_USER) {
       ///agent or already online user , update tablinks' latest msg BY ID
       console.log('user existed');
-      $(".tablinks[rel='"+data.id+"'] span").text(toTimeStr(data.messageTime) + data.message);
+      $(".tablinks[rel='"+data.id+"'] span").text(toTimeStr(data.messageTime) + remove_href_msg(data.message));
     }
     else if(identity == IDENTITY.NEW_USER){
       ///new user, make a tablinks
       clients.append("<b><button rel=\"" + data.id + "\" class=\"tablinks\" >" + data.userName
-        + "<br><span style='font-weight: normal'>" + toTimeStr(data.messageTime) + data.message +  "</span>"
-        + "</button></b>"
+        + "<br><span style='font-weight: normal'>" + toTimeStr(data.messageTime)
+        + remove_href_msg(data.message) +  "</span></button></b>"
       );
     }
     else {
       console.log("271 its imposibble");
     }//close else
+
+    function remove_href_msg(msg) {
+      if( msg.indexOf('target="_blank"')!=-1 && msg.indexOf('href')!=-1 ) {
+        let aPos = msg.indexOf('target="_blank"');
+        let bPos = msg.indexOf('href');
+        if( bPos>aPos ) { ///image, video, audio, location
+          if( msg.indexOf('image')!=-1 ) return "send a image";
+          else if( msg.indexOf('audio')!=-1 ) return "send an audio";
+          else if( msg.indexOf('video')!=-1 ) return "send a video";
+          else if( msg.indexOf('https://www.google.com.tw/maps/') != -1) return "send a location";
+        }
+        else {  ///url
+          let cPos = msg.lastIndexOf('target');
+          return msg.substring( bPos+6, cPos-2 ) ;
+        }
+      }
+      else return msg;
+    }
 
   } //close client function
 
@@ -291,15 +309,17 @@ $(document).ready(function() {
         let id = $(this).attr('rel');
 
         //hide no search_str msg
-        $("div #"+id+" .random").css("display", "none");
-        $("div #"+id+" .message").css("display", "none");
+        $("div #"+id+"-content"+" .random").css("display", "none");
+        $("div #"+id+"-content"+" .message").css("display", "none");
 
-        //display searched msg
-        $("div #"+id+" .random:containsi("+searchStr+")").css("display", "");
-        $("div #"+id+" .message:containsi("+searchStr+")").css("display", "");
+        //display searched msg & push #link when onclick
+        $("div #"+id+"-content"+" .random:containsi("+searchStr+")")
+          .css("display", "").on( "click", when_click_msg );
+        $("div #"+id+"-content"+" .message:containsi("+searchStr+")")
+          .css("display", "").on( "click", when_click_msg );
 
-        //get search_str msg # link
-        $("div #"+id+" .random:containsi("+searchStr+")").on("click", function() {    //when clicing searched msg
+        //when onclick, get search_str msg # link
+        function when_click_msg() {    //when clicing searched msg
 
           $(this).attr("id", "ref");    //msg immediately add link
 
@@ -308,18 +328,18 @@ $(document).ready(function() {
 
           window.location.replace("/chat#ref"); //then jump to the #link added
           $(this).attr("id", "");   //last remove link
-        });
+        };
 
         //if this customer already no msg...    (dont know how to clean code QQ)
         let flag = false;
-        for( let i=0; i<$("div #"+id+" .random").length; i++ ) {
-          if( $("div #"+id+" .random").eq(i).css("display") != "none" ) {
+        for( let i=0; i<$("div #"+id+"-content"+" .random").length; i++ ) {
+          if( $("div #"+id+"-content"+" .random").eq(i).css("display") != "none" ) {
             flag = true;
             break;
           }
         }
-        if( !flag ) for( let i=0; i<$("div #"+id+" .message").length; i++ ) {
-          if( $("div #"+id+" .message").eq(i).css("display") != "none" ) {
+        if( !flag ) for( let i=0; i<$("div #"+id+"-content"+" .message").length; i++ ) {
+          if( $("div #"+id+"-content"+" .message").eq(i).css("display") != "none" ) {
             flag = true;
             break;
           }
@@ -327,24 +347,24 @@ $(document).ready(function() {
 
         //then hide the customer's tablinks
         if( !flag ) $(this).css("background-color", "");
-        else $(this).css("background-color", FIND_COLOR);
+        else $(this).css("background-color", COLOR.FIND);
 
       });
     }
     function displayAll() {
       $('.tablinks').each( function() {
         let id = $(this).attr('rel');
-        $("div #"+id+" .random").css({
+        $("div #"+id+"-content"+" .random").css({
           "background-color": "",
           "display": ""
         }).off("click");
 
-        $("div #"+id+" .message").css({
+        $("div #"+id+"-content"+" .message").css({
           "background-color": "",
           "display": ""
         }).off("click");
 
-        $(this).css("background-color","").show();
+        $(this).css("background-color","");
       });
     }
   });   //end searchBox change func
