@@ -19,7 +19,8 @@ $(document).ready(function() {
 
 
 });
-
+  var count=0;
+  console.log('count is: '+count);
 
   function clickEmo(){
       $('#textinput').val(rel);
@@ -34,8 +35,10 @@ $(document).ready(function() {
   }
 
 function btnText(){
+
   $('#text').append(
     '<div style="margin:2%">'+
+    '<span style="float:right" onclick="this.parentElement.remove()">X</span>'+
     '<tr>'+
     '<th style="padding:1.5%; background-color: #ddd">Enter Text:</th>'+
     '</tr>'+
@@ -47,7 +50,8 @@ function btnText(){
   '</td>'+
   '</tr>'+
   '<tr><th style="padding:1.5%; background-color: #ddd">'+
-      '<button class="tablinks" rel="emos">Emoji</button></th></tr></div>')
+      '<button class="tablinks" rel="emos">Emoji</button></th></tr></div>');
+
 }
 
 

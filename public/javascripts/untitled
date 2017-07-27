@@ -1,7 +1,6 @@
 
 PRIORITY: 製作 Auto Reply
-1. Load msg from firebase (2)
-2. Save msg to firebase(1)
+1. 把new topic page 放到 modal裡，全部擺到Overview那一頁。
 
 
 
