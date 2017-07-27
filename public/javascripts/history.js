@@ -150,7 +150,7 @@ $(document).ready(function() {
     let iFlag = (users_pastMsg.length==0);
     let jFlag = (agents_pastMsg.length==0);
     console.log(150);
-    while( !iFlag && !jFlag ) {
+    while( !iFlag || !jFlag ) {
       while( ( !iFlag ) && (jFlag || users_pastMsg[i].messageTime < agents_pastMsg[j].messageTime ) ) {
         //↑ while ( still exist unloaded user msg )
         // && (there's no unloaded agent msg || now user msg is early then now agent msg )

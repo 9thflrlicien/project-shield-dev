@@ -194,7 +194,7 @@ $(document).ready(function() {
         let j=0;
         let iFlag = (users_pastMsg.length==0);
         let jFlag = (agents_pastMsg.length==0);
-        while( !iFlag && !jFlag ) {
+        while( !iFlag || !jFlag ) {
           while( ( !iFlag ) && (jFlag || users_pastMsg[i].messageTime < agents_pastMsg[j].messageTime ) ) {
             //↑ while ( still exist unloaded user msg  && (there's no unloaded agent msg || now user msg is early then now agent msg ) )
             //then { load next index user msg; }
@@ -243,8 +243,8 @@ $(document).ready(function() {
 
         canvas.append(
           "<div id=\"" + data.id + "\" class=\"tabcontent\"style=\"display: none;\">"
-          + "<span class=\"topright\">x</span>"
-          + "<div id='" + data.id + "-content'>" + historyMsgStr
+          + "<span class=\"topright\">x&nbsp;</span>"
+          + "<div id='" + data.id + "-content' class='messagePanel'>" + historyMsgStr
           + "<p class=\"message\"><strong>" + data.userName + toTimeStr(data.messageTime) + ": </strong>" + data.message + "<br/></p>"
           + "</div></div>"
         );// close append

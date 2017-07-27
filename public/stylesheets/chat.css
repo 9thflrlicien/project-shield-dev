@@ -32,19 +32,26 @@ div.tab button.active {
   background-color: #ccc;
 }
 /* Style the tab content */
+#canvas {
+  height: 85%;
+}
 .tabcontent {
   float: left;
-  padding: 0px 12px;
   border: 1px solid #ccc;
   width: 70%;
   border-left: none;
   height: 300px;
   display:block;
   background-color: lightblue;
-  overflow-y: scroll;
   display: none;
 }
+.messagePanel {
+  height: 95%;
+  overflow-y: scroll;
+  clear:right;
+}
 .topright{
+  height: 5%;
   float:right;
 }
 p {
