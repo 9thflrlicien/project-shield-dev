@@ -18,7 +18,12 @@ $(document).ready(function() {
   $(document).on('click', '#editBtn', openEdit); //打開編輯modal
   $(document).on('click', '#edit-submit', modalEdit);
   $(document).on('click', '#deleBtn', deleteRow); //刪除
+  $(document).on('click', '.tablinks_sort' , clickSortingLink);
 
+var current_datetime = new Date();
+var d    = current_datetime.getDate();
+var m    = current_datetime.getMonth();
+var y    = current_datetime.getFullYear();
 
 
 
@@ -34,13 +39,16 @@ function saveDraft(){
   let d = Date.now();
   let text = $('#textinput').val();
   let status = 'draft';
+  let send_time = $('#sendTime').val();
+  // let send_time = $('#sendTime');
 
 
-  writeUserData_draft(d, auth.currentUser.uid, text, status, auth.currentUser.email.toString());
+  writeUserData_draft(d, auth.currentUser.uid, text, send_time, status, auth.currentUser.email.toString());
 
   //塞入資料庫並重整
   $('#quickAdd').modal('hide');
   $('#textinput').val('');
+  // $('#sendTime').val('');
   alert('Saved!')
 
 
@@ -48,11 +56,12 @@ function saveDraft(){
 }
 
 
-  function writeUserData_draft(d, userId, text, status) {
+  function writeUserData_draft(d, userId, text, send_time, status, email) {
   database.ref('message-overview/' + userId).push({
     taskContent: text,
     owner: auth.currentUser.email,
-    taskStatus: status
+    taskStatus: status,
+    taskTime: send_time
   });
 }
 
@@ -84,24 +93,26 @@ function saveDraft(){
   let d = Date.now();
   let text = $('#textinput').val();
   let status = 'reserved';
-
-  writeUserData(d, auth.currentUser.uid, text, status, auth.currentUser.email.toString());
+  let send_time = $('#sendTime').val();
+  writeUserData(d, auth.currentUser.uid, send_time, text,  status, auth.currentUser.email.toString());
 
   //塞入資料庫並重整
   $('#quickAdd').modal('hide');
   $('#textinput').val('');
-  alert('Saved!')
+  $('#sendTime').val(''); //
 
+  alert('Saved!');
 
-  loadOverReply();
+  // loadOverReply();
 }
 
 
-  function writeUserData(d, userId, text,status) {
+  function writeUserData(d, userId, send_time, text, status, email) {
   database.ref('message-overview/' + userId).push({
     taskContent: text,
+    taskTime: send_time,
     owner: auth.currentUser.email,
-    taskStatus: status
+    taskStatus: status,
 
   });
 }
@@ -153,38 +164,39 @@ function saveDraft(){
 
           if (dataArray[i].taskStatus=='draft'){
 
-            $('#data-draft').append(
-              '<tr>' +
-                '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
-                '<td style="margin:0;width:5%">' + (i+1) + '</td>' +
-                '<td style="margin:0;width:20%">' + dataArray[i].taskContent + '</td>' +
-                '<td style="margin:0;width:10%">' + 'text' + '</td>' +
-                '<td style="margin:0;width:15%">-</td>' +
-                '<td style="margin:0;width:10%">'+dataArray[i].taskStatus+'</td>'+
-                '<td style="color:red; margin:0; width:20%"><b>預約時間功能尚未啟用</b></td>' +
-                '<td style="margin:0">' +
-                '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit  </b></a>' +
-                '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View  </b></a>' +
-                '<a href="#" id="deleBtn"><b>Delete</b></a>' +
-                '</td>' +
-              '</tr>'
-        );}else{
-
-              $('#data-appointment').append(
-              '<tr style="margin:0;">' +
-                '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
-                '<td style="margin:0;width:5%">' + (i+1) + '</td>' +
-                '<td style="margin:0;width:20%">' + dataArray[i].taskContent + '</td>' +
-                '<td style="margin:0;width:10%">' + 'text' + '</td>' +
-                '<td style="margin:0;width:15%">-</td>' +
-                '<td style="margin:0;width:10%">'+dataArray[i].taskStatus+'</td>'+
-                '<td style="color:red; margin:0; width:20%"><b>預約時間功能尚未啟用</b></td>' +
-                '<td style="margin:0">' +
-                '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit  </b></a>' +
-                '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View  </b></a>' +
-                '<a href="#" id="deleBtn"><b>Delete</b></a>' +
-                '</td>' +
-              '</tr>'
+         $('#data-draft').append(
+          '<tr class = "msgToSend">' +
+          '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:5%">' + (i+1) + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:20%">' + dataArray[i].taskContent + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:10%">' + 'text' + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:15%">-</td>' +
+          '<td class="msgDetail" style="margin:0;width:10%">'+dataArray[i].taskStatus+'</td>'+
+          '<td class="msgDetail" style="color:red; margin:0; width:20%">'+dataArray[i].taskTime+'</td>' +
+          '<td style="margin:0">' +
+          '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit  </b></a>' +
+          '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View  </b></a>' +
+          '<a href="#" id="deleBtn"><b>Delete</b></a>' +
+          '</td>' +
+          '</tr>'
+        );
+      }
+      else{
+        $('#data-appointment').append(
+            '<tr class = "msgToSend" style="margin:0;">' +
+            '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
+            '<td class="msgDetail" style="margin:0;width:5%">' + (i+1) + '</td>' +
+            '<td class="msgDetail" style="margin:0;width:20%">' + dataArray[i].taskContent + '</td>' +
+            '<td class="msgDetail" style="margin:0;width:10%">' + 'text' + '</td>' +
+            '<td class="msgDetail" style="margin:0;width:15%">-</td>' +
+            '<td class="msgDetail" style="margin:0;width:10%">'+dataArray[i].taskStatus+'</td>'+
+            '<td class="msgDetail" style="color:red; margin:0; width:20%">'+dataArray[i].taskTime+'</td>' +
+            '<td style="margin:0">' +
+            '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit  </b></a>' +
+            '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View  </b></a>' +
+            '<a href="#" id="deleBtn"><b>Delete</b></a>' +
+            '</td>' +
+            '</tr>'
         );
 
             }
@@ -273,7 +285,7 @@ function modalEdit() {
 }
 
 
-function saveUserData(key, userId, name, stat, owne) {
+function saveUserData(key, userId, name, stat, owne, email,d) {
   database.ref('message-overview/' + userId + '/' + key).set({
     taskContent: name,
     taskStatus: stat,
@@ -309,6 +321,59 @@ function deleteRow() {
     }).hide();
   });
 
+// SORTING ADDED BY COLMAN
+
+
+var sortWays = ["No.", "Content", "Category", "Tags(optional)", "Status", "Appointment"];
+var sortBool = [true, true, true, true, true, true ];
+
+function clickSortingLink() {
+  let wayId = sortWays.indexOf( $(this).text() ); //get which way to sort (line 322)
+
+  let wayBool = sortBool[wayId];
+  for( let i in sortBool ) sortBool[i] = true;  //reset other sort ways up_down
+  sortBool[wayId] = !wayBool;   //if this time sort up, next time sort down
+
+  let panel_to_push;    //check which tabcontent to sort
+  if( $('#Appointment').css("display") ==  "block" ) panel_to_push = '#data-appointment';
+  else if( $('#Draft').css("display") ==  "block" ) panel_to_push = '#data-draft';
+  else if( $('#History').css("display") ==  "block" ) panel_to_push = '#open-ticket-list';
+
+  let msgsArr = $( panel_to_push + ' .msgToSend' ); //get all msg in tabcontent
+  for( let i=0; i<msgsArr.length-1; i++ ) {   //bubble sort
+    for( let j=i+1; j<msgsArr.length; j++ ) {
+      let a = msgsArr.eq(i).children(".msgDetail").eq(wayId).text();
+      let b = msgsArr.eq(j).children(".msgDetail").eq(wayId).text();
+      console.log("a, b = " + a + ", " + b);
+      if( wayBool == (a<b)  ) {             //sort up or down && need sort?
+        console.log("swap!");
+        let tmp = msgsArr[i];   msgsArr[i] = msgsArr[j];    msgsArr[j] = tmp;
+      }
+    }
+  }
+  $(panel_to_push).append(msgsArr); //push to tabcontent
+
+}
+
+function ISODateString(d) {
+    function pad(n) {return n<10 ? '0'+n : n}
+    return d.getFullYear()+'-'
+         + pad(d.getMonth()+1)+'-'
+         + pad(d.getDate())+'T'
+         + '00:00'
+}
+
+function ISODateTimeString(d) {
+    function pad(n) {return n<10 ? '0'+n : n}
+    return d.getFullYear()+'-'
+         + pad(d.getMonth()+1)+'-'
+         + pad(d.getDate())+'T'
+         + pad(d.getHours())+':'
+         + pad(d.getMinutes())
+}
+
+
+
 
 
 
@@ -318,3 +383,4 @@ function logout(){
     window.location.assign("/login");
   })
 }
+

@@ -93,10 +93,11 @@
     1. Limit users 功能未做(緩）<br/>
     2. Emoji未做(緩）<br/>
     3. Append Text部分完成，其他未做(緩）<br/>
-    4. Sort/ Filter 功能未做<br/>
+    4. Sort/ Filter 功能現階段完成，後續可討論<br/>
     5. History功能未做(緩）<br/>
     6. draft欄上UI空格暫未解決<br/>
-    7. Status sorting to be discussed..
+    7. 時間功能待續<br/>
+
     </p>
 
   <button type="button" style="margin:2% 0 2% 0" class="btn btn-default inner-add" data-toggle="modal" data-target="#quickAdd">
@@ -167,7 +168,8 @@
                     <div class="form-group">
                         <label for="modal-datetime">Set Send Time and Date:</label><br>
                         <form style="padding:3px; height:80px">
-                            <input type="checkbox" name="Dateandtime" value="Time"> Date and Time: <input type="datetime-local" id="datetime" style="width:35%" />
+                            <input type="checkbox" name="Dateandtime" value="Time"> Date and Time: 
+                            <input type="datetime-local" id="sendTime" style="width:35%" />
                             <br>
                             <input style="padding:1px" type="checkbox" name="SendNow" value="SendNow"> Send Now
                         </form>
@@ -324,13 +326,12 @@
 
   </div>
         <div class="tab">
-            <button class="tablinks" style="width:5%">No.</button>
-            <button class="tablinks" style="width:20%">Content</button>
-            <button class="tablinks" style="width:10%">Category</button>
-            <button class="tablinks" style="width:15%">Tags(optional)</button>
-            <button class="tablinks" style="width:10%">Status</button>
-            <button class="tablinks" style="width:20%">Appointment</button>
-        </div>
+            <button class="tablinks_sort" style="width:5%">No.</button>
+            <button class="tablinks_sort" style="width:20%">Content</button>
+            <button class="tablinks_sort" style="width:10%">Category</button>
+            <button class="tablinks_sort" style="width:15%">Tags(optional)</button>
+            <button class="tablinks_sort" style="width:10%">Status</button>
+            <button class="tablinks_sort" style="width:20%">Appointment</button>        </div>
 </section>
 <section>
 <div id="Appointment" class="tabcontent" style="display:block; margin:0 ;padding:0 "> 

@@ -15,6 +15,8 @@ $(document).ready(function() {
   $(document).on('click', '#viewBtn', loadView);
   $(document).on('click', '#editBtn', openEdit); //打開編輯modal
   $(document).on('click', '#edit-submit', modalEdit);
+  $(document).on('click', '#deleBtn', deleteRow); //刪除
+
 
 
 
@@ -28,16 +30,15 @@ $(document).ready(function() {
   function modalSubmit() {
   let d = Date.now()
   let name = $('#modal-task-name').val();
-  let datetime = $('#datetime').val();
-  let textInput = $('#modal-text').val();
+  let textInput = $('#enter-text').val();
+  console.log(textInput);
 
-  writeUserData(auth.currentUser.uid, name, datetime, textInput, auth.currentUser.email.toString());
+  writeUserData(auth.currentUser.uid, name, textInput, auth.currentUser.email.toString());
 
   //塞入資料庫並重整
   $('#quickAdd').modal('hide');
   $('#modal-task-name').val('');
-  $('#datetime').val('');
-  $('#modal-text').val('');
+  $('#enter-text').val('');
   alert('Saved!')
 
 
@@ -48,13 +49,13 @@ $(document).ready(function() {
   function writeUserData(userId, name, textInput) {
   database.ref('message-autoreply/' + userId).push({
     taskName: name,
-    // datetime: datetime,
     taskText: textInput,
     owner: auth.currentUser.email,
  
 
   });
-    console.log('this is textInput: '+textInput);
+    console.log('this is textInput: ')
+    console.log(textInput);
 
 }
 
@@ -98,13 +99,11 @@ $(document).ready(function() {
                 '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
                 '<td>' + 'Open' + '</td>' +
                 '<td>' + 'No Setup' + '</td>' +
-                '<td><a href="#"><b>' + dataArray[i].taskName + '</b></a></td>' +
+                '<td><a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>' + dataArray[i].taskName + '</b></a></td>' +
                 '<td>' + 'Not Assigned' + '</td>' +
                 '<td>' + dataArray[i].taskText + '</td>' +
                 '<td>' +
                 '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit</b></a>' +
-                ' ' +
-                '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View</b></a>' +
                 ' ' +
                 '<a href="#" id="deleBtn"><b>Delete</b></a>' +
                 '</td>' +
@@ -130,7 +129,7 @@ function loadView() {
     // 重複出現值 要抓出來
     $('#view-id').append(key); //編號
     $('#view-title').append(testVal.taskName)
-    $('#view-textinput').append(testVal.taskContent); //任務內容
+    $('#view-textinput').append(testVal.taskText); //任務內容
     $('#view-owne').append(testVal.owner); //負責人
   
 
@@ -153,7 +152,7 @@ function openEdit() {
 
     $('#edit-id').append(key);
     $('#edit-taskTitle').val(testVal.taskName); //狀態
-    $('#edit-taskContent').val(testVal.taskContent); //任務內容
+    $('#edit-taskContent').val(testVal.taskText); //任務內容
     $('#edit-owner').val(testVal.owner); //負責人
     // console.log(sublist);
 
@@ -163,8 +162,8 @@ function openEdit() {
 function modalEdit() {
   let key = $('#edit-id').text();
   let userId = auth.currentUser.uid;
-  var title = $('#edit-taskTitle').val(); //狀態
-  var name = $('#edit-taskContent').val(); //任務內容
+  var name = $('#edit-taskTitle').val(); //狀態
+  var textInput = $('#edit-taskContent').val(); //任務內容
   var owne = $('#edit-owner').val(); //負責人
   //日期
   let d = Date.now();
@@ -172,7 +171,7 @@ function modalEdit() {
 
   // console.log(key, userId, name, cate, stat, prio, owne, desc, subt, inir, inid, auth.currentUser.email, date);
 
-  saveUserData(key, userId, name, title, owne, auth.currentUser.email, date.toString());
+  saveUserData(key, userId, textInput, name, owne, auth.currentUser.email, date.toString());
 
   $('#edit-id').text(''); //
   $('#edit-taskContent').val(''); //任務內容
@@ -185,12 +184,22 @@ function modalEdit() {
 }//end modal edit
 
 
-function saveUserData(key, userId, name, title, owne) {
+function saveUserData(key, userId, textInput, name, owne) {
   database.ref('message-autoreply/' + userId + '/' + key).set({
-    taskContent: name,
-    taskTitle: title,
+    taskText: textInput,
+    taskName: name,
     owner: owne
   });
+}
+
+function deleteRow() {
+  let key = $(this).parent().parent().find('td:first').text();
+  let userId = auth.currentUser.uid;
+  // console.log(userId, key);
+
+  database.ref('message-autoreply/' + userId + '/' + key).remove();
+
+  loadAutoReply();
 }
 
 

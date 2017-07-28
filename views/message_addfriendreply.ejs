@@ -90,8 +90,8 @@
 		<h3> Message: Add Friends Reply</h3>
 		<p>You can add, edit, and test the message you want to send to LINE@</p>
     <p>NOTE FOR DEVELOPER:<br/>
-    1. Working on Save. Preview hasn't dont.<br/>
-    要放到firebase上但一直permission denied...
+    2. Preview hasn't done.（緩）<br/>
+    4. append msg UI 待修, X不見
 
     </p>
 <table>
@@ -101,30 +101,32 @@
   <tr>
   	<td style="background-color: #ddd">
     <form style="padding:1%">
-    <input id="textInput" style="width:100%;height:100px" />
+    <input id="inputText" type="text" style="width:100%;height:100px">
 	</form>
 	</td>
   </tr>
-  <tr>
+  <tr style="margin:1% 0 1% 0">
   	<th style="padding:1.5%; background-color: #ddd">
   	  <button class="tablinks" rel="Appointment">Emoji</button>
   	</th>
   </tr>
 </table>
+<table id="MsgCanvas">
+</table> 
 <table >
 <td style="padding:5% 5% 5% 15%">
 	<p>Note: You can send 5 messages at a time. Please select the type of message you want to send.</p>
-  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="Draft" >Text</button>
-  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="Appointment">Sticker</button>
-  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="Draft" >Image</button>
-  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="Appointment">Coupon</button>
-  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="Draft" >Election</button>
-  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="Appointment">Promotion</button>
-  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="Draft" >Survey</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">Text</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">Sticker</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">Image</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">Coupon</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">Election</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">Promotion</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">Survey</button>
 
 </td>
-	
 </table>
+
   <button class="tablinks" rel="History" style="padding:1%; width: 15%; float:left; margin-left:28%; margin-top:1%">Preview</button>
   <button id="save"  style="padding:1%; width: 15%; float:left; margin-left:5%; margin-top:1%">Save</button>
 
@@ -202,7 +204,7 @@ div.tab button.active {
 </style>
 
 
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>      
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>    
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
       <script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
       <script src="javascripts/firebaseConfig.js"></script>
