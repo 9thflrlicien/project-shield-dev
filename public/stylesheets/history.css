@@ -3,9 +3,9 @@ div.tab {
   border: 1px solid #ccc;
   background-color: #f1f1f1;
   width: 30%;
-  height: 300px;
+  height: 500px;
   text-align: center;
-  padding:10px 0;
+  padding:5px 0;
 }
 /* Style the buttons inside the tab */
 div.tab button {
@@ -23,6 +23,27 @@ div.tab button {
   text-align: center;
   font-weight: bold;
 }
+.tablinks_head{
+  height: 5%;
+}
+.tab_user-info{
+  padding-top: 10px;
+  border-top: 1px solid #ccc;
+  height: 20%;
+}
+.list-group{
+  float: left;
+  padding: 12px 12px;
+  border: 1px solid #ccc;
+  width: 100%;
+  border-left: none;
+  height: 70%;
+  display:block;
+  overflow-y: scroll;
+}
+.tablinks{
+  /*padding-left: 10px*/
+}
 /* Change background color of buttons on hover */
 div.tab button:hover {
   background-color: #ddd;
@@ -32,15 +53,33 @@ div.tab button.active {
   background-color: #ccc;
 }
 /* Style the tab content */
-#canvas {
+.contentPanel {
+  height: 500px;
+}
+.sortBar{
+  height: 10%;
+}
+.sortBar .sortlinks {
+  margin: 5px;
+}
+.searchBox {
+  padding-left: 10px;
+  float: left;
+  border: 1px solid #ccc;
+  width: 70%;
+  height: 5%;
+  border-left: none;
+  display:block;
+}
+#canvas{
   height: 85%;
 }
 .tabcontent {
   float: left;
   border: 1px solid #ccc;
   width: 70%;
+  height: 100%;
   border-left: none;
-  height: 300px;
   display:block;
   background-color: lightblue;
   display: none;
@@ -51,6 +90,7 @@ div.tab button.active {
   clear:right;
 }
 .topright{
+  /*margin: 20px;*/
   height: 5%;
   float:right;
 }
@@ -59,10 +99,4 @@ p {
 }
 .reply{
   float:top;
-}
-.tablinks{
-  padding-left: 10px
-}
-#clients {
-  list-style: none;
 }

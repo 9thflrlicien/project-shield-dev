@@ -12,7 +12,7 @@
       <!-- Morris Charts CSS -->
       <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
       <link rel="stylesheet" href="stylesheets/main.css" />
-      <link rel="stylesheet" href="stylesheets/chat.css" />
+      <link rel="stylesheet" href="stylesheets/history.css" />
    </head>
    <body>
       <div id="wrapper">
@@ -29,7 +29,6 @@
             </div>
             <!-- /.navbar-header -->
             <ul class="nav navbar-top-links navbar-right">
-
                <!-- /.dropdown -->
                <li class="dropdown">
                   <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -38,25 +37,25 @@
                   <ul class="dropdown-menu dropdown-user">
                      <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
                      <li class="divider"></li>
-                     <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+                     <li><a href="#" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
                   </ul>
                   <!-- /.dropdown-user -->
                </li>
                <!-- /.dropdown -->
             </ul>
+
             <!-- /.navbar-top-links -->
             <div class="navbar-default sidebar" role="navigation">
-
-              <div class="sidebar-nav navbar-collapse">
+               <div class="sidebar-nav navbar-collapse">
                  <ul class="nav" id="side-menu">
                     <li>
                        <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                     </li>
                     <li>
-                       <a href="/chat" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                       <a href="/chat"><i class="fa fa-commenting fa-fw"></i> Chat</a>
                     </li>
                     <li>
-                       <a href="/history"><i class="fa fa-commenting fa-fw"></i> History</a>
+                       <a href="/history" class="active"><i class="fa fa-commenting fa-fw"></i> History</a>
                     </li>
                     <li>
                        <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
@@ -65,9 +64,10 @@
                        <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
                     </li>
                  </ul>
-              </div>
-            <!-- /.sidebar-collapse -->
-          </div>
+               </div>
+               <!-- /.sidebar-collapse -->
+            </div>
+
             <!-- /.navbar-static-side -->
          </nav>
       </div>
@@ -75,25 +75,34 @@
          <h4 style="text-align: center" id="printAgent"></h4>
 
          <div class="tab">
-            <h4 class="tablinks_head">Network Loading...</h4>
-            <ol class="list-group" id="clients"></ol>
+            <h4 class="tablinks_head">Users List</h4>
+            <h4 class="tab_user-info">Users Info</h4>
+            <ol class="list-group" id="clients">
+              <b>LOADING...</b>
+            </ol>
          </div>
 
-         <section id="canvas">
-         </section>
-         <form action="" id="send-message" disabled>
-           <select id="user-rooms"></select>
-           <input size="35" id="message" />
-           <input type="submit"/>
-         </form>
-         <input type="text" id="searchBox" placeholder="Search for messages...">
+        <div class="contentPanel">
+          <section class="sortBar">
+              <button type="button" class="sortlinks" id="sortAvg">sort by average chat times</button>
+              <button type="button" class="sortlinks" id="sortTotal">sort by total chat times</button>
+              <button type="button" class="sortlinks" id="sortFirst">sort by first chat time</button>
+              <button type="button" class="sortlinks" id="sortRecent">sort by recent chat time</button>
+          </section>
+
+          <input type="text" class="searchBox" placeholder="Search for messages.." width="100%">
+          <section id="canvas">
+          </section>
+
+        </div>
       </div>
+
       <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
       <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
       <script src="javascripts/firebaseConfig.js"></script>
       <script src="javascripts/sb-admin-2.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
-      <script src="javascripts/chat.js"></script>
+      <script src="javascripts/history.js"></script>
    </body>
 </html>
