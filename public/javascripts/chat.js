@@ -266,7 +266,7 @@ $(document).ready(function() {
       );
     }
     else {
-      console.log("271 its imposibble");
+      console.log("271 its impossible");
     }//close else
 
     function remove_href_msg(msg) {
@@ -385,6 +385,20 @@ $(document).ready(function() {
 
   function addZero(val){
     return val<10 ? '0'+val : val;
+  }
+
+  function closeIdleRoom() {
+    let over_fifteen_min = new Date();
+    let user_list = [];
+    let find_user_id;
+    let total_users = document.getElementById('canvas').childNodes.length;
+    let canvas = $('#canvas');
+    for(let i=0;i<total_users;i++) {
+      user_list.push()
+    }
+    setInterval(() => {
+
+    }, 900000)
   }
 
 }); //document ready close tag
