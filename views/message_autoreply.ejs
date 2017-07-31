@@ -66,9 +66,9 @@
                      <li class="subTag" style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
                         <a href="/message_overview"> Overview</a>
                      </li>
-                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+<!--                      <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
                         <a href="/message_newtopic"> New Topic</a>
-                     </li>
+                     </li> -->
                      <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
                         <a href="/message_autoreply"> Auto Reply</a>
                      </li>
@@ -93,8 +93,7 @@
       NOTE FOR DEVELOPERS:<br/>
       1. Preview（緩） <br/>
       2. Modal-set time and date, 三選一(目前只有1有功能)(緩)<br/>
-      3. Modal-text 卡住 一直呈現undefined(緩)<br/>
-      4. 時間功能無法正確寫入，暫時跳過(緩)<br/>
+      3. Set time and date checkbox revise
     </p>
 
 
@@ -104,12 +103,12 @@
 <table>
   <thead>
   <tr>
-    <th style="width:10%; padding:2%">Status</th>
-    <th style="width:15%; padding:2%">Appointment</th>
-    <th style="width:15%; padding:2%">Message Title</th>
-    <th style="width:15%; padding:2%">Valid Period</th>
-    <th style="width:35%; padding:2%">Content</th>
-    <th style="width:15%; padding:2%">Delete</th>
+    <th class="tablinks_sort" style="width:10%; padding:2%">Status<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+    <th class="tablinks_sort" style="width:15%; padding:2%">Appointment<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+    <th class="tablinks_sort" style="width:17%; padding:2%">Message Title<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+    <th class="tablinks_sort" style="width:15%; padding:2%">Valid Period<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+    <th class="tablinks_sort" style="width:33%; padding:2%">Content<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+    <th class="tablinks_sort" style="width:17%; padding:2%">Delete<i class="fa fa-angle-down" aria-hidden="true"></i></th>
   </tr>
   </thead>
   <tbody id="autoreply-list">
@@ -161,7 +160,7 @@
                                         <button class="tablinks" rel="emos">Emoji</button>
                              <!--EMOJI PLUGINS(UNDONE) -->
                             <div id="emos" style="display:none; position:fixed; padding:5%; background-color: lightgrey; width:30%; height:30%">
-                                <button class="tablinks" id="emojis" rel="(moonwink)"><img src="data:image/png;base64,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" /></button>
+                                <button class="tablinks" id="emojis" rel="(moonwink)"><img src="#" /></button>
                                 <button class="tablinks" id="emojis">Emoji</button>
                                 <button class="tablinks" id="emojis">Emoji</button>
                                 <button class="tablinks" id="emojis">Emoji</button>

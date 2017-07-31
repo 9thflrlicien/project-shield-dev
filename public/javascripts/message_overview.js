@@ -19,6 +19,7 @@ $(document).ready(function() {
   $(document).on('click', '#edit-submit', modalEdit);
   $(document).on('click', '#deleBtn', deleteRow); //刪除
   $(document).on('click', '.tablinks_sort' , clickSortingLink);
+  $(document).on('click', '#preview', preview);
 
 var current_datetime = new Date();
 var d    = current_datetime.getDate();
@@ -34,6 +35,17 @@ var y    = current_datetime.getFullYear();
 
 
 });
+
+function preview(){
+
+  $('#previewCanvas').append(
+    '<div style="background-image: url(https://s-media-cache-ak0.pinimg.com/originals/54/3e/3d/543e3dfabf58ff1a36dcf5af876d2f49.jpg)">'+
+    '<p>'+testVal.taskTime+'</p>'+
+    '</div>'
+
+    );
+
+}
 
 function saveDraft(){
   let d = Date.now();
@@ -149,27 +161,51 @@ function saveDraft(){
     }
 
     function loadOverReply(){
-        console.log('loadOverReply executed')
+        console.log('loadOverReply executed');
         $('#data-appointment').empty();
         $('#data-draft').empty();
+        $('#data-history').empty();
         let userId = auth.currentUser.uid;
         database.ref('message-overview/' + userId).on('value', snap => {
         let dataArray = [];
         let testVal = snap.val();
         let myIds = Object.keys(testVal);
 
+
+
         for(var i=0;i < myIds.length;i++){
           dataArray.push(snap.child(myIds[i]).val());
-          console.log('in the for loop');
 
-          if (dataArray[i].taskStatus=='draft'){
+          var a = Date.parse(new Date());
+          var b = Date.parse(dataArray[i].taskTime);
+
+          if (a > b){
+
+          $('#data-history').append(
+          '<tr class = "msgToSend">' +
+          '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:7%">' + (i+1) + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:20%">' + dataArray[i].taskContent + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:12%">' + 'text' + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:15%">-</td>' +
+          '<td class="msgDetail" style="margin:0;width:10%">'+dataArray[i].taskStatus+'</td>'+
+          '<td class="msgDetail" style="color:red; margin:0; width:20%">'+dataArray[i].taskTime+'</td>' +
+          '<td style="margin:0">' +
+          '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit  </b></a>' +
+          '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View  </b></a>' +
+          '<a href="#" id="deleBtn"><b>Delete</b></a>' +
+          '</td>' +
+          '</tr>'
+              );
+
+          }else if (dataArray[i].taskStatus=='draft'){
 
          $('#data-draft').append(
           '<tr class = "msgToSend">' +
           '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
-          '<td class="msgDetail" style="margin:0;width:5%">' + (i+1) + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:7%">' + (i+1) + '</td>' +
           '<td class="msgDetail" style="margin:0;width:20%">' + dataArray[i].taskContent + '</td>' +
-          '<td class="msgDetail" style="margin:0;width:10%">' + 'text' + '</td>' +
+          '<td class="msgDetail" style="margin:0;width:12%">' + 'text' + '</td>' +
           '<td class="msgDetail" style="margin:0;width:15%">-</td>' +
           '<td class="msgDetail" style="margin:0;width:10%">'+dataArray[i].taskStatus+'</td>'+
           '<td class="msgDetail" style="color:red; margin:0; width:20%">'+dataArray[i].taskTime+'</td>' +
@@ -185,9 +221,9 @@ function saveDraft(){
         $('#data-appointment').append(
             '<tr class = "msgToSend" style="margin:0;">' +
             '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
-            '<td class="msgDetail" style="margin:0;width:5%">' + (i+1) + '</td>' +
+            '<td class="msgDetail" style="margin:0;width:7%">' + (i+1) + '</td>' +
             '<td class="msgDetail" style="margin:0;width:20%">' + dataArray[i].taskContent + '</td>' +
-            '<td class="msgDetail" style="margin:0;width:10%">' + 'text' + '</td>' +
+            '<td class="msgDetail" style="margin:0;width:12%">' + 'text' + '</td>' +
             '<td class="msgDetail" style="margin:0;width:15%">-</td>' +
             '<td class="msgDetail" style="margin:0;width:10%">'+dataArray[i].taskStatus+'</td>'+
             '<td class="msgDetail" style="color:red; margin:0; width:20%">'+dataArray[i].taskTime+'</td>' +
@@ -211,9 +247,11 @@ function loadView() {
   $('#view-owne').text(''); //負責人
   $('#view-desc').text(''); //說明
   $('#view-inir').text(''); //建立人
+  $('#view-time').text(''); //預約時間
   $('#view-inid').text(''); //建立日期
   $('#view-modr').text(''); //修改人
   $('#view-modd').text(''); //修改日期
+  $('#previewCanvas').text('');
   $('#view-subt').empty(); //
 
   let key = $(this).parent().parent().find('td:first').text();
@@ -230,18 +268,31 @@ function loadView() {
     $('#view-owne').append(testVal.owner); //負責人
     $('#view-desc').append(testVal.description); //說明
     $('#view-inir').append(testVal.initiator); //建立人
+    $('#view-time').append(testVal.taskTime); //預約時間
     $('#view-inid').append(testVal.initDate); //建立日期
     $('#view-modr').append(testVal.modifier); //修改人
     $('#view-modd').append(testVal.modiDate); //修改日期
 
   });
 
+   $('#previewCanvas').append(
+    '<div style="width:100px; height:500px; background-image: url(https://s-media-cache-ak0.pinimg.com/originals/54/3e/3d/543e3dfabf58ff1a36dcf5af876d2f49.jpg)">'+
+    '<div style="margin:3%; padding:3%">'+
+    '<p>'+ 'test' +'</p>'+
+    '</div>'+
+    '</div>'
+
+    );
+
+
 }
 
 function openEdit() {
   $('#edit-taskContent').val(''); //任務內容
   $('#edit-status').val(''); //狀態
+  $('#edit-time').val(''); //預約時間
   $('#edit-owner').val(''); //負責人
+
 
 
   let key = $(this).parent().parent().find('td:first').text();
@@ -254,6 +305,7 @@ function openEdit() {
     $('#edit-id').append(key);
     $('#edit-taskContent').val(testVal.taskContent); //任務內容
     $('#edit-status').val(testVal.taskStatus); //狀態
+    $('#edit-time').val(testVal.taskTime);
     $('#edit-owner').val(testVal.owner); //負責人
     // console.log(sublist);
 
@@ -265,6 +317,7 @@ function modalEdit() {
   let userId = auth.currentUser.uid;
   var name = $('#edit-taskContent').val(); //任務內容
   var stat = $('#edit-status').val(); //狀態
+  var time = $('#edit-time').val()//預約時間
   var owne = $('#edit-owner').val(); //負責人
   //日期
   let d = Date.now();
@@ -272,11 +325,12 @@ function modalEdit() {
 
   // console.log(key, userId, name, cate, stat, prio, owne, desc, subt, inir, inid, auth.currentUser.email, date);
 
-  saveUserData(key, userId, name, stat, owne, auth.currentUser.email, date.toString());
+  saveUserData(key, userId, name, stat, time, owne, auth.currentUser.email, date.toString());
 
   $('#edit-id').text(''); //
   $('#edit-taskContent').val(''); //任務內容
   $('#edit-status').val(''); //狀態
+  $('#edit-time').val('')//預約時間
   $('#edit-owner').val(''); //負責人
 
 
@@ -285,10 +339,11 @@ function modalEdit() {
 }
 
 
-function saveUserData(key, userId, name, stat, owne, email,d) {
+function saveUserData(key, userId, name, stat, time, owne, email,d) {
   database.ref('message-overview/' + userId + '/' + key).set({
     taskContent: name,
     taskStatus: stat,
+    taskTime: time,
     owner: owne
   });
 }
@@ -371,7 +426,6 @@ function ISODateTimeString(d) {
          + pad(d.getHours())+':'
          + pad(d.getMinutes())
 }
-
 
 
 

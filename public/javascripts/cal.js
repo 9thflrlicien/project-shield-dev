@@ -8,6 +8,8 @@ var current_datetime = new Date();
 var d    = current_datetime.getDate();
 var m    = current_datetime.getMonth();
 var y    = current_datetime.getFullYear();
+console.log('this is current_datetime');
+console.log(current_datetime);
 // console.log(date);
 var allday     = false;
 var event_list = [];

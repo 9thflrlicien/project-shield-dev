@@ -17,7 +17,9 @@ $(document).ready(function() {
     $(document).on('click', '#editBtn', openEdit); //打開編輯modal
     $(document).on('click', '#deleBtn', deleteRow); //刪除
     $(document).on('click', '#edit-submit', modalEdit);
-    $(document).on('click', '#addbtn', addMsgCanvas);
+    $(document).on('click', '#appendMsg', appendMsgCanvas);
+    $(document).on('click', '.tablinks_sort' , clickSortingLink);
+
 
 
 
@@ -29,12 +31,17 @@ $(document).ready(function() {
 
 
 });
+
+function arrow(){
+    var str = $("#for_arrow"); 
+    var res = str.replace("down", "up");
+}
   
 
-  function addMsgCanvas(){
+  function appendMsgCanvas(){
     $('#MsgCanvas').append('<!--TEXT AREA -->'+
-                        '<div id="text" style="display:block; height:100px; width:400px; padding:1.5%;margin:2%">'+
-                        '<span style="float:right" onclick="this.parentElement.remove()">X</span>'+
+                        '<div id="text" style="display:none; height:100px; width:400px; padding:1.5%;margin:2%">'+
+                          '<span style="float:right" onclick="this.parentElement.remove()">X</span>'+ 
                             '<table>'+
                                 '<tr>'+
                                     '<th style="padding:1.5%; margin:2%; background-color: #ddd">Enter Text:</th>'+
@@ -150,14 +157,14 @@ console.log('subKey added');
           if (dataArray[i].taskCate == 'Serving'){
 
             $("#serving").append(
-              '<tr>' +
+              '<tr class="msgToSend">' +
                 '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
-                '<td id="td">' + dataArray[i].taskMainK + '</td>' +
-                '<td id="td">' + dataArray[i].taskSubK + '</td>' +
-                '<td id="td">' + dataArray[i].taskText + '</td>' +
-                '<td id="td" style="color:red"><b>此功能尚未開通</b></td>'+
-                '<td id="td" >'+dataArray[i].taskCate+'</td>'+
-                '<td id="td">'+
+                '<td class="msgDetail" id="td">' + dataArray[i].taskMainK + '</td>' +
+                '<td class="msgDetail" id="td">' + dataArray[i].taskSubK + '</td>' +
+                '<td class="msgDetail" id="td">' + dataArray[i].taskText + '</td>' +
+                '<td class="msgDetail" id="td" style="color:red"><b>此功能尚未開通</b></td>'+
+                '<td class="msgDetail" id="td" >'+dataArray[i].taskCate+'</td>'+
+                '<td class="msgDetail" id="td">'+
             '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit  </b></a>' +
             '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View  </b></a>' +
             '<a href="#" id="deleBtn"><b>Delete</b></a>' +
@@ -166,14 +173,14 @@ console.log('subKey added');
         );
           }else{
             $("#waiting").append(
-              '<tr>' +
-                '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
-                '<td id="td">' + dataArray[i].taskMainK + '</td>' +
-                '<td id="td">' + dataArray[i].taskSubK + '</td>' +
-                '<td id="td">' + dataArray[i].taskText + '</td>' +
-                '<td id="td" style="color:red"><b>此功能尚未開通</b></td>'+
-                '<td id="td">'+dataArray[i].taskCate+'</td>'+
-                '<td id="td">'+
+              '<tr class="msgToSend">' +
+                '<td class="msgDetail" id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
+                '<td class="msgDetail" id="td">' + dataArray[i].taskMainK + '</td>' +
+                '<td class="msgDetail" id="td">' + dataArray[i].taskSubK + '</td>' +
+                '<td class="msgDetail" id="td">' + dataArray[i].taskText + '</td>' +
+                '<td class="msgDetail" id="td" style="color:red"><b>此功能尚未開通</b></td>'+
+                '<td class="msgDetail" id="td">'+dataArray[i].taskCate+'</td>'+
+                '<td class="msgDetail" id="td">'+
             '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit  </b></a>' +
             '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View  </b></a>' +
             '<a href="#" id="deleBtn"><b>Delete</b></a>' +
@@ -294,6 +301,47 @@ function deleteRow() {
 
   loadKeywordsReply();
 }
+
+// SORTING ADDED BY COLMAN
+
+
+var sortWays = ["Main Keyword", "Sub Keyword", "Content", "Reply Amount/ Reply User Amount", "Status", "Edit"];
+var sortBool = [true, true, true, true, true, true ];
+
+function clickSortingLink() {
+  
+  // var str = $(".fa fa-angle-down"); 
+  // var res = str.replace("down", "up");
+  // $(".fa fa-angle-down") = res;
+
+
+  console.log('click function exe');
+  let wayId = sortWays.indexOf( $(this).text() ); //get which way to sort (line 322)
+
+  let wayBool = sortBool[wayId];
+  for( let i in sortBool ) sortBool[i] = true;  //reset other sort ways up_down
+  sortBool[wayId] = !wayBool;   //if this time sort up, next time sort down
+
+  let panel_to_push;    //check which tabcontent to sort
+  if( $('#table').css("display") ==  "block" ) panel_to_push = '#serving';
+  else if( $('#tableData').css("display") ==  "block" ) panel_to_push = '#waiting';
+
+  let msgsArr = $( panel_to_push + ' .msgToSend' ); //get all msg in tabcontent
+  for( let i=0; i<msgsArr.length-1; i++ ) {   //bubble sort
+    for( let j=i+1; j<msgsArr.length; j++ ) {
+      let a = msgsArr.eq(i).children(".msgDetail").eq(wayId).text();
+      let b = msgsArr.eq(j).children(".msgDetail").eq(wayId).text();
+      console.log("a, b = " + a + ", " + b);
+      if( wayBool == (a<b)  ) {             //sort up or down && need sort?
+        console.log("swap!");
+        let tmp = msgsArr[i];   msgsArr[i] = msgsArr[j];    msgsArr[j] = tmp;
+      }
+    }
+  }
+  $(panel_to_push).append(msgsArr); //push to tabcontent
+
+}
+
 
 
 

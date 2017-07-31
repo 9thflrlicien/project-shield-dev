@@ -27,8 +27,7 @@ $(document).ready(function() {
   function addMsgCanvas(){
     $('#MsgCanvas').append('<!--TEXT AREA -->'+
                         '<tr style="margin-top:2%">'+
-                        '<div id="text" style="display:block; height:100px; width:100%; padding:1.5%;margin:2%">'+
-                        '<span style="float:right" onclick="this.parentElement.remove()">X</span>'+
+                        '<div id="text" style="display:block; height:100px; width:100%; padding:1.5%;margin:2%"><span style=\"float:right\" onclick=\"this.parentElement.remove()\">X</span>'+
                             '<table>'+
                                 '<tr>'+
                                     '<th style="padding:1%; margin:2% 1% 2% 1%; background-color: #ddd">Enter Text:</th>'+

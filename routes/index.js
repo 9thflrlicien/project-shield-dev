@@ -40,9 +40,9 @@ router.get('/message_overview', function(req, res, next) {
   res.render('message_overview', { title: 'Message Overview' });
 });
 
-router.get('/message_newtopic', function(req, res, next) {
-  res.render('message_newtopic', { title: 'Message New Topic' });
-});
+// router.get('/message_newtopic', function(req, res, next) {
+//   res.render('message_newtopic', { title: 'Message New Topic' });
+// });
 
 router.get('/message_autoreply', function(req, res, next) {
   res.render('message_autoreply', { title: 'Message Auto Reply' });
@@ -55,5 +55,7 @@ router.get('/message_keywordsreply', function(req, res, next) {
 router.get('/message_addfriendreply', function(req, res, next) {
   res.render('message_addfriendreply', { title: 'Message Add Friend Reply' });
 });
+
+
 
 module.exports = router;

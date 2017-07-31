@@ -16,6 +16,8 @@ $(document).ready(function() {
   $(document).on('click', '#editBtn', openEdit); //打開編輯modal
   $(document).on('click', '#edit-submit', modalEdit);
   $(document).on('click', '#deleBtn', deleteRow); //刪除
+  $(document).on('click', '.tablinks_sort' , clickSortingLink);
+
 
 
 
@@ -95,14 +97,14 @@ $(document).ready(function() {
         for(var i=0;i < myIds.length;i++){
           dataArray.push(snap.child(myIds[i]).val());
             $('#autoreply-list').append(
-              '<tr>' +
+              '<tr class="msgToSend">' +
                 '<td id="' + myIds[i] + '" hidden>' + myIds[i] + '</td>' +
-                '<td>' + 'Open' + '</td>' +
-                '<td>' + 'No Setup' + '</td>' +
-                '<td><a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>' + dataArray[i].taskName + '</b></a></td>' +
-                '<td>' + 'Not Assigned' + '</td>' +
-                '<td>' + dataArray[i].taskText + '</td>' +
-                '<td>' +
+                '<td class="msgDetail">' + 'Open' + '</td>' +
+                '<td class="msgDetail">' + 'No Setup' + '</td>' +
+                '<td class="msgDetail"><a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>' + dataArray[i].taskName + '</b></a></td>' +
+                '<td class="msgDetail">' + 'Not Assigned' + '</td>' +
+                '<td class="msgDetail">' + dataArray[i].taskText + '</td>' +
+                '<td class="msgDetail">' +
                 '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit</b></a>' +
                 ' ' +
                 '<a href="#" id="deleBtn"><b>Delete</b></a>' +
@@ -200,6 +202,38 @@ function deleteRow() {
   database.ref('message-autoreply/' + userId + '/' + key).remove();
 
   loadAutoReply();
+}
+
+// SORTING ADDED BY COLMAN
+
+
+var sortWays = ["Status", "Appointment", "Message Title", "Valid Period", "Content", "Delete"];
+var sortBool = [true, true, true, true, true, true ];
+
+function clickSortingLink() {
+  console.log('click function exe');
+  let wayId = sortWays.indexOf( $(this).text() ); //get which way to sort (line 322)
+
+  let wayBool = sortBool[wayId];
+  for( let i in sortBool ) sortBool[i] = true;  //reset other sort ways up_down
+  sortBool[wayId] = !wayBool;   //if this time sort up, next time sort down
+
+  let autoreply_list = '#autoreply-list';    //check which tabcontent to sort
+
+  let msgsArr = $( autoreply_list + ' .msgToSend' ); //get all msg in tabcontent
+  for( let i=0; i<msgsArr.length-1; i++ ) {   //bubble sort
+    for( let j=i+1; j<msgsArr.length; j++ ) {
+      let a = msgsArr.eq(i).children(".msgDetail").eq(wayId).text();
+      let b = msgsArr.eq(j).children(".msgDetail").eq(wayId).text();
+      console.log("a, b = " + a + ", " + b);
+      if( wayBool == (a<b)  ) {             //sort up or down && need sort?
+        console.log("swap!");
+        let tmp = msgsArr[i];   msgsArr[i] = msgsArr[j];    msgsArr[j] = tmp;
+      }
+    }
+  }
+  $(autoreply_list).append(msgsArr); //push to tabcontent
+
 }
 
 

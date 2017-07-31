@@ -66,9 +66,9 @@
                      <li class="subTag" style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
                         <a href="/message_overview"> Overview</a>
                      </li>
-                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+<!--                      <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
                         <a href="/message_newtopic"> New Topic</a>
-                     </li>
+                     </li> -->
                      <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
                         <a href="/message_autoreply"> Auto Reply</a>
                      </li>
@@ -98,7 +98,7 @@
     </p>
 
 
-    <button class="tablinks" rel="History" style="float:right; width:20%; margin:1%; padding:1%">Add Keywords</button>
+<!--     <button class="tablinks" rel="History" style="float:right; width:20%; margin:1%; padding:1%">Add Keywords</button> -->
 
     <button type="button" class="btn btn-default inner-add" data-toggle="modal" data-target="#quickAdd"><span class="fa fa-plus fa-fw"></span>Add Keywords</button>
 
@@ -129,16 +129,16 @@
 </section>
 
 <section>
-    <div style="height:550px;border: solid lightgrey 1px; display: block">
+    <div id="table" style="height:550px;border: solid lightgrey 1px; display: block">
         <table id="table">
             <thead>
                 <tr>
-                    <th id="th">Main Keyword</th>
-                    <th id="th">Sub Keyword</th>
-                    <th id="th">Content</th>
-                    <th id="th">Reply Amount/ Reply User Amount</th>
-                    <th id="th">Status</th>
-                    <th id="th">Edit</th>
+                    <th class="tablinks_sort" id="th">Main Keyword<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                    <th class="tablinks_sort" id="th">Sub Keyword<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                    <th class="tablinks_sort" id="th">Content<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                    <th class="tablinks_sort" id="th">Reply Amount/ Reply User Amount<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                    <th class="tablinks_sort" id="th">Status<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                    <th class="tablinks_sort" id="th">Edit<i class="fa fa-angle-down" aria-hidden="true"></i></th>
                 </tr>
             </thead>
             <tbody id="serving">
@@ -163,12 +163,12 @@
             <table id="tableData">
                 <thead>
                     <tr>
-                        <th id="th">Main Keyword</th>
-                        <th id="th">Sub Keyword</th>
-                        <th id="th">Content</th>
-                        <th id="th">Reply Amount/ Reply User Amount</th>
-                        <th id="th">Status</th>
-                        <th id="th">Edit</th>
+                        <th class="tablinks_sort" id="th">Main Keyword<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                        <th class="tablinks_sort" id="th">Sub Keyword<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                        <th class="tablinks_sort" id="th">Content<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                        <th class="tablinks_sort" id="th">Reply Amount/ Reply User Amount<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                        <th class="tablinks_sort" id="th">Status<i class="fa fa-angle-down" aria-hidden="true"></i></th>
+                        <th class="tablinks_sort" id="th">Edit<i class="fa fa-angle-down" aria-hidden="true"></i></th>
                     </tr>
                 </thead>
                 <tbody id="waiting"></tbody>
@@ -185,6 +185,7 @@
 </div>
 
 <!-- Modal -->
+<section>
 <div class="modal fade" id="quickAdd" tabindex="-1" role="dialog" aria-labelledby="quickAddTitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -212,15 +213,15 @@
                     <div class="form-group">
                         <label for="modal-task-name" class="col-2 col-form-label">Reply Message:</label>
                         <table>
-                            <td style="padding:5%">
+                            <td style="padding:1%">
                                 <p>Note: You can send 5 messages at a time. Please select the type of message you want to send.</p>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">Text</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="sticker">Sticker</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="image">Image</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="coupon">Coupon</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="election">Election</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="promotion">Promotion</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="survey">Survey</button>
+                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg">Text</button>
+                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="sticker">Sticker</button>
+                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="image">Image</button>
+                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="coupon">Coupon</button>
+                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="election">Election</button>
+                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="promotion">Promotion</button>
+                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="survey">Survey</button>
                             </td>
                             <td>
                               <div id="MsgCanvas"></div>
@@ -237,9 +238,9 @@
                         </select>
                     </div>
 
-                    <section>
+<!--                     <section> -->
                         <!--TEXT AREA -->
-                        <div id="text" style="display:none; height:150px;width:100%; padding:1.5%;margin:2%"><span style="float:right" onclick="this.parentElement.remove()">X</span>
+<!--                         <div id="text" style="display:none; height:150px;width:100%; padding:1.5%;margin:2%"><span style="float:right" onclick="this.parentElement.remove()">X</span>
                             <table>
                                 <tr>
                                     <th style="padding:1.5%; background-color: #ddd">Enter Text:</th>
@@ -256,10 +257,10 @@
                                         <button class="tablinks" rel="emos">Emoji</button>
                                     </th>
                                 </tr>
-                            </table>
+                            </table> -->
 
                             <!--EMOJI PLUGINS(UNDONE) -->
-                            <div id="emos" style="display:none; position:fixed; padding:5%; background-color: lightgrey; width:100%; height:30%">
+<!--                             <div id="emos" style="display:none; position:fixed; padding:5%; background-color: lightgrey; width:100%; height:30%">
                                 <button class="tablinks" id="emojis" rel="(moonwink)"><img src="#" /></button>
                                 <button class="tablinks" id="emojis">Emoji</button>
                                 <button class="tablinks" id="emojis">Emoji</button>
@@ -275,9 +276,9 @@
                                 <button class="tablinks" rel="Appointment">Emoji</button>
 
                             </div>
-                        </div>
+                        </div> -->
                         <!--STICKER -->
-                        <div id="sticker" style="display:none;margin:2%;height:150px;width:100%; padding:1.5%;margin:2%">
+<!--                         <div id="sticker" style="display:none;margin:2%;height:150px;width:100%; padding:1.5%;margin:2%">
                             <table>
                                 <tr>
                                     <th style="height:150px;width:80%; padding:1.5%; background-color: #ddd; color:red; border:solid white 1px">Sticker is not available now.</th>
@@ -289,49 +290,49 @@
                                     </td>
                                 </tr>
                             </table>
-                        </div>
+                        </div> -->
                         <!--IMAGE -->
-                        <table id="image" style="margin:2%;display:none; background-color: lightgrey; border:solid white 1px">
+<!--                         <table id="image" style="margin:2%;display:none; background-color: lightgrey; border:solid white 1px">
                             <th style="border:solid white 1px; padding:3%">Choose the image you want to upload.</th>
                             <td style="height:200px; width:400px; padding:3%">
                                 <input type="file" />
                             </td>
 
-                        </table>
+                        </table> -->
 
                         <!--COUPON -->
-                        <table id="coupon" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
+<!--                         <table id="coupon" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
                             <tr>
                                 <th style="padding:1%; border:solid white 1px">Coupon Content</th>
                                 <td style="height:200px; width:400px; padding:3%; border:solid white 1px">There's no coupon currently. Please create one at....</td>
                             </tr>
-                        </table>
+                        </table> -->
 
                         <!--ELECTION -->
-                        <table id="election" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
+<!--                         <table id="election" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
                             <tr>
                                 <th style="padding:1%; border:solid white 1px">Election Content</th>
                                 <td style="height:200px; width:400px; padding:3%">There's no election currently. Please create one at....</td>
                             </tr>
-                        </table>
+                        </table> -->
 
                         <!--PROMOTION -->
-                        <table id="promotion" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
+<!--                         <table id="promotion" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
                             <tr>
                                 <th style="padding:1%;border:solid white 1px">Promotion Content</th>
                                 <td style="height:200px; width:400px; padding:3%">There's no promotion currently. Please create one at....</td>
                             </tr>
-                        </table>
+                        </table> -->
 
                         <!--SURVEY -->
-                        <table id="survey" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
+<!--                         <table id="survey" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
                             <tr>
                                 <th style="padding:1%; border: solid white 1px">Survey Content</th>
                                 <td style="height:200px; width:400px; padding:3%">There's no survey currently. Please create one at....</td>
                             </tr>
                         </table>
 
-                    </section>
+                    </section> -->
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -342,6 +343,7 @@
         </div>
     </div>
   </div>
+</section>
 
     <!-- View Modal -->
   <section>
@@ -529,7 +531,7 @@ div.tab button.active {
 </style>
 
 
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>      
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>     
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
       <script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
       <script src="javascripts/firebaseConfig.js"></script>

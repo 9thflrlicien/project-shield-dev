@@ -1,731 +1,425 @@
 $(document).ready(function() {
-    var socket = io.connect();
-    var users = $('#users');
-    var nicknameForm = $('#setNick');
-    var nicknameError = $('#nickError');
-    var nicknameInput = $('#nickname');
-    var messageForm = $('#send-message');
-    var messageInput = $('#message');
-    var messageContent = $('#chat');
-    var clients = $('#clients');
-    var name_list = ['test'];
-    var newUsers = $('#newUsers');
-    var printAgent = $('#printAgent');
-    var canvas = $("#canvas");
-    var user1 = $("#user1");
-    var user2 = $("#user2");
-    var user3 = $("#user3");
-    var user4 = $("#user4");
-    var user5 = $("#user5");
-    var user6 = $("#user6_inn");
-    var user7 = $("#user7_inn");
-    var user_list = [];
-    var person = prompt("Please enter your name");
-    var count = 0;
-    var t = [];   
-    var t_value;
-    var t_key;
-    var receiver;
-
-
-
-$(document).on('click', '#message', subMessage);//Message 導覽標籤 subtags
-
-  function subMessage(){
-    if ($('.subTag').is(':visible')){
-      $('.subTag').hide();
-    }else{
-    $('.subTag').show();
+  var socket = io.connect();
+  var users = $('#users');
+  var messageForm = $('#send-message');
+  var messageInput = $('#message');
+  var messageContent = $('#chat');
+  var clients = $('#clients');
+  var printAgent = $('#printAgent');
+  var canvas = $("#canvas");
+  var searchBox = $('#searchBox');
+  var name_list = [];
+  console.log(name_list);
+  var person = prompt("Please enter your name");
+  var historyMsg_users = [];
+  var historyMsg_agents = [];
+  var avgChatTime;
+  var sumChatTime;
+  var sortAvgBool = true;
+  const COLOR = {
+    FIND: "rgb(255, 255, 192)",
+    CLICKED: "#ccc",
   }
+  const IDENTITY = {
+    USER: 1,
+    AGENT: 2,
+    NEW_USER: 3
+  };
+  var selectAll_list=[];
+
+  function clickMsg(){
+    ///let the clicked tablinks change color, cancel previous clicked button's color
+    let cleancolor = "";
+    if( searchBox.val()!="" ) {
+      cleancolor = COLOR.FIND;
+    }
+    $("#selected").attr('id','').css("background-color", cleancolor);
+    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);
+
+    var target = $(this).attr('rel');
+    $("#"+target).show().siblings().hide();
+
+    console.log('click tablink executed');
   }
-  
-   
-        // function getObjectKeyIndex(obj, keyToFind) {
-        //     var n = 0, key;
+  function clickSpan() {
+    let userId = $(this).parent().css("display", "none").attr("id");
+    $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");
+  }
 
-        //     for (key in obj) {
-        //         if (key == keyToFind) {
-        //             return n;
-        //             console.log('this is the index of key i: '+n);
-        //         }
+  $(document).on('click', '.tablinks', clickMsg);
+  $(document).on('click', '#signout-btn', logout); //登出
+  $(document).on('click', '.topright', clickSpan);
+  $(document).on('click', 'selectAll', selectAll);
+  //$(document).on('click', '.tablinks_head', sortAvgChatTime);
 
-        //          n++;
-        //         }
+  if (window.location.pathname === '/chat') {
+    console.log("Start loading history message...");
+    setTimeout(loadMsg, 10);
+    setTimeout(agentName, 100);
+    //   setTimeout(loadMsg, 100);
+  } // set agent name
 
-        //         return null;
-        //     }//function getObjectKeyIndex
+  function selectAll(){
+    if ($( "#user-rooms option:selected" ).val()=='全選'){
+    for (i in selectAll_list){
+    designated_user_id = selectAll_list[i];
+    console.log('this is designated_user_id in seleAll()');
+    console.log(designated_user_id);
+  }
+  }else{}
 
+  }
 
-    function clickMsg(){
-        var target = $(this).attr('rel');
-        $("#"+target).show().siblings().hide();
-        console.log('clickMsg executed')
-    }
-
-    $(document).on('click', '.tablinks' , clickMsg);
-    $(document).on('click', '#signout-btn', logout); //登出
-
-    if (window.location.pathname === '/chat') {
-        setTimeout(agentName, 100);
-     //   setTimeout(loadMsg, 100);
-    } // set agent name
-
-
-
-    /*  =========================================================  */
-//     function loadMsg() {
-//         $('#clients').empty();
-//         $('#canvas').empty();
-
-//         database.ref('chats/users').on('value', snap => {
-//             let dataArray = [];
-//             let testVal = snap.val();
-//             let myIds = Object.keys(testVal);
-//             // console.log(testVal);
-
-
-//             for (var i = 0; i < 5; i++) {
-//                 $('#canvas').empty();  // "應該是很關鍵的CODE但須結合Dynamic ID"
-//                 console.log(i);
-//                 dataArray.push(snap.child(myIds[i]).val());
-//                 console.log(dataArray);
-
-//                 var namefound = (user_list.indexOf(dataArray[i].user) > -1); //if client exists
-                
-//                 if (namefound) {
-                
-//                     if (dataArray[i].user == "U0cbbba0d281fc5b095caaacac73fd1b5") {
-//                         console.log('user1 found');
-//                         user1.append(
-//                             '<tr>' +
-//                             '<td>' + dataArray[i].message + '</td>' +
-//                             '<td>' + dataArray[i].messageTime + '</td>' +
-//                             '</tr>'
-//                         );
-//                     } else if (dataArray[i].user == 'U376b6ec748e32f594cf2f6248800d094') {
-                
-//                         user2.append(
-//                             '<tr>' +
-//                             '<td>' + dataArray[i].message + '</td>' +
-//                             '<td>' + dataArray[i].messageTime + '</td>' +
-//                             '</tr>'
-//                         );
-//                     } else if (dataArray[i].user == "U52b2014e2905721d4072e65407653235") {
-//                         user3.append(
-//                             '<tr>' +
-//                             '<td>' + dataArray[i].message + '</td>' +
-//                             '<td>' + dataArray[i].messageTime + '</td>' +
-//                             '</tr>'
-//                         );
-//                     } else if (dataArray[i].user == 'U3919284a3de4cd0c0b570090c3dc9943') {
-//                         user4.append(
-//                             '<tr>' +
-//                             '<td>' + dataArray[i].message + '</td>' +
-//                             '<td>' + dataArray[i].messageTime + '</td>' +
-//                             '</tr>'
-//                         );
-//                     } else if (dataArray[i].user == "U976afdecc6ba7f25bc04c9c520e5490e") {
-                
-//                         user5.append(
-//                             '<tr>' +
-//                             '<td>' + dataArray[i].message + '</td>' +
-//                             '<td>' + dataArray[i].messageTime + '</td>' +
-//                             '</tr>'
-//                         );
-//                     }
-                
-//                 } //namefound
-//                 else {
-//                     $('#clients').append(
-//                         '<tr>' +
-//                         '<td><button id="' + dataArray[i].user + '" class="tablinks"><b>' + dataArray[i].user + '</b></button></td>' + '</tr>'
-//                     );
-                
-                
-//                     user_list.push(dataArray[i].user);
-                
-                
-//                 } //else
-
-//             } // for loop
-// });//snap
-
-// }//function
-
-    //         // user1
-    //         let arr1 = dataArray.filter(user1 => {
-    //             return user1.user == 'U52b2014e2905721d4072e65407653235';
-    //         });
-    //         // console.log(arr1.length);
-    //         for (let j = 0; j < arr1.length; j++) {
-    //             user1.prepend(
-    //                 '<tr>' +
-    //                 '<td>U52b2014e2905721d4072e65407653235: ' + arr1[j].message + '</td>' +
-    //                 // '<td>' + arr1[j].messageTime + '</td>' +
-    //                 '</tr>'
-    //             );
-
-    //         }
-
-    //         // user2
-    //         let arr2 = dataArray.filter(user2 => {
-    //             return user2.user == 'U376b6ec748e32f594cf2f6248800d094';
-    //         });
-    //         // console.log(arr1.length);
-    //         for (let j = 0; j < arr2.length; j++) {
-    //             user2.prepend(
-    //                 '<tr>' +
-    //                 '<td>U376b6ec748e32f594cf2f6248800d094: ' + arr2[j].message + '</td>' +
-    //                 // '<td>' + arr1[j].messageTime + '</td>' +
-    //                 '</tr>'
-    //             );
-
-    //         }
-
-    //         // user3
-    //         let arr3 = dataArray.filter(user3 => {
-    //             return user3.user == 'Udeadbeefdeadbeefdeadbeefdeadbeef';
-    //         });
-    //         // console.log(arr1.length);
-    //         for (let j = 0; j < arr3.length; j++) {
-    //             user3.prepend(
-    //                 '<tr>' +
-    //                 '<td>Udeadbeefdeadbeefdeadbeefdeadbeef: ' + arr3[j].message + '</td>' +
-    //                 // '<td>' + arr1[j].messageTime + '</td>' +
-    //                 '</tr>'
-    //             );
-
-    //         }
-
-    //         // user4
-    //         let arr4 = dataArray.filter(user4 => {
-    //             return user4.user == 'U3919284a3de4cd0c0b570090c3dc9943';
-    //         });
-    //         // console.log(arr1.length);
-    //         for (let j = 0; j < arr4.length; j++) {
-    //             user4.prepend(
-    //                 '<tr>' +
-    //                 '<td>U3919284a3de4cd0c0b570090c3dc9943: ' + arr4[j].message + '</td>' +
-    //                 // '<td>' + arr1[j].messageTime + '</td>' +
-    //                 '</tr>'
-    //             );
-
-    //         }
-
-    //         // user5
-    //         let arr5 = dataArray.filter(user5 => {
-    //             return user5.user == 'U39dc316178dbca5a9e85f4a10aa4210e';
-    //         });
-    //         // console.log(arr1.length);
-    //         for (let j = 0; j < arr5.length; j++) {
-    //             user5.prepend(
-    //                 '<tr>' +
-    //                 '<td>U39dc316178dbca5a9e85f4a10aa4210e: ' + arr5[j].message + '</td>' +
-    //                 // '<td>' + arr1[j].messageTime + '</td>' +
-    //                 '</tr>'
-    //             );
-
-    //         }
-
-    //         let arr6 = dataArray.filter(user6 => {
-    //             return user6.user == 'U0cbbba0d281fc5b095caaacac73fd1b5';
-    //         });
-    //         // console.log(arr1.length);
-    //         for (let j = 0; j < arr6.length; j++) {
-    //             user6.prepend(
-    //                 '<tr>' +
-    //                 '<td>U0cbbba0d281fc5b095caaacac73fd1b5: ' + arr6[j].message + '</td>' +
-    //                 // '<td>' + arr1[j].messageTime + '</td>' +
-    //                 '</tr>'
-    //             );
-
-    //         }
-
-    //         let arr7 = dataArray.filter(user7 => {
-    //             return user7.user == 'Ue369116591fbd2d13a7eb5f0ff12547b';
-    //         });
-    //         // console.log(arr1.length);
-    //         for (let j = 0; j < arr7.length; j++) {
-    //             user7.prepend(
-    //                 '<tr>' +
-    //                 '<td>Ue369116591fbd2d13a7eb5f0ff12547b: ' + arr7[j].message + '</td>' +
-    //                 '</tr>'
-    //             );
-
-    //         }
-
-
-    //     }); //database
-
-    // } //function
-
-// HISTORY CHATS BUTTONS
-    // $(document).on('click', "#U0cbbba0d281fc5b095caaacac73fd1b5", function() {
-    //     user1.show();
-    //     user2.hide();
-    //     user3.hide();
-    //     user4.hide();
-    //     user5.hide();
-    //     canvas1.hide();
-    //     canvas2.hide();
-    //     canvas3.hide()
-    // });
-    // $(document).on('click', "#U376b6ec748e32f594cf2f6248800d094", function() {
-    //     user2.show();
-    //     user1.hide();
-    //     user3.hide();
-    //     user4.hide();
-    //     user5.hide();
-    //     canvas1.hide();
-    //     canvas2.hide();
-    //     canvas3.hide()
-    // });
-    // $(document).on('click', "#U52b2014e2905721d4072e65407653235", function() {
-    //     user3.show();
-    //     user2.hide();
-    //     user1.hide();
-    //     user4.hide();
-    //     user5.hide();
-    //     canvas1.hide();
-    //     canvas2.hide();
-    //     canvas3.hide()
-    // });
-    // $(document).on('click', "#U3919284a3de4cd0c0b570090c3dc9943", function() {
-    //     user4.show();
-    //     user2.hide();
-    //     user3.hide();
-    //     user1.hide();
-    //     user5.hide();
-    //     canvas1.hide();
-    //     canvas2.hide();
-    //     canvas3.hide()
-    // });
-    // $(document).on('click', "#U976afdecc6ba7f25bc04c9c520e5490e", function() {
-    //     user5.show();
-    //     user2.hide();
-    //     user3.hide();
-    //     user4.hide();
-    //     user1.hide();
-    //     canvas1.hide();
-    //     canvas2.hide();
-    //     canvas3.hide()
-    // });
-    /*  ==================================================  */
-
-    function agentName() {
-        person;
-        if (person != null) {
-               socket.emit('new user', person, (data) => {
-      if(data){
-
-      } else {
-        nicknameError.html('username is already taken');
+  function loadMsg() {
+    console.log("Start loading msg...");
+    database.ref('chats/users2').once('value', snap => {
+      console.log("Loading user history msg...");
+      let testVal = snap.val();
+      let myIds = Object.keys(testVal);
+      for (var i = 0; i < myIds.length; i++) {
+        historyMsg_users.push(snap.child(myIds[i]).val());
       }
+      console.log("User history msg load complete");
+
+      database.ref('chats/agents2').once('value', snap => {
+        console.log("Loading agent history msg...");
+        let testVal = snap.val();
+        let myIds = Object.keys(testVal);
+        for (var i = 0; i < myIds.length; i++) {
+          historyMsg_agents.push(snap.child(myIds[i]).val());
+        }
+        console.log("Agent history msg load complete");
+
+        $('.tablinks_head').text("Users Online");
+      });
     });
+  } //end loadMsg func
 
-            printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
-        } //'name already taken'功能未做、push agent name 未做
-
-
+  function agentName() {
+    while( person=="" ) {
+      person = prompt("Please enter your name");
     }
+    if (person != null) {
+      socket.emit('new user', person, (data) => {
+        if(data){
 
-/*  =======  To indentify the right receiver  =====  */
-    function defReceiver(){
-        socket.emit('receiver', receiver, (data) => {
-
-        });
-        console.log('receiver sent to www');
+        } else {
+          alert('username is already taken');
+        }
+      });
+      name_list.push(person); //Colman: add agent name into list here
+      printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
     }
-
-/*  =======  CODES FROM GITHUB: NICKNAME  ======  */
-
-  nicknameForm.submit((e) => {
-    e.preventDefault();
-    socket.emit('new user', nicknameInput.val(), (data) => {
-      if(data){
-        $('#nickWrap').hide();
-        $('#contentWrap').show();
-      } else {
-        nicknameError.html('username is already taken');
-      }
-    });
-    nicknameInput.val('');
-  });
+    else {
+      window.location.replace("/");
+    } //'name already taken'功能未做、push agent name 未做
+  }
 
   messageForm.submit((e) => {
     e.preventDefault();
-    socket.emit('send message', messageInput.val(), (data) => {
-
+    let designated_user_id = $( "#user-rooms option:selected" ).val();
+    selectAll();
+    console.log('this is designated_user_id');
+    console.log(designated_user_id);
+    socket.emit('send message', {id: designated_user_id , msg: messageInput.val()}, (data) => {
       messageContent.append('<span class="error">' + data + "</span><br/>");
+      ///no this thing QQ
     });
+    // socket.emit('send message', messageInput.val(), (data) => {
+    //     messageContent.append('<span class="error">' + data + "</span><br/>");
+    // });
     messageInput.val('');
   });
 
   socket.on('usernames', (data) => {
     var html = '';
-    for(i=0; i < data.length; i++){
+    for (i = 0; i < data.length; i++) {
       html += data[i] + '<br />';
     }
     users.html(html);
   });
 
-/*  =========== to assign the right receiverId  =========  */
-    
-    socket.on('send message', messageInput.val(), (data) =>{
 
-    })
-
-/*  =================================  */
-// // nickname
-//   person.submit((e) => {
-
-//     e.preventDefault();
-//     socket.emit('new user', person.val(), (data) => {
-
-//     if (data){
-//         console.log('nickname successfully input');
-//       } else {
-//         nicknameError.html('username is already taken');
-//       }
-//     });
-
-//     person.val('');
-//   });
-
-
-    // socket.on('usernames', (data) => {
-    //   var html = '';
-    //   for(i=0; i < data.length; i++){
-    //     html += data[i] + '<br />';
-    //   }
-    //   users.html(html);
-    // });
-
-    socket.on('new message', (data) => {
-        displayMessage(data);
-        displayClient(data);
-
-        // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
-    });
-
-    socket.on('whisper', (data) => {
-        messageContent.append('<span class="whisper"><b>' + data.name + ': </b>' + data.msg + "</span><br/>");
-    });
-
-    // socket.on('load old messages', docs => {
-    //   for(i=0; i < data.length; i++){
-    //     displayMessage(docs[i]);
-    //   }
-    // });
-
-
-
-    function displayMessage(data) {
-
-
-
-
-        let chat_number = 1;
-        var i = data.name;
-
-        // console.log(data);
-
-        // } else {
-
-        //    var namefound = (t_value > -1); //if client existed retrieved by key value
-        //    console.log(namefound);
-
-         var namefound = (name_list.indexOf(i) > -1); //if client exists
-        /*     var n, dataName ;
-             dataName = document.getElementsById(data.name);
-             for (n = 0; n < dataName.length; n++) { */
-
-        //  messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
-
-        if (namefound == true) {
-            //append new msg in existed window
-            console.log('im: '+i);
-
-            console.log('namefound');
-
-
-
-                if(i == person && data.id !== undefined){
-                    console.log('yes existed agent msg identified');
-                    var n;
-                    for (n=0; n < t_value+1; n++){
-                        console.log('yes it gets to the for loop');
-                        console.log('n is currently looping to')
-                        console.log(n);
-                        console.log('Is n already == t_value?')
-                        console.log(n == t_value);
-
-                        var k = t[n].key;
-                        console.log('the below is t[n].key');
-                        console.log(t[n].key);
-
-                        if ( $("#"+k).is(':visible')){
-                            console.log('yes it knows what is visible');
-                            var gotIt;
-                            gotIt = k;
-                            console.log('the following is gotIt');
-                            console.log(gotIt);
-                            receiver = gotIt;
-                            console.log('tell me whats receiver');
-                            console.log(receiver);
-                            defReceiver();
-
-                            $("#"+gotIt).append("<p><strong>"+data.name+": </strong>"+ data.msg + "<br/></p>");
-                            console.log('agent reply appended to according canvas');
-
-                           }//if if
-                        else{
-                            console.log('no the n is not visible, do it again')
-
-                        }
-                        }//for
-
-                    }//if agent
-
-
-
-
-             else if (i){
-
-                    $("#"+i).append("<p><strong>"+data.name+": </strong>"+ data.msg + "<br/></p>"); 
-                    console.log('appended to according canvas');
-                }//if
-
-                // else if (i == person && data.id != undefined){
-
-                //                                 for (var n=0; n < length.t_value; n++){
-
-                //                 var k = t[n].key;
-
-
-                //         if ($("#"+k).style.dispaly="block"){
-                //             $("#"+k).append("<p><strong>"+data.name+": </strong>"+ data.msg + "<br/></p>");
-                //             console.log('agent reply appended to according canvas')
-                //             }//if block
-
-                //         }//for
-
-
-                // }//else if i == agent
-                    
-
-//             if ( i == 'U0cbbba0d281fc5b095caaacac73fd1b5') {
-//                 console.log('found1');
-
-//                 canvas1.append("<p>" + data.msg + "<br/></p>");
-
-
-//             } else if (i == 'U52b2014e2905721d4072e65407653235') {
-
-//                 console.log('found2');
-//                 canvas2.append("<p>" + data.msg + "<br/></p>");
-
-
-//             } else if (i =='U636956e3c62bdeecab26ea39be27cccc') {
-
-//                 console.log('found3');
-//                 canvas3.append("<p>" + data.msg + "<br/></p>");
-
-
-// } else if (i === "Ue369116591fbd2d13a7eb5f0ff12547b") {
-
-
-//             $('#user7').show();
-//             user7.prepend('<tr>' +
-//                 '<td>Ue369116591fbd2d13a7eb5f0ff12547b: ' + data.msg + '</td>' + '</tr>');
-
-
-//          }//else if 
-
-    // else{
-
-
-    //     chatNumberNeeded == name_list.indexOf(i)
-    //     var k = 'chat'+chatNumberNeeded
-    //     theid = $('existed but undefined')
-    //     return theid
-
-
-    //     console.log('msg appended');
-    //     tooadd.append("<p>" + data.msg + "<br/></p>");
-
-
-    // }//else
-
-     }//close if
-     else{
-
-            console.log('new msg append to canvas');
-//             if (i == 'U0cbbba0d281fc5b095caaacac73fd1b5'){
-//                 console.log('append msg to canvas1');
-//                 canvas1.append(
-//                 "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x</span>" +
-//                 "<div id=\"" + data.name + "\">" +
-//                 "<h7>" +
-//                 "<strong>" + data.name + ":</strong></h7><br/><p>" + data.msg + "<br/></p></div>"
-
-
-//                     );
-//             }else if (i == 'U636956e3c62bdeecab26ea39be27cccc'){
-//                 canvas3.append(
-//                 "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x</span>" +
-//                 "<div id=\"" + data.name + "\">" +
-//                 "<p>" +
-//                 "<strong>" + data.name + ": </strong><br/>" + data.msg + "<br/></p></div>"
-// );
-
-
-//             }else if (i == 'U52b2014e2905721d4072e65407653235'){
-//                 console.log('append msg to canvas2');
-
-//                 canvas2.append(
-//                 "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x</span>" +
-//                 "<div id=\"" + data.name + "\">" +
-//                 "<p>" +
-//                 "<strong>" + data.name + ": </strong><br/>" + data.msg + "<br/></p></div>"
-// );                
-
-//         }else{
-
-            
-
-            canvas.append(
-
-
-
-                
-                "<div id=\"" + data.name + "\" class=\"tabcontent\">" +
-                "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x</span>" +
-                "<p>" +
-                "<strong>" + data.name + ": </strong>" + data.msg + "<br/></p></div>");// close append
-
-
-        // }
-
-
-    }//else
-
-// }// if
-
-}//function
-
-    function displayClient(data) {
-        var i = data.name;
-        var namefound = (name_list.indexOf(i) > -1);
- //       var namefound = (t_value > -1); //if client existed retrieved by key value
-
-
-        if (namefound) {
-            console.log('user existed');
-
-        }else if (i == 'notice'){
-            console.log('notice sent');
-
-        }else {
-           if (i == person){
-                    console.log('agent username loaded');
-                    name_list.push(data.name);
-                    t.push({key:data.name, value:count});
-                    console.log(t);
-                    t_value = t[count].value ;
-                    console.log('the below is t_value');
-                    console.log(t_value);
-                    t_key = t[count].key;
-                    count ++;
-
-                    console.log('is data.name == person? \(should be yes coz were now in the if agent');
-                    console.log(i == person);
-
-                    if   (data.name == person && data.id != undefined){
-                                console.log('yes agent msg identified');
-
-                               for (var n=0; n < t_value; n++){
-                                var k = t[n].key;
-
-
-                        if ( $("#"+k).is(':visible')){
-                            console.log('yes it knows it is visible');
-                            var gotIt;
-                            gotIt = k;
-                            console.log('the following is gotIt');
-                            console.log(gotIt);
-                            receiver = gotIt;
-                            console.log('Tell me whats receiver');
-                            console.log(receiver);
-                            defReceiver();
-
-
-                            $("#"+gotIt).append("<p><strong>"+data.name+": </strong>"+ data.msg + "<br/></p>");
-                            console.log('agent reply appended to according canvas');
-
-
-                           }//if if
-
-                        }//for
-
-                    }//if agent
-
-
-
-           }else{
-
-
-
-            clients.append("<b><button  rel=\""+data.name+"\" class=\"tablinks\"> " + data.name + "</button></b>");
-            name_list.push(data.name);
-            t.push({key:data.name, value:count});
-            console.log(t);
-            t_value = t[count].value ;
-            t_key = t[count].key;
-            count ++;
-
-
-
-
-
-
-
-
-//            console.log(name_list);
-        }//close else
-        }//close else
-
-        //     $(document).on('click', "#U0cbbba0d281fc5b095caaacac73fd1b5", function() {
-        //     canvas1.show();
-        //     canvas2.hide();
-        //     canvas3.hide();
-        //     user1.hide();
-        //     user2.hide();
-        //     user3.hide();
-        //     user4.hide();
-        //     user5.hide()
-        // });
-        // $(document).on('click', "#U52b2014e2905721d4072e65407653235", function() {
-        //     canvas2.show();
-        //     canvas1.hide();
-        //     canvas3.hide();
-        //     user1.hide();
-        //     user2.hide();
-        //     user3.hide();
-        //     user4.hide();
-        //     user5.hide()
-        // });
-        // $(document).on('click', "#U636956e3c62bdeecab26ea39be27cccc", function() {
-        //     canvas3.show();
-        //     canvas1.hide();
-        //     canvas2.hide();
-        //     user3.hide();
-        //     user2.hide();
-        //     user1.hide();
-        //     user4.hide();
-        //     user5.hide()
-        // });
-
-    }//close client function
+  /*  =================================  */
+
+  socket.on('new message', (data) => {
+    var msgOwner = "";  ///userName or agentName
+    var identity = -1;  ///user, agent or new_user
+    if( data.hasOwnProperty("agentName") ) {
+      msgOwner = data.agentName;
+      identity = IDENTITY.AGENT;
+    }
+    else if( data.hasOwnProperty("userName") ) {
+      msgOwner = data.userName;
+      if( name_list.indexOf(msgOwner) > -1 ) identity = IDENTITY.USER;
+      else identity = IDENTITY.NEW_USER;
+    }
+    else console.log("ERROR! no agentName, no userName. so what is this???");
+
+    console.log("Message get! identity = " + identity + ", msgOwner = " + msgOwner);
+    if( identity == IDENTITY.NEW_USER ) {
+      name_list.push(msgOwner);
+      console.log("push into name_list!");
+    }
+    else console.log("this msgOwner already exist");
+
+    displayMessage( data, msgOwner, identity );
+    displayClient( data, msgOwner, identity );
+
+    // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
+  });
+
+  function displayMessage( data, msgOwner, identity ) {
+
+    if (identity != IDENTITY.NEW_USER) {
+      //append new msg in existed window
+      ///no matter he's agent or user, just push name and msg into correct canvas BY ID
+      $("#" + data.id + "-content").append("<p class=\"message\"><strong>" + msgOwner + toTimeStr(data.messageTime) + ": </strong>"+ data.message + "<br/></p>");
+
+    } //close if
+    else {
+      if (msgOwner == person && data.id !== undefined) {
+        ///dont understand this if statement QQ
+        console.log("Get into 160 if");
+        console.log('yes existed agent msg identified');
+        // for (let n = 0; n < t_value + 1; n++) {
+        if ($("#" + data.id).is(':visible')) {
+          console.log('appended agent message');
+          $("#" + data.id + "-content").append("<p class=\"message\"><strong>" + data.agentName + toTimeStr(data.messageTime) + ": </strong>"+ data.message + "<br/></p>");
+        } //if if
+        else {
+          console.log('no the n is not visible, do it again')
+        }
+        // } //for
+      }
+      else {
+        ///identity = NEW_USER
+        console.log('new user msg append to canvas');
+        $('#user-rooms').append('<option value="' + data.id + '">' + msgOwner + '</option>'+
+          '<option id="selectAll" value="全選">全選</option>'
+          );
+
+        selectAll_list.push(data.id);
+        console.log(selectAll_list);
+        ///loading that user's history msg
+        let users_pastMsg = historyMsg_users.filter(msg => {
+          return msg.id == data.id;
+        });
+        let agents_pastMsg = historyMsg_agents.filter(msg => {
+          return msg.id == data.id;
+        });
+
+        //THIS PART SORT USER & AGENT HISTORY MSG INTO TIME CONTINUOUS
+        let historyMsg = [];
+        let i=0;
+        let j=0;
+        let iFlag = (users_pastMsg.length==0);
+        let jFlag = (agents_pastMsg.length==0);
+        while( !iFlag || !jFlag ) {
+          while( ( !iFlag ) && (jFlag || users_pastMsg[i].messageTime < agents_pastMsg[j].messageTime ) ) {
+            //↑ while ( still exist unloaded user msg  && (there's no unloaded agent msg || now user msg is early then now agent msg ) )
+            //then { load next index user msg; }
+            historyMsg.push(users_pastMsg[i]);
+            i++;
+            if( i==users_pastMsg.length ) iFlag = true;
+          }
+          while( (!jFlag ) && ( iFlag || agents_pastMsg[j].messageTime< users_pastMsg[i].messageTime ) ) {
+
+            historyMsg.push(agents_pastMsg[j]);
+            j++;
+            if( j==agents_pastMsg.length ) jFlag = true;
+          }
+        }
+        //SORT BOTH MSG DONE
+
+        //THIS PART DIVIDE HISTORY MSG INTO DIFFERENT DAYS
+        let historyMsgStr = "<p class='random-day' style='text-align: center'><strong><italic>"
+          + "-------------------------------------------------------No More History Message-------------------------------------------------------"
+          + "</italic></strong></p>";
+        let nowDateStr = "";
+        for( let i in historyMsg ) {
+          let d = new Date( historyMsg[i].messageTime );
+          if( d.toDateString()!=nowDateStr ) {  //two msg'day is diff => change day, push day msg
+            nowDateStr = d.toDateString();
+            historyMsgStr += "<p class='random-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";
+          }
+          if( identity==IDENTITY.AGENT ) {
+            historyMsgStr += toAgentStr( historyMsg[i] );
+          }
+          else historyMsgStr += toUserStr( historyMsg[i] );
+        }
+        historyMsgStr += "<p class='random-day' style='text-align: center'><strong><italic>"
+          + "-------------------------------------------------------Present Message-------------------------------------------------------"
+          +" </italic></strong></p>";
+        //DIVIDE MSG INTO DIFFERENT DAYS DONE
+
+        //some liitle function here
+        function toUserStr( msg ) {
+          return "<p class='random'>" + msg.userName + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
+        }
+        function toAgentStr( msg ) {
+          return "<p class='random'>" + msg.agentName + toTimeStr(msg.messageTime) + ": " + msg.message + "<br/></p>";
+        }
+        ///if want to sort online user, compute information here
+
+        canvas.append(
+          "<div id=\"" + data.id + "\" class=\"tabcontent\"style=\"display: none;\">"
+          + "<span class=\"topright\">x&nbsp;</span>"
+          + "<div id='" + data.id + "-content' class='messagePanel'>" + historyMsgStr
+          + "<p class=\"message\"><strong>" + data.userName + toTimeStr(data.messageTime) + ": </strong>" + data.message + "<br/></p>"
+          + "</div></div>"
+        );// close append
+      } //else
+    }
+  }//function
+
+  function displayClient( data, msgOwner, identity ) {
+    if (identity != IDENTITY.NEW_USER) {
+      ///agent or already online user , update tablinks' latest msg BY ID
+      console.log('user existed');
+      $(".tablinks[rel='"+data.id+"'] span").text(toTimeStr(data.messageTime) + remove_href_msg(data.message));
+    }
+    else if(identity == IDENTITY.NEW_USER){
+      ///new user, make a tablinks
+      clients.append("<b><button rel=\"" + data.id + "\" class=\"tablinks\" >" + data.userName
+        + "<br><span style='font-weight: normal'>" + toTimeStr(data.messageTime)
+        + remove_href_msg(data.message) +  "</span></button></b>"
+      );
+    }
+    else {
+      console.log("271 its impossible");
+    }//close else
+
+    function remove_href_msg(msg) {
+      if( msg.indexOf('target="_blank"')!=-1 && msg.indexOf('href')!=-1 ) {
+        let aPos = msg.indexOf('target="_blank"');
+        let bPos = msg.indexOf('href');
+        if( bPos>aPos ) { ///image, video, audio, location
+          if( msg.indexOf('image')!=-1 ) return "send a image";
+          else if( msg.indexOf('audio')!=-1 ) return "send an audio";
+          else if( msg.indexOf('video')!=-1 ) return "send a video";
+          else if( msg.indexOf('https://www.google.com.tw/maps/') != -1) return "send a location";
+        }
+        else {  ///url
+          let cPos = msg.lastIndexOf('target');
+          return msg.substring( bPos+6, cPos-2 ) ;
+        }
+      }
+      else return msg;
+    }
+
+  } //close client function
+
+  //extend jquery, let searching case insensitive
+  $.extend($.expr[':'], {
+    'containsi': function(elem, i, match, array) {
+      return (elem.textContent || elem.innerText || '').toLowerCase()
+      .indexOf((match[3] || "").toLowerCase()) >= 0;
+    }
+  });
+
+  searchBox.change(function () {
+    var searchStr = searchBox.val();
+
+    if( searchStr == "" ) {
+      displayAll();
+    }
+    else {
+      $('.tablinks').each( function() {
+        //find his content parent
+        let id = $(this).attr('rel');
+
+        //hide no search_str msg
+        $("div #"+id+"-content"+" .random").css("display", "none");
+        $("div #"+id+"-content"+" .message").css("display", "none");
+
+        //display searched msg & push #link when onclick
+        $("div #"+id+"-content"+" .random:containsi("+searchStr+")")
+          .css("display", "").on( "click", when_click_msg );
+        $("div #"+id+"-content"+" .message:containsi("+searchStr+")")
+          .css("display", "").on( "click", when_click_msg );
+
+        //when onclick, get search_str msg # link
+        function when_click_msg() {    //when clicing searched msg
+
+          $(this).attr("id", "ref");    //msg immediately add link
+
+          searchBox.val("");    //then cancel searching mode,
+          displayAll();         //display all msg
+
+          window.location.replace("/chat#ref"); //then jump to the #link added
+          $(this).attr("id", "");   //last remove link
+        };
+
+        //if this customer already no msg...    (dont know how to clean code QQ)
+        let flag = false;
+        for( let i=0; i<$("div #"+id+"-content"+" .random").length; i++ ) {
+          if( $("div #"+id+"-content"+" .random").eq(i).css("display") != "none" ) {
+            flag = true;
+            break;
+          }
+        }
+        if( !flag ) for( let i=0; i<$("div #"+id+"-content"+" .message").length; i++ ) {
+          if( $("div #"+id+"-content"+" .message").eq(i).css("display") != "none" ) {
+            flag = true;
+            break;
+          }
+        }
+
+        //then hide the customer's tablinks
+        if( !flag ) $(this).css("background-color", "");
+        else $(this).css("background-color", COLOR.FIND);
+
+      });
+    }
+    function displayAll() {
+      $('.tablinks').each( function() {
+        let id = $(this).attr('rel');
+        $("div #"+id+"-content"+" .random").css({
+          "background-color": "",
+          "display": ""
+        }).off("click");
+
+        $("div #"+id+"-content"+" .message").css({
+          "background-color": "",
+          "display": ""
+        }).off("click");
+
+        $(this).css("background-color","");
+      });
+    }
+  });   //end searchBox change func
+
+  function toDateStr( input ) {
+    var str = " ";
+    let date = new Date(input);
+    str += date.getFullYear() + '/' + addZero(date.getMonth()+1) + '/' + addZero(date.getDate()) + ' ';
+
+    var week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    str += week[date.getDay()] + ' ' + addZero(date.getHours()) + ':' + addZero(date.getMinutes());
+    return str;
+  }
+  function toTimeStr( input ) {
+    let date = new Date(input);
+    return " (" + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ") ";
+  }
+
+  function addZero(val){
+    return val<10 ? '0'+val : val;
+  }
+
+  function closeIdleRoom() {
+    let over_fifteen_min = new Date();
+    let user_list = [];
+    let find_user_id;
+    let total_users = document.getElementById('canvas').childNodes.length;
+    let canvas = $('#canvas');
+    for(let i=0;i<total_users;i++) {
+      user_list.push()
+    }
+    setInterval(() => {
+
+    }, 900000)
+  }
 
 }); //document ready close tag
