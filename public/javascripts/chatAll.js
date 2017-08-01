@@ -7,7 +7,7 @@ $(document).ready(function() {
   var clients = $('#clients');
   var printAgent = $('#printAgent');
   var canvas = $("#canvas");
-  var searchBox = $('#searchBox');
+  var searchBox = $('.searchBox');
   var name_list = [];
   var person = prompt("Please enter your name");
   var historyMsg_users = [];
@@ -26,19 +26,19 @@ $(document).ready(function() {
     if( searchBox.val()!="" ) {
       cleancolor = COLOR.FIND;
     }
-    $("#selected").attr('id','').css("background-color", cleancolor);
-    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);
-    $(this).find('span').css("font-weight", "normal");
+    $("#selected").attr('id','').css("background-color", cleancolor);   //clean other's color
+    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
+    $(this).find('span').css("font-weight", "normal");                //read msg, let msg dis-bold
 
-    var target = $(this).attr('rel');
-    $("#"+target).show().siblings().hide();
-    $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);
+    var target = $(this).attr('rel');         //find the message canvas
+    $("#"+target).show().siblings().hide();   //show it, and close others
+    $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
 
     console.log('click tablink executed');
   }
-  function clickSpan() {
+  function clickSpan() {  //close the message canvas
     let userId = $(this).parent().css("display", "none").attr("id");
-    $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");
+    $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");   //clean tablinks color
   }
 
   $(document).on('click', '.tablinks', clickMsg);
@@ -48,42 +48,40 @@ $(document).ready(function() {
 
   if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
-    setTimeout(loadMsg, 10);
-    setTimeout(agentName, 100);
-    //   setTimeout(loadMsg, 100);
-  } // set agent name
+    setTimeout(loadMsg, 10);  //load history msg
+    setTimeout(agentName, 100); //enter agent name
+  }
 
   function loadMsg() {
     console.log("Start loading msg...");
-    socket.emit('get json from back');
+    socket.emit('get json from back');    //emit a request to www, request for history msg
   } //end loadMsg func
 
-  socket.on('push json to front', (data) => {
+  socket.on('push json to front', (data) => {   //www emit data of history msg
     console.log("push json to front");
-    console.log(data);
+    // console.log(data);          //console all history message
     for( i in data ) pushMsg(data[i]);    ///one user do function one time
-    $('.tablinks_head').text('Loading complete');
+    $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
 
-  function pushMsg(data){
+  function pushMsg(data){     //one user do function one time; data structure see line 450
     let historyMsg = data.Messages;
     let profile = data.Profile;   ///PROFILE at here
-    name_list.push(profile.userId);
+    name_list.push(profile.userId); //make a name list of all chated user
 
-    console.log("data messages:");
-    console.log(historyMsg);
 
     let historyMsgStr = "<p class='random-day' style='text-align: center'><strong><i>"
       + "-------------------------------------------------------No More History Message-------------------------------------------------------"
-      + "</i></strong></p>";
+      + "</i></strong></p>";    //history message string head
+
     let nowDateStr = "";
-    for( let i in historyMsg ) {
-      let d = new Date( historyMsg[i].time );
-      if( d.toDateString()!=nowDateStr ) {  //change day
-        nowDateStr = d.toDateString();
-        historyMsgStr += "<p class='random-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";
+    for( let i in historyMsg ) {    //this loop plus date info into history message, like "----Thu Aug 01 2017----"
+      let d = new Date( historyMsg[i].time ).toDateString();   //get msg's date
+      if( d != nowDateStr ) {  //if (now msg's date != previos msg's date), change day
+        nowDateStr = d;
+        historyMsgStr += "<p class='random-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";  //plus date info
       }
-      if( historyMsg[i].owner == "agent" ) {
+      if( historyMsg[i].owner == "agent" ) {    //plus every history msg into string
         historyMsgStr += toAgentStr(historyMsg[i].message, historyMsg[i].name, historyMsg[i].time);
       }
       else historyMsgStr += toUserStr(historyMsg[i].message, historyMsg[i].name, historyMsg[i].time);
@@ -91,26 +89,26 @@ $(document).ready(function() {
 
     historyMsgStr += "<p class='random-day' style='text-align: center'><strong><italic>"
       + "-------------------------------------------------------Present Message-------------------------------------------------------"
-      +" </italic></strong></p>";
+      +" </italic></strong></p>";   //history message string tail
 
-    canvas.append(
+    canvas.append(    //push string into canvas
       "<div id=\"" + profile.userId + "\" class=\"tabcontent\"style=\"display: none;\">"
        + "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x&nbsp;&nbsp;&nbsp;</span>"
        + "<div id='" + profile.userId + "-content' class='messagePanel'>" + historyMsgStr + "</div>"
        + "</div>"
     );// close append
-    $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>');
+    $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>');  //new a option in select bar
 
-    let lastMsg = historyMsg[historyMsg.length-1];
-    let font_weight = lastMsg.owner=="user" ? "bold" : "normal";
+    let lastMsg = historyMsg[historyMsg.length-1];    //this part code is temporary
+    let font_weight = lastMsg.owner=="user" ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
     let lastMsgStr = "";
     lastMsgStr = "<br><span style='font-weight: "+ font_weight + "'>" + toTimeStr(lastMsg.time) + remove_href_msg(lastMsg.message) + "</span>";
-
+    //display last message at tablinks
 
     let avgChatTime;
     let totalChatTime;
-    if( profile.recentChat != lastMsg.time) {
-      let timeArr = [];
+    if( profile.recentChat != lastMsg.time) {   //it means database should update chat time of this user
+      let timeArr = [];       //some calculate
       for( let i in historyMsg ) timeArr.push(historyMsg[i].time);
       let times = [];
       let i=0;
@@ -141,14 +139,14 @@ $(document).ready(function() {
       if( isNaN(avgChatTime)||avgChatTime<1 ) avgChatTime = 1;
       if( isNaN(totalChatTime)||totalChatTime<1 ) totalChatTime = 1;
 
-      socket.emit("update chat time", {
+      socket.emit("update chat time", {   //tell www to update this user's chat time info
         id: profile.userId,
         avgTime: avgChatTime,
         totalTime: totalChatTime,
         recentTime: lastMsg.time
       });
     }
-    else {
+    else {      //it means database dont need update, just get info from DB
       avgChatTime = profile.avgChat;
       totalChatTime = profile.totalChat;
     }
@@ -161,11 +159,11 @@ $(document).ready(function() {
       + profile.nickname
       + lastMsgStr
       + "</button></b>"
-    );
+    );    //new a tablinks
 
   }
 
-  function agentName() {
+  function agentName() {    //enter agent name
     while( person=="" ) {
       person = prompt("Please enter your name");
     }
@@ -185,7 +183,7 @@ $(document).ready(function() {
     } //'name already taken'功能未做、push agent name 未做
   }
 
-  messageForm.submit((e) => {
+  messageForm.submit((e) => {   //submit to_send message to user
     e.preventDefault();
     let designated_user_id = $( "#user-rooms option:selected" ).val();
     socket.emit('send message2', {id: designated_user_id , msg: messageInput.val()}, (data) => {
@@ -198,7 +196,7 @@ $(document).ready(function() {
     messageInput.val('');
   });
 
-  socket.on('usernames', (data) => {
+  socket.on('usernames', (data) => {    //maybe no use now
     var html = '';
     for (i = 0; i < data.length; i++) {
       html += data[i] + '<br />';
@@ -209,14 +207,14 @@ $(document).ready(function() {
 
   /*  =================================  */
 
-  socket.on('new message2', (data) => {
+  socket.on('new message2', (data) => {   //if www push "new message2"
 
     console.log("Message get! identity = " + data.owner + ", name = " + data.name);
+    //owner = "user", "agent" ; name = "Colman", "Ted", others...
+    displayMessage( data ); //update canvas
+    displayClient( data );  //update tablinks
 
-    displayMessage( data );
-    displayClient( data );
-
-    if( name_list.indexOf(data.id) == -1 ) {
+    if( name_list.indexOf(data.id) == -1 ) {  //if its never chated user, push his name into name list
       name_list.push(data.id);
       console.log("push into name_list!");
     }
@@ -225,19 +223,17 @@ $(document).ready(function() {
     // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
   });
 
-  function displayMessage( data ) {
+  function displayMessage( data ) {     //update canvas
 
-    if (name_list.indexOf(data.id) !== -1) {
-      //append new msg in existed window
-      //no matter he's agent or user, just push name and msg into correct canvas BY ID
+    if (name_list.indexOf(data.id) !== -1) {    //if its chated user
       let str;
       if( data.owner == "agent" ) str = toAgentStr(data.message, data.name, data.time);
       else str = toUserStr(data.message, data.name, data.time);
-      $("#" + data.id + "-content").append(str);
-      $('#'+data.id+'-content').scrollTop($('#'+data.id+'-content')[0].scrollHeight);
+      $("#" + data.id + "-content").append(str);    //push message into right canvas
+      $('#'+data.id+'-content').scrollTop($('#'+data.id+'-content')[0].scrollHeight);  //scroll to down
 
     } //close if
-    else {
+    else {              //if its never chated user
       console.log('new user msg append to canvas');
 
       //THIS PART DIVIDE HISTORY MSG INTO DIFFERENT DAYS
@@ -252,7 +248,7 @@ $(document).ready(function() {
       if( data.owner == "agent" ) historyMsgStr += toAgentStr(data.message, data.name, data.time);
       else historyMsgStr += toUserStr(data.message, data.name, data.time);
 
-      canvas.append(
+      canvas.append(      //new a canvas
         "<div id=\"" + data.id + "\" class=\"tabcontent\"style=\"display: none;\">"
         + "<span class=\"topright\">x&nbsp;</span>"
         + "<div id='" + data.id + "-content' class='messagePanel'>"
@@ -261,17 +257,17 @@ $(document).ready(function() {
       );// close append
 
       $('#user-rooms').append('<option value="' + data.id + '">' + data.name + '</option>');
-
+      //new a option in select bar
     }
   }//function
 
-  function displayClient( data ) {
-    let font_weight = data.owner=="user" ? "bold" : "normal";
+  function displayClient( data ) {    //update tablinks
+    let font_weight = data.owner=="user" ? "bold" : "normal";   //if msg is by user, mark it unread
 
     if (name_list.indexOf(data.id) !== -1 ) {
-      //agent or already online user , update tablinks' latest msg BY ID
       console.log('user existed');
       $(".tablinks[rel='"+data.id+"'] span").text(toTimeStr(data.time) + remove_href_msg(data.message)).css("font-weight", font_weight);
+      //update tablnks's last msg
     }
     else{
       //new user, make a tablinks
@@ -294,7 +290,7 @@ $(document).ready(function() {
     }
   });
 
-  searchBox.change(function () {
+  searchBox.change(function () {    //not clean code ><,  just some search function
     var searchStr = searchBox.val();
 
     if( searchStr == "" ) {
@@ -431,7 +427,7 @@ $(document).ready(function() {
     return val<10 ? '0'+val : val;
   }
 
-  function remove_href_msg(msg) {
+  function remove_href_msg(msg) {   ///let last msg display correct, not well tested, may many bug
     if( msg.indexOf('target="_blank"')!=-1 && msg.indexOf('href')!=-1 ) {
       let aPos = msg.indexOf('target="_blank"');
       let bPos = msg.indexOf('href');
