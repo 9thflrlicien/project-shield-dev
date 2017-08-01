@@ -92,9 +92,6 @@
     <p>NOTE FOR DEVELOPERS:<br/>
     1. download CSV file 未做(緩）<br/>
     2. 時間功能未(緩)  <br/>
-    3. append text msg UI 修改(crashing)<br/>
-
-
     </p>
 
 
@@ -123,14 +120,14 @@
 
 <section style="float:top; margin:16% 0 0 0 ">
     <div class="tab">
-        <button style="padding:1.5%;margin:0;" class="tablinks" rel="table">Serving</button>
-        <button style="padding:1.5%; margin:0" class="tablinks" rel="tableData">Waiting</button>
+        <button style="padding:1.5%;margin:0;" class="tablinks" rel="table_serving">Serving</button>
+        <button style="padding:1.5%; margin:0" class="tablinks" rel="table_waiting">Waiting</button>
     </div>
 </section>
 
 <section>
-    <div id="table" style="height:550px;border: solid lightgrey 1px; display: block">
-        <table id="table">
+    <div id="table_serving" style="height:550px;border: solid lightgrey 1px; display: block">
+        <table>
             <thead>
                 <tr>
                     <th class="tablinks_sort" id="th">Main Keyword<i class="fa fa-angle-down" aria-hidden="true"></i></th>
@@ -152,15 +149,12 @@
                 </tr>
             </tbody>
         </table>
-        <!--  <div style="border: 1px solid #dddddd;
- height:350px">
-  <p style="float:left; margin-left:40%; margin-top: 16%">No set up keywords.</p>
- </div>
-</div>  -->
+      </div>
 
-        <div id="tableData" style="display:none; border: 1px solid #dddddd;
+
+        <div id="table_waiting" style="display:none; border: 1px solid #dddddd;
  height:550px">
-            <table id="tableData">
+            <table>
                 <thead>
                     <tr>
                         <th class="tablinks_sort" id="th">Main Keyword<i class="fa fa-angle-down" aria-hidden="true"></i></th>
@@ -173,12 +167,6 @@
                 </thead>
                 <tbody id="waiting"></tbody>
             </table>
-            <!--  <div style="border: 1px solid #dddddd;
- height:350px">
-    <p style="float:left; margin-left:40%; margin-top: 16%">No set up keywords.</p>
-
- </div> -->
-
         </div>
 </section>
 
@@ -199,35 +187,37 @@
                 <!-- Form Content -->
                 <form>
                     <div class="form-group">
-                        <label for="modal-mainKey" class="col-2 col-form-label">Enter Main Keyword:</label>
+                        <label for="modal-mainKey" class="col-2 col-form-label">Enter Main Keyword</label>
                         <div class="col-4">
-                            <input class="form-control" type="text" value="" id="modal-mainKey">
+                            <input class="form-control" type="text" value="" id="modal-mainKey" />
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="modal-subKey" class="col-2 col-form-label">Add Sub Keyword:</label>
-                        <button id="addSubKey">Add Sub Keyword</button>
+                        <button type="button" class="btn btn-secondary" id="addSubKey">Add Sub Keyword</button>
                         <div class="col-4" id="subKeyCanvas"></div>
                     </div>
                     <div class="form-group">
                         <label for="modal-task-name" class="col-2 col-form-label">Reply Message:</label>
                         <table>
+                            <tr>
                             <td style="padding:1%">
+                                <div style="margin:2%">
                                 <p>Note: You can send 5 messages at a time. Please select the type of message you want to send.</p>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg">Text</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="sticker">Sticker</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="image">Image</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="coupon">Coupon</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="election">Election</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="promotion">Promotion</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="survey">Survey</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg">Text</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="sticker">Sticker</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="image">Image</button>
+                                <button type="button" class="btn btn-secondary"  style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="coupon">Coupon</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="election">Election</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="promotion">Promotion</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="appendMsg" rel="survey">Survey</button>
+                                </div>
                             </td>
-                            <td>
-                              <div id="MsgCanvas"></div>
-                            </td>
+                            </tr>
                         </table>
                     </div>
+                    <div id="MsgCanvas"></div>
 
                     <div class="form-group">
                         <label for="modal-category" class="col-2 col-form-label">Status:</label>
@@ -237,102 +227,6 @@
                           <option>Waiting</option>
                         </select>
                     </div>
-
-<!--                     <section> -->
-                        <!--TEXT AREA -->
-<!--                         <div id="text" style="display:none; height:150px;width:100%; padding:1.5%;margin:2%"><span style="float:right" onclick="this.parentElement.remove()">X</span>
-                            <table>
-                                <tr>
-                                    <th style="padding:1.5%; background-color: #ddd">Enter Text:</th>
-                                </tr>
-                                <tr>
-                                    <td style="background-color: #ddd">
-                                        <form style="padding:1%">
-                                            <input id="textinput" style="width:100%;height:100px" />
-                                        </form>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th style="padding:1.5%; background-color: #ddd">
-                                        <button class="tablinks" rel="emos">Emoji</button>
-                                    </th>
-                                </tr>
-                            </table> -->
-
-                            <!--EMOJI PLUGINS(UNDONE) -->
-<!--                             <div id="emos" style="display:none; position:fixed; padding:5%; background-color: lightgrey; width:100%; height:30%">
-                                <button class="tablinks" id="emojis" rel="(moonwink)"><img src="#" /></button>
-                                <button class="tablinks" id="emojis">Emoji</button>
-                                <button class="tablinks" id="emojis">Emoji</button>
-                                <button class="tablinks" id="emojis">Emoji</button>
-                                <button class="tablinks" id="emojis">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-
-                            </div>
-                        </div> -->
-                        <!--STICKER -->
-<!--                         <div id="sticker" style="display:none;margin:2%;height:150px;width:100%; padding:1.5%;margin:2%">
-                            <table>
-                                <tr>
-                                    <th style="height:150px;width:80%; padding:1.5%; background-color: #ddd; color:red; border:solid white 1px">Sticker is not available now.</th>
-                                </tr>
-                                <tr>
-                                    <td style="background-color: #ddd">
-                                        <form style="padding:1%">
-                                        </form>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div> -->
-                        <!--IMAGE -->
-<!--                         <table id="image" style="margin:2%;display:none; background-color: lightgrey; border:solid white 1px">
-                            <th style="border:solid white 1px; padding:3%">Choose the image you want to upload.</th>
-                            <td style="height:200px; width:400px; padding:3%">
-                                <input type="file" />
-                            </td>
-
-                        </table> -->
-
-                        <!--COUPON -->
-<!--                         <table id="coupon" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
-                            <tr>
-                                <th style="padding:1%; border:solid white 1px">Coupon Content</th>
-                                <td style="height:200px; width:400px; padding:3%; border:solid white 1px">There's no coupon currently. Please create one at....</td>
-                            </tr>
-                        </table> -->
-
-                        <!--ELECTION -->
-<!--                         <table id="election" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
-                            <tr>
-                                <th style="padding:1%; border:solid white 1px">Election Content</th>
-                                <td style="height:200px; width:400px; padding:3%">There's no election currently. Please create one at....</td>
-                            </tr>
-                        </table> -->
-
-                        <!--PROMOTION -->
-<!--                         <table id="promotion" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
-                            <tr>
-                                <th style="padding:1%;border:solid white 1px">Promotion Content</th>
-                                <td style="height:200px; width:400px; padding:3%">There's no promotion currently. Please create one at....</td>
-                            </tr>
-                        </table> -->
-
-                        <!--SURVEY -->
-<!--                         <table id="survey" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
-                            <tr>
-                                <th style="padding:1%; border: solid white 1px">Survey Content</th>
-                                <td style="height:200px; width:400px; padding:3%">There's no survey currently. Please create one at....</td>
-                            </tr>
-                        </table>
-
-                    </section> -->
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

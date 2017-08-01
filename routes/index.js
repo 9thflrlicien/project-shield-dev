@@ -15,6 +15,9 @@ router.get('/chat', function(req, res, next) {
   res.render('chat', { title: 'SHIELD chat' });
 });
 
+router.get('/chatAll', function(req, res, next) {
+  res.render('chatAll', { title: 'SHIELD chat ver2' });
+});
 //authentication
 router.get('/login', function(req, res, next) {
   res.render('login', { title: 'Login' });

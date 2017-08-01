@@ -39,28 +39,29 @@ function arrow(){
   
 
   function appendMsgCanvas(){
-    $('#MsgCanvas').append('<!--TEXT AREA -->'+
-                        '<div id="text" style="display:none; height:100px; width:400px; padding:1.5%;margin:2%">'+
-                          '<span style="float:right" onclick="this.parentElement.remove()">X</span>'+ 
+    $('#MsgCanvas').append(
+                          '<div id="text" style="height:200px; width:600px;margin:2%">'+
+                          '<span style="float:left" onclick="this.parentElement.remove()">x</span>'+
                             '<table>'+
                                 '<tr>'+
-                                    '<th style="padding:1.5%; margin:2%; background-color: #ddd">Enter Text:</th>'+
+                                    '<th style="padding:1.5%; margin:2%;">Enter Text:</th>'+
                                 '</tr>'+
                                 '<tr>'+
-                                    '<td style="background-color: #ddd">'+
+                                    '<td>'+
                                         '<form style="padding:1%; margin:2%">'+
-                                            '<input id="textinput" style="width:400px;height:100px" />'+
+                                            '<input class="form-control" type="text" value="" id="textinput" style="width:400px;height:100px" />'+
                                         '</form>'+
                                     '</td>'+
                                 '</tr>'+
                                 '<tr>'+
-                                    '<th style="padding:1.5%; margin:2%; background-color: #ddd">'+
-                                        '<button style="padding:1.5%; margin:2%; class="tablinks" rel="emos">Emoji</button>'+
-                                    '</th>'+
+                                    '<td style="padding:1.5%; margin:2%;">'+
+                                        '<button type="button" class="btn btn-secondary" style="padding:1.5%; margin:2%; class="tablinks" rel="emos">Emoji</button>'+
+                                    '</td>'+
                                 '</tr>'+
                             '</table>'+
-                        '</div>');
-        console.log('addMsgCanvas exe');
+                        '</div>'
+);
+        console.log('appendMsgCanvas exe');
 
   }
 
@@ -88,7 +89,7 @@ function arrow(){
 }
 
 
-  function writeUserData( d, userId, mainKey, subKey, text, cate ) {
+  function writeUserData( d, userId, mainKey, subKey, text, cate, email ) {
   database.ref('message-keywordsreply/' + userId).push({
     taskMainK: mainKey, 
     taskSubK: subKey,
@@ -96,14 +97,11 @@ function arrow(){
     taskCate: cate,
     owner: auth.currentUser.email,
   });
-    console.log('this is cate');
-  console.log(cate);
 }
 
 
   function addSubKey(){
-    $('#subKeyCanvas').append('<div><input style="width:20%" type="text" value="" id="modal-subKey">  <span onclick="this.parentElement.remove()">x</span> </div>');
-console.log('subKey added');
+    $('#subKeyCanvas').append('<div><span style="float:left" onclick="this.parentElement.remove()">x  </span><input style="width:20%; left:1%" class="form-control" type="text" value="" id="modal-subKey" /></div>');
 }
 
   function noCsv(){
@@ -126,6 +124,7 @@ console.log('subKey added');
       function clickMsg(){
         var target = $(this).attr('rel');
         $("#"+target).show().siblings().hide();
+        console.log('clickMsg executed')
     }
 
 
@@ -153,7 +152,6 @@ console.log('subKey added');
 
         for(var i=0;i < myIds.length;i++){
           dataArray.push(snap.child(myIds[i]).val());
-          console.log('data in looping for append')
           if (dataArray[i].taskCate == 'Serving'){
 
             $("#serving").append(

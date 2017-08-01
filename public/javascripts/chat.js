@@ -9,13 +9,14 @@ $(document).ready(function() {
   var canvas = $("#canvas");
   var searchBox = $('#searchBox');
   var name_list = [];
-  console.log(name_list);
   var person = prompt("Please enter your name");
   var historyMsg_users = [];
   var historyMsg_agents = [];
   var avgChatTime;
   var sumChatTime;
   var sortAvgBool = true;
+  var selectAll_list=[];
+  let designated_user_id;
   const COLOR = {
     FIND: "rgb(255, 255, 192)",
     CLICKED: "#ccc",
@@ -25,7 +26,22 @@ $(document).ready(function() {
     AGENT: 2,
     NEW_USER: 3
   };
-  var selectAll_list=[];
+
+  function selectAll(){
+
+    if ($( "#user-rooms option:selected" ).val()=='全選'){
+    // for (i in selectAll_list){
+    designated_user_id = selectAll_list;
+    console.log('this is designated_user_id in selectAll()');
+    console.log(designated_user_id);
+    console.log('isArray');
+    console.log(Array.isArray(designated_user_id));
+  // }
+  }else{
+    designated_user_id = $( "#user-rooms option:selected" ).val();
+  }
+
+  }
 
   function clickMsg(){
     ///let the clicked tablinks change color, cancel previous clicked button's color
@@ -49,7 +65,6 @@ $(document).ready(function() {
   $(document).on('click', '.tablinks', clickMsg);
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.topright', clickSpan);
-  $(document).on('click', 'selectAll', selectAll);
   //$(document).on('click', '.tablinks_head', sortAvgChatTime);
 
   if (window.location.pathname === '/chat') {
@@ -58,17 +73,6 @@ $(document).ready(function() {
     setTimeout(agentName, 100);
     //   setTimeout(loadMsg, 100);
   } // set agent name
-
-  function selectAll(){
-    if ($( "#user-rooms option:selected" ).val()=='全選'){
-    for (i in selectAll_list){
-    designated_user_id = selectAll_list[i];
-    console.log('this is designated_user_id in seleAll()');
-    console.log(designated_user_id);
-  }
-  }else{}
-
-  }
 
   function loadMsg() {
     console.log("Start loading msg...");
@@ -117,7 +121,6 @@ $(document).ready(function() {
 
   messageForm.submit((e) => {
     e.preventDefault();
-    let designated_user_id = $( "#user-rooms option:selected" ).val();
     selectAll();
     console.log('this is designated_user_id');
     console.log(designated_user_id);
@@ -125,9 +128,10 @@ $(document).ready(function() {
       messageContent.append('<span class="error">' + data + "</span><br/>");
       ///no this thing QQ
     });
-    // socket.emit('send message', messageInput.val(), (data) => {
-    //     messageContent.append('<span class="error">' + data + "</span><br/>");
-    // });
+
+    selectAll_list.push(data.id);
+    console.log(selectAll_list);
+
     messageInput.val('');
   });
 
@@ -195,12 +199,8 @@ $(document).ready(function() {
       else {
         ///identity = NEW_USER
         console.log('new user msg append to canvas');
-        $('#user-rooms').append('<option value="' + data.id + '">' + msgOwner + '</option>'+
-          '<option id="selectAll" value="全選">全選</option>'
-          );
+        $('#user-rooms').append('<option value="' + data.id + '">' + msgOwner + '</option>');
 
-        selectAll_list.push(data.id);
-        console.log(selectAll_list);
         ///loading that user's history msg
         let users_pastMsg = historyMsg_users.filter(msg => {
           return msg.id == data.id;
@@ -287,7 +287,7 @@ $(document).ready(function() {
       );
     }
     else {
-      console.log("271 its impossible");
+      console.log("271 its imposibble");
     }//close else
 
     function remove_href_msg(msg) {
@@ -406,20 +406,6 @@ $(document).ready(function() {
 
   function addZero(val){
     return val<10 ? '0'+val : val;
-  }
-
-  function closeIdleRoom() {
-    let over_fifteen_min = new Date();
-    let user_list = [];
-    let find_user_id;
-    let total_users = document.getElementById('canvas').childNodes.length;
-    let canvas = $('#canvas');
-    for(let i=0;i<total_users;i++) {
-      user_list.push()
-    }
-    setInterval(() => {
-
-    }, 900000)
   }
 
 }); //document ready close tag

@@ -89,30 +89,21 @@
       <div id="home">
 		<h3> Message: Add Friends Reply</h3>
 		<p>You can add, edit, and test the message you want to send to LINE@</p>
-    <p>NOTE FOR DEVELOPER:<br/>
-    2. Preview hasn't done.（緩）<br/>
-    4. append msg UI 待修, X不見
+<!--     <p>NOTE FOR DEVELOPER:<br/>
+    </p> -->
 
-    </p>
+    <button type="button" class="btn btn-default inner-add" data-toggle="modal" data-target="#quickAdd" id="add"><span class="fa fa-plus fa-fw"></span>Add Greetings</button>
 <table>
   <tr>
-    <th style="padding:1.5%; background-color: #ddd">Enter Text:</th>
+    <th style="padding:1.5%;" id="head">Your Greetings:</th>
   </tr>
   <tr>
-  	<td style="background-color: #ddd">
-    <form style="padding:1%">
-    <input id="inputText" type="text" style="width:100%;height:100px">
-	</form>
-	</td>
-  </tr>
-  <tr style="margin:1% 0 1% 0">
-  	<th style="padding:1.5%; background-color: #ddd">
-  	  <button class="tablinks" rel="Appointment">Emoji</button>
-  	</th>
+  <td id="greetings"></td>
   </tr>
 </table>
-<table id="MsgCanvas">
-</table> 
+<!-- <div>
+<table id="MsgCanvas"></table> 
+</div>
 <table >
 <td style="padding:5% 5% 5% 15%">
 	<p>Note: You can send 5 messages at a time. Please select the type of message you want to send.</p>
@@ -125,10 +116,149 @@
   <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">Survey</button>
 
 </td>
-</table>
+</table> -->
 
 <!--   <button class="tablinks" rel="History" style="padding:1%; width: 15%; float:left; margin-left:28%; margin-top:1%">Preview</button> -->
-  <button id="save"  style="padding:1%; width: 15%; float:left; margin-left:35%; margin-top:1%">Save</button>
+<!--   <button id="save"  style="padding:1%; width: 15%; float:left; margin-left:35%; margin-top:1%">Save</button> -->
+
+
+<!-- Modal -->
+<section>
+<div class="modal fade" id="quickAdd" tabindex="-1" role="dialog" aria-labelledby="quickAddTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quickAddTitle"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form Content -->
+                <form>
+                    <div class="form-group">
+                        <label for="modal-mainKey" class="col-2 col-form-label">Enter text: </label>
+                        <div class="col-4">
+                            <form style="padding:1%">
+                              <input class="form-control" id="inputText" type="text" style="width:100%;height:100px">
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modal-task-name" class="col-2 col-form-label">Add Reply Message:</label>
+                        <table>
+                            <tr>
+                            <td style="padding:1%">
+                                <div style="margin:2%">
+                                <p>Note: You can send 5 messages at a time. Please select the type of message you want to send.</p>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="#">Text</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="#" rel="sticker">Sticker</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="#" rel="image">Image</button>
+                                <button type="button" class="btn btn-secondary"  style="width:20%;margin:0.5%; padding:0.5%; float:left" id="#" rel="coupon">Coupon</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="#" rel="election">Election</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="#" rel="promotion">Promotion</button>
+                                <button type="button" class="btn btn-secondary" style="width:20%;margin:0.5%; padding:0.5%; float:left" id="#" rel="survey">Survey</button>
+                                </div>
+                            </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="MsgCanvas"></div>
+
+                   <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="modal-submit">Submit</button>
+                    </div>
+                </form>    
+            </div><!-- end modal body -->
+        </div>
+    </div>
+  </div>
+</section>
+
+    <!-- View Modal -->
+  <section>
+    <div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalTitle" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="viewModalTitle"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <!-- 任務內容 -->
+              <div class="form-group">
+                <label for="task-name" class="col-2 col-form-label">Content:  </label>
+                <span id="view-textinput"></span>
+              </div>
+              <!-- 負責人 -->
+              <div class="form-group">
+                <label for="owner" class="col-2 col-form-label">Owner:  </label>
+                <span id="view-owne"></span>
+              </div>
+
+            </form>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    <!-- Edit Modal -->
+  <section>
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalTitle" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalTitle"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <form>
+              <!-- 編號 -->
+              <div class="form-group">
+                <label for="task-name" class="col-2 col-form-label">ID</label>
+                <span id="edit-id"></span>
+              </div>
+
+              <!-- 任務內容 -->
+              <div class="form-group">
+                <label for="edit-task-name" class="col-2 col-form-label">Content:  </label>
+                <div class="col-4">
+                  <input class="form-control" type="text" value="" id="edit-taskContent">
+                </div>
+              </div>
+
+              <!-- 負責人 -->
+              <div class="form-group">
+                <label for="edit-owner" class="col-2 col-form-label">Owner:  </label>
+                <div class="col-4">
+                  <input class="form-control" type="text" value="" id="edit-owner">
+                </div>
+              </div>
+              </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="edit-submit">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+
 
 </div>
 <style>
@@ -144,10 +274,15 @@ th{
 	width:15%;
 }
 
-td, th {
+td, th, tr {
     border: 1px solid #dddddd;
     text-align: left;
-    padding: 8px;
+}
+
+#td{
+  padding:5%;
+  width:550px;
+  height:20px;
 }
 
       
