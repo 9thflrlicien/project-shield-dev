@@ -6,6 +6,7 @@ div.tab {
   height: 300px;
   text-align: center;
   padding:10px 0;
+  overflow-x: hidden; /*byFWL*/
 }
 /* Style the buttons inside the tab */
 div.tab button {

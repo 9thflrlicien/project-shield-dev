@@ -148,9 +148,42 @@ $(document).ready(function() {
 
     displayMessage( data, msgOwner, identity );
     displayClient( data, msgOwner, identity );
+    scroll();
 
     // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
   });
+  socket.on('api message'), (data) => {
+    var msgOwner = "";  ///userName or agentName
+    var identity = -1;  ///user, agent or new_user
+    if( data.hasOwnProperty("agentName") ) {
+      msgOwner = data.agentName;
+      identity = IDENTITY.AGENT;
+    }
+    else if( data.hasOwnProperty("userName") ) {
+      msgOwner = data.userName;
+      if( name_list.indexOf(msgOwner) > -1 ) identity = IDENTITY.USER;
+      else identity = IDENTITY.NEW_USER;
+    }
+    else console.log("ERROR! no agentName, no userName. so what is this???");
+
+    console.log("Message get! identity = " + identity + ", msgOwner = " + msgOwner);
+    if( identity == IDENTITY.NEW_USER ) {
+      name_list.push(msgOwner);
+      console.log("push into name_list!");
+    }
+    else console.log("this msgOwner already exist");
+
+    displayMessage( data, msgOwner, identity );
+    displayClient( data, msgOwner, identity );
+    scroll();
+
+    // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
+  });
+  //by FWL : scroll window to the end of conversation
+  function scroll() {
+    document.getElementsByClassName('messagePanel')[0].scrollTop =
+    document.getElementsByClassName('messagePanel')[0].scrollHeight ;
+  }
 
   function displayMessage( data, msgOwner, identity ) {
 
