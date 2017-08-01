@@ -80,7 +80,6 @@ server.on('listening', onListening);
 // 接收訊息
 // LINE bot implement
 bot.on('message', event => {
-    console.log(event);
     let message_type = event.message.type;
     let message_lineTochat = event.message.text;
     let receiverId = event.source.userId;
@@ -133,6 +132,7 @@ bot.on('message', event => {
               let updateObj = {};
               updateObj['/'+prop+'/Messages/'+length] = obj;
               newDBRef.update(updateObj);
+              newDBRef.child(prop).child("Profile").update({unRead: true});
               flag = false;
               break;
             }
@@ -149,7 +149,8 @@ bot.on('message', event => {
                 firstChat: nowTime,
                 recentChat: nowTime,
                 totalChat: 1,
-                avgChat: 1
+                avgChat: 1,
+                unRead: true
               },
               Messages: [obj]
             };
@@ -423,9 +424,20 @@ io.sockets.on('connection', (socket) => {
       var DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
       io.sockets.emit('push json to front', chatData);
     })
+    socket.on('read message', (data) => {
+      console.log("agent read message of user "+data.id);
+      for( let i in chatData ) {
+        if( chatData[i].Profile.userId == data.id ) {
+          newDBRef.child(i).child("Profile").update({
+            "unRead": false,
+          });
+          break;
+        }
+      }
 
+    });
     socket.on('update chat time', (data, callback) => {
-      console.log("update chat time");
+      console.log("update chat time! id = "+data.id);
       // let DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
       // let i=0;
       // for( i=0; i<DATA.length; i++ ) {
@@ -443,11 +455,8 @@ io.sockets.on('connection', (socket) => {
       for( let i in chatData ) {
         if( chatData[i].Profile.userId == data.id ) {
           let updateObj = {};
-          // updateObj['/'+i+'/Profile/avgChat'] = {data.avgTime};
-          // updateObj['/'+i+'/Profile/totalChat'] = {data.totalTime};
-          // updateObj['/'+i+'/Profile/recentChat'] = {data.recentTime};
           newDBRef.child(i).child("Profile").update({
-            "avgChag": data.avgTime,
+            "avgChat": data.avgTime,
             "totalChat": data.totalTime,
             "recentChat": data.recentTime
           });

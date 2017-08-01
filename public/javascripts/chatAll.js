@@ -12,26 +12,30 @@ $(document).ready(function() {
   var person = prompt("Please enter your name");
   var historyMsg_users = [];
   var historyMsg_agents = [];
+  var user_list = []; // user list for checking on idle chat rooms
   var avgChatTime;
   var sumChatTime;
   var sortAvgBool = true;
+  var sortTotalBool = true;
+  var sortFirstBool = true;
+  var sortRecentBool = true;
+
   const COLOR = {
-    FIND: "rgb(255, 255, 192)",
+    FIND: "#A52A2A",
     CLICKED: "#ccc",
   }
 
   function clickMsg(){
-    //let the clicked tablinks change color, cancel previous clicked button's color
-    let cleancolor = "";
-    if( searchBox.val()!="" ) {
-      cleancolor = COLOR.FIND;
-    }
-    $("#selected").attr('id','').css("background-color", cleancolor);   //clean other's color
+    $("#selected").attr('id','').css("background-color", "");   //clean other's color
     $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
-    $(this).find('span').css("font-weight", "normal");                //read msg, let msg dis-bold
+    if( $(this).find('span').css("font-weight")=="bold" ) {
+      $(this).find('span').css("font-weight", "normal");                //read msg, let msg dis-bold
+      socket.emit("read message", {id: $(this).attr('rel')} );
+    }
 
     var target = $(this).attr('rel');         //find the message canvas
     $("#"+target).show().siblings().hide();   //show it, and close others
+    $('#user-rooms').val(target);
     $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
 
     console.log('click tablink executed');
@@ -41,10 +45,52 @@ $(document).ready(function() {
     $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");   //clean tablinks color
   }
 
+  function closeIdleRoom() {
+    // declare current datetime and parse into ms
+    // get the message sent time in ms
+    let new_date = new Date();
+    let over_fifteen_min = Date.parse(new_date);
+    let canvas_last_child_time_list = [];
+    //convert from htmlcollection to array
+    let convert_list;
+    // client list on the left needs to move down when idle more than a certain times
+    let item_move_down;
+    // 這邊需要依照canvas裡面的聊天室做處理
+    let canvas = document.getElementById('canvas');
+    // check how many users are chatting
+    let total_users = document.getElementById('canvas').children.length;
+    // children under canvas
+    let canvas_all_children = canvas.children;
+
+    for(let i=0;i<total_users;i++) {
+      user_list.push(canvas_all_children[i].getAttribute('id'));
+      convert_list = Array.prototype.slice.call( canvas_all_children[i].getElementsByClassName("messagePanel")[0].getElementsByClassName("message") );
+      canvas_last_child_time_list.push(convert_list.slice(-1)[0].getAttribute('rel'))
+      if(over_fifteen_min - canvas_last_child_time_list[i] >= 600000) {
+        // 更改display client的東西
+        console.log('passed idle time');
+        item_move_down = $('[rel="'+user_list[i]+'"]').parent();
+        $('#idle-roomes').append(item_move_down);
+        $('#clients').find('[rel="'+user_list[i]+'"]').remove();
+      } else {
+        item_move_down = $('[rel="'+user_list[i]+'"]').parent();
+        $('#clients').append(item_move_down);
+        $('#idle-roomes').find('[rel="'+user_list[i]+'"]').remove();
+      }
+    }
+    console.log(user_list);
+
+    user_list = [];
+    convert_list = [];
+    canvas_last_child_time_list = [];
+  }
+  setInterval(() => {
+    closeIdleRoom();
+  }, 20000)
+
   $(document).on('click', '.tablinks', clickMsg);
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.topright', clickSpan);
-  //$(document).on('click', '.tablinks_head', sortAvgChatTime);
 
   if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
@@ -61,6 +107,8 @@ $(document).ready(function() {
     console.log("push json to front");
     // console.log(data);          //console all history message
     for( i in data ) pushMsg(data[i]);    ///one user do function one time
+    sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
+    closeIdleRoom();
     $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
 
@@ -70,7 +118,7 @@ $(document).ready(function() {
     name_list.push(profile.userId); //make a name list of all chated user
 
 
-    let historyMsgStr = "<p class='random-day' style='text-align: center'><strong><i>"
+    let historyMsgStr = "<p class='message-day' style='text-align: center'><strong><i>"
       + "-------------------------------------------------------No More History Message-------------------------------------------------------"
       + "</i></strong></p>";    //history message string head
 
@@ -79,7 +127,7 @@ $(document).ready(function() {
       let d = new Date( historyMsg[i].time ).toDateString();   //get msg's date
       if( d != nowDateStr ) {  //if (now msg's date != previos msg's date), change day
         nowDateStr = d;
-        historyMsgStr += "<p class='random-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";  //plus date info
+        historyMsgStr += "<p class='message-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";  //plus date info
       }
       if( historyMsg[i].owner == "agent" ) {    //plus every history msg into string
         historyMsgStr += toAgentStr(historyMsg[i].message, historyMsg[i].name, historyMsg[i].time);
@@ -87,7 +135,7 @@ $(document).ready(function() {
       else historyMsgStr += toUserStr(historyMsg[i].message, historyMsg[i].name, historyMsg[i].time);
     }
 
-    historyMsgStr += "<p class='random-day' style='text-align: center'><strong><italic>"
+    historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
       + "-------------------------------------------------------Present Message-------------------------------------------------------"
       +" </italic></strong></p>";   //history message string tail
 
@@ -100,7 +148,7 @@ $(document).ready(function() {
     $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>');  //new a option in select bar
 
     let lastMsg = historyMsg[historyMsg.length-1];    //this part code is temporary
-    let font_weight = lastMsg.owner=="user" ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
+    let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
     let lastMsgStr = "";
     lastMsgStr = "<br><span style='font-weight: "+ font_weight + "'>" + toTimeStr(lastMsg.time) + remove_href_msg(lastMsg.message) + "</span>";
     //display last message at tablinks
@@ -175,7 +223,6 @@ $(document).ready(function() {
           alert('username is already taken');
         }
       });
-      name_list.push(person); //Colman: add agent name into list here
       printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
     }
     else {
@@ -183,18 +230,40 @@ $(document).ready(function() {
     } //'name already taken'功能未做、push agent name 未做
   }
 
-  messageForm.submit((e) => {   //submit to_send message to user
+  messageForm.submit((e) => {
     e.preventDefault();
-    let designated_user_id = $( "#user-rooms option:selected" ).val();
-    socket.emit('send message2', {id: designated_user_id , msg: messageInput.val()}, (data) => {
-      messageContent.append('<span class="error">' + data + "</span><br/>");
-      //no this thing QQ
-    });
-    // socket.emit('send message', messageInput.val(), (data) => {
-    //     messageContent.append('<span class="error">' + data + "</span><br/>");
-    // });
+    selectAll();
+
+    if (Array.isArray(designated_user_id)) {
+      for (var i=0; i < name_list.length;i++) {
+        console.log(i+'at line212');
+        socket.emit('send message2', {id: name_list[i] , msg: messageInput.val()}, (data) => {
+          messageContent.append('<span class="error">' + data + "</span><br/>");
+          console.log('this is designated_user_id[i]');
+          console.log(designated_user_id[i]);
+        });//snap
+        ///no this thing QQ
+      };//for
+    }
+    else {
+      socket.emit('send message2', {id: designated_user_id , msg: messageInput.val()}, (data) => {
+        messageContent.append('<span class="error">' + data + "</span><br/>");
+        ///no this thing QQ
+      });//socket.emit
+
+    }//else
     messageInput.val('');
   });
+  function selectAll(){
+    if ($( "#user-rooms option:selected" ).val()=='全選'){
+      designated_user_id = name_list;
+      select = 'true';
+    }
+    else{
+      designated_user_id = $( "#user-rooms option:selected" ).val();
+      select = 'false';
+    }
+  }
 
   socket.on('usernames', (data) => {    //maybe no use now
     var html = '';
@@ -237,11 +306,11 @@ $(document).ready(function() {
       console.log('new user msg append to canvas');
 
       //THIS PART DIVIDE HISTORY MSG INTO DIFFERENT DAYS
-      let historyMsgStr = "<p class='random-day' style='text-align: center'><strong><italic>"
+      let historyMsgStr = "<p class='message-day' style='text-align: center'><strong><italic>"
         + "-------------------------------------------------------No More History Message-------------------------------------------------------"
         + "</italic></strong></p>";
 
-      historyMsgStr += "<p class='random-day' style='text-align: center'><strong><italic>"
+      historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
         + "-------------------------------------------------------Present Message-------------------------------------------------------"
         +" </italic></strong></p>";
 
@@ -271,15 +340,13 @@ $(document).ready(function() {
     }
     else{
       //new user, make a tablinks
-
       clients.append("<b><button rel=\"" + data.id + "\" class=\"tablinks\" >" + data.name
         + "<br><span style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
         + remove_href_msg(data.message) +  "</span></button></b>"
       );
     }
 
-
-
+    $(".tablinks").eq(0).before($(".tablinks[rel='"+data.id+"']"));
   } //close client function
 
   //extend jquery, let searching case insensitive
@@ -302,12 +369,9 @@ $(document).ready(function() {
         let id = $(this).attr('rel');
 
         //hide no search_str msg
-        $("div #"+id+"-content"+" .random").css("display", "none");
         $("div #"+id+"-content"+" .message").css("display", "none");
 
         //display searched msg & push #link when onclick
-        $("div #"+id+"-content"+" .random:containsi("+searchStr+")")
-          .css("display", "").on( "click", when_click_msg );
         $("div #"+id+"-content"+" .message:containsi("+searchStr+")")
           .css("display", "").on( "click", when_click_msg );
 
@@ -315,49 +379,31 @@ $(document).ready(function() {
         function when_click_msg() {    //when clicing searched msg
 
           $(this).attr("id", "ref");    //msg immediately add link
-
           searchBox.val("");    //then cancel searching mode,
           displayAll();         //display all msg
-
           window.location.replace("/chatAll#ref"); //then jump to the #link added
           $(this).attr("id", "");   //last remove link
         };
 
         //if this customer already no msg...    (dont know how to clean code QQ)
-        let flag = false;
-        for( let i=0; i<$("div #"+id+"-content"+" .random").length; i++ ) {
-          if( $("div #"+id+"-content"+" .random").eq(i).css("display") != "none" ) {
-            flag = true;
-            break;
+        let color = "";
+        $("div #"+id+"-content"+" .message").each(function() {
+          if($(this).css("display")!="none") {
+            color = COLOR.FIND;
+            return false;
           }
-        }
-        if( !flag ) for( let i=0; i<$("div #"+id+"-content"+" .message").length; i++ ) {
-          if( $("div #"+id+"-content"+" .message").eq(i).css("display") != "none" ) {
-            flag = true;
-            break;
-          }
-        }
-
+        });
         //then hide the customer's tablinks
-        if( !flag ) $(this).css("background-color", "");
-        else $(this).css("background-color", COLOR.FIND);
+        $(this).css("color", color);
 
       });
     }
     function displayAll() {
       $('.tablinks').each( function() {
         let id = $(this).attr('rel');
-        $("div #"+id+"-content"+" .random").css({
-          "background-color": "",
-          "display": ""
-        }).off("click");
+        $("div #"+id+"-content"+" .message").css("display", "").off("click");
 
-        $("div #"+id+"-content"+" .message").css({
-          "background-color": "",
-          "display": ""
-        }).off("click");
-
-        $(this).css("background-color","");
+        $(this).css("color","");
       });
     }
   });   //end searchBox change func
@@ -368,7 +414,6 @@ $(document).ready(function() {
   $('.filterClean').on('click', function() {
     $('#startdate').val('');
     $('#enddate').val('');
-    $('#timeVal').val('');
     $('.tablinks').show();
   })
   $('.filterDate').on('click', function(){
@@ -387,26 +432,68 @@ $(document).ready(function() {
   });
   $('.filterTime').on('click', function(){
     let filterWay = $(this).attr('id');
-    let time = parseInt($('#timeVal').val());
+    let val = $('#filterTimeSelect').val();
+    let a;  let b;
+    if( val==0) { a=0; b=5; }
+    else if( val==1) { a= 5; b=10; }
+    else if( val==2) { a=10; b=30; }
+    else if( val==3) { a=30; b=60; }
+    else if( val==4) { a=60; b=9999999; }
+    else alert(val);
 
-    if( isNaN(time) ) alert('pls input time value');
-    else {
-      $('.tablinks').each(function() {
-        let val = $(this).attr('data-'+filterWay);
-        $(this).hide();
-        // console.log("updown val = ");
-        // console.log()
-        if( $('#up_down').val()=='>' && val>time ) $(this).show();
-        else if( $('#up_down').val()=='<' && val<time ) $(this).show();
-      });
-    }
+    $('.tablinks').each(function() {
+      let val = $(this).attr('data-'+filterWay);
+      $(this).hide();
+      if( val>a && val<b ) $(this).show();
+    });
   });
 
+  function sortUsers(ref, up_or_down, operate) {
+    let arr = $('#clients b');
+    for( let i=0; i<arr.length-1; i++ ) {
+      for( let j=i+1; j<arr.length; j++ ) {
+        let a = arr.eq(i).children(".tablinks").attr("data-"+ref)-'0';
+        let b = arr.eq(j).children(".tablinks").attr("data-"+ref)-'0';
+        if( up_or_down == operate(a, b) ) {
+          let tmp = arr[i];   arr[i] = arr[j];    arr[j] = tmp;
+        }
+      }
+    }
+    $('#clients').append(arr);
+
+  } //end sort func
+
+  function sortAvgChatTime() {
+    sortUsers("avgTime", sortAvgBool, function(a,b){ return a<b; } );
+    var tmp = !sortAvgBool;
+    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
+    sortAvgBool = tmp;
+  }
+  function sortTotalChatTime() {
+    sortUsers("totalTime", sortTotalBool, function(a,b){ return a<b; } );
+    var tmp = !sortTotalBool;
+    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
+    sortTotalBool = tmp;
+  }
+  function sortFirstChatTime() {
+    sortUsers("firstTime", sortFirstBool, function(a,b){ return a>b; } );
+    var tmp = !sortFirstBool;
+    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
+    sortFirstBool = tmp;
+  }
+  function sortRecentChatTime() {
+    sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
+    var tmp = !sortRecentBool;
+    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
+    sortRecentBool = tmp;
+  }
+
+
   function toAgentStr(msg, name, time) {
-    return "<p class='random' style='text-align: right;'>" + msg + "<strong> : " + name + toTimeStr(time) + "</strong><br/></p>";
+    return "<p class='message' rel='" + time + "' style='text-align: right;'>" + msg + "<strong> : " + name + toTimeStr(time) + "</strong><br/></p>";
   }
   function toUserStr(msg, name, time) {
-    return "<p class='random'><strong>" + name + toTimeStr(time) + ": </strong>" + msg + "<br/></p>";
+    return "<p class='message' rel='" + time + "'><strong>" + name + toTimeStr(time) + ": </strong>" + msg + "<br/></p>";
   }
 
   function toDateStr( input ) {
@@ -444,5 +531,6 @@ $(document).ready(function() {
     }
     else return msg;
   }
+
 
 }); //document ready close tag
