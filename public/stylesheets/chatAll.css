@@ -31,10 +31,7 @@ div.tab button {
   border-left: none;
   display:block;
   overflow-y: scroll;
-  overflow-x: none;
-}
-.tablinks{
-  /*padding-left: 10px*/
+  overflow-x: hidden; /*byFWL*/
 }
 /* Change background color of buttons on hover */
 div.tab button:hover {
@@ -106,9 +103,20 @@ p {
   padding-top: 10px;
   /*margin: 10px;*/
 }
-
 #send-message {
   margin-top: 20px;
   margin-bottom: 20px;
   float: right;
+}
+.tablinks{
+  padding-left: 10px
+}
+#clients {
+  list-style: none;
+}
+.edit-button{
+  display: none;
+  padding: 2px 5px;
+  border: 1px solid gray;
+  background-color: lightgray;
 }

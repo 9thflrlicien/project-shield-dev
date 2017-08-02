@@ -19,6 +19,9 @@ router.get('/chatAll', function(req, res, next) {
   res.render('chatAll', { title: 'SHIELD chat ver2' });
 });
 
+router.get('/tag', function(req, res, next) {
+  res.render('tag', { title: 'SHIELD tag' });
+});
 router.get('/history', function(req, res, next) {
   res.render('history', { title: 'SHIELD history' });
 });

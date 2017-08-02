@@ -24,10 +24,19 @@ firebase.initializeApp(config);
 const usersRef = firebase.database().ref().child('chats/users2');
 const agentsRef = firebase.database().ref().child('chats/agents2');
 const newDBRef = firebase.database().ref().child('chats/Data');
+const tagsRef = firebase.database().ref().child('tags');
+
 var chatData;
 newDBRef.on('value', snapshot=> {
    chatData = snapshot.val();
    console.log("chat data loading complete!");
+  // ...
+});
+
+var tagsData;
+tagsRef.on('value', snapshot=> {
+   tagsData = snapshot.val().Data;
+   console.log("tags data loading complete!");
   // ...
 });
 
@@ -111,8 +120,8 @@ bot.on('message', event => {
 
           console.log("sending object: ");
           console.log(obj);
-          console.log("sending to local DB");
-          sendToLocalDB(obj);
+          // console.log("sending to local DB");
+          // sendToLocalDB(obj);
           console.log("sending to new firebase database");
           sendToNewFb(obj);
           console.log("sending to new io sockets...");
@@ -127,7 +136,7 @@ bot.on('message', event => {
           let flag = true;
           for( let prop in chatData ) {
             if(chatData[prop].Profile.userId == receiverId) {
-              console.log("find the same user");
+              console.log("find user " + receiverId + " in database");
               let length = chatData[prop].Messages.length;
               let updateObj = {};
               updateObj['/'+prop+'/Messages/'+length] = obj;
@@ -229,8 +238,9 @@ bot.on('message', event => {
             /*'base64'是圖片的編碼*/
             console.log(content.toString('base64'));
             /*把編碼轉換成圖片(image/png)做成連結的方式*/
-            msgObj.message = '<a target="_blank" href="data:image/png;base64,' + content.toString('base64') + '" ' +
-            'width="70" height="38" alt="image embedded using base64 encoding!">IMAGE LINK</a>';
+            msgObj.message = '<a href="data:image/png;base64,' + content.toString('base64') + '" ' +
+            ' target="_blank" ><img src="data:image/png;base64,' + content.toString('base64') + '" ' +
+            'width="20%" alt="image embedded using base64 encoding!"/></a>';
             emitIO_and_pushDB(msgObj);
 
           }).catch(function(error) {
@@ -245,8 +255,8 @@ bot.on('message', event => {
 
           event.message.content().then(function(content) {
             console.log(content.toString('base64'));
-            msgObj.message = '<a target="_blank" href="data:audio/mp4;base64,' + content.toString('base64') + '" ' +
-              '">AUDIO LINK</a>';
+            msgObj.message = '<audio controls><source src="data:audio/mp4;base64,' + content.toString('base64') + '" ' +
+              '" type="audio/mp4"></audio>';
             emitIO_and_pushDB(msgObj);
 
           }).catch(function(error) {
@@ -260,8 +270,8 @@ bot.on('message', event => {
 
           event.message.content().then(function(content) {
             console.log(content.toString('base64'));
-            msgObj.message = '<a target="_blank" href="data:video/mp4;base64,' + content.toString('base64') + '" ' +
-              '">VIDEO LINK</a>';
+            msgObj.message = '<video width="20%" controls><source src="data:video/mp4;base64,' + content.toString('base64') + '" ' +
+              '" type="video/mp4"></video>';
             emitIO_and_pushDB(msgObj);
 
           }).catch(function(error) {
@@ -304,7 +314,7 @@ bot.on('message', event => {
           });
 
         }
-        else if (message_type === 'text' && message_lineTochat.trim() === 'Hi') {
+        else if (message_type === 'text' && message_lineTochat.trim() === '你好'||message_lineTochat.trim().toLowerCase() ==='hi'||message_lineTochat.trim().toLowerCase() ==='hello') {
           msgObj.message = '已接收選項'+"購買方案, "+"服務時段";
           emitIO_and_pushDB(msgObj);
 
@@ -368,34 +378,179 @@ bot.on('message', event => {
             text: 'BOT:' + sixteen
           });
         }
+        else if (event.message.type === 'text' && message_lineTochat.trim() === '問券調查') {
+          setTimeout(() => {
+            msgObj.message = '詢問客戶資料（性別）';
+            emitIO_and_pushDB(msgObj);
+          }, 1000)
+
+          event.reply({
+            "type": "template",
+            "altText": "問券調查part1",
+            "template": {
+              "type": "buttons",
+              "title": "問券調查：性別",
+              "text": "請選擇您的性別",
+              "actions": [{
+                "type": "message",
+                "label": "性別：男",
+                "text": "性別：男"
+              },{
+                "type": "message",
+                "label": "性別：女",
+                "text": "性別：女"
+              }]
+            }
+          });
+
+        }
+        else if (event.message.type === 'text' && (message_lineTochat.trim() === '性別：女' || message_lineTochat.trim() === '性別：男')) {
+          msgObj.message = message_lineTochat.trim();
+          emitIO_and_pushDB(msgObj);
+
+          updateProfile(event);
+          console.log('update success!');
+
+          setTimeout(() => {
+            msgObj.message = '詢問客戶資料（居住地）';
+            emitIO_and_pushDB(msgObj);
+          }, 1000)
+
+          event.reply({
+            "type": "template",
+            "altText": "問券調查",
+            "template": {
+              "type": "buttons",
+              "title": "問券調查：地區",
+              "text": "請選擇您的性別",
+              "actions": [{
+                "type": "message",
+                "label": "地區：北部",
+                "text": "地區：北部"
+              },{
+                "type": "message",
+                "label": "地區：中部",
+                "text": "地區：中部"
+              },{
+                "type": "message",
+                "label": "地區：南部",
+                "text": "地區：南部"
+              },{
+                "type": "message",
+                "label": "地區：東部",
+                "text": "地區：東部"
+              }]
+            }
+          });
+
+
+        }
+        else if (event.message.type === 'text' && (message_lineTochat.trim() === '地區：北部' || message_lineTochat.trim() === '地區：中部' || message_lineTochat.trim() === '地區：南部' || message_lineTochat.trim() === '地區：東部')) {
+          msgObj.message = message_lineTochat.trim();
+          emitIO_and_pushDB(msgObj);
+
+          updateProfile(event);
+          console.log('update success!');
+
+          setTimeout(() => {
+            msgObj.message = '詢問客戶資料（年齡層）';
+            emitIO_and_pushDB(msgObj);
+          }, 1000)
+
+          event.reply({
+            "type": "template",
+            "altText": "問券調查part2",
+            "template": {
+              "type": "carousel",
+              "columns": [
+                {
+                  "text": "您的年齡層。請左右滑動並選擇您的年齡層",
+                  "actions": [
+                    {
+                      "type": "message",
+                      "label": "年齡：20以下",
+                      "text": "年齡：20以下"
+                    },
+                    {
+                      "type": "message",
+                      "label": "年齡：21-30",
+                      "text": "年齡：21-30"
+                    },
+                    {
+                      "type": "message",
+                      "label": "年齡：31-40",
+                      "text": "年齡：31-40"
+                    }
+                  ]
+                },
+                {
+                  "text": "您的年齡層。請左右滑動並選擇您的年齡層",
+                  "actions": [
+                    {
+                      "type": "message",
+                      "label": "年齡：41-50",
+                      "text": "年齡：41-50"
+                    },
+                    {
+                      "type": "message",
+                      "label": "年齡：51-64",
+                      "text": "年齡：51-64"
+                    },
+                    {
+                      "type": "message",
+                      "label": "年齡：65以上",
+                      "text": "年齡：65以上"
+                    }
+                  ]
+                }
+              ]
+            }
+          });
+
+        }
+        else if (event.message.type === 'text' && (message_lineTochat.trim() === '年齡：20以下' || message_lineTochat.trim() === '年齡：21-30' || message_lineTochat.trim() === '年齡：31-40' || message_lineTochat.trim() === '年齡：41-50' || message_lineTochat.trim() === '年齡：51-64' || message_lineTochat.trim() === '年齡：65以上')) {
+          msgObj.message = message_lineTochat.trim();
+          emitIO_and_pushDB(msgObj);
+
+          updateProfile(event);
+          console.log('update success!');
+
+          setTimeout(() => {
+            msgObj.message = '感謝您填寫問卷！';
+            emitIO_and_pushDB(msgObj);
+          }, 1000);
+
+
+          event.reply({
+            type: 'text',
+            text: '感謝您填寫問卷！'
+          });
+
+        }
         else {
           msgObj.message = message_lineTochat;
           emitIO_and_pushDB(msgObj);
         }
-        // 訊息是xxxxxx, template message
-        // AI 機器人 設定
-        // var request = appApiai.textRequest(message_lineTochat, {
-        //     sessionId: '46110120-6a78-4a0e-a5f0-a8596b53d37e'
-        // });
-        // request.on('response', function(response) {
-        //     console.log(response);
-        //     let res_msg = response.result.fulfillment.speech
-        //     if (response.result.action !== 'input.unknown') {
-        //         io.sockets.emit('new message', {
-        //             msg: res_msg,
-        //             name: 'BOT'
-        //         });
-        //         event.reply({
-        //             type: 'text',
-        //             text: 'BOT:' + res_msg
-        //         });
-        //     }
-        // });
-        // request.on('error', function(error) {
-        //     console.log(error);
-        // });
-        // request.end();
-        // AI  機器人 end
+
+        function updateProfile(event) {
+          let survey = {id:'',para:'',value:''};
+          let pos = event.message.text.indexOf('：');
+          let para = event.message.text.substring(0,pos);
+          let value = event.message.text.substring(pos+1);
+          survey.id = event.source.userId;
+          survey.para = para;
+          survey.value = value ;
+          console.log(survey);
+          for( let i in chatData ) {
+            if( chatData[i].Profile.userId == survey.id ) {
+              console.log('match!updating profile...')
+              let obj = {};
+              obj['/'+survey.para] = survey.value;
+              newDBRef.child(i).child("Profile").update(obj);
+              break;
+            }
+          }
+        }
   });
 });
 app.post('/webhook/', linebotParser);
@@ -420,10 +575,20 @@ io.sockets.on('connection', (socket) => {
         }
     });
 
+    socket.on('get tags', data => {
+      io.sockets.emit('push tags', tagsData);
+    });
+    socket.on('update tags', data => {
+      console.log(data);
+      let updateObj = {};
+      updateObj['/Data'] = data;
+      tagsRef.update(updateObj);
+    });
+
     socket.on('get json from back', (data, callback) => {
       var DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
       io.sockets.emit('push json to front', chatData);
-    })
+    });
     socket.on('read message', (data) => {
       console.log("agent read message of user "+data.id);
       for( let i in chatData ) {
@@ -761,29 +926,40 @@ io.sockets.on('connection', (socket) => {
         }
     });//sent message
 
+    socket.on('get profile', (data, callback) => {
+      console.log("get profile");
+      console.log(data.id);
+        for( let i in chatData ) {
+          if( chatData[i].Profile.userId == data.id ) {
+            console.log("match!");
+            socket.emit('show profile',chatData[i].Profile);
+          }
+        }
+    });
+    socket.on('update profile', (data, callback) => {
+      console.log("update profile");
+      for( let i in chatData ) {
+        if( chatData[i].Profile.userId == data.userId ) {
+          let updateObj = {};
+          newDBRef.child(i).child("Profile").update({
+            "address": data.address,      //can edit to what u want to update
+            "age": data.age,
+            "nickname": data.nickname,
+            "telephone": data.telephone,
+            "性別": data.性別,
+            "地區": data.地區,
+            "年齡": data.年齡
+          });
+          break;
+        }
+      }
+    });
 
     socket.on('disconnect', (data) => {
         if (!socket.nickname) return;
         delete users[socket.nickname];
         // nicknames.splice(nicknames.indexOf(socket.nickname), 1);
     });
-
-    //
-    //  /*  =======  Define Receiver  ========  */
-    //         var defReceiverr;
-    //         socket.on('receiver', (data, callback) => {
-    //             callback(true);
-    //             socket.defReceiver = data;
-    //             console.log('Just arived in www, tell me whats socket.defReceiver');
-    //             console.log(socket.defReceiver);
-    //
-    //         });
-    //
-    //
-    // /*  ==================================  */
-    //
-    //         console.log('before bot push, tell me what is socket.defReceiver');
-    //         console.log(socket.defReceiver);
 
 
 });

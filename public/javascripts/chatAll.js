@@ -26,16 +26,16 @@ $(document).ready(function() {
   }
 
   function clickMsg(){
-    $("#selected").attr('id','').css("background-color", "");   //clean other's color
+    $("#selected").attr('id','').css("background-color", "");   //selected tablinks change, clean prev's color
     $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
     if( $(this).find('span').css("font-weight")=="bold" ) {
       $(this).find('span').css("font-weight", "normal");                //read msg, let msg dis-bold
-      socket.emit("read message", {id: $(this).attr('rel')} );
+      socket.emit("read message", {id: $(this).attr('rel')} );          //tell socket that this user isnt unRead
     }
 
     var target = $(this).attr('rel');         //find the message canvas
     $("#"+target).show().siblings().hide();   //show it, and close others
-    $('#user-rooms').val(target);
+    $('#user-rooms').val(target);             //change value in select bar
     $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
 
     console.log('click tablink executed');
@@ -68,17 +68,19 @@ $(document).ready(function() {
       canvas_last_child_time_list.push(convert_list.slice(-1)[0].getAttribute('rel'))
       if(over_fifteen_min - canvas_last_child_time_list[i] >= 600000) {
         // 更改display client的東西
-        console.log('passed idle time');
+        console.log('id = '+user_list[i]+' passed idle time');
         item_move_down = $('[rel="'+user_list[i]+'"]').parent();
         $('#idle-roomes').append(item_move_down);
         $('#clients').find('[rel="'+user_list[i]+'"]').remove();
-      } else {
+      }
+      else {
+        console.log('id = '+user_list[i]+' passed chat time');
         item_move_down = $('[rel="'+user_list[i]+'"]').parent();
         $('#clients').append(item_move_down);
         $('#idle-roomes').find('[rel="'+user_list[i]+'"]').remove();
       }
     }
-    console.log(user_list);
+    // console.log(user_list);
 
     user_list = [];
     convert_list = [];
@@ -91,6 +93,10 @@ $(document).ready(function() {
   $(document).on('click', '.tablinks', clickMsg);
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.topright', clickSpan);
+  $(document).on('click', '#userInfoBtn', showProfile);
+  $(document).on('click', '.userInfo-td', editProfile);
+  $(document).on('click', '.edit-button', changeProfile);
+  $(document).on('click','#userInfo-submit',submitProfile)
 
   if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
@@ -112,11 +118,10 @@ $(document).ready(function() {
     $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
 
-  function pushMsg(data){     //one user do function one time; data structure see line 450
+  function pushMsg(data){     //one user do function one time; data structure see file's end
     let historyMsg = data.Messages;
     let profile = data.Profile;   ///PROFILE at here
     name_list.push(profile.userId); //make a name list of all chated user
-
 
     let historyMsgStr = "<p class='message-day' style='text-align: center'><strong><i>"
       + "-------------------------------------------------------No More History Message-------------------------------------------------------"
@@ -335,7 +340,8 @@ $(document).ready(function() {
 
     if (name_list.indexOf(data.id) !== -1 ) {
       console.log('user existed');
-      $(".tablinks[rel='"+data.id+"'] span").text(toTimeStr(data.time) + remove_href_msg(data.message)).css("font-weight", font_weight);
+      $(".tablinks[rel='"+data.id+"'] span").text(toTimeStr(data.time)+remove_href_msg(data.message)).css("font-weight", font_weight);
+      $(".tablinks[rel='"+data.id+"']").attr("data-recentTime", data.time);
       //update tablnks's last msg
     }
     else{
@@ -385,7 +391,7 @@ $(document).ready(function() {
           $(this).attr("id", "");   //last remove link
         };
 
-        //if this customer already no msg...    (dont know how to clean code QQ)
+        //if this customer already no msg...
         let color = "";
         $("div #"+id+"-content"+" .message").each(function() {
           if($(this).css("display")!="none") {
@@ -395,18 +401,17 @@ $(document).ready(function() {
         });
         //then hide the customer's tablinks
         $(this).css("color", color);
-
-      });
-    }
-    function displayAll() {
-      $('.tablinks').each( function() {
-        let id = $(this).attr('rel');
-        $("div #"+id+"-content"+" .message").css("display", "").off("click");
-
-        $(this).css("color","");
       });
     }
   });   //end searchBox change func
+  function displayAll() {
+    $('.tablinks').each( function() {
+      let id = $(this).attr('rel');
+      $("div #"+id+"-content"+" .message").css("display", "").off("click");
+
+      $(this).css("color","");
+    });
+  }
 
   $('.datepicker').datepicker({
     dateFormat: 'yy-mm-dd'
@@ -415,6 +420,8 @@ $(document).ready(function() {
     $('#startdate').val('');
     $('#enddate').val('');
     $('.tablinks').show();
+    searchBox.val('');
+    displayAll();
   })
   $('.filterDate').on('click', function(){
       let filterWay = $(this).attr('id');
@@ -443,8 +450,8 @@ $(document).ready(function() {
 
     $('.tablinks').each(function() {
       let val = $(this).attr('data-'+filterWay);
-      $(this).hide();
       if( val>a && val<b ) $(this).show();
+      else $(this).hide();
     });
   });
 
@@ -486,6 +493,60 @@ $(document).ready(function() {
     var tmp = !sortRecentBool;
     sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
     sortRecentBool = tmp;
+  }
+
+  var buffer;
+  function showProfile() {
+    var target = $('#selected').attr('rel'); //get useridd of current selected user
+    console.log("show profile");
+    socket.emit('get profile',{id: target}) ;
+  }
+  socket.on('show profile',(data) => {
+    var Th = $('.userInfo-th');
+    var Td = $('.userInfo-td');
+    var but = $('.edit-button');
+    for(let i in but){but.eq(i).hide();}
+    for(let i in Th ){Th.eq(i).text(Th.eq(i).attr('id')+' : ') ;}
+    let key ;
+    buffer = data ;  //storage profile in buffer zone
+    Td.each( function() {
+      key = $(this).attr('id');
+      if( data.hasOwnProperty(key) ) $(this).text(data[key]); //show each profile data
+      else $(this).text("");
+      if(key == 'userId'||key == 'totalChat'){$(this).click(false);}  //disable editing of userid and totalchat
+    });
+  });
+  function editProfile() {
+    let name = $(this).attr('id');
+    $(this).html('<input type="text" class="textarea" placeholder="'+name+'">');
+    $(this).parent().children('.edit-button').show(); //show yes/no button
+    $(this).children().focus(function () {
+        $(this).click(false);  //disable click when editing
+    })
+  }
+  function changeProfile(edit) {
+    let id = $(this).parent().children('.userInfo-td').attr('id');
+    let name = $(this).attr('name');
+    let content =  $(this).parent().children('.userInfo-td').children().val();  //get agent's input
+    let origin = buffer[id];
+
+    $(this).parent().children('.userInfo-td').on('click',editProfile); //restore click of userInfo-td
+    $(this).parent().children('.edit-button').hide();  //hide yes/no button
+
+    if(name == 'yes'){  //confirm edit, change data in buffer instead of DB
+      buffer[id] = content;
+      $(this).parent().children('.userInfo-td').html(content);
+    }
+    else{  //deny edit, restore data before editing
+      $(this).parent().children('.userInfo-td').html(origin);
+    }
+  }
+  function submitProfile() {
+    let r = confirm("Are you sure to change profile?");
+    if(r){
+      console.log(buffer);
+      socket.emit('update profile',buffer);
+    }
   }
 
 
@@ -534,3 +595,39 @@ $(document).ready(function() {
 
 
 }); //document ready close tag
+
+
+// Data: [
+//   -KqMcXFiOawbOmg: {
+//     Profile: {
+//       nickname: "Nick",
+//       userId: "U123456782452345",
+//       unRead: true    //agent hasnt read user's newest msg yet
+//       address: "",
+//       age: 18,
+//       telephone: "0987654321",
+//       avgChat: 13,  //user chat for 13 min per times
+//       totalChat: 39,  //user chat for 39 min totally
+//       firstChat: 1501487574140,   //user's first chat time
+//       recentChat: 1501577478051,  //user's recent chat time
+//     },
+//     Messages: [
+//       0: {
+//         owner: "user",  //"user" or "agent"
+//         name: "Nick",   //"Nick", "AgentNick"
+//         time: 15345674568,
+//         message: "Hi there!"
+//       },
+//       1: {
+//         owner: "agent",  //"user" or "agent"
+//         name: "AgentNick",   //"Nick", "AgentNick"
+//         time: 15345677568,
+//         message: "Hi there!"
+//       },
+//     ]
+//
+//   },
+//   -KqwedgKsdfyBssweoP: {
+//
+//   }.
+// ]
