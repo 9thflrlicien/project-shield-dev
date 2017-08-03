@@ -304,7 +304,7 @@ bot.on('message', event => {
           });
 
         }
-        else if (message_type === 'text' && message_lineTochat.trim() === 'Hi') {
+        else if (message_type === 'text' && message_lineTochat.trim() === '你好'||message_lineTochat.trim().toLowerCase() ==='hi'||message_lineTochat.trim().toLowerCase() ==='hello') {
           msgObj.message = '已接收選項'+"購買方案, "+"服務時段";
           emitIO_and_pushDB(msgObj);
 
@@ -323,6 +323,10 @@ bot.on('message', event => {
                   "type": "message",
                   "label": "服務時段",
                   "text": "服務時段"
+              },{
+                  "type": "message",
+                  "label": "問券調查",
+                  "text": "問券調查"
               }]
             }
           });
@@ -368,10 +372,181 @@ bot.on('message', event => {
             text: 'BOT:' + sixteen
           });
         }
+        else if (event.message.type === 'text' && message_lineTochat.trim() === '問券調查') {
+          setTimeout(() => {
+            msgObj.message = '詢問客戶資料（性別）';
+            emitIO_and_pushDB(msgObj);
+          }, 1000)
+
+          event.reply({
+            "type": "template",
+            "altText": "問券調查part1",
+            "template": {
+              "type": "buttons",
+              "title": "問券調查：性別",
+              "text": "請選擇您的性別",
+              "actions": [{
+                "type": "message",
+                "label": "性別：男",
+                "text": "性別：男"
+              },{
+                "type": "message",
+                "label": "性別：女",
+                "text": "性別：女"
+              }]
+            }
+          });
+
+        }
+        else if (event.message.type === 'text' && (message_lineTochat.trim() === '性別：女' || message_lineTochat.trim() === '性別：男')) {
+          msgObj.message = message_lineTochat.trim();
+          emitIO_and_pushDB(msgObj);
+
+          updateProfile(event);
+          console.log('update success!');
+
+          setTimeout(() => {
+            msgObj.message = '詢問客戶資料（居住地）';
+            emitIO_and_pushDB(msgObj);
+          }, 1000)
+
+          event.reply({
+            "type": "template",
+            "altText": "問券調查",
+            "template": {
+              "type": "buttons",
+              "title": "問券調查：地區",
+              "text": "請選擇您的性別",
+              "actions": [{
+                "type": "message",
+                "label": "地區：北部",
+                "text": "地區：北部"
+              },{
+                "type": "message",
+                "label": "地區：中部",
+                "text": "地區：中部"
+              },{
+                "type": "message",
+                "label": "地區：南部",
+                "text": "地區：南部"
+              },{
+                "type": "message",
+                "label": "地區：東部",
+                "text": "地區：東部"
+              }]
+            }
+          });
+
+
+        }
+        else if (event.message.type === 'text' && (message_lineTochat.trim() === '地區：北部' || message_lineTochat.trim() === '地區：中部' || message_lineTochat.trim() === '地區：南部' || message_lineTochat.trim() === '地區：東部')) {
+          msgObj.message = message_lineTochat.trim();
+          emitIO_and_pushDB(msgObj);
+
+          updateProfile(event);
+          console.log('update success!');
+
+          setTimeout(() => {
+            msgObj.message = '詢問客戶資料（年齡層）';
+            emitIO_and_pushDB(msgObj);
+          }, 1000)
+
+          event.reply({
+            "type": "template",
+            "altText": "問券調查part2",
+            "template": {
+              "type": "carousel",
+              "columns": [
+                  {
+                    "text": "您的年齡層。請左右滑動並選擇您的年齡層",
+                    "actions": [
+                        {
+                            "type": "message",
+                            "label": "年齡：20以下",
+                            "text": "年齡：20以下"
+                        },
+                        {
+                            "type": "message",
+                            "label": "年齡：21-30",
+                            "text": "年齡：21-30"
+                        },
+                        {
+                            "type": "message",
+                            "label": "年齡：31-40",
+                            "text": "年齡：31-40"
+                        }
+                    ]
+                  },
+                  {
+                    "text": "您的年齡層。請左右滑動並選擇您的年齡層",
+                    "actions": [
+                        {
+                          "type": "message",
+                          "label": "年齡：41-50",
+                          "text": "年齡：41-50"
+                        },
+                        {
+                          "type": "message",
+                          "label": "年齡：51-64",
+                          "text": "年齡：51-64"
+                        },
+                        {
+                          "type": "message",
+                          "label": "年齡：65以上",
+                          "text": "年齡：65以上"
+                        }
+                    ]
+                  }
+              ]
+            }
+          });
+
+        }
+        else if (event.message.type === 'text' && (message_lineTochat.trim() === '年齡：20以下' || message_lineTochat.trim() === '年齡：21-30' || message_lineTochat.trim() === '年齡：31-40' || message_lineTochat.trim() === '年齡：41-50' || message_lineTochat.trim() === '年齡：51-64' || message_lineTochat.trim() === '年齡：65以上')) {
+          msgObj.message = message_lineTochat.trim();
+          emitIO_and_pushDB(msgObj);
+
+          updateProfile(event);
+          console.log('update success!');
+
+          setTimeout(() => {
+            msgObj.message = '感謝您填寫問卷！';
+            emitIO_and_pushDB(msgObj);
+          }, 1000);
+
+
+          event.reply({
+            type: 'text',
+            text: '感謝您填寫問卷！'
+          });
+
+        }
         else {
           msgObj.message = message_lineTochat;
           emitIO_and_pushDB(msgObj);
         }
+
+        function updateProfile(event) {
+          let survey = {id:'',para:'',value:''};
+          let pos = event.message.text.indexOf('：');
+          let para = event.message.text.substring(0,pos);
+          let value = event.message.text.substring(pos+1);
+          survey.id = event.source.userId;
+          survey.para = para;
+          survey.value = value ;
+          console.log(survey);
+          for( let i in chatData ) {
+            if( chatData[i].Profile.userId == survey.id ) {
+              console.log('match!updating profile...')
+              let obj = {};
+              obj['/'+survey.para] = survey.value;
+              newDBRef.child(i).child("Profile").update(obj);
+              break;
+            }
+          }
+        }
+
+
         // 訊息是xxxxxx, template message
         // AI 機器人 設定
         // var request = appApiai.textRequest(message_lineTochat, {
@@ -411,6 +586,7 @@ io.sockets.on('connection', (socket) => {
     // 新使用者
     socket.on('new user', (data, callback) => {
         // if(nicknames.indexOf(data) != -1){
+        console.log(data);
         if (data in users) {
             callback(false);
         } else {
@@ -760,6 +936,36 @@ io.sockets.on('connection', (socket) => {
         // nicknames.splice(nicknames.indexOf(socket.nickname), 1);
     });
 
+    socket.on('get profile', (data, callback) => {
+      console.log("get profile");
+      console.log(data.id);
+        for( let i in chatData ) {
+          if( chatData[i].Profile.userId == data.id ) {
+            console.log("match!");
+            socket.emit('show profile',chatData[i].Profile);
+          }
+        }
+
+    });
+    socket.on('update profile', (data, callback) => {
+      console.log("update profile");
+      for( let i in chatData ) {
+        if( chatData[i].Profile.userId == data.userId ) {
+          let updateObj = {};
+          newDBRef.child(i).child("Profile").update({
+            "address": data.address,      //can edit to what u want to update
+            "age": data.age,
+            "nickname": data.nickname,
+            "telephone": data.telephone,
+            "性別": data.性別,
+            "地區": data.地區,
+            "年齡": data.年齡
+          });
+          break;
+        }
+      }
+    });
+
     //
     //  /*  =======  Define Receiver  ========  */
     //         var defReceiverr;
@@ -865,24 +1071,8 @@ function addZero(i) {
     return i;
 }
 
-socket.on('update profile', (data, callback) => {
-    console.log("update profile");
-    for( let i in chatData ) {
-      if( chatData[i].Profile.userId == data.id ) {
-        let updateObj = {};
-        newDBRef.child(i).child("Profile").update({
-          "address": data.address,      //can edit to what u want to update
-          "age": data.age,
-          "nickname": data.nickname,
-          "telephone": data.telephone,
-          "blablabla": data.blablabla   //even can add new info
-        });
-        break;
-      }
-    }
-  });
 
-  
+
 // if get user message
 //   use {
 //     userName, //user's nickname

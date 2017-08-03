@@ -16,9 +16,12 @@ $(document).ready(function() {
 
 function loadProf() {
   let userId = auth.currentUser.uid;
-
+//  alert(userId) ;
   database.ref('users/' + userId).on('value', snap => {
-    let profInfo = snap.val();
+  let profInfo = snap.val();
+
+
+  //  alert(snap.A);
     if(profInfo === null) {
       $('#error-message').show();
     } else {
@@ -34,7 +37,6 @@ function loadProf() {
       $('#prof-gender').text(profInfo[0].gender);
       $('#prof-phone').text(profInfo[0].phone);
     }
-
   });
 
   // $('#prof-email').append(email);
@@ -72,7 +74,7 @@ function profSubmit() {
   // console.log(id, name, dob, email, gender,phone);
 
   // console.log(id);
-
+  database.ref('users/' + userId).remove();
   if(id === ''){
     database.ref('users/' + userId).push({
       username: name,

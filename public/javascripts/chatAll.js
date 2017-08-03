@@ -9,7 +9,7 @@ $(document).ready(function() {
   var canvas = $("#canvas");
   var searchBox = $('#searchBox');
   var name_list = [];
-  var person = prompt("Please enter your name");
+//  var person = prompt("Please enter your name");
   var historyMsg_users = [];
   var historyMsg_agents = [];
   var avgChatTime;
@@ -44,12 +44,16 @@ $(document).ready(function() {
   $(document).on('click', '.tablinks', clickMsg);
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.topright', clickSpan);
+  $(document).on('click', '#userInfoBtn', showProfile);
+  $(document).on('click', '.userInfo-td', editProfile);
+  $(document).on('click', '.edit-button', changeProfile);
+  $(document).on('click','#userInfo-submit',submitProfile)
   //$(document).on('click', '.tablinks_head', sortAvgChatTime);
 
   if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
     setTimeout(loadMsg, 10);  //load history msg
-    setTimeout(agentName, 100); //enter agent name
+    setTimeout(agentName, 300); //enter agent name
   }
 
   function loadMsg() {
@@ -164,23 +168,29 @@ $(document).ready(function() {
   }
 
   function agentName() {    //enter agent name
-    while( person=="" ) {
-      person = prompt("Please enter your name");
-    }
-    if (person != null) {
-      socket.emit('new user', person, (data) => {
-        if(data){
+    let userId = auth.currentUser.uid;
 
-        } else {
-          alert('username is already taken');
-        }
-      });
-      name_list.push(person); //Colman: add agent name into list here
-      printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
-    }
-    else {
-      window.location.replace("/");
-    } //'name already taken'功能未做、push agent name 未做
+    database.ref('users/' + userId).on('value', snap => {
+      let profInfo = snap.val();
+      let profId = Object.keys(profInfo);
+      let person = snap.child(profId[0]).val().username;
+      while( person=="" ) {
+            person = prompt("Please enter your name");
+          }
+          if (person != null) {
+            socket.emit('new user', person, (data) => {
+              if(data){
+
+              } else {
+                alert('username is already taken');
+              }
+            });
+            printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
+          }
+          else {
+            window.location.replace("/");
+          } //'name already taken'功能未做、push agent name 未做
+    });
   }
 
   messageForm.submit((e) => {   //submit to_send message to user
@@ -428,7 +438,10 @@ $(document).ready(function() {
   }
 
   function remove_href_msg(msg) {   ///let last msg display correct, not well tested, may many bug
-    if( msg.indexOf('target="_blank"')!=-1 && msg.indexOf('href')!=-1 ) {
+    if(msg.indexOf('image')!=-1 ) return "send a image";
+    else if( msg.indexOf('audio')!=-1 ) return "send an audio";
+    else if( msg.indexOf('video')!=-1 ) return "send a video";
+    else if( msg.indexOf('target="_blank"')!=-1 && msg.indexOf('href')!=-1 ) {
       let aPos = msg.indexOf('target="_blank"');
       let bPos = msg.indexOf('href');
       if( bPos>aPos ) { //image, video, audio, location
@@ -444,8 +457,81 @@ $(document).ready(function() {
     }
     else return msg;
   }
+/*======================= warren ====================================*/
+  var buffer;
+  function showProfile() {
+    var target = $('#selected').attr('rel'); //get useridd of current selected user
+    console.log("show profile");
+    socket.emit('get profile',{id: target}) ;
+  }
+  socket.on('show profile',(data) => {
+    var Th = $('.userInfo-th') ;
+    var Td = $('.userInfo-td') ;
+    var but = $('.edit-button');
+    for(let i in but){but.eq(i).hide();} //hide all yes/no buttons
+    for(let i in Th ){Th.eq(i).text(Th.eq(i).attr('id')+' : ') ;}
+    $('.modal-title').html(data.nickname);
+    let key ;
+    buffer = data ;  //storage profile in buffer zone
+    for(let j in Td){
+      for(let key in data ){
+        if(key == Td.eq(j).attr('id')){
+          Td.eq(j).text(data[key]); //show each profile data
+          if(key == 'userId'||key == 'totalChat'){Td.eq(j).click(false);}  //disable editing of userid and totalchat
+        }
+      }
+    }
+  });
+  function editProfile() {
+    let name = $(this).attr('id');
+    $(this).html('<input type="text" class="textarea" placeholder="'+name+'">');
+    $(this).parent().children('.edit-button').show(); //show yes/no button
+    $(this).children().focus(function () {
+        $(this).click(false);  //disable click when editing
+    })
+  }
+  function changeProfile(edit) {
+    let id = $(this).parent().children('.userInfo-td').attr('id');
+    let name = $(this).attr('name');
+    let content =   $(this).parent().children('.userInfo-td').children().val();  //get agent's input
+    let origin = '';
 
-  $('#userInfoBtn').click.
-  socket.emit('update profile');
+    for(let i in buffer){
+        if(i == id ){
+          origin = buffer[i]; //storage original profile data
+        }
+    }
+    $(this).parent().children('.userInfo-td').on('click',editProfile); //restore click of userInfo-td
+    $(this).parent().children('.edit-button').hide();  //hide yes/no button
+
+    if(name == 'yes'){  //confirm edit, change data in buffer instead of DB
+      for(let i in buffer){
+        if(i == id ){
+          buffer[i] = content ;
+          $(this).parent().children('.userInfo-td').html(buffer[i]);
+          break;
+        }
+      }
+    }else{  //deny edit, restore data before editing
+      $(this).parent().children('.userInfo-td').html(origin);
+    }
+  }
+  function submitProfile() {
+    let r = confirm("Are you sure to change profile?");
+    if(r){
+      socket.emit('update profile',buffer);
+    }else{}
+  }
+
+  /*to receive other profile data go to chat All.ejs
+  add tr/th/td whose id should be the profile data you want to add*/
+
+
+//  socket.on('push profile',(data) =>{
+  //  console.log("push profile");
+    //let th = $('.info_input_table').children('th');
+//    for(let i in th){th.innerText = th.id;}
+  //})
+
 
 }); //document ready close tag

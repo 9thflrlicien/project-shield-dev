@@ -49,6 +49,7 @@ div.tab button.active {
 .messagePanel {
   height: 95%;
   overflow-y: scroll;
+  overflow-x: hidden;
   clear:right;
 }
 .topright{
@@ -66,4 +67,10 @@ p {
 }
 #clients {
   list-style: none;
+}
+.edit-button{
+  display: none;
+  padding: 2px 5px;
+  border: 1px solid gray;
+  background-color: lightgray;
 }
