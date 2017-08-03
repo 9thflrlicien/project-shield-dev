@@ -575,9 +575,13 @@ io.sockets.on('connection', (socket) => {
         }
     });
 
-    socket.on('get tags', data => {
-      io.sockets.emit('push tags', tagsData);
+    socket.on('get tags from chat', data => {
+      io.sockets.emit('push tags to chat', tagsData);
     });
+    socket.on('get tags from tags', data => {
+      io.sockets.emit('push tags to tags', tagsData);
+    });
+
     socket.on('update tags', data => {
       console.log(data);
       let updateObj = {};
@@ -941,16 +945,11 @@ io.sockets.on('connection', (socket) => {
       for( let i in chatData ) {
         if( chatData[i].Profile.userId == data.userId ) {
           let updateObj = {};
-          newDBRef.child(i).child("Profile").update({
-            "address": data.address,      //can edit to what u want to update
-            "age": data.age,
-            "nickname": data.nickname,
-            "telephone": data.telephone,
-            "性別": data.性別,
-            "地區": data.地區,
-            "年齡": data.年齡
-          });
-          break;
+          for( let prop in data ) {
+            updateObj[prop] = data[prop];
+          }
+          console.log(updateObj);
+          newDBRef.child(i).child("Profile").update(updateObj);
         }
       }
     });

@@ -9,6 +9,7 @@ $(document).ready(function() {
   var canvas = $("#canvas");
   var searchBox = $('.searchBox');
   var name_list = [];
+  var userProfiles = [];
   var person = prompt("Please enter your name");
   var historyMsg_users = [];
   var historyMsg_agents = [];
@@ -19,6 +20,7 @@ $(document).ready(function() {
   var sortTotalBool = true;
   var sortFirstBool = true;
   var sortRecentBool = true;
+  var infoTable = $('.info_input_table');
 
   const COLOR = {
     FIND: "#A52A2A",
@@ -28,6 +30,7 @@ $(document).ready(function() {
   function clickMsg(){
     $("#selected").attr('id','').css("background-color", "");   //selected tablinks change, clean prev's color
     $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
+
     if( $(this).find('span').css("font-weight")=="bold" ) {
       $(this).find('span').css("font-weight", "normal");                //read msg, let msg dis-bold
       socket.emit("read message", {id: $(this).attr('rel')} );          //tell socket that this user isnt unRead
@@ -66,7 +69,7 @@ $(document).ready(function() {
       user_list.push(canvas_all_children[i].getAttribute('id'));
       convert_list = Array.prototype.slice.call( canvas_all_children[i].getElementsByClassName("messagePanel")[0].getElementsByClassName("message") );
       canvas_last_child_time_list.push(convert_list.slice(-1)[0].getAttribute('rel'))
-      if(over_fifteen_min - canvas_last_child_time_list[i] >= 600000) {
+      if(over_fifteen_min - canvas_last_child_time_list[i] >= 60000) {
         // 更改display client的東西
         console.log('id = '+user_list[i]+' passed idle time');
         item_move_down = $('[rel="'+user_list[i]+'"]').parent();
@@ -94,14 +97,19 @@ $(document).ready(function() {
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.topright', clickSpan);
   $(document).on('click', '#userInfoBtn', showProfile);
-  $(document).on('click', '.userInfo-td', editProfile);
+  $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
   $(document).on('click', '.edit-button', changeProfile);
   $(document).on('click','#userInfo-submit',submitProfile)
 
   if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
-    setTimeout(loadMsg, 10);  //load history msg
+    setTimeout(function() {
+      socket.emit('get json from back');
+    }, 10);  //load history msg
     setTimeout(agentName, 100); //enter agent name
+    setTimeout(function() {
+      socket.emit("get tags from chat")
+    }, 100);
   }
 
   function loadMsg() {
@@ -111,17 +119,17 @@ $(document).ready(function() {
 
   socket.on('push json to front', (data) => {   //www emit data of history msg
     console.log("push json to front");
-    // console.log(data);          //console all history message
-    for( i in data ) pushMsg(data[i]);    ///one user do function one time
+    for( i in data ) pushMsg(data[i]);    //one user do function one time
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
-    closeIdleRoom();
+    // closeIdleRoom();
     $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
 
   function pushMsg(data){     //one user do function one time; data structure see file's end
     let historyMsg = data.Messages;
-    let profile = data.Profile;   ///PROFILE at here
+    let profile = data.Profile;
     name_list.push(profile.userId); //make a name list of all chated user
+    userProfiles.push(profile);
 
     let historyMsgStr = "<p class='message-day' style='text-align: center'><strong><i>"
       + "-------------------------------------------------------No More History Message-------------------------------------------------------"
@@ -234,6 +242,33 @@ $(document).ready(function() {
       window.location.replace("/");
     } //'name already taken'功能未做、push agent name 未做
   }
+  socket.on("push tags to chat", data=> {
+    console.log("data:");
+    console.log(data);
+    let count = 0;
+    for( let i in data ) {
+      let name = data[i].name;
+      let type = data[i].type;
+      let set = data[i].set;
+      let modify = data[i].modify;
+      let tdHtml = "";
+      if( type=='text' ) tdHtml = '<p id="td-inner">尚未輸入<p>';
+      else if( type=="time" && modify=="true" ) tdHtml = '<input type="datetime-local" id="td-inner"></input>';
+      else if( type=="time" && modify=="false" ) tdHtml = '<input type="datetime-local" id="td-inner" readOnly></input>';
+      else if( type.indexOf('select')!=-1 ) {
+        if( type=='single_select') tdHtml = '<select id="td-inner">';
+        else tdHtml = '<select id="td-inner" multiple>';
+        for( let j in set ) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
+        tdHtml += '</select>';
+      }
+      infoTable.append( '<tr>'
+        + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
+        + '<th class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="' + modify +'">' + tdHtml + '</th>'
+        + '<td class="edit-button yes " name="yes">yes</td>'
+        + '<td class="edit-button no " name="no">no</td> </tr>'
+      );
+    }
+  });
 
   messageForm.submit((e) => {
     e.preventDefault();
@@ -246,14 +281,12 @@ $(document).ready(function() {
           messageContent.append('<span class="error">' + data + "</span><br/>");
           console.log('this is designated_user_id[i]');
           console.log(designated_user_id[i]);
-        });//snap
-        ///no this thing QQ
+        });//snap=
       };//for
     }
     else {
       socket.emit('send message2', {id: designated_user_id , msg: messageInput.val()}, (data) => {
         messageContent.append('<span class="error">' + data + "</span><br/>");
-        ///no this thing QQ
       });//socket.emit
 
     }//else
@@ -495,51 +528,117 @@ $(document).ready(function() {
     sortRecentBool = tmp;
   }
 
+
   var buffer;
   function showProfile() {
-    var target = $('#selected').attr('rel'); //get useridd of current selected user
-    console.log("show profile");
-    socket.emit('get profile',{id: target}) ;
-  }
-  socket.on('show profile',(data) => {
-    var Th = $('.userInfo-th');
-    var Td = $('.userInfo-td');
-    var but = $('.edit-button');
-    for(let i in but){but.eq(i).hide();}
-    for(let i in Th ){Th.eq(i).text(Th.eq(i).attr('id')+' : ') ;}
-    let key ;
-    buffer = data ;  //storage profile in buffer zone
-    Td.each( function() {
-      key = $(this).attr('id');
-      if( data.hasOwnProperty(key) ) $(this).text(data[key]); //show each profile data
-      else $(this).text("");
-      if(key == 'userId'||key == 'totalChat'){$(this).click(false);}  //disable editing of userid and totalchat
-    });
-  });
-  function editProfile() {
-    let name = $(this).attr('id');
-    $(this).html('<input type="text" class="textarea" placeholder="'+name+'">');
-    $(this).parent().children('.edit-button').show(); //show yes/no button
-    $(this).children().focus(function () {
-        $(this).click(false);  //disable click when editing
-    })
-  }
-  function changeProfile(edit) {
-    let id = $(this).parent().children('.userInfo-td').attr('id');
-    let name = $(this).attr('name');
-    let content =  $(this).parent().children('.userInfo-td').children().val();  //get agent's input
-    let origin = buffer[id];
+    var targetId = $('#selected').attr('rel'); //get useridd of current selected user
+    if( targetId==undefined ) return;
+    console.log("show profile of userId " + targetId);
 
-    $(this).parent().children('.userInfo-td').on('click',editProfile); //restore click of userInfo-td
+    buffer = null;
+    for( let i in userProfiles ) {
+      if( userProfiles[i].userId == targetId ) {
+        buffer = userProfiles[i];
+        break;
+      }
+    }
+    if( buffer==null ) console.log("Error 540");
+    console.log( "buffer: ");
+    console.log(buffer);
+
+    $('.info_input_table .userInfo-td').each( function() {
+      let data = buffer[ $(this).attr('id') ];
+      let type = $(this).attr('type');
+      let inner = $(this).find('#td-inner');
+
+      if( data!=undefined && data!=null && data!="" ) {
+        console.log("defined!");
+        if( type=='text' ) inner.text(data);
+        else if( type.indexOf('select')!=-1 ) inner.val(data);
+        else if( type=='time' ) {
+          let d = new Date(data);
+          console.log("date = "+d.toString());
+          inner.val(d.getFullYear()+'-'+addZero(d.getMonth()+1)+'-'+addZero(d.getDate())+'T'+addZero(d.getHours())+':'+addZero(d.getMinutes()));
+        }
+      }
+      else {    ///if undefined, load default string, not prev string
+        console.log("undefined");
+        if( type=='text' ) inner.text("尚未輸入");
+        else if( type.indexOf('select')!=-1 ) inner.val("");
+        else if( type=='time' ) inner.val("");
+      }
+    });
+
+  }
+
+  // function showProfile() {
+  //   var target = $('#selected').attr('rel'); //get useridd of current selected user
+  //   console.log("show profile");
+  //   socket.emit('get profile',{id: target}) ;
+  // }
+  // socket.on('show profile',(data) => {
+  //   var Th = $('.userInfo-th');
+  //   var Td = $('.userInfo-td');
+  //   var but = $('.edit-button');
+  //   for(let i in but){but.eq(i).hide();}
+  //   for(let i in Th ){Th.eq(i).text(Th.eq(i).attr('id')+' : ') ;}
+  //   let key ;
+  //   buffer = data ;  //storage profile in buffer zone
+  //   Td.each( function() {
+  //     key = $(this).attr('id');
+  //     if( data.hasOwnProperty(key) ) $(this).text(data[key]); //show each profile data
+  //     else $(this).text("");
+  //     if(key == 'userId'||key == 'totalChat'){$(this).click(false);}  //disable editing of userid and totalchat
+  //   });
+  // });
+  function editProfile() {
+    if(  $(this).parent().children('.edit-button').is(':visible') ) return;
+    else $(this).parent().children('.edit-button').show(); //show yes/no button
+    ///on click, off click has some strange bug, so change way ><
+
+    let type = $(this).attr('type');
+    let set = $(this).attr('set');
+    let text = $(this).find('#td-inner').text();
+    let inner = $(this).find('#td-inner');
+
+    if( type=='text' ) {
+      if( set=='single' ) $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
+      else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >'+text+'</textarea>');
+      else console.log("error 606");
+    }
+    else if( type.indexOf('select')!=-1 ) {
+      //do nothing
+    }
+    else if( type=='time' ) {
+      //do nothing
+    }
+    inner = $(this).find('#td-inner');
+    inner.select();
+  }
+
+  function changeProfile(edit) {
+    let name = $(this).attr('name');
+    let td = $(this).parent().children('.userInfo-td');
+    let id = td.attr('id');
+    let type = td.attr('type');
+    let content = td.find('#td-inner').val();  //get agent's input
+    console.log("content = "+content);
+
     $(this).parent().children('.edit-button').hide();  //hide yes/no button
 
     if(name == 'yes'){  //confirm edit, change data in buffer instead of DB
       buffer[id] = content;
-      $(this).parent().children('.userInfo-td').html(content);
+      if( type=="text") td.html('<p id="td-inner">'+content+'</p>');
     }
     else{  //deny edit, restore data before editing
-      $(this).parent().children('.userInfo-td').html(origin);
+      let origin = buffer[id];
+      if( type=="text") td.html('<p id="td-inner">'+origin+'</p>');
+      else if( type=="time" ) td.find('#td-inner').val(origin);
+      else if( type.indexOf('select')!=-1 ) td.find('#td-inner').val(origin);
     }
+
+    // td.on('click',editProfile); //restore click of userInfo-td
+    // console.log("open click"); //on click, off click has some bug QQ
   }
   function submitProfile() {
     let r = confirm("Are you sure to change profile?");
@@ -575,22 +674,23 @@ $(document).ready(function() {
     return val<10 ? '0'+val : val;
   }
 
-  function remove_href_msg(msg) {   ///let last msg display correct, not well tested, may many bug
-    if( msg.indexOf('target="_blank"')!=-1 && msg.indexOf('href')!=-1 ) {
-      let aPos = msg.indexOf('target="_blank"');
-      let bPos = msg.indexOf('href');
-      if( bPos>aPos ) { //image, video, audio, location
-        if( msg.indexOf('image')!=-1 ) return "send a image";
-        else if( msg.indexOf('audio')!=-1 ) return "send an audio";
-        else if( msg.indexOf('video')!=-1 ) return "send a video";
-        else if( msg.indexOf('https://www.google.com.tw/maps/') != -1) return "send a location";
-      }
-      else {  //url
-        let cPos = msg.lastIndexOf('target');
-        return msg.substring( bPos+6, cPos-2 ) ;
-      }
-    }
-    else return msg;
+  function remove_href_msg(msg) {   //let last msg display correct, not well tested, may many bug
+    // if( msg.indexOf('target="_blank"')!=-1 && msg.indexOf('href')!=-1 ) {
+    //   let aPos = msg.indexOf('target="_blank"');
+    //   let bPos = msg.indexOf('href');
+    //   if( bPos>aPos ) { //image, video, audio, location
+    //     if( msg.indexOf('image')!=-1 ) return "send a image";
+    //     else if( msg.indexOf('audio')!=-1 ) return "send an audio";
+    //     else if( msg.indexOf('video')!=-1 ) return "send a video";
+    //     else if( msg.indexOf('https://www.google.com.tw/maps/') != -1) return "send a location";
+    //   }
+    //   else {  //url
+    //     let cPos = msg.lastIndexOf('target');
+    //     return msg.substring( bPos+6, cPos-2 ) ;
+    //   }
+    // }
+    // else return msg;
+    return msg;
   }
 
 
