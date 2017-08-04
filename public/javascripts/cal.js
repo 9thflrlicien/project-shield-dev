@@ -8,8 +8,6 @@ var current_datetime = new Date();
 var d    = current_datetime.getDate();
 var m    = current_datetime.getMonth();
 var y    = current_datetime.getFullYear();
-console.log('this is current_datetime');
-console.log(current_datetime);
 // console.log(date);
 var allday     = false;
 var event_list = [];
@@ -25,16 +23,6 @@ $(document).ready(function() {
   $(document).on('change', '#allday', () => { allday = !allday });
   $(document).on('click', '#cls-cal-btn', clearModal); //關
   $(document).on('click', '#signout-btn', logout); //登出
-
-    $(document).on('click', '#message', subMessage);//Message 導覽標籤 subtags
-
-  function subMessage(){
-    if ($('.subTag').is(':visible')){
-      $('.subTag').hide();
-    }else{
-    $('.subTag').show();
-  }
-  }
 });
 
 

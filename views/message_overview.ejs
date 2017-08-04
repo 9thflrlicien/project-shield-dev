@@ -50,7 +50,7 @@
                         <a href="/" class="active"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                      </li>
                      <li>
-                        <a href="/chat"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                        <a href="/chatAll"><i class="fa fa-commenting fa-fw"></i> Chat</a>
                      </li>
                      <li>
                         <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
@@ -66,9 +66,9 @@
                      <li class="subTag" style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
                         <a href="/message_overview"> Overview</a>
                      </li>
-<!--                      <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
                         <a href="/message_newtopic"> New Topic</a>
-                     </li> -->
+                     </li>
                      <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
                         <a href="/message_autoreply"> Auto Reply</a>
                      </li>
@@ -93,6 +93,9 @@
     1. Limit users 功能未做(緩）<br/>
     2. Emoji未做(緩）<br/>
     3. Append Text部分完成，其他未做(緩）<br/>
+    4. Sort/ Filter 功能未做<br/>
+    5. History功能未做(緩）<br/>
+    6. draft欄上UI空格暫未解決<br/>
     </p>
 
   <button type="button" style="margin:2% 0 2% 0" class="btn btn-default inner-add" data-toggle="modal" data-target="#quickAdd">
@@ -163,8 +166,7 @@
                     <div class="form-group">
                         <label for="modal-datetime">Set Send Time and Date:</label><br>
                         <form style="padding:3px; height:80px">
-                            <input type="checkbox" name="Dateandtime" value="Time"> Date and Time: 
-                            <input type="datetime-local" id="sendTime" style="width:35%" />
+                            <input type="checkbox" name="Dateandtime" value="Time"> Date and Time: <input type="datetime-local" id="datetime" style="width:35%" />
                             <br>
                             <input style="padding:1px" type="checkbox" name="SendNow" value="SendNow"> Send Now
                         </form>
@@ -176,7 +178,7 @@
                         <form style="padding:3px; height:80px">
                           <p>Note: You can only post one message at a time on your mainpage.</p>
                           <input style="margin: 1%;" type="checkbox" name="yes" value="yes"> Yes<br>
-                          <input style="margin: 1%;" type="checkbox" name="no" value="no"> No<br>                     
+                          <input style="margin: 1%;" type="checkbox" name="no" value="no"> No<br>
                         </form>
                     </div>
 
@@ -185,7 +187,7 @@
 <div>
  <table id="inputText">
 
-</table>  
+</table>
 
 <!--EMOJI PLUGINS(UNDONE) -->
 <div id="emos" style="display:none; position:fixed; padding:5%; background-color: lightgrey; width:30%; height:30%">
@@ -217,7 +219,7 @@
   </form>
   </td>
   </tr>
-</table>  
+</table>
 </div>
 <!--IMAGE -->
 <table id="image" style="display:none; background-color: lightgrey">
@@ -293,7 +295,7 @@
 <!-- =======================  END MODAL  ======================-->
 <section style="margin:0">
   <div class="tab">
-          <div style="width:20%; position:absolute; float:left;margin-top: 1% "> 
+          <div style="width:20%; position:absolute; float:left;margin-top: 1% ">
             <div class="input-group">
             <input type="text" class="form-control" id="exampleInputAmount" placeholder="Search by text.."/>
             <div class="input-group-addon"><span class="fa fa-search fa-fw" id="ticket-search"></span></div>
@@ -309,9 +311,9 @@
                   <option>Sticker</option>
 
                 </select>
-                </div><br><br><br>
-<!--                      [status filter] 
- -->                 <div style="display:none;width:15%; position:relative; float:left; margin: 1% 1% 1% 37%">
+                </div>
+            <!--     [status filter] -->
+                 <div style="display:block;width:15%; position:relative; float:left; margin: 1% 1% 1% 37%">
                 <select class="form-control" id="modal-priority">
                   <option>Status</option>
                   <option><button class="tablinks" rel="Appointment">Reserved</button></option>
@@ -320,17 +322,17 @@
               </div>
 
   </div>
-
         <div class="tab">
-            <button class="tablinks_sort" style="width:7%">No.<i class="fa fa-angle-down" aria-hidden="true"></i></button>
-            <button class="tablinks_sort" style="width:20%">Content<i class="fa fa-angle-down" aria-hidden="true"></i></button>
-            <button class="tablinks_sort" style="width:12%">Category<i class="fa fa-angle-down" aria-hidden="true"></i></button>
-            <button class="tablinks_sort" style="width:15%">Tags(optional)<i class="fa fa-angle-down" aria-hidden="true"></i></button>
-            <button class="tablinks_sort" style="width:10%">Status<i class="fa fa-angle-down" aria-hidden="true"></i></button>
-            <button class="tablinks_sort" style="width:20%">Appointment<i class="fa fa-angle-down" aria-hidden="true"></i></button>        </div>
+            <button class="tablinks_sort" style="width:5%">No.</button>
+            <button class="tablinks_sort" style="width:20%">Content</button>
+            <button class="tablinks_sort" style="width:10%">Category</button>
+            <button class="tablinks_sort" style="width:15%">Tags(optional)</button>
+            <button class="tablinks_sort" style="width:10%">Status</button>
+            <button class="tablinks_sort" style="width:20%">Appointment</button>
+        </div>
 </section>
 <section>
-<div id="Appointment" class="tabcontent" style="display:block; margin:0 ;padding:0 "> 
+<div id="Appointment" class="tabcontent" style="display:block; margin:0 ;padding:0 ">
         <div class="tabcontent" style="display:block" >
         <table style="margin:0">
           <tbody id="data-appointment"></tbody>
@@ -342,7 +344,7 @@
 
 <div id="Draft" class="tabcontent" style="display:none; margin:0 ;padding:0 ">
                 <div class="tabcontent" style="display:block;  margin:0 ;padding:0">
-                <table style="margin:0">
+                <table>
                 <tbody id="data-draft"></tbody>
                 </table>
                 </div>
@@ -351,12 +353,28 @@
 
 </div>
 
-<div id="History" class="tabcontent" style="display:none; margin:0 ;padding:0 ">
-                <div class="tabcontent" style="display:block;  margin:0 ;padding:0">
-                <table style="margin:0">
-                <tbody id="data-history"></tbody>
-                </table>
-                </div>
+<div id="History" class="tabcontent">
+
+                <div class="tabcontent">
+               <p>There's no saved history.</p>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th hidden> ID </th>
+                <th id="co" onclick="sortOpenTable(1)"> Content </th>
+                <th id="ca" onclick="sortOpenTable(2)"> Category </th>
+                <th id="st" onclick="sortOpenTable(3)"> Status </th>
+                <th id="pr" onclick="sortOpenTable(4)"> Priority </th>
+                <th id="ow" onclick="sortOpenTable(5)"> Owner </th>
+                <th>  </th>
+              </tr>
+            </thead>
+            <tbody id="open-ticket-list"></tbody>
+
+          </table>
+        </div>
+
+
 </div>
 
 </section>
@@ -390,11 +408,6 @@
                 <label for="status">Status:  </label>
                 <span id="view-stat"></span>
               </div>
-              <!-- 預約時間 -->
-              <div class="form-group">
-                <label for="time">Appointment:  </label>
-                <span id="view-time"></span>
-              </div>
               <!-- 負責人 -->
               <div class="form-group">
                 <label for="owner" class="col-2 col-form-label">Owner:  </label>
@@ -404,14 +417,8 @@
             </form>
 
           </div>
-
-          <div id="previewCanvas" style="background-image: url(https://s-media-cache-ak0.pinimg.com/originals/54/3e/3d/543e3dfabf58ff1a36dcf5af876d2f49.jpg)">
-            
-          </div>
-
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="preview">Preview</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> 
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -451,12 +458,6 @@
                   <option>reserved</option>
                   <option>draft</option>
                 </select>
-              </div>
-              <!-- 預約時間 -->
-              <div class="form-group">
-                <label for="edit-time">Appointment:  </label>
-                <input class="form-control" type="datetime-local" id="edit-time" style="width:40%" />
-                <br/>
               </div>
 
               <!-- 負責人 -->
@@ -519,8 +520,7 @@ div.tab button {
     cursor: pointer;
     padding: 14px 16px;
     transition: 0.3s;
-    font-size: 14px;
-    font-weight: bold;
+    font-size: 17px;
 }
 
 /* Change background color of buttons on hover */
@@ -553,7 +553,7 @@ div.tab button.active {
 </style>
 
 
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>     
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
       <script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
       <script src="javascripts/firebaseConfig.js"></script>

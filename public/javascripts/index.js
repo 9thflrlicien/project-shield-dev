@@ -6,19 +6,6 @@ $(document).ready(function() {
 
   // $(document).on('click', '#search-btn', filterChart);
 
-  $(document).on('click', '#message', subMessage);//Message 導覽標籤 subtags
-
-  function subMessage(){
-    if ($('.subTag').is(':visible')){
-      $('.subTag').hide();
-    }else{
-    $('.subTag').show();
-  }
-  }
-
-
-
-
   $("#search-input").click(function(){$("#a").show()});//選單
   $(document).on('click', '#search-input', getH);//總覽
   $(document).on('click', '#get_h', getH);//總覽

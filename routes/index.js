@@ -18,6 +18,11 @@ router.get('/chat', function(req, res, next) {
 router.get('/chatAll', function(req, res, next) {
   res.render('chatAll', { title: 'SHIELD chat ver2' });
 });
+
+router.get('/history', function(req, res, next) {
+  res.render('history', { title: 'SHIELD history' });
+});
+
 //authentication
 router.get('/login', function(req, res, next) {
   res.render('login', { title: 'Login' });
@@ -37,28 +42,6 @@ router.get('/tform', function(req, res, next) {
 router.get('/profile', function(req, res, next) {
   res.render('profile', { title: 'Profile' });
 });
-
-//get message and subTags
-router.get('/message_overview', function(req, res, next) {
-  res.render('message_overview', { title: 'Message Overview' });
-});
-
-// router.get('/message_newtopic', function(req, res, next) {
-//   res.render('message_newtopic', { title: 'Message New Topic' });
-// });
-
-router.get('/message_autoreply', function(req, res, next) {
-  res.render('message_autoreply', { title: 'Message Auto Reply' });
-});
-
-router.get('/message_keywordsreply', function(req, res, next) {
-  res.render('message_keywordsreply', { title: 'Message Keywords Reply' });
-});
-
-router.get('/message_addfriendreply', function(req, res, next) {
-  res.render('message_addfriendreply', { title: 'Message Add Friend Reply' });
-});
-
 
 
 module.exports = router;

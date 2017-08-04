@@ -52,7 +52,7 @@
                        <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                     </li>
                     <li>
-                       <a href="/chat" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                       <a href="/chatAll" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
                     </li>
                     <li>
                        <a href="/history"><i class="fa fa-commenting fa-fw"></i> History</a>
@@ -112,7 +112,7 @@
          </section>
 
          <!-- Trigger the modal with a button -->
-         <button type="button" id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Open User Info</button>
+         <button type="button" id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal" rel="test">Open User Info</button>
 
          <!-- Modal -->
          <div class="modal fade" id="userInfoModal" role="dialog">
@@ -125,20 +125,40 @@
                <div class="modal-body">
                  <table clas="info_input_table">
                    <tr>
-                     <th class="userInfo-th" id="nickname">TH</th>
-                     <td class="userInfo-td" id="nickname"><input type="text"></input></td>
+                     <th class="userInfo-th" id="nickname"></th>
+                     <td class="userInfo-td" id="nickname"></td>
+                     <td class="edit-button " name="yes">yes</td>
+                     <td class="edit-button " name="no">no</td>
                      </tr>
                      <tr>
-                       <th class="userInfo-th" id="userId">TH</th>
-                       <td class="userInfo-td" id="userId"><input type="text"></input></td>
+                       <th class="userInfo-th" id="userId"></th>
+                       <td class="userInfo-td" id="userId"></td>
+                       <td class="edit-button " name="yes">yes</td>
+                       <td class="edit-button " name="no">no</td>
                      </tr>
                      <tr>
-                       <th class="userInfo-th" id="telephone">TH</th>
-                       <td class="userInfo-td" id="telephone"><input type="text"></input></td>
+                       <th class="userInfo-th" id="telephone"></th>
+                       <td class="userInfo-td" id="telephone"></td>
+                       <td class="edit-button " name="yes">yes</td>
+                       <td class="edit-button " name="no">no</td>
                      </tr>
                      <tr>
-                       <th class="userInfo-th" id="nickname">TH</th>
-                       <td class="userInfo-td" id="nickname"><input type="text"></input></td>
+                       <th class="userInfo-th" id="年齡"></th>
+                       <td class="userInfo-td" id="年齡"></td>
+                       <td class="edit-button " name="yes">yes</td>
+                       <td class="edit-button " name="no">no</td>
+                     </tr>
+                     <tr>
+                       <th class="userInfo-th" id="性別"></th>
+                       <td class="userInfo-td" id="性別"></td>
+                       <td class="edit-button " name="yes">yes</td>
+                       <td class="edit-button " name="no">no</td>
+                     </tr>
+                     <tr>
+                       <th class="userInfo-th" id="地區"></th>
+                       <td class="userInfo-td" id="地區"></td>
+                       <td class="edit-button " name="yes">yes</td>
+                       <td class="edit-button " name="no">no</td>
                      </tr>
                   </table>
                </div>
@@ -153,9 +173,7 @@
 
          <form action="" id="send-message" disabled>
            <p><a href="#user_info_form" rel="modal:open">Open User Form</a></p>
-           <select id="user-rooms">
-           <option id="selectAll" value="全選">全選</option>
-           </select>
+           <select id="user-rooms"></select>
            <input size="35" id="message" />
            <input type="submit"/>
          </form>

@@ -125,6 +125,18 @@
                     <td>Phone Number: </td>
                     <td id="prof-phone"></td>
                   </tr>
+                  <tr>
+                    <td>Channel Id: </td>
+                    <td id="prof-channelId"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Secret: </td>
+                    <td id="prof-channelSecret"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Access Token: </td>
+                    <td id="prof-channelAccessToken"></td>
+                  </tr>                                                      
                 </tbody>
               </table>
               <div id="btn-area">
@@ -151,7 +163,7 @@
           </div>
           <div class="modal-body">
 
-            <form>
+            <form method="POST" action="/foo-route">
               <!-- 編號 -->
               <div class="form-group" hidden>
                 <label for="edit-id" class="col-2 col-form-label">ID</label>
@@ -192,6 +204,30 @@
                 <label for="prof-edit-phone" class="col-2 col-form-label">Phone: </label>
                 <div class="col-4">
                   <input class="form-control" type="tel" value="" id="prof-edit-phone">
+                </div>
+              </div>
+
+                            <!-- Channel Id -->
+              <div class="form-group">
+                <label for="prof-edit-channelId" class="col-2 col-form-label">Channel Id: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelId">
+                </div>
+              </div>
+
+                            <!-- Channel Secret -->
+              <div class="form-group">
+                <label for="prof-edit-channelSecret" class="col-2 col-form-label">Channel Secret: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelSecret">
+                </div>
+              </div>
+
+                            <!-- Channel Access Token -->
+              <div class="form-group">
+                <label for="prof-edit-channelAccessToken" class="col-2 col-form-label">Channel Access Token: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken">
                 </div>
               </div>
 

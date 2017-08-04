@@ -15,8 +15,6 @@ $(document).ready(function() {
   var avgChatTime;
   var sumChatTime;
   var sortAvgBool = true;
-  var selectAll_list=[];
-  let designated_user_id;
   const COLOR = {
     FIND: "rgb(255, 255, 192)",
     CLICKED: "#ccc",
@@ -26,22 +24,6 @@ $(document).ready(function() {
     AGENT: 2,
     NEW_USER: 3
   };
-
-  function selectAll(){
-
-    if ($( "#user-rooms option:selected" ).val()=='全選'){
-    // for (i in selectAll_list){
-    designated_user_id = selectAll_list;
-    console.log('this is designated_user_id in selectAll()');
-    console.log(designated_user_id);
-    console.log('isArray');
-    console.log(Array.isArray(designated_user_id));
-  // }
-  }else{
-    designated_user_id = $( "#user-rooms option:selected" ).val();
-  }
-
-  }
 
   function clickMsg(){
     ///let the clicked tablinks change color, cancel previous clicked button's color
@@ -121,17 +103,14 @@ $(document).ready(function() {
 
   messageForm.submit((e) => {
     e.preventDefault();
-    selectAll();
-    console.log('this is designated_user_id');
-    console.log(designated_user_id);
+    let designated_user_id = $( "#user-rooms option:selected" ).val();
     socket.emit('send message', {id: designated_user_id , msg: messageInput.val()}, (data) => {
       messageContent.append('<span class="error">' + data + "</span><br/>");
       ///no this thing QQ
     });
-
-    selectAll_list.push(data.id);
-    console.log(selectAll_list);
-
+    // socket.emit('send message', messageInput.val(), (data) => {
+    //     messageContent.append('<span class="error">' + data + "</span><br/>");
+    // });
     messageInput.val('');
   });
 
@@ -169,9 +148,42 @@ $(document).ready(function() {
 
     displayMessage( data, msgOwner, identity );
     displayClient( data, msgOwner, identity );
+    scroll();
 
     // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
   });
+  socket.on('api message'), (data) => {
+    var msgOwner = "";  ///userName or agentName
+    var identity = -1;  ///user, agent or new_user
+    if( data.hasOwnProperty("agentName") ) {
+      msgOwner = data.agentName;
+      identity = IDENTITY.AGENT;
+    }
+    else if( data.hasOwnProperty("userName") ) {
+      msgOwner = data.userName;
+      if( name_list.indexOf(msgOwner) > -1 ) identity = IDENTITY.USER;
+      else identity = IDENTITY.NEW_USER;
+    }
+    else console.log("ERROR! no agentName, no userName. so what is this???");
+
+    console.log("Message get! identity = " + identity + ", msgOwner = " + msgOwner);
+    if( identity == IDENTITY.NEW_USER ) {
+      name_list.push(msgOwner);
+      console.log("push into name_list!");
+    }
+    else console.log("this msgOwner already exist");
+
+    displayMessage( data, msgOwner, identity );
+    displayClient( data, msgOwner, identity );
+    scroll();
+
+    // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
+  });
+  //by FWL : scroll window to the end of conversation
+  function scroll() {
+    document.getElementsByClassName('messagePanel')[0].scrollTop =
+    document.getElementsByClassName('messagePanel')[0].scrollHeight ;
+  }
 
   function displayMessage( data, msgOwner, identity ) {
 
