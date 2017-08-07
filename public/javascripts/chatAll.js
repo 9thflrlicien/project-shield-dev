@@ -50,7 +50,7 @@ $(document).ready(function() {
   }
 
   function closeIdleRoomTry() {
-    let early_time = Date.now() - 90000;        //90 second before now
+    let early_time = Date.now() - 15*60*1000;        //15min before now
     let last = clients.find('.tablinks').last();      //last user in online room
     while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
       console.log("push " + last.attr('rel') + " to idle!");
@@ -113,7 +113,7 @@ $(document).ready(function() {
   $(document).on('click', '#userInfoBtn', showProfile);
   $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
   $(document).on('click', '.edit-button', changeProfile);
-  $(document).on('click','#userInfo-submit',submitProfile)
+  $(document).on('click','#userInfo-submit',submitProfile);
 
   if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
@@ -143,12 +143,20 @@ $(document).ready(function() {
       + "</i></strong></p>";    //history message string head
 
     let nowDateStr = "";
+    let prevTime = 0;
     for( let i in historyMsg ) {    //this loop plus date info into history message, like "----Thu Aug 01 2017----"
       let d = new Date( historyMsg[i].time ).toDateString();   //get msg's date
       if( d != nowDateStr ) {  //if (now msg's date != previos msg's date), change day
         nowDateStr = d;
         historyMsgStr += "<p class='message-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";  //plus date info
       }
+
+
+      if( historyMsg[i].time - prevTime > 15*60*1000 ) { //if out of 15min section, new a section
+        historyMsgStr += "<p class='message-day' style='text-align: center'><strong>" + toDateStr(historyMsg[i].time) + "</strong></p>";  //plus date info
+      }
+      prevTime = historyMsg[i].time;
+
       if( historyMsg[i].owner == "agent" ) {    //plus every history msg into string
         historyMsgStr += toAgentStr(historyMsg[i].message, historyMsg[i].name, historyMsg[i].time);
       }
@@ -181,7 +189,7 @@ $(document).ready(function() {
       for( let i in historyMsg ) timeArr.push(historyMsg[i].time);
       let times = [];
       let i=0;
-      const GAP = 1000*60*10; //10 min
+      const GAP = 1000*60*15; //15 min
       let headTime;
       let tailTime;
       while( i<timeArr.length ) {
@@ -439,17 +447,16 @@ $(document).ready(function() {
       $('.tablinks').each( function() {
         //find his content parent
         let id = $(this).attr('rel');
-
+        let panel = $("div #"+id+"-content");
         //hide no search_str msg
-        $("div #"+id+"-content"+" .message").css("display", "none");
+        panel.find(".message").css("display", "none");
 
         //display searched msg & push #link when onclick
-        $("div #"+id+"-content"+" .message:containsi("+searchStr+")")
+        panel.find(".message:containsi("+searchStr+")")
           .css("display", "").on( "click", when_click_msg );
 
         //when onclick, get search_str msg # link
         function when_click_msg() {    //when clicing searched msg
-
           $(this).attr("id", "ref");    //msg immediately add link
           searchBox.val("");    //then cancel searching mode,
           displayAll();         //display all msg
@@ -459,7 +466,7 @@ $(document).ready(function() {
 
         //if this customer already no msg...
         let color = "";
-        $("div #"+id+"-content"+" .message").each(function() {
+        panel.find(".message").each(function() {
           if($(this).css("display")!="none") {
             color = COLOR.FIND;
             return false;
@@ -467,6 +474,12 @@ $(document).ready(function() {
         });
         //then hide the customer's tablinks
         $(this).css("color", color);
+
+
+        // panel.find(".message-day").each(function() {
+        //   console.log("index: "+ panel.find('p').index( $(this) ) );
+        // });
+
       });
     }
   });   //end searchBox change func
@@ -564,29 +577,21 @@ $(document).ready(function() {
 
   var buffer;
   function showProfile() {
-    var targetId = $('#selected').attr('rel'); //get useridd of current selected user
-    if( targetId==undefined ) return;
-    console.log("show profile of userId " + targetId);
-
-    buffer = null;
-    for( let i in userProfiles ) {
-      if( userProfiles[i].userId == targetId ) {
-        buffer = userProfiles[i];
-        break;
-      }
-    }
-    if( buffer==null ) console.log("Error 540");
-    console.log("buffer: ");
-    console.log(buffer);
+    let target = $('#selected').attr('rel'); //get useridd of current selected user
+    if( target==undefined ) return;
+    console.log("show profile of userId " + target);
+    socket.emit('get profile',{id: target}) ;
+  }
+  socket.on('show profile',(data) => {
+    buffer = data;
 
     $('.info_input_table .userInfo-td').each( function() {
-
       let data = buffer[ $(this).attr('id') ];
       let type = $(this).attr('type');
       let inner = $(this).find('#td-inner');
 
       if( data!=undefined && data!=null && data!="" ) {
-        console.log("defined!");
+        console.log("data of user's " + $(this).attr('id') + " found!");
         if( type=='text' ) inner.text(data);
         else if( type=='single_select' ) inner.val(data);
         else if( type=="multi_select" ) {
@@ -601,12 +606,11 @@ $(document).ready(function() {
         }
         else if( type=='time' ) {
           let d = new Date(data);
-          console.log("date = "+d.toString());
           inner.val(d.getFullYear()+'-'+addZero(d.getMonth()+1)+'-'+addZero(d.getDate())+'T'+addZero(d.getHours())+':'+addZero(d.getMinutes()));
         }
       }
       else {    ///if undefined, load default string, not prev string
-        console.log("undefined");
+        console.log("data of user's " + $(this).attr('id') + " undefined!");
         if( type=='text' ) inner.text("尚未輸入");
         else if( type=='single_select' ) inner.val("");
         else if( type=="multi_select" ) {
@@ -618,7 +622,7 @@ $(document).ready(function() {
       }
     });
 
-  }
+  });
 
   // function showProfile() {
   //   var target = $('#selected').attr('rel'); //get useridd of current selected user
@@ -652,7 +656,7 @@ $(document).ready(function() {
     if( type=='text' ) {
       if( set=='single' ) $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
       else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >'+text+'</textarea>');
-      else console.log("error 606");
+      else console.log("error 646");
     }
     else if( type=='single_select' ) {
       //do nothing
@@ -671,8 +675,6 @@ $(document).ready(function() {
     let id = td.attr('id');
     let type = td.attr('type');
     let inner = td.find('#td-inner');
-    // let content = td.find('#td-inner').val();  //get agent's input
-    // console.log("content = "+content);
 
     $(this).parent().children('.edit-button').hide();  //hide yes/no button
 
@@ -690,11 +692,13 @@ $(document).ready(function() {
         content = new Date(inner.val()).getTime();
       }
       buffer[id] = content;
-      console.log("content = ");
-      console.log(content);
+      console.log("content = "+content);
     }
     else{  //deny edit, restore data before editing
       let origin = buffer[id];
+      if( origin==undefined ) origin = "";
+      console.log("origin = "+origin);
+
       if( type=="text") td.html('<p id="td-inner">'+origin+'</p>');
       else if( type=='single_select' ) inner.val(origin);
       else if( type=="multi_select" ) {
@@ -704,9 +708,7 @@ $(document).ready(function() {
         inner.find('input').prop('checked', false);
         if( origin!=undefined && origin!="" && origin!=null ){
           let arr = origin.split(',');
-          for( let j in arr ) {
-            inner.find('input[value="' + arr[j] + '"]').prop('checked', true);
-          }
+          for( let j in arr ) inner.find('input[value="' + arr[j] + '"]').prop('checked', true);
         }
       }
       else if( type=="time" ) {
