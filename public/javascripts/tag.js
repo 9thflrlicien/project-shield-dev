@@ -15,8 +15,9 @@ $(document).ready(function() {
       append_new_tag();
       let name = data[i].name;
       let type = data[i].type;
+      let modify = data[i].modify;
       tagTableBody.find(".tag-name:last").text(name);
-      tagTableBody.find(".tag-name:last").attr('modify', data[i].modify);
+      tagTableBody.find(".tag-modify:last").text(modify);
       tagTableBody.find(".tag-option:last").val(type);
       type = toTypeValue(type);
       let set = data[i].set;
@@ -25,17 +26,13 @@ $(document).ready(function() {
         .show().siblings().hide();
     }
   });
+
+  tagTableBody.sortable();
+
   addTagBtn.on('click', function() {
     // addTagBtn.attr('disabled', 'true');
     append_new_tag("new");
     tagTableBody.find(".tag-name:last input").select();
-  });
-
-  $(document).on('change', '.tag-option', function() {
-    let setDOM = $(this).parents('tr').find('.tag-set-td');
-    let typeValue = toTypeValue($(this).val());
-    setDOM.find('.tag-set').hide();
-    setDOM.find('#set'+typeValue).show();
   });
 
   $(document).on('click', '.tag-name', function() {
@@ -60,17 +57,34 @@ $(document).ready(function() {
     $(this).parent().text(val);
   });
 
+  $(document).on('change', '.tag-option', function() {
+    let setDOM = $(this).parents('tr').find('.tag-set-td');
+    let typeValue = toTypeValue($(this).val());
+    setDOM.find('.tag-set').hide();
+    setDOM.find('#set'+typeValue).show();
+  });
+
+  $(document).on('click', '.tag-move #moveup', function() {
+    let tomove = $(this).parent().parent();
+    tomove.prev().before(tomove);
+  });
+  $(document).on('click', '.tag-move #movedown', function() {
+    let tomove = $(this).parent().parent();
+    tomove.next().after(tomove);
+  });
+
   $(document).on('click', '.tag-delete', function() {
     $(this).parent().remove();
-  })
+  });
 
   allConfirmBtn.on('click', function() {
+    if( !confirm("Confirm???") ) return;
     let sendObj = [];
     tagTableBody.find('tr').each(function() {
       let name = $(this).find('.tag-name').text();
       let type = $(this).find('.tag-option').val();
       let set = $(this).find('.tag-set-td').find('#set'+toTypeValue(type)).val();
-      let modify = $(this).find('.tag-name').attr('modify');
+      let modify = $(this).find('.tag-modify').text();
       if( type.indexOf('select')!=-1  ) { //seperate options
         set = set.split('\n');
       }
@@ -84,10 +98,10 @@ $(document).ready(function() {
     });
     console.log(sendObj);
     socket.emit('update tags', sendObj);
-    // location.reload();
+    alert('change saved!');
   });
   allCancelBtn.on('click', function() {
-    location.reload();
+    if( confirm("Cancel change??") ) location.reload();
   })
 
 
@@ -105,7 +119,7 @@ $(document).ready(function() {
     if(from=="new") str = '<input type="text" value="new tag"></input>';
     tagTableBody.append(
       '<tr class="tag-content" id="tag-index-'+(rowsCount++)+'">'
-        + '<td class="tag-name" modify="true">' + str + '</td>'
+        + '<td class="tag-name">' + str + '</td>'
         + '<td>'
           + '<select class="tag-option">'
             + '<option value="text">文字數字</option>'
@@ -136,7 +150,9 @@ $(document).ready(function() {
           + '<textarea class= "tag-set" id="set3" rows="3" columns = "10" style="resize: vertical; display: none;">'
           + '</textarea>'
         + '</td>'
+        + '<td class="tag-move"><p id="moveup">UP</p><p id="movedown">DOWN</p></td>'
         + '<td class="tag-delete"> delete </td>'
+        + '<td class="tag-modify">true</td>'
       + '</tr>'
     );
   }

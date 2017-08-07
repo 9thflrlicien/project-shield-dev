@@ -5,12 +5,13 @@ $(document).ready(function() {
   var messageInput = $('#message');
   var messageContent = $('#chat');
   var clients = $('#clients');
+  var idles = $('#idle-roomes');
   var printAgent = $('#printAgent');
   var canvas = $("#canvas");
   var searchBox = $('.searchBox');
   var name_list = [];
   var userProfiles = [];
-  var person = prompt("Please enter your name");
+  var person = "agentColman";
   var historyMsg_users = [];
   var historyMsg_agents = [];
   var user_list = []; // user list for checking on idle chat rooms
@@ -48,6 +49,18 @@ $(document).ready(function() {
     $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");   //clean tablinks color
   }
 
+  function closeIdleRoomTry() {
+    let early_time = Date.now() - 90000;        //90 second before now
+    let last = clients.find('.tablinks').last();      //last user in online room
+    while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
+      console.log("push " + last.attr('rel') + " to idle!");
+      let b = last.parents('b');
+      b.remove();
+      idles.prepend(b);
+      last = clients.find('.tablinks').last();
+    }
+  }
+
   function closeIdleRoom() {
     // declare current datetime and parse into ms
     // get the message sent time in ms
@@ -58,6 +71,7 @@ $(document).ready(function() {
     let convert_list;
     // client list on the left needs to move down when idle more than a certain times
     let item_move_down;
+    let item_move_up;
     // 這邊需要依照canvas裡面的聊天室做處理
     let canvas = document.getElementById('canvas');
     // check how many users are chatting
@@ -90,7 +104,7 @@ $(document).ready(function() {
     canvas_last_child_time_list = [];
   }
   setInterval(() => {
-    closeIdleRoom();
+    closeIdleRoomTry();
   }, 20000)
 
   $(document).on('click', '.tablinks', clickMsg);
@@ -112,24 +126,17 @@ $(document).ready(function() {
     }, 100);
   }
 
-  function loadMsg() {
-    console.log("Start loading msg...");
-    socket.emit('get json from back');    //emit a request to www, request for history msg
-  } //end loadMsg func
-
   socket.on('push json to front', (data) => {   //www emit data of history msg
     console.log("push json to front");
     for( i in data ) pushMsg(data[i]);    //one user do function one time
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
-    // closeIdleRoom();
+    closeIdleRoomTry();
     $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
 
   function pushMsg(data){     //one user do function one time; data structure see file's end
     let historyMsg = data.Messages;
     let profile = data.Profile;
-    name_list.push(profile.userId); //make a name list of all chated user
-    userProfiles.push(profile);
 
     let historyMsgStr = "<p class='message-day' style='text-align: center'><strong><i>"
       + "-------------------------------------------------------No More History Message-------------------------------------------------------"
@@ -168,6 +175,7 @@ $(document).ready(function() {
 
     let avgChatTime;
     let totalChatTime;
+    let chatTimeCount;
     if( profile.recentChat != lastMsg.time) {   //it means database should update chat time of this user
       let timeArr = [];       //some calculate
       for( let i in historyMsg ) timeArr.push(historyMsg[i].time);
@@ -192,11 +200,7 @@ $(document).ready(function() {
       sum /= 60000;
       totalChatTime = sum;
       avgChatTime = sum/times.length;
-      console.log("total = " + totalChatTime);
-      console.log("avg = ");
-      console.log(avgChatTime);
-      console.log("times.length = ");
-      console.log(times.length);
+      chatTimeCount = times.length;
       if( isNaN(avgChatTime)||avgChatTime<1 ) avgChatTime = 1;
       if( isNaN(totalChatTime)||totalChatTime<1 ) totalChatTime = 1;
 
@@ -204,17 +208,24 @@ $(document).ready(function() {
         id: profile.userId,
         avgTime: avgChatTime,
         totalTime: totalChatTime,
+        chatTimeCount: chatTimeCount,
         recentTime: lastMsg.time
       });
+      profile.avgTime = avgChatTime;
+      profile.totalTime = totalChatTime;
+      profile.chatTimeCount = chatTimeCount;
+      profile.recentTime = lastMsg.time;
     }
     else {      //it means database dont need update, just get info from DB
       avgChatTime = profile.avgChat;
       totalChatTime = profile.totalChat;
+      chatTimeCount = profile.chatTimeCount;
     }
 
     clients.append("<b><button rel=\""+profile.userId+"\" class=\"tablinks\""
       + "data-avgTime=\""+ avgChatTime +"\" "
       + "data-totalTime=\"" + totalChatTime +"\" "
+      + "data-chatTimeCount=\"" + chatTimeCount +"\" "
       + "data-firstTime=\"" + profile.firstChat +"\" "
       + "data-recentTime=\"" + lastMsg.time +"\"> "
       + profile.nickname
@@ -222,6 +233,8 @@ $(document).ready(function() {
       + "</button></b>"
     );    //new a tablinks
 
+    name_list.push(profile.userId); //make a name list of all chated user
+    userProfiles.push(profile);
   }
 
   function agentName() {    //enter agent name
@@ -255,11 +268,20 @@ $(document).ready(function() {
       if( type=='text' ) tdHtml = '<p id="td-inner">尚未輸入<p>';
       else if( type=="time" && modify=="true" ) tdHtml = '<input type="datetime-local" id="td-inner"></input>';
       else if( type=="time" && modify=="false" ) tdHtml = '<input type="datetime-local" id="td-inner" readOnly></input>';
-      else if( type.indexOf('select')!=-1 ) {
-        if( type=='single_select') tdHtml = '<select id="td-inner">';
-        else tdHtml = '<select id="td-inner" multiple>';
+      else if( type=='single_select' ) {
+        if( modify=="true" ) tdHtml = '<select id="td-inner">';
+        else tdHtml = '<select id="td-inner" disabled>';
         for( let j in set ) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
         tdHtml += '</select>';
+      }
+      else if( type=='multi_select' ) {
+        tdHtml = '<div class="btn-group" id="td-inner" data="">';
+        if( modify=="true") tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
+        else tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false" disabled>';
+        tdHtml += '<span class="multiselect-selected-text"></span><b class="caret"></b></button>'
+          + '<ul class="multiselect-container dropdown-menu">';
+        for( let j in set ) tdHtml += '<li><input type="checkbox" value="' + set[j] + '">' + set[j] + '</li>';
+        tdHtml += '</ul></div>';
       }
       infoTable.append( '<tr>'
         + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
@@ -268,6 +290,15 @@ $(document).ready(function() {
         + '<td class="edit-button no " name="no">no</td> </tr>'
       );
     }
+    $('.multiselect-container').on('change', function() {
+      let arr = [];
+      $(this).find('input').each(function() {
+        if( $(this).is(':checked') ) arr.push( $(this).val() );
+      });
+      arr = arr.join(',');
+      $(this).parent().attr("data", arr)
+        .find($('.multiselect-selected-text')).text(arr);
+    });
   });
 
   messageForm.submit((e) => {
@@ -315,7 +346,6 @@ $(document).ready(function() {
   /*  =================================  */
 
   socket.on('new message2', (data) => {   //if www push "new message2"
-
     console.log("Message get! identity = " + data.owner + ", name = " + data.name);
     //owner = "user", "agent" ; name = "Colman", "Ted", others...
     displayMessage( data ); //update canvas
@@ -373,19 +403,22 @@ $(document).ready(function() {
 
     if (name_list.indexOf(data.id) !== -1 ) {
       console.log('user existed');
-      $(".tablinks[rel='"+data.id+"'] span").text(toTimeStr(data.time)+remove_href_msg(data.message)).css("font-weight", font_weight);
-      $(".tablinks[rel='"+data.id+"']").attr("data-recentTime", data.time);
+      let target = $(".tablinks[rel='"+data.id+"']");
+      target.find("span").text(toTimeStr(data.time)+remove_href_msg(data.message)).css("font-weight", font_weight);
+      target.attr("data-recentTime", data.time);
       //update tablnks's last msg
+
+      let b = target.parents('b'); //buttons to b
+      b.remove();
+      clients.prepend(b);
     }
     else{
       //new user, make a tablinks
-      clients.append("<b><button rel=\"" + data.id + "\" class=\"tablinks\" >" + data.name
+      clients.prepend("<b><button rel=\"" + data.id + "\" class=\"tablinks\" >" + data.name
         + "<br><span style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
         + remove_href_msg(data.message) +  "</span></button></b>"
       );
     }
-
-    $(".tablinks").eq(0).before($(".tablinks[rel='"+data.id+"']"));
   } //close client function
 
   //extend jquery, let searching case insensitive
@@ -543,10 +576,11 @@ $(document).ready(function() {
       }
     }
     if( buffer==null ) console.log("Error 540");
-    console.log( "buffer: ");
+    console.log("buffer: ");
     console.log(buffer);
 
     $('.info_input_table .userInfo-td').each( function() {
+
       let data = buffer[ $(this).attr('id') ];
       let type = $(this).attr('type');
       let inner = $(this).find('#td-inner');
@@ -554,7 +588,17 @@ $(document).ready(function() {
       if( data!=undefined && data!=null && data!="" ) {
         console.log("defined!");
         if( type=='text' ) inner.text(data);
-        else if( type.indexOf('select')!=-1 ) inner.val(data);
+        else if( type=='single_select' ) inner.val(data);
+        else if( type=="multi_select" ) {
+          inner.attr('data',data);
+          inner.find('.multiselect-selected-text').text(data);
+          let arr = data.split(',');
+
+          inner.find('input').prop('checked', false);
+          for( let j in arr ) {
+            inner.find('input[value="' + arr[j] + '"]').prop('checked', true);
+          }
+        }
         else if( type=='time' ) {
           let d = new Date(data);
           console.log("date = "+d.toString());
@@ -564,7 +608,12 @@ $(document).ready(function() {
       else {    ///if undefined, load default string, not prev string
         console.log("undefined");
         if( type=='text' ) inner.text("尚未輸入");
-        else if( type.indexOf('select')!=-1 ) inner.val("");
+        else if( type=='single_select' ) inner.val("");
+        else if( type=="multi_select" ) {
+          inner.attr('data',"");
+          inner.find('.multiselect-selected-text').text("");
+          inner.find('input').attr('checked', false);
+        }
         else if( type=='time' ) inner.val("");
       }
     });
@@ -592,54 +641,85 @@ $(document).ready(function() {
   //   });
   // });
   function editProfile() {
-    if(  $(this).parent().children('.edit-button').is(':visible') ) return;
+    if( $(this).parent().children('.edit-button').is(':visible') ) return;
     else $(this).parent().children('.edit-button').show(); //show yes/no button
     ///on click, off click has some strange bug, so change way ><
 
     let type = $(this).attr('type');
     let set = $(this).attr('set');
     let text = $(this).find('#td-inner').text();
-    let inner = $(this).find('#td-inner');
 
     if( type=='text' ) {
       if( set=='single' ) $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
       else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >'+text+'</textarea>');
       else console.log("error 606");
     }
-    else if( type.indexOf('select')!=-1 ) {
+    else if( type=='single_select' ) {
       //do nothing
     }
     else if( type=='time' ) {
       //do nothing
     }
-    inner = $(this).find('#td-inner');
-    inner.select();
+    else if( type=='multi_select' ) {
+      // $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
+    }
+    $(this).find('#td-inner').select();
   }
 
   function changeProfile(edit) {
-    let name = $(this).attr('name');
     let td = $(this).parent().children('.userInfo-td');
     let id = td.attr('id');
     let type = td.attr('type');
-    let content = td.find('#td-inner').val();  //get agent's input
-    console.log("content = "+content);
+    let inner = td.find('#td-inner');
+    // let content = td.find('#td-inner').val();  //get agent's input
+    // console.log("content = "+content);
 
     $(this).parent().children('.edit-button').hide();  //hide yes/no button
 
-    if(name == 'yes'){  //confirm edit, change data in buffer instead of DB
+    if( $(this).attr('name')=='yes' ){  //confirm edit, change data in buffer instead of DB
+      let content;
+      if( type=="text") {
+        content = inner.val();
+        td.html('<p id="td-inner">'+content+'</p>');
+      }
+      else if( type=='single_select' ) content = inner.val();
+      else if( type=="multi_select" ) {
+        content = inner.attr('data');
+      }
+      else if( type=="time" ) {
+        content = new Date(inner.val()).getTime();
+      }
       buffer[id] = content;
-      if( type=="text") td.html('<p id="td-inner">'+content+'</p>');
+      console.log("content = ");
+      console.log(content);
     }
     else{  //deny edit, restore data before editing
       let origin = buffer[id];
       if( type=="text") td.html('<p id="td-inner">'+origin+'</p>');
-      else if( type=="time" ) td.find('#td-inner').val(origin);
-      else if( type.indexOf('select')!=-1 ) td.find('#td-inner').val(origin);
+      else if( type=='single_select' ) inner.val(origin);
+      else if( type=="multi_select" ) {
+        inner.attr('data',origin);
+        inner.find('.multiselect-selected-text').text(origin);
+
+        inner.find('input').prop('checked', false);
+        if( origin!=undefined && origin!="" && origin!=null ){
+          let arr = origin.split(',');
+          for( let j in arr ) {
+            inner.find('input[value="' + arr[j] + '"]').prop('checked', true);
+          }
+        }
+      }
+      else if( type=="time" ) {
+        let d = new Date(origin);
+        console.log("date = "+d.toString());
+        inner.val(d.getFullYear()+'-'+addZero(d.getMonth()+1)+'-'+addZero(d.getDate())+'T'+addZero(d.getHours())+':'+addZero(d.getMinutes()));
+      }
     }
+  }
 
     // td.on('click',editProfile); //restore click of userInfo-td
     // console.log("open click"); //on click, off click has some bug QQ
-  }
+
   function submitProfile() {
     let r = confirm("Are you sure to change profile?");
     if(r){
