@@ -42,7 +42,6 @@ tagsRef.on('value', snapshot=> {
 /**
  * Get port from environment and store in Express.
  */
-
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 /**
@@ -55,10 +54,10 @@ const io = require('socket.io').listen(server);
  */
 var users = {};
 var type_sticker = 0;
+var agent_nickname = 'agent';
 //webhook event
 var receiverId = '';
 var agent_sendTo_receiver;
-
 // LINE bot設定
 var bot = linebot({
     channelId: '1526051164',
@@ -104,7 +103,7 @@ bot.on('message', event => {
           // usersRef.push(obj);
           // console.log("DB sent!");
 
-          console.log("sending object: ");
+          console.log("sending object user: ");
           console.log(obj);
           // console.log("sending to local DB");
           // sendToLocalDB(obj);
@@ -301,6 +300,9 @@ bot.on('message', event => {
 
         }
         else if (message_type === 'text' && message_lineTochat.trim() === '你好'||message_lineTochat.trim().toLowerCase() ==='hi'||message_lineTochat.trim().toLowerCase() ==='hello') {
+          msgObj.message = message_lineTochat.trim();
+          emitIO_and_pushDB(msgObj);
+
           msgObj.message = '已接收選項'+"購買方案, "+"服務時段";
           emitIO_and_pushDB(msgObj);
 
@@ -345,7 +347,7 @@ bot.on('message', event => {
           let four = '4小時方案 \n 15,888 元 \n 4小時方案/每天 \n $15,888每月';
           event.reply({
             type: 'text',
-            text: 'BOT:' + four
+            text: four
           });
         }
         else if (message_type === 'text' && message_lineTochat.trim() === '8小時方案') {
@@ -355,7 +357,7 @@ bot.on('message', event => {
           let eight = '8小時方案 \n 21,888 元 \n 8小時方案/每天 \n $21,888每月';
           event.reply({
             type: 'text',
-            text: 'BOT:' + eight
+            text: eight
           });
         }
         else if (message_type === 'text' && message_lineTochat.trim() === '16小時方案') {
@@ -527,10 +529,62 @@ bot.on('message', event => {
         }
         else {
           msgObj.message = message_lineTochat;
-          // apiai(msgObj);
+          apiai(msgObj);
           emitIO_and_pushDB(msgObj);
         }
 
+        function apiai(obj) {
+          var apiai = require('apiai');
+          var app = apiai('5e29c1d48227420789ac915597c0f025');
+          var request = app.textRequest(obj.message, {
+              sessionId: '9ceb250a-dbcc-463e-98dd-e2a5e56649b0'
+          });
+          request.on('response', function(response) {
+            let action = response.result.action ;
+            let speech = response.result.fulfillment.speech ;
+            if(action != 'input.unknown'){
+              console.log(speech);
+              obj.owner = 'agent';
+              obj.name = 'api.ai';
+              obj.message = response.result.fulfillment.speech ;
+              emitIO_and_pushDB(obj) ;
+              console.log('api.ai:')
+              console.log(obj);
+              bot.push(obj.id,obj.message);
+              if(action == 'test' ){
+                event.reply({
+                  "type": "template",
+                  "altText": "this is a buttons template",
+                  "template": {
+                    "type": "buttons",
+                    "title": "問題選項",
+                    "text": "請選擇一個詢問主題",
+                    "actions": [{
+                        "type": "message",
+                        "label": "購買方案",
+                        "text": "購買方案"
+                    },{
+                        "type": "message",
+                        "label": "服務時段",
+                        "text": "服務時段"
+                    },{
+                        "type": "message",
+                        "label": "問券調查",
+                        "text": "問券調查"
+                    }]
+                  }
+                });
+              }
+            }else{console.log(action);}
+
+          });
+          request.on('error', function(error) {
+              console.log(error);
+          });
+          request.end();
+
+        }
+//test*/
         function updateProfile(event) {
           let survey = {id:'',para:'',value:''};
           let pos = event.message.text.indexOf('：');
@@ -562,6 +616,8 @@ io.sockets.on('connection', (socket) => {
     // 新使用者
     socket.on('new user', (data, callback) => {
         // if(nicknames.indexOf(data) != -1){
+        // agent_nickname
+        console.log(data);
         if (data in users) {
             callback(false);
         } else {
@@ -586,7 +642,7 @@ io.sockets.on('connection', (socket) => {
     });
 
     socket.on('get json from back', (data, callback) => {
-      var DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
+      // var DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
       io.sockets.emit('push json to front', chatData);
     });
     socket.on('read message', (data) => {
@@ -624,6 +680,11 @@ io.sockets.on('connection', (socket) => {
             "totalChat": data.totalTime,
             "chatTimeCount": data.chatTimeCount,
             "recentChat": data.recentTime
+            // "recentChat": data.recentTime,
+            // "平均聊天時間": new Date(data.avgTime).toString(),
+            // "總共聊天時間": new Date(data.totalTime).toString(),
+            // "總共聊天次數": data.chatTimeCount,
+            // "最近聊天時間": new Date(data.recentTime).toString()
           });
           break;
         }
@@ -695,7 +756,7 @@ io.sockets.on('connection', (socket) => {
           messageTime: Date.now()
         }
         function emitIO_and_pushDB(obj) {
-          console.log("sending object: ");
+          console.log("sending object agent1: ");
           console.log(obj);
 
           // 訊息傳到後台介面上
@@ -740,10 +801,15 @@ io.sockets.on('connection', (socket) => {
     });//sent message
 
     socket.on('send message2', (data, callback) => {
-        console.log(data);
-        var msg = data.msg.trim();
+        // console.log(data);
+        let msg = data.msg.trim();
         agent_sendTo_receiver = data.id.trim();
         console.log(agent_sendTo_receiver);
+        if(socket.nickname !== undefined){
+          agent_nickname = socket.nickname;
+        } else {
+          agent_nickname = 'agent';
+        }
 
         var message;
         let nowTime = Date.now();
@@ -804,7 +870,7 @@ io.sockets.on('connection', (socket) => {
         // }
         var msgObj = {
           owner: "agent",
-          name: socket.nickname,
+          name: agent_nickname,
           time: nowTime,
         };
         function emitIO_and_pushDB(obj) {
@@ -814,13 +880,13 @@ io.sockets.on('connection', (socket) => {
           // console.log("sending to old firebase database...");
           // agentsRef.push(obj);
           // console.log("DB sent!");
-          console.log("sending object: ");
+          console.log("sending object agent2: ");
           console.log(obj);
 
           console.log("sending to new firebase database");
           sendToNewFb(obj);
-          console.log("sending to local DB");
-          sendToLocalDB(obj);
+          // console.log("sending to local DB");
+          // sendToLocalDB(obj);
           console.log("sending to new io sockets...");
           sendToFrontSocket(obj);
           console.log("All sent!");
@@ -946,6 +1012,7 @@ io.sockets.on('connection', (socket) => {
           }
           console.log(updateObj);
           newDBRef.child(i).child("Profile").update(updateObj);
+          break;
         }
       }
     });
@@ -953,10 +1020,7 @@ io.sockets.on('connection', (socket) => {
     socket.on('disconnect', (data) => {
         if (!socket.nickname) return;
         delete users[socket.nickname];
-        // nicknames.splice(nicknames.indexOf(socket.nickname), 1);
     });
-
-
 });
 
 // catch 404 and forward to error handler
@@ -1035,13 +1099,6 @@ function onListening() {
         'pipe ' + addr :
         'port ' + addr.port;
     debug('Listening on ' + bind);
-}
-
-function addZero(i) {
-    if (i < 10) {
-        i = "0" + i;
-    }
-    return i;
 }
 
 // if get user message

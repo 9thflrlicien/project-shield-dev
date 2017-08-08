@@ -7,8 +7,9 @@ function register(){
   let lname = document.getElementById('last-name').value;
   let email = document.getElementById('register-email').value;
   let password = document.getElementById('register-password').value;
+  let nick = document.getElementById('nick').value;
   let full_name = fname + ' ' + lname;
-  console.log(full_name, email, password);
+  // console.log(full_name, email, password);
   if(fname === ''){
     showError('Please type in your first name');
   } else if(lname === ''){
@@ -18,7 +19,8 @@ function register(){
     .then(() => {
       database.ref('users/' + auth.currentUser.uid).push({
         name: full_name,
-        email: auth.currentUser.email
+        nickname: nick,
+        email: email
       });
     })
     .catch(error => {
