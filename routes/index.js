@@ -42,6 +42,9 @@ router.get('/tform', function(req, res, next) {
   res.render('ticketForm', { title: 'SHIELD Form' });
 });
 
+router.get('/message_overview', function(req, res, next) {
+  res.render('message_overview', { title: 'SHIELD message' });
+});
 router.get('/profile', function(req, res, next) {
   res.render('profile', { title: 'Profile' });
 });

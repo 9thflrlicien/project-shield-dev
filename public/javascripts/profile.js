@@ -7,6 +7,10 @@ $(document).ready(function() {
   $('#prof-gender').text('');
   $('#prof-phone').text('');
   $('#prof-nick').text('');
+  $('#prof-channelId').text('');
+  $('#prof-channelSecret').text('');
+  $('#prof-channelAccessToken').text('');
+
   setTimeout(loadProf, 1000);
 
   $(document).on('click', '#prof-edit', profEdit); //打開modal
@@ -15,17 +19,27 @@ $(document).ready(function() {
   $(document).on('click', '#signout-btn', logout); //登出
 });
 
+
+
+  // profileForm.submit((e) => {
+  //   e.preventDefault();
+
+  //   socket.emit('send profile', {chanId: chanId , chanSecret: chanSecret, chanAT: chanAT}, (data) => {
+
+  // });//socket.emit
+
+  // });//profileForm.submit
+
+
 function loadProf() {
   let userId = auth.currentUser.uid;
-//  alert(userId) ;
+
   database.ref('users/' + userId).on('value', snap => {
-  let profInfo = snap.val();
-
-
-  //  alert(snap.A);
+    let profInfo = snap.val();
     if(profInfo === null) {
       $('#error-message').show();
-    } else {
+    }
+    else {
       let profInfo = []
       let profData = snap.val();
       let profId = Object.keys(profData);
@@ -38,13 +52,18 @@ function loadProf() {
       $('#prof-gender').text(profInfo[0].gender);
       $('#prof-phone').text(profInfo[0].phone);
       $('#prof-nick').text(profInfo[0].nickname);
+      $('#prof-channelId').text(profInfo[0].chanId);
+      $('#prof-channelSecret').text(profInfo[0].chanSecret);
+      $('#prof-channelAccessToken').text(profInfo[0].chanAT);
     }
+
   });
 
   // $('#prof-email').append(email);
 }
 
 function profEdit() {
+  //移到最上面了
   let id = $('#prof-id').text();
   let name = $('#prof-name').text();
   let nick = $('#prof-nick').text();
@@ -52,6 +71,9 @@ function profEdit() {
   let email = $('#prof-email').text();
   let gender = $('#prof-gender').text();
   let phone = $('#prof-phone').text();
+  let chanId = $('#prof-channelId').text();
+  let chanSecret = $('#prof-channelSecret').text();
+  let chanAT = $('#prof-channelAccessToken').text();
 
   // console.log(id, name, dob, email, gender,phone);
 
@@ -63,7 +85,9 @@ function profEdit() {
   $('#prof-edit-phone').val(phone);
   $('#prof-edit-nick').val(nick);
 
-
+  $('#prof-edit-channelId').val(chanId);
+  $('#prof-edit-channelSecret').val(chanSecret);
+  $('#prof-edit-channelAccessToken').val(chanAT);
 }
 
 function profSubmit() {
@@ -76,6 +100,9 @@ function profSubmit() {
   let gender = $('#prof-edit-gender').val();
   let phone = $('#prof-edit-phone').val();
 
+  let chanId = $('#prof-edit-channelId').val();
+  let chanSecret = $('#prof-edit-channelSecret').val();
+  let chanAT = $('#prof-edit-channelAccessToken').val();
   // console.log(id, name, dob, email, gender,phone);
 
   // console.log(id);
@@ -120,4 +147,7 @@ function profClear() {
   $('#prof-edit-gender').val('Male');
   $('#prof-edit-phone').val('');
   $('#prof-edit-nick').val('');
+  $('#prof-edit-channelId').val('');
+  $('#prof-edit-channelSecret').val('');
+  $('#prof-edit-channelAccessToken').val('');
 }
