@@ -50,7 +50,7 @@ function googleLog() {
     // The signed-in user info.
     var user = result.user;
 
-    database.ref('users/' + user.uid).push({
+    database.ref('users/' + user.uid).update({
       name: user.displayName,
       email: user.email
     });
@@ -75,7 +75,7 @@ function facebookLog() {
     var user = result.user;
     // console.log(user);
 
-    database.ref('users/' + user.uid).push({
+    database.ref('users/' + user.uid).update({
       name: user.displayName,
       email: user.email
     });

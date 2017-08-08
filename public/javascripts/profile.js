@@ -1,6 +1,16 @@
 $(document).ready(function() {
   // $('#side-menu').hide();
 
+  var name = $('#prof-name').text();
+  var id = $('#prof-id').text();
+  var dob = $('#prof-dob').text();
+  var email = $('#prof-email').text();
+  var gender = $('#prof-gender').text();
+  var phone = $('#prof-phone').text();
+  var chanId = $('#prof-channelId').text();
+  var chanSecret = $('#prof-channelSecret').text();
+  var chanAT = $('#prof-channelAccessToken').text();
+
   $('#prof-name').text('');
   $('#prof-dob').text('');
   $('#prof-email').text('');
@@ -113,7 +123,10 @@ function profSubmit() {
     email: email,
     gender: gender,
     phone: phone,
-    nickname: nick
+    nickname: nick,
+    chanId: chanId,
+    chanSecret: chanSecret,
+    chanAT: chanAT
   });
   // if(id === ''){
   //   database.ref('users/' + userId).push({
@@ -121,7 +134,10 @@ function profSubmit() {
   //     dob: dob,
   //     email: email,
   //     gender: gender,
-  //     phone: phone
+  //     phone: phone,
+  //     chanId: chanId,
+  //     chanSecret: chanSecret,
+  //     chanAT: chanAT
   //   });
   // } else {
   //   database.ref('users/' + userId + '/' + id).set({

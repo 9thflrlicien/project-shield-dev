@@ -17,13 +17,18 @@ $(document).ready(function() {
       let type = data[i].type;
       let modify = data[i].modify;
       tagTableBody.find(".tag-name:last").text(name);
-      tagTableBody.find(".tag-modify:last").text(modify);
       tagTableBody.find(".tag-option:last").val(type);
+      tagTableBody.find(".tag-modify:last").text(modify);
+
       type = toTypeValue(type);
       let set = data[i].set;
       if( type==3 ) set = set.join('\n');
       tagTableBody.find('.tag-set-td:last').find('#set'+type).val(set)
         .show().siblings().hide();
+
+      // if( modify=="false" ) tagTableBody.find(".tag-delete:last").text("cant delete");
+      // else
+      tagTableBody.find(".tag-delete:last").html('<button class="tag-delete-btn">delete</button>');
     }
   });
 
@@ -73,8 +78,8 @@ $(document).ready(function() {
     tomove.next().after(tomove);
   });
 
-  $(document).on('click', '.tag-delete', function() {
-    $(this).parent().remove();
+  $(document).on('click', '.tag-delete-btn', function() {
+    $(this).parent().parent().remove();
   });
 
   allConfirmBtn.on('click', function() {
@@ -151,7 +156,7 @@ $(document).ready(function() {
           + '</textarea>'
         + '</td>'
         + '<td class="tag-move"><p id="moveup">UP</p><p id="movedown">DOWN</p></td>'
-        + '<td class="tag-delete"> delete </td>'
+        + '<td class="tag-delete"></td>'
         + '<td class="tag-modify">true</td>'
       + '</tr>'
     );
