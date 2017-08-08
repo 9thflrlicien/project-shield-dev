@@ -72,7 +72,6 @@ function profSubmit() {
   let phone = $('#prof-edit-phone').val();
 
   // console.log(id, name, dob, email, gender,phone);
-
   // console.log(id);
   database.ref('users/' + userId).remove();
   if(id === ''){

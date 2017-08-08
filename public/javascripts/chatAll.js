@@ -9,7 +9,6 @@ $(document).ready(function() {
   var canvas = $("#canvas");
   var searchBox = $('#searchBox');
   var name_list = [];
-//  var person = prompt("Please enter your name");
   var historyMsg_users = [];
   var historyMsg_agents = [];
   var avgChatTime;
@@ -168,35 +167,35 @@ $(document).ready(function() {
   }
 
   function agentName() {    //enter agent name
-    let userId = auth.currentUser.uid;
+    var userId = auth.currentUser.uid;
 
     database.ref('users/' + userId).on('value', snap => {
       let profInfo = snap.val();
       let profId = Object.keys(profInfo);
-      let person = snap.child(profId[0]).val().username;
-      while( person=="" ) {
-            person = prompt("Please enter your name");
-          }
-          if (person != null) {
-            socket.emit('new user', person, (data) => {
-              if(data){
+      var person = snap.child(profId[0]).val().username;  //從DB獲取agent的nickname
 
-              } else {
-                alert('username is already taken');
-              }
-            });
-            printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
-          }
+      if (person != '' && person != null) {
+        socket.emit('new user', person, (data) => {
+          if(data){}   //check whether username is already taken
           else {
-            window.location.replace("/");
-          } //'name already taken'功能未做、push agent name 未做
+            alert('username is already taken');
+            person = prompt("Please enter your name");  //update new username
+            database.ref('users/' + userId + '/' + profId).update({username : person});
+          }
+        });
+        printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
+      }
+      else{
+        person = prompt("Please enter your name");  //if username not exist,update username
+        database.ref('users/' + userId + '/' + profId).update({username : person});
+      }
     });
   }
 
   messageForm.submit((e) => {   //submit to_send message to user
     e.preventDefault();
     let designated_user_id = $( "#user-rooms option:selected" ).val();
-    socket.emit('send message2', {id: designated_user_id , msg: messageInput.val()}, (data) => {
+    socket.emit('send message2', {id: designated_user_id , msg: messageInput.val(),}, (data) => {
       messageContent.append('<span class="error">' + data + "</span><br/>");
       //no this thing QQ
     });
@@ -213,6 +212,7 @@ $(document).ready(function() {
     }
     users.html(html);
   });
+
 
 
   /*  =================================  */
@@ -461,41 +461,48 @@ $(document).ready(function() {
   var buffer;
   function showProfile() {
     var target = $('#selected').attr('rel'); //get useridd of current selected user
-    console.log("show profile");
+  //  alert(target) ;
+    if(target === undefined){
+      $('#userInfo-submit').hide();
+      $('.modal-title').eq(0).html('No user selected!');
+    }else{$('#userInfo-submit').show();}
     socket.emit('get profile',{id: target}) ;
   }
+
   socket.on('show profile',(data) => {
     var Th = $('.userInfo-th') ;
     var Td = $('.userInfo-td') ;
     var but = $('.edit-button');
+    for(let i in data){alert(i+':'+data[i]);}
     for(let i in but){but.eq(i).hide();} //hide all yes/no buttons
     for(let i in Th ){Th.eq(i).text(Th.eq(i).attr('id')+' : ') ;}
     $('.modal-title').html(data.nickname);
-    let key ;
+    buffer = {} ;
     buffer = data ;  //storage profile in buffer zone
     for(let j in Td){
       for(let key in data ){
         if(key == Td.eq(j).attr('id')){
           Td.eq(j).text(data[key]); //show each profile data
-          if(key == 'userId'||key == 'totalChat'){Td.eq(j).click(false);}  //disable editing of userid and totalchat
+          if(key == 'userId'){Td.eq(j).click(false);}  //disable editing of userid
         }
       }
     }
   });
   function editProfile() {
     let name = $(this).attr('id');
-    $(this).html('<input type="text" class="textarea" placeholder="'+name+'">');
+    let origin = $(this).text() ;
+    $(this).html('<input type="text" class="textarea" placeholder="'+name+'" value = "'+origin+'">');
     $(this).parent().children('.edit-button').show(); //show yes/no button
     $(this).children().focus(function () {
-        $(this).click(false);  //disable click when editing
+      $(this).click(false);  //disable click when editing
     })
+  //  for(let i in buffer){alert(i+':'+buffer[i]);}
   }
-  function changeProfile(edit) {
+  function changeProfile() {
     let id = $(this).parent().children('.userInfo-td').attr('id');
     let name = $(this).attr('name');
     let content =   $(this).parent().children('.userInfo-td').children().val();  //get agent's input
     let origin = '';
-
     for(let i in buffer){
         if(i == id ){
           origin = buffer[i]; //storage original profile data

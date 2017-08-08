@@ -277,271 +277,239 @@ bot.on('message', event => {
           msgObj.message = urlStr + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>';
           emitIO_and_pushDB(msgObj);
         }
-        else if (message_type === 'text' && message_lineTochat.trim() === '購買方案') {
-          msgObj.message = '已接收購買方案'+"4小時方案  "+"8小時方案  "+"16小時方案  ";
-          emitIO_and_pushDB(msgObj);
-          event.reply({
-            "type": "template",
-            "altText": "購買方案說明",    //text that customer see at chat list
-            "template": {
-              "type": "buttons",
-              "title": "購買方案說明",
-              "text": "請選擇一個方案",
-              "actions": [{
-                "type": "message",
-                "label": "4小時方案",
-                "text": "4小時方案"
-              },{
-                "type": "message",
-                "label": "8小時方案",
-                "text": "8小時方案"
-              },{
-                "type": "message",
-                "label": "16小時方案",
-                "text": "16小時方案"
-              }]
-            }
-          });
-
-        }
-        else if (message_type === 'text' && message_lineTochat.trim() === '你好'||message_lineTochat.trim().toLowerCase() ==='hi'||message_lineTochat.trim().toLowerCase() ==='hello') {
-          msgObj.message = '已接收選項'+"購買方案, "+"服務時段";
-          emitIO_and_pushDB(msgObj);
-
-          event.reply({
-            "type": "template",
-            "altText": "this is a buttons template",
-            "template": {
-              "type": "buttons",
-              "title": "問題選項",
-              "text": "請選擇一個詢問主題",
-              "actions": [{
-                  "type": "message",
-                  "label": "購買方案",
-                  "text": "購買方案"
-              },{
-                  "type": "message",
-                  "label": "服務時段",
-                  "text": "服務時段"
-              },{
-                  "type": "message",
-                  "label": "問券調查",
-                  "text": "問券調查"
-              }]
-            }
-          });
-        }
-        else if (message_type === 'text' && message_lineTochat.trim() === '服務時段') {
-            msgObj.message = '已發送服務時段: '+"「0700~1100」"+"「1100~1500」"+"「1500~1900」"+"「1900~2300」";
-            emitIO_and_pushDB(msgObj);
-
-            let service_time = '「0700~1100」 \n 「1100~1500」 \n 「1500~1900」 \n 「1900~2300」 \n 兩個時段必須是「連續的」 \n 「0700~1100」及「1100~1500」 \n 「1100~1500」及「1500~1900」 \n 「1500~1900」及「1900~2300」。';
-            event.reply({
-              type: 'text',
-              text: 'BOT:\n' + service_time
-            });
-
-        }
-        else if (message_type === 'text' && message_lineTochat.trim() === '4小時方案') {
-          msgObj.message = '已發送服務時段: ' + '4小時方案 \n 15,888 元 \n 4小時方案/每天 \n $15,888每月';
-          emitIO_and_pushDB(msgObj);
-
-          let four = '4小時方案 \n 15,888 元 \n 4小時方案/每天 \n $15,888每月';
-          event.reply({
-            type: 'text',
-            text: 'BOT:' + four
-          });
-        }
-        else if (message_type === 'text' && message_lineTochat.trim() === '8小時方案') {
-          msgObj.message = '已發送服務時段: ' + '4小時方案 \n 15,888 元 \n 4小時方案/每天 \n $15,888每月';
-          emitIO_and_pushDB(msgObj);
-
-          let eight = '8小時方案 \n 21,888 元 \n 8小時方案/每天 \n $21,888每月';
-          event.reply({
-            type: 'text',
-            text: 'BOT:' + eight
-          });
-        }
-        else if (message_type === 'text' && message_lineTochat.trim() === '16小時方案') {
-          msgObj.message = '已發送服務時段: ' + '16小時方案 \n 39,888 元 \n 16小時方案/每天 \n $39,888每月';
-          emitIO_and_pushDB(msgObj);
-
-          let sixteen = '16小時方案 \n 39,888 元 \n 16小時方案/每天 \n $39,888每月';
-          event.reply({               //to customer
-            type: 'text',
-            text: 'BOT:' + sixteen
-          });
-        }
-        else if (event.message.type === 'text' && message_lineTochat.trim() === '問券調查') {
-          setTimeout(() => {
-            msgObj.message = '詢問客戶資料（性別）';
-            emitIO_and_pushDB(msgObj);
-          }, 1000)
-
-          event.reply({
-            "type": "template",
-            "altText": "問券調查part1",
-            "template": {
-              "type": "buttons",
-              "title": "問券調查：性別",
-              "text": "請選擇您的性別",
-              "actions": [{
-                "type": "message",
-                "label": "性別：男",
-                "text": "性別：男"
-              },{
-                "type": "message",
-                "label": "性別：女",
-                "text": "性別：女"
-              }]
-            }
-          });
-
-        }
-        else if (event.message.type === 'text' && (message_lineTochat.trim() === '性別：女' || message_lineTochat.trim() === '性別：男')) {
-          msgObj.message = message_lineTochat.trim();
-          emitIO_and_pushDB(msgObj);
-
-          updateProfile(event);
-          console.log('update success!');
-
-          setTimeout(() => {
-            msgObj.message = '詢問客戶資料（居住地）';
-            emitIO_and_pushDB(msgObj);
-          }, 1000)
-
-          event.reply({
-            "type": "template",
-            "altText": "問券調查",
-            "template": {
-              "type": "buttons",
-              "title": "問券調查：地區",
-              "text": "請選擇您的性別",
-              "actions": [{
-                "type": "message",
-                "label": "地區：北部",
-                "text": "地區：北部"
-              },{
-                "type": "message",
-                "label": "地區：中部",
-                "text": "地區：中部"
-              },{
-                "type": "message",
-                "label": "地區：南部",
-                "text": "地區：南部"
-              },{
-                "type": "message",
-                "label": "地區：東部",
-                "text": "地區：東部"
-              }]
-            }
-          });
-
-
-        }
-        else if (event.message.type === 'text' && (message_lineTochat.trim() === '地區：北部' || message_lineTochat.trim() === '地區：中部' || message_lineTochat.trim() === '地區：南部' || message_lineTochat.trim() === '地區：東部')) {
-          msgObj.message = message_lineTochat.trim();
-          emitIO_and_pushDB(msgObj);
-
-          updateProfile(event);
-          console.log('update success!');
-
-          setTimeout(() => {
-            msgObj.message = '詢問客戶資料（年齡層）';
-            emitIO_and_pushDB(msgObj);
-          }, 1000)
-
-          event.reply({
-            "type": "template",
-            "altText": "問券調查part2",
-            "template": {
-              "type": "carousel",
-              "columns": [
-                  {
-                    "text": "您的年齡層。請左右滑動並選擇您的年齡層",
-                    "actions": [
-                        {
-                            "type": "message",
-                            "label": "年齡：20以下",
-                            "text": "年齡：20以下"
-                        },
-                        {
-                            "type": "message",
-                            "label": "年齡：21-30",
-                            "text": "年齡：21-30"
-                        },
-                        {
-                            "type": "message",
-                            "label": "年齡：31-40",
-                            "text": "年齡：31-40"
-                        }
-                    ]
-                  },
-                  {
-                    "text": "您的年齡層。請左右滑動並選擇您的年齡層",
-                    "actions": [
-                        {
-                          "type": "message",
-                          "label": "年齡：41-50",
-                          "text": "年齡：41-50"
-                        },
-                        {
-                          "type": "message",
-                          "label": "年齡：51-64",
-                          "text": "年齡：51-64"
-                        },
-                        {
-                          "type": "message",
-                          "label": "年齡：65以上",
-                          "text": "年齡：65以上"
-                        }
-                    ]
-                  }
-              ]
-            }
-          });
-
-        }
-        else if (event.message.type === 'text' && (message_lineTochat.trim() === '年齡：20以下' || message_lineTochat.trim() === '年齡：21-30' || message_lineTochat.trim() === '年齡：31-40' || message_lineTochat.trim() === '年齡：41-50' || message_lineTochat.trim() === '年齡：51-64' || message_lineTochat.trim() === '年齡：65以上')) {
-          msgObj.message = message_lineTochat.trim();
-          emitIO_and_pushDB(msgObj);
-
-          updateProfile(event);
-          console.log('update success!');
-
-          setTimeout(() => {
-            msgObj.message = '感謝您填寫問卷！';
-            emitIO_and_pushDB(msgObj);
-          }, 1000);
-
-
-          event.reply({
-            type: 'text',
-            text: '感謝您填寫問卷！'
-          });
-
-        }
         else {
           msgObj.message = message_lineTochat;
+          apiai(msgObj);
           emitIO_and_pushDB(msgObj);
         }
+/*========================api.ai by FWL=============================*/
+        function apiai(obj) {
+          var apiai = require('apiai');
+          var app = apiai('5e29c1d48227420789ac915597c0f025');
+          var request = app.textRequest(obj.message, {
+              sessionId: '9ceb250a-dbcc-463e-98dd-e2a5e56649b0'
+          });
+          request.on('response', function(response) {
+            let action = response.result.action ;
+            let speech = response.result.fulfillment.messages[0].speech ;
+            if(action != 'input.unknown'){
+              if(action == 'input.welcome'||action == 'timeGreeting'){
+                obj.message = '已接收選項'+"購買方案, "+"服務時段, "+'問卷調查';
+                emitIO_and_pushDB(msgObj);
+                event.reply({
+                  "type": "template",
+                  "altText": "this is a buttons template",
+                  "template": {
+                    "type": "buttons",
+                    "title": "問題選項",
+                    "text": "請選擇一個詢問主題",
+                    "actions": [{
+                        "type": "message",
+                        "label": "購買方案",
+                        "text": "購買方案"
+                    },{
+                        "type": "message",
+                        "label": "服務時段",
+                        "text": "服務時段"
+                    },{
+                        "type": "message",
+                        "label": "問卷調查",
+                        "text": "問卷調查"
+                    }]
+                  }
+                });
+              }
+              if(action == 'PurchasePlan'){
+                msgObj.message = '已接收購買方案'+"4小時方案  "+"8小時方案  "+"16小時方案  ";
+                emitIO_and_pushDB(msgObj);
+                event.reply({
+                  "type": "template",
+                  "altText": "購買方案說明",    //text that customer see at chat list
+                  "template": {
+                    "type": "buttons",
+                    "title": "購買方案說明",
+                    "text": "請選擇一個方案",
+                    "actions": [{
+                      "type": "message",
+                      "label": "4小時方案",
+                      "text": "4小時方案"
+                    },{
+                      "type": "message",
+                      "label": "8小時方案",
+                      "text": "8小時方案"
+                    },{
+                      "type": "message",
+                      "label": "16小時方案",
+                      "text": "16小時方案"
+                    }]
+                  }
+                });
+                return ;
+              }
+              if(action == 'Questionnaire'){
+                console.log(obj.message);
+                updateProfile(obj.message);
+                let type = response.result.fulfillment.messages[1].speech ;
+                console.log(type);
+                if(type == 'start'){
+                  msgObj.message = '詢問客戶資料（性別）';
+                  msgObj.owner = 'agent';
+                  msgObj.name = 'api.ai';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "問券調查part1",
+                    "template": {
+                      "type": "buttons",
+                      "title": "問券調查：性別",
+                      "text": "請選擇您的性別",
+                      "actions": [{
+                        "type": "message",
+                        "label": "性別：男",
+                        "text": "性別：男"
+                      },{
+                        "type": "message",
+                        "label": "性別：女",
+                        "text": "性別：女"
+                      }]
+                    }
+                  });
+                }
+                else if(type == 'gender'){
+                  msgObj.message = '詢問客戶資料（居住地）';
+                  msgObj.owner = 'agent';
+                  msgObj.name = 'api.ai';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "問券調查",
+                    "template": {
+                      "type": "buttons",
+                      "title": "問券調查：地區",
+                      "text": "請選擇您的性別",
+                      "actions": [{
+                        "type": "message",
+                        "label": "地區：北部",
+                        "text": "地區：北部"
+                      },{
+                        "type": "message",
+                        "label": "地區：中部",
+                        "text": "地區：中部"
+                      },{
+                        "type": "message",
+                        "label": "地區：南部",
+                        "text": "地區：南部"
+                      },{
+                        "type": "message",
+                        "label": "地區：東部",
+                        "text": "地區：東部"
+                      }]
+                    }
+                  });
+                  return ;
+                }
+                else if(type == 'place'){
+                  msgObj.message = '詢問客戶資料（年齡層）';
+                  msgObj.owner = 'agent';
+                  msgObj.name = 'api.ai';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "問券調查part2",
+                    "template": {
+                      "type": "carousel",
+                      "columns": [
+                          {
+                            "text": "您的年齡層。請左右滑動並選擇您的年齡層",
+                            "actions": [
+                                {
+                                    "type": "message",
+                                    "label": "年齡：20以下",
+                                    "text": "年齡：20以下"
+                                },
+                                {
+                                    "type": "message",
+                                    "label": "年齡：21-30",
+                                    "text": "年齡：21-30"
+                                },
+                                {
+                                    "type": "message",
+                                    "label": "年齡：31-40",
+                                    "text": "年齡：31-40"
+                                }
+                            ]
+                          },
+                          {
+                            "text": "您的年齡層。請左右滑動並選擇您的年齡層",
+                            "actions": [
+                                {
+                                  "type": "message",
+                                  "label": "年齡：41-50",
+                                  "text": "年齡：41-50"
+                                },
+                                {
+                                  "type": "message",
+                                  "label": "年齡：51-64",
+                                  "text": "年齡：51-64"
+                                },
+                                {
+                                  "type": "message",
+                                  "label": "年齡：65以上",
+                                  "text": "年齡：65以上"
+                                }
+                            ]
+                          }
+                      ]
+                    }
+                  });
+                  return ;
+                }
+                else if(type == 'age'){
+                  msgObj.message = response.result.fulfillment.messages[2].speech ;
+                  msgObj.owner = 'agent';
+                  msgObj.name = 'api.ai';
+                  emitIO_and_pushDB(msgObj);
+                  //bot.push(obj.id,msgObj.message);
+                  event.reply({ type: 'text', text: msgObj.message });
+                  return ;
+                }
+              }
+              console.log(speech);
+              obj.owner = 'agent';
+              obj.name = 'api.ai';
+              obj.message = speech ;
+              emitIO_and_pushDB(obj) ;
+              console.log('api.ai:')
+              console.log(obj);
+              bot.push(obj.id,obj.message);
+            }else{console.log(action);}
 
-        function updateProfile(event) {
+          });
+          request.on('error', function(error) {
+              console.log(error);
+          });
+          request.end();
+
+        }
+
+        function updateProfile(text) {
           let survey = {id:'',para:'',value:''};
-          let pos = event.message.text.indexOf('：');
-          let para = event.message.text.substring(0,pos);
-          let value = event.message.text.substring(pos+1);
-          survey.id = event.source.userId;
-          survey.para = para;
-          survey.value = value ;
-          console.log(survey);
-          for( let i in chatData ) {
-            if( chatData[i].Profile.userId == survey.id ) {
-              console.log('match!updating profile...')
-              let obj = {};
-              obj['/'+survey.para] = survey.value;
-              newDBRef.child(i).child("Profile").update(obj);
-              break;
+          if(text.indexOf('：') != -1){
+            let pos = event.message.text.indexOf('：');
+            let para = event.message.text.substring(0,pos);
+            let value = event.message.text.substring(pos+1);
+            survey.id = event.source.userId;
+            survey.para = para;
+            survey.value = value ;
+            console.log(survey);
+            for( let i in chatData ) {
+              if( chatData[i].Profile.userId == survey.id ) {
+                console.log('match!updating profile...')
+                let obj = {};
+                obj['/'+survey.para] = survey.value;
+                newDBRef.child(i).child("Profile").update(obj);
+                break;
+              }
             }
           }
         }
@@ -586,7 +554,7 @@ io.sockets.on('connection', (socket) => {
     // 新使用者
     socket.on('new user', (data, callback) => {
         // if(nicknames.indexOf(data) != -1){
-        console.log(data);
+        //console.log(data);
         if (data in users) {
             callback(false);
         } else {
@@ -638,7 +606,7 @@ io.sockets.on('connection', (socket) => {
 
     // 從SHIELD chat傳送訊息
     socket.on('send message', (data, callback) => {
-        console.log(data);
+        //console.log(data);
         var msg = data.msg.trim();
         agent_sendTo_receiver = data.id.trim();
         console.log(agent_sendTo_receiver);
@@ -805,6 +773,7 @@ io.sockets.on('connection', (socket) => {
         //   id: agent_sendTo_receiver,
         //   messageTime: nowTime
         // }
+        console.log(socket.nickname);
         var msgObj = {
           owner: "agent",
           name: socket.nickname,
@@ -903,15 +872,18 @@ io.sockets.on('connection', (socket) => {
           msgObj.message = 'Send image to user';
           emitIO_and_pushDB(msgObj);
 
-        } else if (msg.includes('/audio')) {
+        }
+        else if (msg.includes('/audio')) {
           msgObj.message = 'Send audio to user';
           emitIO_and_pushDB(msgObj);
 
-        } else if (msg.includes('/video')) {
+        }
+        else if (msg.includes('/video')) {
           msgObj.message = 'Send video to user';
           emitIO_and_pushDB(msgObj);
 
-        } else if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
+        }
+        else if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
             let urlStr = '<a href=';
             if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
               urlStr += '"https://';
@@ -919,11 +891,13 @@ io.sockets.on('connection', (socket) => {
             msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
             emitIO_and_pushDB(msgObj);
 
-        } else if (msg.includes('/sticker')) {
+        }
+        else if (msg.includes('/sticker')) {
           msgObj.message = 'Send sticker to user';
           emitIO_and_pushDB(msgObj);
 
-        } else {
+        }
+        else {
           msgObj.message = msg;
           emitIO_and_pushDB(msgObj);
         }
@@ -953,8 +927,8 @@ io.sockets.on('connection', (socket) => {
         if( chatData[i].Profile.userId == data.userId ) {
           let updateObj = {};
           newDBRef.child(i).child("Profile").update({
-            "address": data.address,      //can edit to what u want to update
-            "age": data.age,
+          //  "address": data.address,      //can edit to what u want to update
+          //  "age": data.age,
             "nickname": data.nickname,
             "telephone": data.telephone,
             "性別": data.性別,

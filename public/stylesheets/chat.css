@@ -70,7 +70,17 @@ p {
 }
 .edit-button{
   display: none;
+  width: 40px;
+  text-align: center;
   padding: 2px 5px;
-  border: 1px solid gray;
-  background-color: lightgray;
+  border-radius: 5%;
+  transition: all .4s ease-in-out;
+}
+.yes:hover{
+  background-color: rgba(137, 226, 143, 0.8);
+  cursor: pointer;
+}
+.no:hover{
+  background-color: rgba(221, 139, 130, 0.85);
+  cursor: pointer;
 }
