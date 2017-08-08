@@ -80,7 +80,73 @@
          </div>
 
          <section id="canvas">
+           <div id="no_use_id" class="tabcontent" style = "display: block;">
+             <div class="messagePanel">
+           </div>
+
          </section>
+
+         <!-- Trigger the modal with a button -->
+         <button type="button" id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Open User Info</button>
+
+         <!-- Modal -->
+         <div class="modal fade" id="userInfoModal" role="dialog">
+           <div class="modal-dialog">
+             <div class="modal-content">
+               <div class="modal-header">
+                 <button type="button" class="close" data-dismiss="modal">&times;</button>
+                 <h4 class="modal-title">User Information Form</h4>
+               </div>
+               <div class="modal-body">
+                 <table class="info_input_table">
+                   <tr>
+                     <th class="userInfo-th" id="nickname">Nickname</th>
+                     <td class="userInfo-td" id="nickname"></td>
+                   </tr>
+                   <tr>
+                     <th class="userInfo-th" id="userId">UserId</th>
+                     <td class="userInfo-td" id="userId"></td>
+                   </tr>
+                   <tr>
+                     <th class="userInfo-th" id="age">Age</th>
+                     <td class="userInfo-td" id="age"><input type="text" placeholder="not edit before"></input></td>
+                   </tr>
+                   <tr>
+                     <th class="userInfo-th" id="telephone">Telephone</th>
+                     <td class="userInfo-td" id="telephone"><input type="text" placeholder="not edit before"></input></td>
+                   </tr>
+                   <tr>
+                     <th class="userInfo-th" id="address">Address</th>
+                     <td class="userInfo-td" id="address"><input type="text" placeholder="not edit before"></input></td>
+                   </tr>
+                   <tr>
+                     <th class="userInfo-th" id="firstChat">firstChat</th>
+                     <td class="userInfo-td" id="firstChat"></td>
+                   </tr>
+                   <tr>
+                     <th class="userInfo-th" id="recentChat">recentChat</th>
+                     <td class="userInfo-td" id="recentChat"></td>
+                   </tr>
+                   <tr>
+                     <th class="userInfo-th" id="totalChat">totalChat</th>
+                     <td class="userInfo-td" id="totalChat"></td>
+                   </tr>
+                   <tr>
+                     <th class="userInfo-th" id="avgChat">avgChat</th>
+                     <td class="userInfo-td" id="avgChat"></td>
+                   </tr>
+                  </table>
+               </div>
+               <div class="modal-footer">
+                 <button type="button" id="userInfo-submit" class="btn btn-default" data-dismiss="modal" style="background-color: greenyellow;">Confirm</button>
+                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+               </div>
+             </div>
+           </div>
+         </div>
+          <!-- end -->
+
+
          <form action="" id="send-message" disabled>
            <select id="user-rooms"></select>
            <input size="35" id="message" />

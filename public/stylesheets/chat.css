@@ -61,8 +61,28 @@ p {
   float:top;
 }
 .tablinks{
-  padding-left: 10px
+  padding-left: 10px;
 }
-#clients {
+#clients, #idle-roomes {
   list-style: none;
+}
+
+
+#userInfoBtn {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.info_input_table {
+  width: 100%;
+}
+.info_input_table tr{
+}
+.userInfo-th {
+  width: 50%;
+  padding-top: 10px;
+}
+.userInfo-td {
+  width: 50%;
+  padding-top: 10px;
+  /*margin: 10px;*/
 }

@@ -47,6 +47,8 @@ $(document).ready(function() {
   $(document).on('click', '.tablinks', clickMsg);
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.topright', clickSpan);
+  $(document).on('click', '#userInfoBtn', clickUserInfo);
+  $(document).on('click', '#userInfo-submit', confirmUserInfo);
   //$(document).on('click', '.tablinks_head', sortAvgChatTime);
 
   if (window.location.pathname === '/chat') {
@@ -60,9 +62,17 @@ $(document).ready(function() {
     console.log("Start loading msg...");
     database.ref('chats/users2').once('value', snap => {
       console.log("Loading user history msg...");
+      console.log("snap");
+      console.log(snap);
       let testVal = snap.val();
+      console.log("testVal = ");
+      console.log(testVal);
       let myIds = Object.keys(testVal);
+      console.log("myIds");
+      console.log(myIds);
       for (var i = 0; i < myIds.length; i++) {
+        console.log("snap.child(myIds[i])");
+        console.log(snap.child(myIds[i]));
         historyMsg_users.push(snap.child(myIds[i]).val());
       }
       console.log("User history msg load complete");
@@ -369,6 +379,41 @@ $(document).ready(function() {
     }
   });   //end searchBox change func
 
+
+  function clickUserInfo() {
+
+    let userId = $('.tablinks#selected').attr('rel');
+    let userName = $('.tablinks#selected').text();
+
+  //  DB.open('profile'+userId);
+    let info = {
+      nickname: userName,
+      userId: userId,
+      age: 18,
+      telephone: "",
+      address: "",
+      firstChat: 153452344444,
+      recentChat: 1734544442345,
+      totalChat: 300,
+      avgChat: 20
+    };
+
+    $('.userInfo-td#nickname').text(info.nickname);
+    $('.userInfo-td#userId').text(info.userId);
+    $('.userInfo-td#age').attr("value", info.age);
+    $('.userInfo-td#telephone').attr("value", info.telephone);
+    $('.userInfo-td#address').attr("value", info.address);
+    $('.userInfo-td#firstChat').text(new Date(info.firstChat).toString());
+    $('.userInfo-td#recentChat').text(new Date(info.recentChat).toString());
+    $('.userInfo-td#totalChat').text(info.totalChat);
+    $('.userInfo-td#avgChat').text(info.avgChat);
+  }
+  function confirmUserInfo() {
+    console.log(userId);
+    // let dbRef = firebase.database().ref().child('profile'+id);
+    // dbRef.push(obj);
+  }
+
   function toDateStr( input ) {
     var str = " ";
     let date = new Date(input);
@@ -386,5 +431,6 @@ $(document).ready(function() {
   function addZero(val){
     return val<10 ? '0'+val : val;
   }
+
 
 }); //document ready close tag
