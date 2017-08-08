@@ -1,130 +1,112 @@
 $(document).ready(function() {
-  var socket = io.connect();
-  var users = $('#users');
-  var messageForm = $('#send-message');
-  var messageInput = $('#message');
-  var messageContent = $('#chat');
-  var clients = $('#clients');
-  var idles = $('#idle-roomes');
-  var printAgent = $('#printAgent');
-  var canvas = $("#canvas");
-  var searchBox = $('.searchBox');
-  var name_list = [];
-  var userProfiles = [];
-  var person = "agentColman";
-  var historyMsg_users = [];
-  var historyMsg_agents = [];
+  var socket = io.connect();    //socket
+
+  var users = $('#users');      //what's this
+  var printAgent = $('#printAgent');  //agent welcome text
+  var messageForm = $('#send-message'); //button for agent to send message
+  var messageInput = $('#message');     //input for agent to send message
+  var messageContent = $('#chat');      //what's this
+
+  var clients = $('#clients');        //online rooms of tablinks
+  var idles = $('#idle-roomes');      //idle rooms of tablinks
+  var name_list = [];                 //list of all users
   var user_list = []; // user list for checking on idle chat rooms
-  var avgChatTime;
-  var sumChatTime;
-  var sortAvgBool = true;
-  var sortTotalBool = true;
-  var sortFirstBool = true;
-  var sortRecentBool = true;
-  var infoTable = $('.info_input_table');
+
+  var canvas = $("#canvas");          //panel of message canvas
+  var person = "agentColman";         //agent name
+
+  var searchBox = $('.searchBox');    //input of search box
+  var sortAvgBool = true;             //bool for sort average time up or down
+  var sortTotalBool = true;           //bool for sort total time up or down
+  var sortFirstBool = true;           //bool for sort first time up or down
+  var sortRecentBool = true;          //bool for sort recent time up or down
+
+  var buffer;                         //buffer which store now user's profile
+  var infoTable = $('.info_input_table'); //user info table
+  var TagsData;                       //data of user info tags
 
   const COLOR = {
     FIND: "#A52A2A",
     CLICKED: "#ccc",
   }
 
-  function clickMsg(){
-    $("#selected").attr('id','').css("background-color", "");   //selected tablinks change, clean prev's color
-    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
-
-    if( $(this).find('span').css("font-weight")=="bold" ) {
-      $(this).find('span').css("font-weight", "normal");                //read msg, let msg dis-bold
-      socket.emit("read message", {id: $(this).attr('rel')} );          //tell socket that this user isnt unRead
-    }
-
-    var target = $(this).attr('rel');         //find the message canvas
-    $("#"+target).show().siblings().hide();   //show it, and close others
-    $('#user-rooms').val(target);             //change value in select bar
-    $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
-
-    console.log('click tablink executed');
-  }
-  function clickSpan() {  //close the message canvas
-    let userId = $(this).parent().css("display", "none").attr("id");
-    $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");   //clean tablinks color
-  }
-
-  function closeIdleRoomTry() {
-    let early_time = Date.now() - 15*60*1000;        //15min before now
-    let last = clients.find('.tablinks').last();      //last user in online room
-    while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
-      console.log("push " + last.attr('rel') + " to idle!");
-      let b = last.parents('b');
-      b.remove();
-      idles.prepend(b);
-      last = clients.find('.tablinks').last();
-    }
-  }
-
-  function closeIdleRoom() {
-    // declare current datetime and parse into ms
-    // get the message sent time in ms
-    let new_date = new Date();
-    let over_fifteen_min = Date.parse(new_date);
-    let canvas_last_child_time_list = [];
-    //convert from htmlcollection to array
-    let convert_list;
-    // client list on the left needs to move down when idle more than a certain times
-    let item_move_down;
-    let item_move_up;
-    // 這邊需要依照canvas裡面的聊天室做處理
-    let canvas = document.getElementById('canvas');
-    // check how many users are chatting
-    let total_users = document.getElementById('canvas').children.length;
-    // children under canvas
-    let canvas_all_children = canvas.children;
-
-    for(let i=0;i<total_users;i++) {
-      user_list.push(canvas_all_children[i].getAttribute('id'));
-      convert_list = Array.prototype.slice.call( canvas_all_children[i].getElementsByClassName("messagePanel")[0].getElementsByClassName("message") );
-      canvas_last_child_time_list.push(convert_list.slice(-1)[0].getAttribute('rel'))
-      if(over_fifteen_min - canvas_last_child_time_list[i] >= 60000) {
-        // 更改display client的東西
-        console.log('id = '+user_list[i]+' passed idle time');
-        item_move_down = $('[rel="'+user_list[i]+'"]').parent();
-        $('#idle-roomes').append(item_move_down);
-        $('#clients').find('[rel="'+user_list[i]+'"]').remove();
-      }
-      else {
-        console.log('id = '+user_list[i]+' passed chat time');
-        item_move_down = $('[rel="'+user_list[i]+'"]').parent();
-        $('#clients').append(item_move_down);
-        $('#idle-roomes').find('[rel="'+user_list[i]+'"]').remove();
-      }
-    }
-    // console.log(user_list);
-
-    user_list = [];
-    convert_list = [];
-    canvas_last_child_time_list = [];
-  }
-  setInterval(() => {
-    closeIdleRoomTry();
-  }, 20000)
-
-  $(document).on('click', '.tablinks', clickMsg);
-  $(document).on('click', '#signout-btn', logout); //登出
-  $(document).on('click', '.topright', clickSpan);
-  $(document).on('click', '#userInfoBtn', showProfile);
-  $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
-  $(document).on('click', '.edit-button', changeProfile);
-  $(document).on('click','#userInfo-submit',submitProfile);
-
   if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
     setTimeout(function() {
       socket.emit('get json from back');
     }, 10);  //load history msg
-    setTimeout(agentName, 100); //enter agent name
+    setTimeout(agentName, 1000); //enter agent name
     setTimeout(function() {
-      socket.emit("get tags from chat")
+      socket.emit("get tags from chat");
     }, 100);
   }
+
+  $(document).on('click', '#signout-btn', logout); //登出
+  $(document).on('click', '.tablinks', clickUserTablink);
+  $(document).on('click', '.topright', clickSpan);
+  $(document).on('click', '#userInfoBtn', showProfile);
+  $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
+  $(document).on('click', '.edit-button', changeProfile);
+  $(document).on('click','#userInfo-submit',submitProfile);
+  $(document).on('change', '.multiselect-container', multiselect_change);
+  setInterval(() => {
+    closeIdleRoomTry();
+  }, 20000);
+
+
+  function agentName() {    //enter agent name
+    // while( person=="" ) {
+    //   person = prompt("Please enter your name");
+    // }
+    // if (person != null) {
+    //   socket.emit('new user', person, (data) => {
+    //     if(data){
+    //
+    //     } else {
+    //       alert('username is already taken');
+    //     }
+    //   });
+    //   printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
+    // }
+    // else {
+    //   window.location.replace("/");
+    // } //'name already taken'功能未做、push agent name 未做
+    //
+
+    console.log(auth);
+    var userId = auth.currentUser.uid;
+
+    database.ref('users/' + userId).on('value', snap => {
+      let profInfo = snap.val();
+      let profId = Object.keys(profInfo);
+      let person = snap.child(profId[0]).val().nickname;  //從DB獲取agent的nickname
+      // console.log(person);
+
+      if (person != '' && person != null) {
+        socket.emit('new user', person, (data) => {
+          // console.log(data);
+          if(data){}   //check whether username is already taken
+          else {
+            alert('username is already taken');
+            person = prompt("Please enter your name");  //update new username
+            database.ref('users/' + userId + '/' + profId).update({nickname : person});
+          }
+        });
+        printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
+      }
+      else{
+        person = prompt("Please enter your name");  //if username not exist,update username
+        database.ref('users/' + userId + '/' + profId).update({nickname : person});
+      }
+    });
+
+  }
+
+  socket.on("push tags to chat", data=> {
+    console.log("data:");
+    console.log(data);
+    TagsData = data;
+  });
 
   socket.on('push json to front', (data) => {   //www emit data of history msg
     console.log("push json to front");
@@ -199,7 +181,7 @@ $(document).ready(function() {
           i++;
           if( i==timeArr.length ) break;
         }
-        var num = tailTime-headTime;
+        let num = tailTime-headTime;
         if( num<1000 ) num = 1000;
         times.push(num);
       }
@@ -242,116 +224,82 @@ $(document).ready(function() {
     );    //new a tablinks
 
     name_list.push(profile.userId); //make a name list of all chated user
-    userProfiles.push(profile);
   }
 
-  function agentName() {    //enter agent name
-    while( person=="" ) {
-      person = prompt("Please enter your name");
+  function closeIdleRoomTry() {
+    let early_time = Date.now() - 15*60*1000;        //15min before now
+    let last = clients.find('.tablinks').last();      //last user in online room
+    while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
+      console.log("push " + last.attr('rel') + " to idle!");
+      let b = last.parents('b');
+      b.remove();
+      idles.prepend(b);
+      last = clients.find('.tablinks').last();
     }
-    if (person != null) {
-      socket.emit('new user', person, (data) => {
-        if(data){
-
-        } else {
-          alert('username is already taken');
-        }
-      });
-      printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
-    }
-    else {
-      window.location.replace("/");
-    } //'name already taken'功能未做、push agent name 未做
   }
-  socket.on("push tags to chat", data=> {
-    console.log("data:");
-    console.log(data);
-    let count = 0;
-    for( let i in data ) {
-      let name = data[i].name;
-      let type = data[i].type;
-      let set = data[i].set;
-      let modify = data[i].modify;
-      let tdHtml = "";
-      if( type=='text' ) tdHtml = '<p id="td-inner">尚未輸入<p>';
-      else if( type=="time" && modify=="true" ) tdHtml = '<input type="datetime-local" id="td-inner"></input>';
-      else if( type=="time" && modify=="false" ) tdHtml = '<input type="datetime-local" id="td-inner" readOnly></input>';
-      else if( type=='single_select' ) {
-        if( modify=="true" ) tdHtml = '<select id="td-inner">';
-        else tdHtml = '<select id="td-inner" disabled>';
-        for( let j in set ) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
-        tdHtml += '</select>';
+
+  function closeIdleRoom() {
+    // declare current datetime and parse into ms
+    // get the message sent time in ms
+    let new_date = new Date();
+    let over_fifteen_min = Date.parse(new_date);
+    let canvas_last_child_time_list = [];
+    //convert from htmlcollection to array
+    let convert_list;
+    // client list on the left needs to move down when idle more than a certain times
+    let item_move_down;
+    let item_move_up;
+    // 這邊需要依照canvas裡面的聊天室做處理
+    let canvas = document.getElementById('canvas');
+    // check how many users are chatting
+    let total_users = document.getElementById('canvas').children.length;
+    // children under canvas
+    let canvas_all_children = canvas.children;
+
+    for(let i=0;i<total_users;i++) {
+      user_list.push(canvas_all_children[i].getAttribute('id'));
+      convert_list = Array.prototype.slice.call( canvas_all_children[i].getElementsByClassName("messagePanel")[0].getElementsByClassName("message") );
+      canvas_last_child_time_list.push(convert_list.slice(-1)[0].getAttribute('rel'))
+      if(over_fifteen_min - canvas_last_child_time_list[i] >= 60000) {
+        // 更改display client的東西
+        console.log('id = '+user_list[i]+' passed idle time');
+        // item_move_down = $('[rel="'+user_list[i]+'"]').parent();
+        $('#idle-roomes').append($('[rel="'+user_list[i]+'"]').parent());
+        $('#clients').find('[rel="'+user_list[i]+'"]').remove();
       }
-      else if( type=='multi_select' ) {
-        tdHtml = '<div class="btn-group" id="td-inner" data="">';
-        if( modify=="true") tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
-        else tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false" disabled>';
-        tdHtml += '<span class="multiselect-selected-text"></span><b class="caret"></b></button>'
-          + '<ul class="multiselect-container dropdown-menu">';
-        for( let j in set ) tdHtml += '<li><input type="checkbox" value="' + set[j] + '">' + set[j] + '</li>';
-        tdHtml += '</ul></div>';
+      else {
+        console.log('id = '+user_list[i]+' passed chat time');
+        // item_move_up = $('[rel="'+user_list[i]+'"]').parent();
+        $('#clients').append($('[rel="'+user_list[i]+'"]').parent());
+        $('#idle-roomes').find('[rel="'+user_list[i]+'"]').remove();
       }
-      infoTable.append( '<tr>'
-        + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
-        + '<th class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="' + modify +'">' + tdHtml + '</th>'
-        + '<td class="edit-button yes " name="yes">yes</td>'
-        + '<td class="edit-button no " name="no">no</td> </tr>'
-      );
     }
-    $('.multiselect-container').on('change', function() {
-      let arr = [];
-      $(this).find('input').each(function() {
-        if( $(this).is(':checked') ) arr.push( $(this).val() );
-      });
-      arr = arr.join(',');
-      $(this).parent().attr("data", arr)
-        .find($('.multiselect-selected-text')).text(arr);
-    });
-  });
-
-  messageForm.submit((e) => {
-    e.preventDefault();
-    selectAll();
-
-    if (Array.isArray(designated_user_id)) {
-      for (var i=0; i < name_list.length;i++) {
-        console.log(i+'at line212');
-        socket.emit('send message2', {id: name_list[i] , msg: messageInput.val()}, (data) => {
-          messageContent.append('<span class="error">' + data + "</span><br/>");
-          console.log('this is designated_user_id[i]');
-          console.log(designated_user_id[i]);
-        });//snap=
-      };//for
-    }
-    else {
-      socket.emit('send message2', {id: designated_user_id , msg: messageInput.val()}, (data) => {
-        messageContent.append('<span class="error">' + data + "</span><br/>");
-      });//socket.emit
-
-    }//else
-    messageInput.val('');
-  });
-  function selectAll(){
-    if ($( "#user-rooms option:selected" ).val()=='全選'){
-      designated_user_id = name_list;
-      select = 'true';
-    }
-    else{
-      designated_user_id = $( "#user-rooms option:selected" ).val();
-      select = 'false';
-    }
+    user_list = [];
+    convert_list = [];
+    canvas_last_child_time_list = [];
   }
 
-  socket.on('usernames', (data) => {    //maybe no use now
-    var html = '';
-    for (i = 0; i < data.length; i++) {
-      html += data[i] + '<br />';
+  function clickUserTablink(){
+    $("#selected").attr('id','').css("background-color", "");   //selected tablinks change, clean prev's color
+    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
+
+    if( $(this).find('span').css("font-weight")=="bold" ) {
+      $(this).find('span').css("font-weight", "normal");                //read msg, let msg dis-bold
+      socket.emit("read message", {id: $(this).attr('rel')} );          //tell socket that this user isnt unRead
     }
-    users.html(html);
-  });
 
+    let target = $(this).attr('rel');         //find the message canvas
+    $("#"+target).show().siblings().hide();   //show it, and close others
+    $('#user-rooms').val(target);             //change value in select bar
+    $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
 
-  /*  =================================  */
+    console.log('click tablink executed');
+  }
+
+  function clickSpan() {  //close the message canvas
+    let userId = $(this).parent().css("display", "none").attr("id");
+    $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");   //clean tablinks color
+  }
 
   socket.on('new message2', (data) => {   //if www push "new message2"
     console.log("Message get! identity = " + data.owner + ", name = " + data.name);
@@ -372,16 +320,26 @@ $(document).ready(function() {
 
     if (name_list.indexOf(data.id) !== -1) {    //if its chated user
       let str;
+
+      let rooms = $("#" + data.id + "-content p.message");
+      let designated_chat_room_msg_time = rooms[rooms.length-1].getAttribute('rel');
+      // console.log(designated_chat_room_length);
+      // console.log(designated_chat_room_msg_time);
+      // 如果現在時間多上一筆聊天記錄15分鐘
+      if(data.time - designated_chat_room_msg_time >= 900000){
+        $("#" + data.id + "-content").append('New Session starts-------------------');
+      }
       if( data.owner == "agent" ) str = toAgentStr(data.message, data.name, data.time);
       else str = toUserStr(data.message, data.name, data.time);
+
+
       $("#" + data.id + "-content").append(str);    //push message into right canvas
       $('#'+data.id+'-content').scrollTop($('#'+data.id+'-content')[0].scrollHeight);  //scroll to down
-
     } //close if
+
     else {              //if its never chated user
       console.log('new user msg append to canvas');
 
-      //THIS PART DIVIDE HISTORY MSG INTO DIFFERENT DAYS
       let historyMsgStr = "<p class='message-day' style='text-align: center'><strong><italic>"
         + "-------------------------------------------------------No More History Message-------------------------------------------------------"
         + "</italic></strong></p>";
@@ -420,14 +378,58 @@ $(document).ready(function() {
       b.remove();
       clients.prepend(b);
     }
-    else{
-      //new user, make a tablinks
+    else{     //new user, make a tablinks
       clients.prepend("<b><button rel=\"" + data.id + "\" class=\"tablinks\" >" + data.name
         + "<br><span style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
         + remove_href_msg(data.message) +  "</span></button></b>"
       );
     }
   } //close client function
+
+  messageForm.submit((e) => {
+    e.preventDefault();
+    selectAll();
+
+    if (Array.isArray(designated_user_id)) {
+      for (let i=0; i < name_list.length;i++) {
+        socket.emit('send message2', {id: name_list[i] , msg: messageInput.val()}, (data) => {
+          messageContent.append('<span class="error">' + data + "</span><br/>");
+          console.log('this is designated_user_id[i]');
+          console.log(designated_user_id[i]);
+        });//snap=
+      };//for
+    }
+    else {
+      socket.emit('send message2', {id: designated_user_id , msg: messageInput.val()}, (data) => {
+        messageContent.append('<span class="error">' + data + "</span><br/>");
+      });//socket.emit
+
+    }//else
+    messageInput.val('');
+  });
+
+  function selectAll(){
+    if ($( "#user-rooms option:selected" ).val()=='全選'){
+      designated_user_id = name_list;
+      select = 'true';
+    }
+    else{
+      designated_user_id = $( "#user-rooms option:selected" ).val();
+      select = 'false';
+    }
+  }
+
+  // socket.on('usernames', (data) => {    //maybe no use now
+  //   var html = '';
+  //   for (i = 0; i < data.length; i++) {
+  //     html += data[i] + '<br />';
+  //   }
+  //   users.html(html);
+  // });
+
+
+  /*  =================================  */
+
 
   //extend jquery, let searching case insensitive
   $.extend($.expr[':'], {
@@ -437,8 +439,17 @@ $(document).ready(function() {
     }
   });
 
+  function displayAll() {
+    $('.tablinks').each( function() {
+      let id = $(this).attr('rel');
+      $("div #"+id+"-content"+" .message").css("display", "").off("click");
+
+      $(this).css("color","");
+    });
+  }
+
   searchBox.change(function () {    //not clean code ><,  just some search function
-    var searchStr = searchBox.val();
+    let searchStr = searchBox.val();
 
     if( searchStr == "" ) {
       displayAll();
@@ -483,14 +494,6 @@ $(document).ready(function() {
       });
     }
   });   //end searchBox change func
-  function displayAll() {
-    $('.tablinks').each( function() {
-      let id = $(this).attr('rel');
-      $("div #"+id+"-content"+" .message").css("display", "").off("click");
-
-      $(this).css("color","");
-    });
-  }
 
   $('.datepicker').datepicker({
     dateFormat: 'yy-mm-dd'
@@ -551,37 +554,84 @@ $(document).ready(function() {
 
   function sortAvgChatTime() {
     sortUsers("avgTime", sortAvgBool, function(a,b){ return a<b; } );
-    var tmp = !sortAvgBool;
+    let tmp = !sortAvgBool;
     sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
     sortAvgBool = tmp;
   }
   function sortTotalChatTime() {
     sortUsers("totalTime", sortTotalBool, function(a,b){ return a<b; } );
-    var tmp = !sortTotalBool;
+    let tmp = !sortTotalBool;
     sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
     sortTotalBool = tmp;
   }
   function sortFirstChatTime() {
     sortUsers("firstTime", sortFirstBool, function(a,b){ return a>b; } );
-    var tmp = !sortFirstBool;
+    let tmp = !sortFirstBool;
     sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
     sortFirstBool = tmp;
   }
   function sortRecentChatTime() {
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
-    var tmp = !sortRecentBool;
+    let tmp = !sortRecentBool;
     sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
     sortRecentBool = tmp;
   }
 
 
-  var buffer;
   function showProfile() {
     let target = $('#selected').attr('rel'); //get useridd of current selected user
     if( target==undefined ) return;
     console.log("show profile of userId " + target);
     socket.emit('get profile',{id: target}) ;
+    reload_tags();
   }
+
+  function reload_tags(){
+    infoTable.empty();
+    for( let i in TagsData ) {
+      let name = TagsData[i].name;
+      let type = TagsData[i].type;
+      let set = TagsData[i].set;
+      let modify = TagsData[i].modify;
+      let tdHtml = "";
+      if( type=='text' ) tdHtml = '<p id="td-inner">尚未輸入<p>';
+      else if( type=="time" && modify=="true" ) tdHtml = '<input type="datetime-local" id="td-inner"></input>';
+      else if( type=="time" && modify=="false" ) tdHtml = '<input type="datetime-local" id="td-inner" readOnly></input>';
+      else if( type=='single_select' ) {
+        if( modify=="true" ) tdHtml = '<select id="td-inner">';
+        else tdHtml = '<select id="td-inner" disabled>';
+        for( let j in set ) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
+        tdHtml += '</select>';
+      }
+      else if( type=='multi_select' ) {
+        tdHtml = '<div class="btn-group" id="td-inner" data="">';
+        if( modify=="true") tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
+        else tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false" disabled>';
+        tdHtml += '<span class="multiselect-selected-text"></span><b class="caret"></b></button>'
+          + '<ul class="multiselect-container dropdown-menu">';
+        for( let j in set ) tdHtml += '<li><input type="checkbox" value="' + set[j] + '">' + set[j] + '</li>';
+        tdHtml += '</ul></div>';
+      }
+      infoTable.append( '<tr>'
+        + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
+        + '<th class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="' + modify +'">' + tdHtml + '</th>'
+        + '<td class="edit-button yes " name="yes">yes</td>'
+        + '<td class="edit-button no " name="no">no</td> </tr>'
+      );
+    }
+  }
+
+  function multiselect_change() {
+    console.log("281 change!");
+    let arr = [];
+    $(this).find('input').each(function() {
+      if( $(this).is(':checked') ) arr.push( $(this).val() );
+    });
+    arr = arr.join(',');
+    $(this).parent().attr("data", arr)
+      .find($('.multiselect-selected-text')).text(arr);
+  }
+
   socket.on('show profile',(data) => {
     buffer = data;
 
@@ -717,33 +767,42 @@ $(document).ready(function() {
         inner.val(d.getFullYear()+'-'+addZero(d.getMonth()+1)+'-'+addZero(d.getDate())+'T'+addZero(d.getHours())+':'+addZero(d.getMinutes()));
       }
     }
+        // td.on('click',editProfile); //restore click of userInfo-td
+        // console.log("open click"); //on click, off click has some bug QQ
   }
 
-    // td.on('click',editProfile); //restore click of userInfo-td
-    // console.log("open click"); //on click, off click has some bug QQ
-
   function submitProfile() {
-    let r = confirm("Are you sure to change profile?");
-    if(r){
+    if( $('.edit-button:visible').length>0 ) {
+      alert('please check all tags change');
+    }
+    else if( confirm("Are you sure to change profile?") ){
       console.log(buffer);
       socket.emit('update profile',buffer);
+      $('.modal').modal('hide');
     }
   }
 
 
+  $(document).on('click','#userInfo-cancel',function() {
+    let abc = $('.edit-button');
+    console.log("abc length = "+abc.length);
+    abc = $('.edit-button:visible');
+    console.log("visible length = "+abc.length);
+  });
+
   function toAgentStr(msg, name, time) {
-    return "<p class='message' rel='" + time + "' style='text-align: right;'>" + msg + "<strong> : " + name + toTimeStr(time) + "</strong><br/></p>";
+    return "<p class='message' rel='" + time + "' style='text-align: right;' title='" + toDateStr(time) + "'>" + msg + "<strong> : " + name + toTimeStr(time) + "</strong><br/></p>";
   }
   function toUserStr(msg, name, time) {
-    return "<p class='message' rel='" + time + "'><strong>" + name + toTimeStr(time) + ": </strong>" + msg + "<br/></p>";
+    return "<p class='message' rel='" + time + "' title='" + toDateStr(time) + "'><strong>" + name + toTimeStr(time) + ": </strong>" + msg + "<br/></p>";
   }
 
   function toDateStr( input ) {
-    var str = " ";
+    let str = " ";
     let date = new Date(input);
     str += date.getFullYear() + '/' + addZero(date.getMonth()+1) + '/' + addZero(date.getDate()) + ' ';
 
-    var week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    let week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     str += week[date.getDay()] + ' ' + addZero(date.getHours()) + ':' + addZero(date.getMinutes());
     return str;
   }
@@ -774,7 +833,6 @@ $(document).ready(function() {
     // else return msg;
     return msg;
   }
-
 
 }); //document ready close tag
 
