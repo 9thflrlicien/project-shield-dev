@@ -21,6 +21,7 @@ $(document).ready(function() {
   var sortFirstBool = true;           //bool for sort first time up or down
   var sortRecentBool = true;          //bool for sort recent time up or down
 
+  var userProfiles = [];
   var buffer;                         //buffer which store now user's profile
   var infoTable = $('.info_input_table'); //user info table
   var TagsData;                       //data of user info tags
@@ -99,7 +100,6 @@ $(document).ready(function() {
         database.ref('users/' + userId + '/' + profId).update({nickname : person});
       }
     });
-
   }
 
   socket.on("push tags to chat", data=> {
@@ -224,6 +224,7 @@ $(document).ready(function() {
     );    //new a tablinks
 
     name_list.push(profile.userId); //make a name list of all chated user
+    userProfiles.push(profile);
   }
 
   function closeIdleRoomTry() {
@@ -456,50 +457,76 @@ $(document).ready(function() {
     });
   }
 
-  searchBox.change(function () {    //not clean code ><,  just some search function
-    let searchStr = searchBox.val();
+    // $(document).on('keypress', '.tag-name input', function(e) {
+    //   let code = (e.keyCode ? e.keyCode : e.which);
+    //   if (code == 13) {
+  searchBox.on('keypress', function (e) {    //not clean code ><,  just some search function
+    let code = (e.keyCode ? e.keyCode : e.which);
+    if (code != 13) return;
 
+    let searchStr = $(this).val().toLowerCase();
     if( searchStr == "" ) {
       displayAll();
     }
     else {
-      $('.tablinks').each( function() {
-        //find his content parent
-        let id = $(this).attr('rel');
-        let panel = $("div #"+id+"-content");
-        //hide no search_str msg
-        panel.find(".message").css("display", "none");
-
-        //display searched msg & push #link when onclick
-        panel.find(".message:containsi("+searchStr+")")
-          .css("display", "").on( "click", when_click_msg );
-
-        //when onclick, get search_str msg # link
-        function when_click_msg() {    //when clicing searched msg
-          $(this).attr("id", "ref");    //msg immediately add link
-          searchBox.val("");    //then cancel searching mode,
-          displayAll();         //display all msg
-          window.location.replace("/chatAll#ref"); //then jump to the #link added
-          $(this).attr("id", "");   //last remove link
-        };
-
-        //if this customer already no msg...
-        let color = "";
-        panel.find(".message").each(function() {
-          if($(this).css("display")!="none") {
-            color = COLOR.FIND;
-            return false;
+      let way = $('.searchSelect').val();
+      if( way=="tag" || way=="remark" ) {
+        displayAll();
+        let wayStr = "";
+        if( way=="tag" ) wayStr = "TAG";
+        else if( way=="remark" ) wayStr = "備註";
+        for( let i in userProfiles ) {
+          let text = userProfiles[i][wayStr];
+          if( text && text.toLowerCase().indexOf(searchStr)!=-1 ) {
+            let userId = userProfiles[i].userId;
+            $('.tablinks[rel="'+userId+'"]').css("color", COLOR.FIND);
           }
+        }
+      }
+      else {
+        $('.tablinks').each( function() {
+          //find his content parent
+          let id = $(this).attr('rel');
+          let panel = $("div #"+id+"-content");
+
+          //display searched msg & push #link when onclick
+          panel.find(".message").each(function() {
+            let text = $(this).find('.'+way).text();
+            if( text.toLowerCase().indexOf(searchStr)!=-1 ) {
+              $(this).css("display", "").on( "click", when_click_msg );
+            }
+            else $(this).css("display", "none");
+            // +':containsi('+searchStr+')') )
+          });
+
+          //when onclick, get search_str msg # link
+          function when_click_msg() {    //when clicing searched msg
+            $(this).attr("id", "ref");    //msg immediately add link
+            searchBox.val("");    //then cancel searching mode,
+            displayAll();         //display all msg
+            window.location.replace("/chatAll#ref"); //then jump to the #link added
+            $(this).attr("id", "");   //last remove link
+          };
+
+          //if this customer already no msg...
+          let color = "";
+          panel.find(".message").each(function() {
+            if($(this).css("display")!="none") {
+              color = COLOR.FIND;
+              return false;
+            }
+          });
+          //then hide the customer's tablinks
+          $(this).css("color", color);
+
+
+          // panel.find(".message-day").each(function() {
+          //   console.log("index: "+ panel.find('p').index( $(this) ) );
+          // });
+
         });
-        //then hide the customer's tablinks
-        $(this).css("color", color);
+      }
 
-
-        // panel.find(".message-day").each(function() {
-        //   console.log("index: "+ panel.find('p').index( $(this) ) );
-        // });
-
-      });
     }
   });   //end searchBox change func
 
@@ -528,6 +555,9 @@ $(document).ready(function() {
       }
   });
   $('.filterTime').on('click', function(){
+    $('#startdate').val('');
+    $('#enddate').val('');
+
     let filterWay = $(this).attr('id');
     let val = $('#filterTimeSelect').val();
     let a;  let b;
@@ -588,10 +618,18 @@ $(document).ready(function() {
 
   function showProfile() {
     let target = $('#selected').attr('rel'); //get useridd of current selected user
-    if( target==undefined ) return;
+    if( target==undefined ) {
+      infoTable.html("please choose an user");
+      return;
+    }
     console.log("show profile of userId " + target);
-    socket.emit('get profile',{id: target}) ;
     reload_tags();
+    for( let i in userProfiles ) {
+      if( userProfiles[i].userId == target ) {
+        showTargetProfile(userProfiles[i]);
+        break;
+      }
+    }
   }
 
   function reload_tags(){
@@ -629,19 +667,9 @@ $(document).ready(function() {
     }
   }
 
-  function multiselect_change() {
-    console.log("281 change!");
-    let arr = [];
-    $(this).find('input').each(function() {
-      if( $(this).is(':checked') ) arr.push( $(this).val() );
-    });
-    arr = arr.join(',');
-    $(this).parent().attr("data", arr)
-      .find($('.multiselect-selected-text')).text(arr);
-  }
-
-  socket.on('show profile',(data) => {
-    buffer = data;
+  function showTargetProfile(profile) {
+    buffer = JSON.parse(JSON.stringify(profile));
+    $('.userPhoto').attr('src', buffer.photo);
 
     $('.info_input_table .userInfo-td').each( function() {
       let data = buffer[ $(this).attr('id') ];
@@ -679,8 +707,7 @@ $(document).ready(function() {
         else if( type=='time' ) inner.val("");
       }
     });
-
-  });
+  }
 
   // function showProfile() {
   //   var target = $('#selected').attr('rel'); //get useridd of current selected user
@@ -726,6 +753,16 @@ $(document).ready(function() {
       // $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
     }
     $(this).find('#td-inner').select();
+  }
+
+  function multiselect_change() {
+    let arr = [];
+    $(this).find('input').each(function() {
+      if( $(this).is(':checked') ) arr.push( $(this).val() );
+    });
+    arr = arr.join(',');
+    $(this).parent().attr("data", arr)
+      .find($('.multiselect-selected-text')).text(arr);
   }
 
   function changeProfile(edit) {
@@ -780,6 +817,7 @@ $(document).ready(function() {
   }
 
   function submitProfile() {
+  console.log(userProfiles[0]);
     if( $('.edit-button:visible').length>0 ) {
       alert('please check all tags change');
     }
@@ -787,7 +825,14 @@ $(document).ready(function() {
       console.log(buffer);
       socket.emit('update profile',buffer);
       $('.modal').modal('hide');
+      for( let i in userProfiles ) {
+        if( userProfiles[i].userId == buffer.userId ) {
+          userProfiles[i] = JSON.parse(JSON.stringify(buffer));
+          break;
+        }
+      }
     }
+
   }
 
 
@@ -799,10 +844,10 @@ $(document).ready(function() {
   });
 
   function toAgentStr(msg, name, time) {
-    return "<p class='message' rel='" + time + "' style='text-align: right;' title='" + toDateStr(time) + "'>" + msg + "<strong> : " + name + toTimeStr(time) + "</strong><br/></p>";
+    return '<p class="message" rel="' + time + '" style="text-align: right;" title="' + toDateStr(time) + '"><span class="content">' + msg + '</span><strong> : <span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
   }
   function toUserStr(msg, name, time) {
-    return "<p class='message' rel='" + time + "' title='" + toDateStr(time) + "'><strong>" + name + toTimeStr(time) + ": </strong>" + msg + "<br/></p>";
+    return '<p class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span class="content">' + msg + '</span><br/></p>';
   }
 
   function toDateStr( input ) {

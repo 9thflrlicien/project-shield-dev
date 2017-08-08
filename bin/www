@@ -126,7 +126,10 @@ bot.on('message', event => {
               let updateObj = {};
               updateObj['/'+prop+'/Messages/'+length] = obj;
               newDBRef.update(updateObj);
-              newDBRef.child(prop).child("Profile").update({unRead: true});
+              newDBRef.child(prop).child("Profile").update({
+                unRead: true,
+                photo: profile.pictureUrl
+              });
               flag = false;
               break;
             }
@@ -679,12 +682,12 @@ io.sockets.on('connection', (socket) => {
             "avgChat": data.avgTime,
             "totalChat": data.totalTime,
             "chatTimeCount": data.chatTimeCount,
-            "recentChat": data.recentTime
-            // "recentChat": data.recentTime,
-            // "平均聊天時間": new Date(data.avgTime).toString(),
-            // "總共聊天時間": new Date(data.totalTime).toString(),
-            // "總共聊天次數": data.chatTimeCount,
-            // "最近聊天時間": new Date(data.recentTime).toString()
+            // "recentChat": data.recentTime
+            "recentChat": data.recentTime,
+            "平均每次聊天時間": data.avgTime,
+            "總共聊天時間": data.totalTime,
+            "聊天次數": data.chatTimeCount,
+            "上次聊天時間": data.recentTime
           });
           break;
         }
