@@ -388,36 +388,44 @@ $(document).ready(function() {
 
   messageForm.submit((e) => {
     e.preventDefault();
-    selectAll();
+    // selectAll();
+    console.log(Date.now());
+    let sendObj = {
+      id: "",
+      msg: messageInput.val(),
+      msgtime: Date.now()
+    };
 
-    if (Array.isArray(designated_user_id)) {
+    if ($( "#user-rooms option:selected" ).val()=='全選') {
       for (let i=0; i < name_list.length;i++) {
-        socket.emit('send message2', {id: name_list[i] , msg: messageInput.val()}, (data) => {
+        sendObj.id = name_list[i];
+        socket.emit('send message2', sendObj , (data) => {
           messageContent.append('<span class="error">' + data + "</span><br/>");
-          console.log('this is designated_user_id[i]');
-          console.log(designated_user_id[i]);
+          console.log('this is name_list[i]');
+          console.log(name_list[i]);
         });//snap=
       };//for
     }
     else {
-      socket.emit('send message2', {id: designated_user_id , msg: messageInput.val()}, (data) => {
+      sendObj.id = $("#user-rooms option:selected").val();
+      socket.emit('send message2', sendObj, (data) => {
         messageContent.append('<span class="error">' + data + "</span><br/>");
       });//socket.emit
 
     }//else
     messageInput.val('');
   });
-
-  function selectAll(){
-    if ($( "#user-rooms option:selected" ).val()=='全選'){
-      designated_user_id = name_list;
-      select = 'true';
-    }
-    else{
-      designated_user_id = $( "#user-rooms option:selected" ).val();
-      select = 'false';
-    }
-  }
+  //
+  // function selectAll(){
+  //   if ($( "#user-rooms option:selected" ).val()=='全選'){
+  //     designated_user_id = name_list;
+  //     select = 'true';
+  //   }
+  //   else{
+  //     designated_user_id = $( "#user-rooms option:selected" ).val();
+  //     select = 'false';
+  //   }
+  // }
 
   // socket.on('usernames', (data) => {    //maybe no use now
   //   var html = '';

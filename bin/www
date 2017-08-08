@@ -804,6 +804,7 @@ io.sockets.on('connection', (socket) => {
         // console.log(data);
         let msg = data.msg.trim();
         agent_sendTo_receiver = data.id.trim();
+        let msg_time = data.msgtime;
         console.log(agent_sendTo_receiver);
         if(socket.nickname !== undefined){
           agent_nickname = socket.nickname;
