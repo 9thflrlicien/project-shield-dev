@@ -52,7 +52,7 @@ $(document).ready(function() {
   if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
     setTimeout(loadMsg, 10);  //load history msg
-    setTimeout(agentName, 300); //enter agent name
+    setTimeout(agentName, 500); //enter agent name
   }
 
   function loadMsg() {
@@ -461,7 +461,9 @@ $(document).ready(function() {
   var buffer;
   function showProfile() {
     var target = $('#selected').attr('rel'); //get useridd of current selected user
-  //  alert(target) ;
+    var table = $('.userInfo-td') ;
+    //  alert(target) ;
+    for(let i in table){table.eq(i).html('');}//clear table
     if(target === undefined){
       $('#userInfo-submit').hide();
       $('.modal-title').eq(0).html('No user selected!');
@@ -473,11 +475,10 @@ $(document).ready(function() {
     var Th = $('.userInfo-th') ;
     var Td = $('.userInfo-td') ;
     var but = $('.edit-button');
-    for(let i in data){alert(i+':'+data[i]);}
+  //  for(let i in data){alert(i+':'+data[i]);}
     for(let i in but){but.eq(i).hide();} //hide all yes/no buttons
     for(let i in Th ){Th.eq(i).text(Th.eq(i).attr('id')+' : ') ;}
     $('.modal-title').html(data.nickname);
-    buffer = {} ;
     buffer = data ;  //storage profile in buffer zone
     for(let j in Td){
       for(let key in data ){

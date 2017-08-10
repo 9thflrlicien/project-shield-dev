@@ -292,7 +292,10 @@ bot.on('message', event => {
           request.on('response', function(response) {
             let action = response.result.action ;
             let speech = response.result.fulfillment.messages[0].speech ;
+
             if(action != 'input.unknown'){
+              msgObj.owner = 'agent';
+              msgObj.name = 'api.ai';
               if(action == 'input.welcome'||action == 'timeGreeting'){
                 obj.message = '已接收選項'+"購買方案, "+"服務時段, "+'問卷調查';
                 emitIO_and_pushDB(msgObj);
@@ -352,10 +355,6 @@ bot.on('message', event => {
                 let type = response.result.fulfillment.messages[1].speech ;
                 console.log(type);
                 if(type == 'start'){
-                  msgObj.message = '詢問客戶資料（性別）';
-                  msgObj.owner = 'agent';
-                  msgObj.name = 'api.ai';
-                  emitIO_and_pushDB(msgObj);
                   event.reply({
                     "type": "template",
                     "altText": "問券調查part1",
@@ -374,11 +373,11 @@ bot.on('message', event => {
                       }]
                     }
                   });
+                  msgObj.message = '詢問客戶資料（性別）';
+                  emitIO_and_pushDB(msgObj);
                 }
                 else if(type == 'gender'){
                   msgObj.message = '詢問客戶資料（居住地）';
-                  msgObj.owner = 'agent';
-                  msgObj.name = 'api.ai';
                   emitIO_and_pushDB(msgObj);
                   event.reply({
                     "type": "template",
@@ -410,8 +409,6 @@ bot.on('message', event => {
                 }
                 else if(type == 'place'){
                   msgObj.message = '詢問客戶資料（年齡層）';
-                  msgObj.owner = 'agent';
-                  msgObj.name = 'api.ai';
                   emitIO_and_pushDB(msgObj);
                   event.reply({
                     "type": "template",
@@ -466,13 +463,298 @@ bot.on('message', event => {
                 }
                 else if(type == 'age'){
                   msgObj.message = response.result.fulfillment.messages[2].speech ;
-                  msgObj.owner = 'agent';
-                  msgObj.name = 'api.ai';
                   emitIO_and_pushDB(msgObj);
                   //bot.push(obj.id,msgObj.message);
                   event.reply({ type: 'text', text: msgObj.message });
                   return ;
                 }
+              }
+              if(action == 'tinistart.faq'){
+                let type = speech ;
+                let content = '';
+                let incomplete = response.result.actionIncomplete ;
+                //console.log(incomplete+","+speech) ;
+                if(incomplete){
+                  msgObj.message = speech;
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({ type: 'text', text: speech });
+                }
+                else if(type == 'principal'){
+                  msgObj.message = "關於負責人";
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "關於負責人",
+                    "template": {
+                      "type": "buttons",
+                      "title": "關於負責人",
+                      "text": "以下是有關資本額的常見問題",
+                      "actions": [{
+                        "type": "message",
+                        "label": "請問什麼樣的人可以擔任負責人?",
+                        "text": "請問什麼樣的人可以擔任負責人?"
+                      }]
+                    }
+                  });
+                }
+                else if(type == 'money'){
+                  msgObj.message = '關於資本額';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "關於資本額",
+                    "template": {
+                      "type": "buttons",
+                      "title": "關於資本額",
+                      "text": "以下是有關資本額的常見問題",
+                      "actions": [{
+                        "type": "message",
+                        "label": "公司的資本額有最低限制嗎",
+                        "text": "公司的資本額有最低限制嗎?"
+                      },{
+                        "type": "message",
+                        "label": "資本額要在銀行放多久才能用",
+                        "text": "資本額要在銀行放多久才能用?"
+                      },{
+                        "type": "message",
+                        "label": "資本額一定要經過會計師簽證查核嗎",
+                        "text": "資本額一定要經過會計師簽證查核嗎?"
+                      },{
+                        "type": "message",
+                        "label": "我能請人代做資本額嗎",
+                        "text": "我能請人代做資本額嗎?"
+                      }]
+                    }
+                  });
+                }
+                else if(type == 'servies'){
+                  msgObj.message = '關於附加服務';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "關於附加服務",
+                    "template": {
+                      "type": "buttons",
+                      "title": "關於附加服務",
+                      "text": "以下是有關附加服務的常見問題",
+                      "actions": [{
+                        "type": "message",
+                        "label": "什麼是商務中心",
+                        "text": "什麼是商務中心?"
+                      },{
+                        "type": "message",
+                        "label": "商務中心可以提供什麼服務",
+                        "text": "商務中心可以提供什麼服務?"
+                      },{
+                        "type": "message",
+                        "label": "App製作是怎麼樣的服務",
+                        "text": "App製作是怎麼樣的服務?"
+                      },{
+                        "type": "message",
+                        "label": "什麼樣的人適合使用商務中心",
+                        "text": "什麼樣的人適合使用商務中心?"
+                      }]
+                    }
+                  });
+                }
+                else if(type == 'bank'){
+                  msgObj.message = '關於銀行帳戶';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "關於銀行帳戶",
+                    "template": {
+                      "type": "buttons",
+                      "title": "關於銀行帳戶",
+                      "text": "以下是有關銀行帳戶的常見問題",
+                      "actions": [{
+                        "type": "message",
+                        "label": "如何挑選辦理的銀行",
+                        "text": "如何挑選辦理的銀行?"
+                      },{
+                        "type": "message",
+                        "label": "如何將公司籌備處帳戶變成正式帳戶",
+                        "text": "如何將公司籌備處帳戶變成正式帳戶?"
+                      },{
+                        "type": "message",
+                        "label": "我可以在不同銀行開設公司銀行帳戶嗎",
+                        "text": "我可以在不同銀行開設公司銀行帳戶嗎?"
+                      }]
+                    }
+                  });
+                }
+                else if(type == 'starting'){
+                  msgObj.message = '關於公司設立';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "關於公司設立",
+                    "template": {
+                      "type": "buttons",
+                      "title": "關於公司設立",
+                      "text": "以下是有關公司設立的常見問題",
+                      "actions": [{
+                        "type": "message",
+                        "label": "印章不見時要準備的切結聲明有什麼要注意的",
+                        "text": "印章不見時要準備的切結聲明有什麼要注意的?"
+                      },{
+                        "type": "message",
+                        "label": "我可以不設立公司或行號就開始營業嗎",
+                        "text": "我可以不設立公司或行號就開始營業嗎?"
+                      },{
+                        "type": "message",
+                        "label": "當我在使用名稱預查輔助時發現我想用的公司名稱已經有人使用，但是是處於解散、撤銷或廢止登記的狀態，那樣的話我能用那個名字嗎",
+                        "text": "當我在使用名稱預查輔助時發現我想用的公司名稱已經有人使用，但是是處於解散、撤銷或廢止登記的狀態，那樣的話我能用那個名字嗎?"
+                      },{
+                        "type": "message",
+                        "label": "如果是想開小吃店或是小店面還需要花大錢設立公司嗎?",
+                        "text": "如果是想開小吃店或是小店面還需要花大錢設立公司嗎?"
+                      },{
+                        "type": "message",
+                        "label": "請問我需要準備些什麼東西?",
+                        "text": "請問我需要準備些什麼東西?"
+                      },{
+                        "type": "message",
+                        "label": "沒有建物所有權狀的話要怎麼辦?",
+                        "text": "沒有建物所有權狀的話要怎麼辦?"
+                      },{
+                        "type": "message",
+                        "label": "如果公司大小章不見的話要怎麼處理?",
+                        "text": "如果公司大小章不見的話要怎麼處理?"
+                      },{
+                        "type": "message",
+                        "label": "外國人在台灣設立公司時的步驟有什麼不同?",
+                        "text": "外國人在台灣設立公司時的步驟有什麼不同?"
+                      },{
+                        "type": "message",
+                        "label": "公司申請要用的文件和資料要怎樣交給你們?",
+                        "text": "公司申請要用的文件和資料要怎樣交給你們?"
+                      },{
+                        "type": "message",
+                        "label": "我要怎麼知道我該設立有限公司還是股份有限公司?",
+                        "text": "我要怎麼知道我該設立有限公司還是股份有限公司?"
+                      },{
+                        "type": "message",
+                        "label": "營業項目要設多少個?有限制嗎?",
+                        "text": "營業項目要設多少個?有限制嗎?"
+                      }]
+                    }
+                  });
+                }
+                else if(type == 'business'){
+                  msgObj.message = '關於營業項目';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "關於營業項目",
+                    "template": {
+                      "type": "buttons",
+                      "title": "關於營業項目",
+                      "text": "以下是有關營業項目的常見問題",
+                      "actions": [{
+                        "type": "message",
+                        "label": "什麼是特許營業項目",
+                        "text": "什麼是特許營業項目?"
+                      },{
+                        "type": "message",
+                        "label": "我能自行增加製造產品的項目嗎",
+                        "text": "我能自行增加製造產品的項目嗎?"
+                      }]
+                    }
+                  });
+                }
+                else if(type == 'price'){
+                  msgObj.message = '關於營業項目';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "關於價格方案",
+                    "template": {
+                      "type": "buttons",
+                      "title": "關於價格方案",
+                      "text": "以下是有關價格方案的常見問題",
+                      "actions": [{
+                        "type": "message",
+                        "label": "為什麼營業項目有特許營業項目時要另外計算費用?",
+                        "text": "為什麼營業項目有特許營業項目時要另外計算費用?"
+                      },{
+                        "type": "message",
+                        "label": "兩個方案差別在哪?",
+                        "text": "兩個方案差別在哪?"
+                      }]
+                    }
+                  });
+                }
+                else if(type == 'insurance'){
+                  msgObj.message = '關於勞健保';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "關於勞健保",
+                    "template": {
+                      "type": "buttons",
+                      "title": "關於勞健保",
+                      "text": "以下是有關勞健保的常見問題",
+                      "actions": [{
+                        "type": "message",
+                        "label": "我的員工很少，我能不幫他們投保勞健保嗎?",
+                        "text": "我的員工很少，我能不幫他們投保勞健保嗎?"
+                      },{
+                        "type": "message",
+                        "label": "我是負責人，我要怎麼投勞保?",
+                        "text": "我是負責人，我要怎麼投勞保?"
+                      },{
+                        "type": "message",
+                        "label": "我是負責人，我要怎麼投健保?",
+                        "text": "我是負責人，我要怎麼投健保?"
+                      },{
+                        "type": "message",
+                        "label": "負責人如果現在加保勞健保到自己公司會被追繳勞健保嗎?",
+                        "text": "負責人如果現在加保勞健保到自己公司會被追繳勞健保嗎?"
+                      }]
+                    }
+                  });
+                }
+                else if(type == 'other'){
+                  msgObj.message = '常見問題';
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({
+                    "type": "template",
+                    "altText": "常見問題",
+                    "template": {
+                      "type": "buttons",
+                      "title": "常見問題",
+                      "text": "以下是其他常見問題",
+                      "actions": [{
+                        "type": "message",
+                        "label": "請問貴公司的提供服務的區域有哪些?",
+                        "text": "請問貴公司的提供服務的區域有哪些?"
+                      },{
+                        "type": "message",
+                        "label": "請問貴公司的服務時間?",
+                        "text": "請問貴公司的服務時間?"
+                      },{
+                        "type": "message",
+                        "label": "你們怎麼幫我們進行客服代理的服務?",
+                        "text": "你們怎麼幫我們進行客服代理的服務?"
+                      },{
+                        "type": "message",
+                        "label": "我要怎麼向你們付費並取得正式文件?",
+                        "text": "我要怎麼向你們付費並取得正式文件?"
+                      },{
+                        "type": "message",
+                        "label": "我可以不用統一發票嗎?",
+                        "text": "我可以不用統一發票嗎?"
+                      }]
+                    }
+                  });
+                }
+                else{
+                  msgObj.message = speech;
+                  emitIO_and_pushDB(msgObj);
+                  event.reply({ type: 'text', text: speech });
+                }
+                return ;
               }
               console.log(speech);
               obj.owner = 'agent';
@@ -481,7 +763,7 @@ bot.on('message', event => {
               emitIO_and_pushDB(obj) ;
               console.log('api.ai:')
               console.log(obj);
-              bot.push(obj.id,obj.message);
+              bot.push({ type: 'text', text: speech });
             }else{console.log(action);}
 
           });

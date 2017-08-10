@@ -6311,6 +6311,313 @@
         "time": 1502160570042,
         "message": "謝謝你告訴我關於你的事><",
         "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "agentWarren",
+        "time": 1502169279949,
+        "message": "?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502186200884,
+        "message": "嗨"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502186200884,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502186200884,
+        "message": "嘿！ 好久不見！",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502186211789,
+        "message": "可以問你問題嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502186211789,
+        "message": "",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502186380627,
+        "message": "可以問你問題嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502186380627,
+        "message": "",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502186510401,
+        "message": "可以問你問題嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502186510401,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502327809450,
+        "message": "可以問你問題嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502327809450,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502327896406,
+        "message": "負責人相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502327896406,
+        "message": "principal",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502329169118,
+        "message": "可以問你問題嗎?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502329188211,
+        "message": "負責人相關"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502329205795,
+        "message": "需要資本額嗎"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502329262560,
+        "message": "需要資本額嗎?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502329283465,
+        "message": "需要資本額嗎?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502329302979,
+        "message": "公司的資本額有最低限制嗎?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502330496762,
+        "message": "附加服務相關"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502330511099,
+        "message": "附加服務相關問題"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502330523835,
+        "message": "商務中心可以提供什麼服務?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502330615822,
+        "message": "什麼樣的人適合使用商務中心?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502330856506,
+        "message": "商務中心可以提供什麼服務?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502331579474,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502331579474,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502331579474,
+        "message": "嘿！",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502331630466,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502331630466,
+        "message": "詢問客戶資料（性別）",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502331630466,
+        "message": "我們來聊聊你>_O",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502331704366,
+        "message": "性別：男性"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502331765900,
+        "message": "我有問題"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502331778450,
+        "message": "我想問問題"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502331840101,
+        "message": "可以問你問題嗎"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502331840101,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502331867874,
+        "message": "負責人相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502331867874,
+        "message": "需要年滿二十歲或是未成年卻已結婚 這樣具有行為能力的人才能擔任負責人 ，不過，公司負責人不能有公務人員的身分。",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502332613579,
+        "message": "銀行設立相關"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502333895728,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333895728,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333895728,
+        "message": "你好！",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502333996567,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333996567,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333996567,
+        "message": "嘿！歡迎你回來。",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502334007437,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502334007437,
+        "message": "詢問客戶資料（性別）",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502334007437,
+        "message": "可以告訴我關於你的事嗎><",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
       }
     ]
   },
@@ -6332,6 +6639,458 @@
         "name": "l",
         "time": 1501555900002,
         "message": "ok"
+      }
+    ]
+  },
+  {
+    "Profile": {
+      "nickname": "Arigatou 智傑",
+      "userId": "U27a1947cb269b678caa8e882898d4287",
+      "age": -1,
+      "telephone": "",
+      "address": "",
+      "firstChat": 1502172024854,
+      "recentChat": 1502172024854,
+      "totalChat": 1,
+      "avgChat": 1
+    },
+    "Messages": [
+      {
+        "owner": "user",
+        "name": "Arigatou 智傑",
+        "time": 1502172024854,
+        "message": "Hi"
+      },
+      {
+        "owner": "user",
+        "name": "Arigatou 智傑",
+        "time": 1502172024854,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U27a1947cb269b678caa8e882898d4287"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502172024854,
+        "message": "歡迎歸來",
+        "id": "U27a1947cb269b678caa8e882898d4287"
+      },
+      {
+        "owner": "user",
+        "name": "Arigatou 智傑",
+        "time": 1502172039599,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502172039599,
+        "message": "詢問客戶資料（性別）",
+        "id": "U27a1947cb269b678caa8e882898d4287"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502172039599,
+        "message": "我們來聊聊你>_O",
+        "id": "U27a1947cb269b678caa8e882898d4287"
+      },
+      {
+        "owner": "user",
+        "name": "Arigatou 智傑",
+        "time": 1502172100379,
+        "message": "性別：男"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502172100379,
+        "message": "詢問客戶資料（居住地）",
+        "id": "U27a1947cb269b678caa8e882898d4287"
+      },
+      {
+        "owner": "user",
+        "name": "Arigatou 智傑",
+        "time": 1502172106951,
+        "message": "地區：南部"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502172106951,
+        "message": "詢問客戶資料（年齡層）",
+        "id": "U27a1947cb269b678caa8e882898d4287"
+      },
+      {
+        "owner": "user",
+        "name": "Arigatou 智傑",
+        "time": 1502172116254,
+        "message": "年齡：65以上"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502172116254,
+        "message": "謝謝您的配合~~",
+        "id": "U27a1947cb269b678caa8e882898d4287"
+      }
+    ]
+  },
+  {
+    "Profile": {
+      "nickname": "Mo",
+      "userId": "U4f1fe793443af6ff20c5ce3bd4aa8f68",
+      "age": -1,
+      "telephone": "",
+      "address": "",
+      "firstChat": 1502332958931,
+      "recentChat": 1502332958931,
+      "totalChat": 1,
+      "avgChat": 1
+    },
+    "Messages": [
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502332958931,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502332958931,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502332958931,
+        "message": "嘿！歡迎你回來。",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502332983239,
+        "message": "我想問你問題"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333017584,
+        "message": "我想問問題"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333035578,
+        "message": "可以問你問題嗎"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333035578,
+        "message": "想知道什麼呢?",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333045129,
+        "message": "負責人相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333045129,
+        "message": "需要年滿二十歲或是未成年卻已結婚 這樣具有行為能力的人才能擔任負責人 ，不過，公司負責人不能有公務人員的身分。",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333056581,
+        "message": "銀行相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333056581,
+        "message": "關於銀行帳戶",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333078445,
+        "message": "你好"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333078445,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333078445,
+        "message": "歡迎歸來",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333086587,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333086587,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333086587,
+        "message": "你好！",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333133806,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333133806,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333133806,
+        "message": "嘿！歡迎你回來。",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333142548,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333142548,
+        "message": "詢問客戶資料（性別）",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333142548,
+        "message": "可以告訴我關於你的事嗎><",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333153549,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333188572,
+        "message": "你好"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333188572,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333188572,
+        "message": "嘿！ 好久不見！",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333206485,
+        "message": "嗨啦"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333206485,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333206485,
+        "message": "嘿！",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333240558,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333240558,
+        "message": "詢問客戶資料（性別）",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333240558,
+        "message": "跟我說說你的事吧~~",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333357824,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333357824,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333357824,
+        "message": "你好！",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333365340,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333365340,
+        "message": "詢問客戶資料（性別）",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333365340,
+        "message": "可以告訴我關於你的事嗎><",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333423667,
+        "message": "服務時段"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333423667,
+        "message": "我們的服務時如下:\n「0700~1100」 \n 「1100~1500」 \n 「1500~1900」 \n 「1900~2300」 \n 兩個時段必須是「連續的」 \n 「0700~1100」及「1100~1500」 \n 「1100~1500」及「1500~1900」 \n 「1500~1900」及「1900~2300」。",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333432244,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333432244,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333432244,
+        "message": "嘿！",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333437821,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333437821,
+        "message": "詢問客戶資料（性別）",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333437821,
+        "message": "可以告訴我關於你的事嗎><",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333465489,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333465489,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333465489,
+        "message": "嘿！ 好久不見！",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      },
+      {
+        "owner": "user",
+        "name": "Mo",
+        "time": 1502333474352,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502333474352,
+        "message": "我們來聊聊你>_O",
+        "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
       }
     ]
   }
