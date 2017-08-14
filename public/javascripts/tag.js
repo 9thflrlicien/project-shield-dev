@@ -28,7 +28,12 @@ $(document).ready(function() {
 
       // if( modify=="false" ) tagTableBody.find(".tag-delete:last").text("cant delete");
       // else
-      tagTableBody.find(".tag-delete:last").html('<button class="tag-delete-btn">delete</button>');
+      if( modify=="true" ) tagTableBody.find(".tag-delete:last").html('<button class="tag-delete-btn">delete</button>');
+      else {
+        tagTableBody.find(".tag-delete:last").html('<input type="checkbox">VISIBLE</input>')
+        if( data[i].visible == true) tagTableBody.find(".tag-delete:last input").prop('checked', "checked");
+        else tagTableBody.find(".tag-delete:last input").prop('checked', false);
+      }
     }
   });
 
@@ -88,8 +93,8 @@ $(document).ready(function() {
     tagTableBody.find('tr').each(function() {
       let name = $(this).find('.tag-name').text();
       let type = $(this).find('.tag-option').val();
-      let set = $(this).find('.tag-set-td').find('#set'+toTypeValue(type)).val();
       let modify = $(this).find('.tag-modify').text();
+      let set = $(this).find('.tag-set-td').find('#set'+toTypeValue(type)).val();
       if( type.indexOf('select')!=-1  ) { //seperate options
         set = set.split('\n');
       }
@@ -99,6 +104,7 @@ $(document).ready(function() {
         set: set,
         modify: modify
       };
+      if( modify=="false" ) nowObj['visible'] = $(this).find('.tag-delete input').prop('checked');
       sendObj.push(nowObj);
     });
     console.log(sendObj);
