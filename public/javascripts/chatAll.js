@@ -475,7 +475,7 @@ $(document).ready(function() {
     var Th = $('.userInfo-th') ;
     var Td = $('.userInfo-td') ;
     var but = $('.edit-button');
-  //  for(let i in data){alert(i+':'+data[i]);}
+    //for(let i in data){alert(i+':'+data[i]);}
     for(let i in but){but.eq(i).hide();} //hide all yes/no buttons
     for(let i in Th ){Th.eq(i).text(Th.eq(i).attr('id')+' : ') ;}
     $('.modal-title').html(data.nickname);
@@ -530,6 +530,16 @@ $(document).ready(function() {
       socket.emit('update profile',buffer);
     }else{}
   }
+
+  //test
+  $('#test-submit').click(function () {
+    alert("qq");
+    let obj={};
+    obj.title = $('#test-input-1').val();
+    obj.text = $("#test-input-2").val();
+    socket.emit('send template',obj);
+    alert(obj);
+  });
 
   /*to receive other profile data go to chat All.ejs
   add tr/th/td whose id should be the profile data you want to add*/

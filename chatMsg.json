@@ -6618,6 +6618,721 @@
         "time": 1502334007437,
         "message": "可以告訴我關於你的事嗎><",
         "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342367794,
+        "message": "我想問問題"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342401229,
+        "message": "我可以請教一些事嗎"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342442371,
+        "message": "我想知道一些事"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342471989,
+        "message": "我想問關於設立公司的事"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342504582,
+        "message": "我想知道一些關於成立公司的事"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342537215,
+        "message": "我想知道一些關於成立公司的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502342537215,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342552355,
+        "message": "我想知道一些關於成立公司的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502342552355,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342652802,
+        "message": "我想問一些問題"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342679669,
+        "message": "我想問一些問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502342679669,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342692499,
+        "message": "關於公司設立"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502342692499,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342735011,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502342735011,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502342735011,
+        "message": "嘿！ 好久不見！",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342838354,
+        "message": "購買方案"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502342838354,
+        "message": "已接收購買方案4小時方案  8小時方案  16小時方案  ",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502342909942,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502342909942,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502342909942,
+        "message": "你好！",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343014529,
+        "message": "我想問個問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343014529,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343036098,
+        "message": "關於公司設立"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343036098,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343079748,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343079748,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343079748,
+        "message": "嘿！ 好久不見！",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343198014,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343198014,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343198014,
+        "message": "你好！",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343243979,
+        "message": "我想問個問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343243979,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343243979,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343256062,
+        "message": "公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343256062,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343256062,
+        "message": "starting",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343420112,
+        "message": "負責人相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343420112,
+        "message": "關於負責人",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343420112,
+        "message": "principal",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343452119,
+        "message": "需要多少資本額呢?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343513521,
+        "message": "需要多少資本額呢?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343513521,
+        "message": "關於資本額",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343513521,
+        "message": "money",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343530050,
+        "message": "有甚麼附加服務"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343563154,
+        "message": "有甚麼附加服務"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343563154,
+        "message": "關於附加服務",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343563154,
+        "message": "servies",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502343603506,
+        "message": "要怎麼設立公司"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343603506,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502343603506,
+        "message": "starting",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502344188257,
+        "message": "要怎麼設立公司"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502344188257,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502344188257,
+        "message": "starting",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502344223959,
+        "message": "我想問問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502344223959,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502344223959,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502344239467,
+        "message": "營業項目"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502344239467,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502344239467,
+        "message": "starting",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502344720343,
+        "message": "要怎麼設立公司"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502344720343,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502759997060,
+        "message": "你好"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502759997060,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502759997060,
+        "message": "嘿！",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760117696,
+        "message": "購買方案"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502760117696,
+        "message": "已接收購買方案4小時方案  8小時方案  16小時方案  ",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760124933,
+        "message": "8小時方案"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502760124933,
+        "message": "8小時方案   21,888 元   8小時方案/每天   $21,888每月",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760144487,
+        "message": "我想問問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502760144487,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760154450,
+        "message": "關於負責人"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502760154450,
+        "message": "關於負責人",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760159701,
+        "message": "請問什麼樣的人可以擔任負責人?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502760159701,
+        "message": "需要年滿二十歲或是未成年卻已結婚 這樣具有行為能力的人才能擔任負責人 ，不過，公司負責人不能有公務人員的身分。",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760376524,
+        "message": "請問設立公司的資本額要多少呢"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760506722,
+        "message": "請問設立公司的資本額要多少呢"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502760506722,
+        "message": "關於資本額",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760544122,
+        "message": "請問你們有什麼附加服務？"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760595078,
+        "message": "我想問有關附加服務的問題"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760700090,
+        "message": "我想問有關資本額的問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502760700090,
+        "message": "關於資本額",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502760769679,
+        "message": "我想知道有關公司設立的相關問題"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502761105069,
+        "message": "我想知道有關公司設立的問題"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502761178290,
+        "message": "我想知道有關公司設立的問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502761178290,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502761221629,
+        "message": "營業項目要設多少個?有限制嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502761221629,
+        "message": "營業項目的數量本身並沒有限制，不過通常數量大概7~15個左右，但建議不要包山包海什麼都包的寫一大堆，不然如果在報稅的時候採用\"書審\"的方式，您要繳的\"營所稅\"的金額就會被影響。 另外，有些營業項目是\"特許營業項目\"，是需要在公司設立的前或後取得許可的特許行業，申請的流程會比較麻煩，因此為避免公司設立的流程變得複雜冗長，所以除非有需要，不然還是不要申請會比較好。",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "agentWarren",
+        "time": 1502761252793,
+        "message": "嗨"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502766529609,
+        "message": "我想詢問營業項目相關"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502773373505,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773373505,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773373505,
+        "message": "歡迎歸來",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502773437116,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773437116,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773437116,
+        "message": "嘿！歡迎你回來。",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502773445470,
+        "message": "我想問問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773445470,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502773453537,
+        "message": "公司設立"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773453537,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502773465778,
+        "message": "我要怎麼知道我該設立有限公司還是股份有限公司?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773465778,
+        "message": "如果您的團隊人數較少、股份較平均，同時也沒有\"投資人\"、\"小股東\"之類的成員的話建議可以設立為有限公司，因為成立有限公司具有規定單純、手續快、名稱的保護範圍為全國、股東責任���\"以出資額為限\"的特性，因此就算之後有投資人要入股時要做變更時,要改變成股份有限公司也比較方便。 而如果您的團隊人數多、股東人數較多且股份大小不一或是已有投資人的話則建議設立為股份有限公司，不過要注意的是設立時要找好三個懂事、一個監察人(四個是不是股東都可)。另外，設立後一年內所發起的股東股份不得轉讓。",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502773880704,
+        "message": "可以問你問題嗎"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773880704,
+        "message": "想知道什麼呢?",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502773893987,
+        "message": "關於公司設立"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773893987,
+        "message": "關於公司設立",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502773898505,
+        "message": "想用的公司名稱已經有人使用，但是是處於解散、撤銷或廢止登記的狀態，那樣的話我能用那個名字嗎?"
+      },
+      {
+        "owner": "user",
+        "name": "方偉綸",
+        "time": 1502773907771,
+        "message": "我可以不設立公司或行號就開始營業嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502773907771,
+        "message": "雖然不建議這麼做，但其實還是有很多人都這樣做，只是想這麼做的話就不能被國稅局發現，被檢舉抓到的話檢舉人還有獎金(罰金的20%)可以領，所以申請合法營業會比較好喔。",
+        "id": "U266c4cf0e583977869e75781deed2dd1"
       }
     ]
   },
@@ -7091,6 +7806,1671 @@
         "time": 1502333474352,
         "message": "我們來聊聊你>_O",
         "id": "U4f1fe793443af6ff20c5ce3bd4aa8f68"
+      }
+    ]
+  },
+  {
+    "Profile": {
+      "nickname": "Weilun Fong",
+      "userId": "U2d08135234f5fbf17c7371b1a27e6b32",
+      "age": -1,
+      "telephone": "",
+      "address": "",
+      "firstChat": 1502345934861,
+      "recentChat": 1502345934861,
+      "totalChat": 1,
+      "avgChat": 1
+    },
+    "Messages": [
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502345934861,
+        "message": "嗨\n"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502345934861,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502345934861,
+        "message": "嘿！ 好久不見！",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502345949593,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502345949593,
+        "message": "詢問客戶資料（性別）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502345949593,
+        "message": "我們來聊聊你>_O",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502345956165,
+        "message": "性別：男"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502345956165,
+        "message": "詢問客戶資料（居住地）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502345974096,
+        "message": "地區：北部"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346046238,
+        "message": "地區：中部"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346059675,
+        "message": "性別：女"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346072198,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346072198,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346072198,
+        "message": "嘿！",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346079230,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346079230,
+        "message": "詢問客戶資料（性別）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346079230,
+        "message": "我們來聊聊你>_O",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346092944,
+        "message": "性別：男"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346092944,
+        "message": "詢問客戶資料（居住地）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346100235,
+        "message": "地區：中部"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346229498,
+        "message": "您好"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346238850,
+        "message": "你好"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346238850,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346238850,
+        "message": "嘿！ 好久不見！",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346522264,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346522264,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346522264,
+        "message": "歡迎歸來",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346554390,
+        "message": "你好"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346554390,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346554390,
+        "message": "嘿！ 好久不見！",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346716288,
+        "message": "你好"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346716288,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346716288,
+        "message": "你好！",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346725364,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346725364,
+        "message": "詢問客戶資料（性別）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346725364,
+        "message": "我們來聊聊你>_O",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346735545,
+        "message": "性別：女"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346735545,
+        "message": "詢問客戶資料（居住地）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346743319,
+        "message": "地區：中部"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346743319,
+        "message": "詢問客戶資料（年齡層）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346755612,
+        "message": "年齡：31-40"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346755612,
+        "message": "感謝您填寫問卷!",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346775198,
+        "message": "我有問題想問"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346826787,
+        "message": "我有問題想問"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346826787,
+        "message": "想知道什麼呢?",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346842864,
+        "message": "公司成立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346842864,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346858375,
+        "message": "負責人"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346871485,
+        "message": "我有問題想知道"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346919467,
+        "message": "我想知道關於負責人的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346919467,
+        "message": "關於負責人",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346931812,
+        "message": "請問什麼樣的人可以擔任負責人?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502346931812,
+        "message": "需要年滿二十歲或是未成年卻已結婚 這樣具有行為能力的人才能擔任負責人 ，不過，公司負責人不能有公務人員的身分。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502346988847,
+        "message": "如何成立公司"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347022317,
+        "message": "我要怎麼投勞保"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347022317,
+        "message": "關於勞健保",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347117906,
+        "message": "我想知道關於銀行帳戶的問題"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347183851,
+        "message": "我想知道關於銀行帳戶的問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347183851,
+        "message": "關於銀行帳戶",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347197662,
+        "message": "我可以在不同銀行開設公司銀行帳戶嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347197662,
+        "message": "可以，因為公司戶和個人戶相似，所以一家公司可以在多家銀行開設帳戶。畢竟有時候也會有業務上或管理上的需要又或者只是使用習慣上的問題。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347255537,
+        "message": "我想知道關於營業的問題"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347302704,
+        "message": "我想知道關於營業的問題"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347336432,
+        "message": "請問有什麼價格方案"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347374350,
+        "message": "我可以問一些問題嗎"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347414758,
+        "message": "我想請教一些事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347414758,
+        "message": "想知道什麼呢?",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347424354,
+        "message": "銀行相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347424354,
+        "message": "關於銀行帳戶",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347444722,
+        "message": "其他問題"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347456637,
+        "message": "我還有其他問題"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347470313,
+        "message": "有什麼附加服務"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347511399,
+        "message": "可以再請教一些事嗎"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347511399,
+        "message": "想知道什麼呢?",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347526140,
+        "message": "附加服務"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347526140,
+        "message": "關於附加服務",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347563965,
+        "message": "我想問關於勞保的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347563965,
+        "message": "關於勞健保",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347607640,
+        "message": "什麼是商務中心?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347607640,
+        "message": "關於附加服務",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347616217,
+        "message": "什麼是商務中心?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347616217,
+        "message": "關於附加服務",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347653414,
+        "message": "什麼是商務中心?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347653414,
+        "message": "關於附加服務",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347771222,
+        "message": "什麼是商務中心?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347771222,
+        "message": "",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502347792602,
+        "message": "商務中心可以提供什麼服務?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502347792602,
+        "message": "基本上商務中心提供的服務有:\n(1)全套辦公設備\n(2)全方面秘書服務\n(3)通訊聯絡登記服務\n(4)會議中心與設備租借\n(5)完善的公商諮詢代辦服務\n(6)法律事務、會計事務所諮詢服務",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502348143700,
+        "message": "什麼是商務中心?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502348143700,
+        "message": "所謂的商務中心就是提供虛擬辦公室獨立辦公位服務、獨立辦公室服務、合租辦公室服務、臨時會議室服務等一系列商務辦公服務，和一般的辦公用的寫字樓不同，商務中心所主打的是即租即用的即時辦公服務。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502348153340,
+        "message": "商務中心可以提供什麼服務?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502348153340,
+        "message": "基本上商務中心提供的服務有:\n(1)全套辦公設備\n(2)全方面秘書服務\n(3)通訊聯絡登記服務\n(4)會議中心與設備租借\n(5)完善的公商諮詢代辦服務\n(6)法律事務、會計事務所諮詢服務",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502348156180,
+        "message": "App製作是怎麼樣的服務?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502348156180,
+        "message": "我們的附加服務中提到的app製作指的是專門為您的公司製作app讓客戶或使用者能隨時隨地使用公司的功能。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502348169096,
+        "message": "什麼樣的人適合使用商務中心?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502348169096,
+        "message": "一般來說，客戶會去尋找商務中心來租用的原因不外乎以下原因:\n(1)自用住宅不適合做營業事業登記\n(2)找不到合法登記地點\n(3)正式的辦公室租金太貴\n(4)公司人員數量不多，不需要使用大空間\n(5)公司剛設立還沒有什麼營收，先登記在商務中心以節省開銷\n(6)房東要節稅，不願意讓房客辦理營利事業登記\n而會去使用商務中心的客戶大多是:\n(1)跨國性海外分公司或辦事處\n(2)新公司或分公司成立 短期辦公空間擴張\n(3)專案性臨時組織\n(4)公司縮小規模\n(5)專業顧問型態小公司",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502348248665,
+        "message": "關於勞保"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502348267231,
+        "message": "我想問問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502348267231,
+        "message": "想知道什麼呢?",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502348289876,
+        "message": "關於勞保"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502348289876,
+        "message": "關於勞健保",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502348334003,
+        "message": "我想知道關於價格的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502348334003,
+        "message": "關於營業項目",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502348696712,
+        "message": "想知道關於公司設立的事"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349184984,
+        "message": "你好"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349184984,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349184984,
+        "message": "嘿！歡迎你回來。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349238535,
+        "message": "我想問問"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349304947,
+        "message": "我想問問"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349304947,
+        "message": "想知道什麼呢?",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349319224,
+        "message": "公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349319224,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349386945,
+        "message": "我要怎麼投勞保"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349386945,
+        "message": "關於勞健保",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349485036,
+        "message": "我想問問\n"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349485036,
+        "message": "想知道什麼呢?",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349495704,
+        "message": "關於價格"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349495704,
+        "message": "關於價格方案",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349505333,
+        "message": "為什麼營業項目有特許營業項目時要另外計算費用?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349505333,
+        "message": "由於特許營業項目每種所需要的規費、申請的流程都不一樣，因此我們在遇到有特許營業項目的業務時會視業務情況另作收費。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349513755,
+        "message": "兩個方案差別在哪?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349513755,
+        "message": "沒有提供附加服務的方案僅僅只是為您處理設立公司的流程，若使用有附加服務的方案的話，我們所提供的服務能為您解決包括公司設立在內，幾乎所有在您創業時可能會用上的服務方面的問題。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349526467,
+        "message": "我想知道"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349542807,
+        "message": "我想知道關於勞保"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349574222,
+        "message": "我想知道關於勞保"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349574222,
+        "message": "關於勞健保",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349620062,
+        "message": "什麼是特許營業項目"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349620062,
+        "message": "關於營業項目",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349627608,
+        "message": "什麼是特許營業項目?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349627608,
+        "message": "關於營業項目",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349674827,
+        "message": "什麼是特許營業項目?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349674827,
+        "message": "所謂的特許營業項目和一般的營業項目不同，是必須經過須經過政府許可並領得許可文件後，才能申請公司的業務項目。簡單來說就是想要營業那些特許營業項目的內容中提到的東西就必須獲得政府的許可才行。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349681576,
+        "message": "我能自行增加製造產品的項目嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349681576,
+        "message": "不可以，在公司法第18條之函釋內容有提到按公司法第18條前段規定，公司名稱及業務，於公司登記前應先經核准，並保留一定期間。準此，公司登記時，登記表及公司章程應以預查核准之所營事業為準，尚不得自行加註製造產品項目。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349719641,
+        "message": "關於公司設立"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349741623,
+        "message": "想知道關於公司設立的事"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349804858,
+        "message": "想知道關於公司設立的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349804858,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502349890280,
+        "message": "想知道關於公司設立的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502349890280,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502350093744,
+        "message": "想知道關於公司設立的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502350093744,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502350111389,
+        "message": "告訴我拜託QQ"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502350217283,
+        "message": "想知道關於公司設立的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502350217283,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502350632574,
+        "message": "想知道關於公司設立的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502350632574,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502351419704,
+        "message": "想知道關於公司設立的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502351419704,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502351510272,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502351532444,
+        "message": "想知道公司設立的事"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502351575982,
+        "message": "想知道公司設立的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502351575982,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502351716504,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502351716504,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502351755481,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502351755481,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502352440956,
+        "message": "年齡：65以上"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353024590,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353024590,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353058824,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353058824,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353119014,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353119014,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353159252,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353159252,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353179557,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353179557,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353207643,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353207643,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353226559,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353226559,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353273474,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353273474,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353314866,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353314866,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353369223,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353369223,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353412503,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353412503,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353613034,
+        "message": "想知道公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353613034,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353639169,
+        "message": "沒有建物所有權狀的話要怎麼辦?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353639169,
+        "message": "可以用最近一期的房屋稅單影本代替，要有戳章頁。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353648819,
+        "message": "請問我需要準備些什麼東西?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353648819,
+        "message": "開設公司所需要準備的東西我們會另行通知，或者可以去參考我們的部落格。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353656229,
+        "message": "當我在使用名稱預查輔助時發現我想用的公司名稱已經有人使用，但是是處於解散、撤銷或廢止登記的狀態，那樣的話我能用那個名字嗎?"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353748005,
+        "message": "我可以不設立公司或行號就開始營業嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353748005,
+        "message": "雖然不建議這麼做，但其實還是有很多人都這樣做，只是想這麼做的話就不能被國稅局發現，被檢舉抓到的話檢舉人還有獎金(罰金的20%)可以領，所以申請合法營業會比較好喔。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353764644,
+        "message": "請問我需要準備些什麼東西?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502353764644,
+        "message": "開設公司所需要準備的東西我們會另行通知，或者可以去參考我們的部落格。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502353773603,
+        "message": "當我在使用名稱預查輔助時發現我想用的公司名稱已經有人使用，但是是處於解散、撤銷或廢止登記的狀態，那樣的話我能用那個名字嗎?"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354026496,
+        "message": "公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354026496,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354039101,
+        "message": "想用的公司名稱已經有人使用，但是是處於解散、撤銷或廢止登記的狀態，那樣的話我能用那個名字嗎?"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354046652,
+        "message": "我可以不設立公司或行號就開始營業嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354046652,
+        "message": "雖然不建議這麼做，但其實還是有很多人都這樣做，只是想這麼做的話就不能被國稅局發現，被檢舉抓到的話檢舉人還有獎金(罰金的20%)可以領，所以申請合法營業會比較好喔。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354053145,
+        "message": "印章不見時要準備的切結聲明有什麼要注意的?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354053145,
+        "message": "怕丟失的印章會被拿來做不好的事情的話可以去經濟部中部辦公室的網站或是各市政府的網站下載表單，在送去市政府那便辦理印鑑遺失。 經濟部中部辦公室印鑑遺失切結書相關表單下載",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354072216,
+        "message": "如果是想開小吃店或是小店面還需要花大錢設立公司嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354072216,
+        "message": "並不用，只需要設立行號即可讓您合法開店，安心地做生意。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354081515,
+        "message": "請問我需要準備些什麼東西?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354081515,
+        "message": "開設公司所需要準備的東西我們會另行通知，或者可以去參考我們的部落格。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354089951,
+        "message": "沒有建物所有權狀的話要怎麼辦?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354089951,
+        "message": "可以用最近一期的房屋稅單影本代替，要有戳章頁。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354102770,
+        "message": "如果公司大小章不見的話要怎麼處理?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354102770,
+        "message": "如果公司或負責人印章不見的話，就需要由公司的負責人切結聲明，然後備妥申請書、印鑑遺失切結書及登記表一式2份，之後就可已申請辦理公司或負責人印鑑變更報備。順帶一提，這個不需要支付規費。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354116153,
+        "message": "外國人在台灣設立公司時的步驟有什麼不同?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354116153,
+        "message": "外國人跟本國人在台灣設立公司最大的不同，就是要多一個經濟部投資審議委員會（投審會）審核的步驟。這是大部份的國家對於外國人的投資項目及金額的規範，必須經過審核，才可以設立公司。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354121246,
+        "message": "公司申請要用的文件和資料要怎樣交給你們?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354121246,
+        "message": "公司申請要用的文件和資料要怎樣交給你們?",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354238075,
+        "message": "公司申請要用的文件和資料要怎樣交給你們?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354238075,
+        "message": "只需要用手機將資料���下來傳給我們即可，我們會按照上面的內容整理出一份公司申請用的資料文件，如有不足或照片不夠清晰導致無法辨認內容，我們會用最快的速度向您連絡。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354265233,
+        "message": "我要怎麼知道我該設立有限公司還是股份有限公司?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354265233,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354313679,
+        "message": "營業項目要設多少個?有限制嗎?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354313679,
+        "message": "營業項目的數量本身並沒有限制，不過通常數量大概7~15個左右，但建議不要包山包海什麼都包的寫一大堆，不然如果在報稅的時候採用\"書審\"的方式，您要繳的\"營所稅\"的金額就會被影響。 另外，有些營業項目是\"特許營業項目\"，是需要在公司設立的前或後取得許可的特許行業，申請的流程會比較麻煩，因此為避免公司設立的流程變得複雜冗長，所以除非有需要，不然還是不要申請會比較好。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354320741,
+        "message": "我要怎麼知道我該設立有限公司還是股份有限公司?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354320741,
+        "message": "如果您的團隊人數較少、股份較平均，同時也沒有\"投資人\"、\"小股東\"之類的成員的話建議可以設立為有限公司，因為成立有限公司具有規定單純、手續快、名稱的保護範圍為全國、股東責任為\"以出資額為限\"的特性，因此就算之後有投資人要入股時要做變更時���要改變成股份有限公司也比較方便。 而如果您的團隊人數多、股東人數較多且股份大小不一或是已有投資人的話則建議設立為股份有限公司，不過要注意的是設立時要找好三個懂事、一個監察人(四個是不是股東都可)。另外，設立後一年內所發起的股東股份不得轉讓。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354337414,
+        "message": "公司申請要用的文件和資料要怎樣交給你們?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354337414,
+        "message": "只需要用手機將資料拍下來傳給我們即可，我們會按照上面的內容整理出一份公司申請用的資料文件，如有不足或照片不夠清晰導致無法辨認內容，我們會用最快的速度向您連絡。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354456805,
+        "message": "我要怎麼知道我該設立有限公司還是股份有限公司?"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354456805,
+        "message": "如果您的團隊人數較少、股份較平均，同時也沒有\"投資人\"、\"小股東\"之類的成員的話建議可以設立為有限公司，因為成立有限公司具有規定單純、手續快、名稱的保護範圍為全國、股東責任為\"以出資額為限\"的特性，因此就算之後有投資人要入股時要做變更時���要改變成股份有限公司也比較方便。 而如果您的團隊人數多、股東人數較多且股份大小不一或是已有投資人的話則建議設立為股份有限公司，不過要注意的是設立時要找好三個懂事、一個監察人(四個是不是股東都可)。另外，設立後一年內所發起的股東股份不得轉讓。",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354557697,
+        "message": "關於勞保"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354572604,
+        "message": "想知道關於勞保的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354572604,
+        "message": "關於勞健保",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354642507,
+        "message": "想知道關於健保的事"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502354642507,
+        "message": "關於勞健保",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354678680,
+        "message": "其他問題"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354694136,
+        "message": "想知道其他問題"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354742002,
+        "message": "請問你們的服務時間"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354841257,
+        "message": "我有一點不清楚的地方"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502354889184,
+        "message": "我有一點不清楚的"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502355015278,
+        "message": "我有一點不清楚的"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502355234721,
+        "message": "我有一點不清楚的地方"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502355234721,
+        "message": "想知道什麼呢?",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502355244841,
+        "message": "銀行相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502355244841,
+        "message": "關於銀行帳戶",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502357443137,
+        "message": "嗨"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502357443137,
+        "message": "已接收選項購買方案, 服務時段, 問卷調查",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502357443137,
+        "message": "嘿！",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502357449477,
+        "message": "問卷調查"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502357449477,
+        "message": "詢問客戶資料（性別）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502357449477,
+        "message": "可以告訴我關於你的事嗎><",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502357457550,
+        "message": "性別：男"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502357457550,
+        "message": "詢問客戶資料（居住地）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502357465632,
+        "message": "地區：東部"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502357465632,
+        "message": "詢問客戶資料（年齡層）",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502357473618,
+        "message": "年齡：21-30"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502357473618,
+        "message": "感謝您���寫問卷!",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502357892806,
+        "message": "請問要如何成立公司"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502359102984,
+        "message": "我想知道關於公司成立的問題"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502359206913,
+        "message": "我想問問題"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502359206913,
+        "message": "想知道什麼呢?",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
+      },
+      {
+        "owner": "user",
+        "name": "Weilun Fong",
+        "time": 1502359225905,
+        "message": "公司設立相關"
+      },
+      {
+        "owner": "agent",
+        "name": "api.ai",
+        "time": 1502359225905,
+        "message": "關於公司設立",
+        "id": "U2d08135234f5fbf17c7371b1a27e6b32"
       }
     ]
   }
