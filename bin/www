@@ -144,10 +144,16 @@ bot.on('message', event => {
                 telephone: "",
                 address: "",
                 firstChat: nowTime,
+                首次聊天時間: nowTime,
                 recentChat: nowTime,
+                上次聊天時間: nowTime,
                 totalChat: 1,
+                總共聊天時間: 1,
                 avgChat: 1,
-                unRead: true
+                平均每次聊天時間: 1,
+                聊天次數: 1,
+                unRead: true,
+                photo: profile.pictureUrl
               },
               Messages: [obj]
             };
@@ -953,6 +959,7 @@ io.sockets.on('connection', (socket) => {
                 telephone: "",
                 address: "",
                 firstChat: nowTime,
+                首次聊天時間: nowTime,
                 recentChat: nowTime,
                 totalChat: 1,
                 avgChat: 1
@@ -996,11 +1003,11 @@ io.sockets.on('connection', (socket) => {
         }
     });//sent message
 
-    socket.on('get profile', (data, callback) => {
+    socket.on('get profile', (id, callback) => {
       console.log("get profile");
-      console.log(data.id);
+      console.log(id);
         for( let i in chatData ) {
-          if( chatData[i].Profile.userId == data.id ) {
+          if( chatData[i].Profile.userId == id ) {
             console.log("match!");
             socket.emit('show profile',chatData[i].Profile);
           }

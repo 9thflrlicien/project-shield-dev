@@ -1,8 +1,37 @@
+#headBar {
+  margin-bottom: 20px;
+}
+.filterBar {
+  display: inline;
+  padding: 5px;
+  margin-bottom: 50px;
+}
+.filterSlider label {
+  position: absolute;
+  width: 20px;
+  margin-left: -100px;
+  float: left;
+  text-align: center;
+  margin-top: -10px;
+  white-space: nowrap;
+}
+
+.filterSlider {
+  margin: auto 2em;
+  float: right;
+  height: 200px;
+}
+.dropdown-menu {
+  padding-left: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
 div.tab {
   float: left;
   border: 1px solid #ccc;
   background-color: #f1f1f1;
-  width: 30%;
+  width: 29%;
   height: 500px;
   text-align: center;
   padding:5px 0;
@@ -50,32 +79,37 @@ div.tab button.active {
 }
 /* Style the tab content */
 .contentPanel {
+  /*margin-left: 100px;*/
   height: 500px;
+  width: 69%;
+  float: right;
 }
 .searchBox {
   padding-left: 10px;
+  margin-right: 3px;
   float: left;
   border: 1px solid #ccc;
-  width: 50%;
+  width: 70%;
   height: 5%;
-  border-left: none;
   display:block;
 }
 .datepicker, .filterDate{
-  width: 15%;
+  /*width: 25%;*/
 }
 #canvas{
   height: 85%;
+  width: 100%;
 }
 .tabcontent {
   float: left;
   border: 1px solid #ccc;
-  width: 70%;
+  /*width: 70%;*/
   height: 100%;
   border-left: none;
   display:block;
   background-color: lightblue;
   display: none;
+  width: 100%;
 }
 .messagePanel {
   height: 95%;

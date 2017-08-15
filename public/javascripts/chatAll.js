@@ -26,6 +26,12 @@ $(document).ready(function() {
   var infoTable = $('.info_input_table'); //user info table
   var TagsData;                       //data of user info tags
 
+  var filterData = {
+    age:['0', '20', '30', '40', '50', '60', '60 up'],
+    recent:['< 10 min', '10 min', '30 min', '60 min', '2 hr', '12 hr', '1 day', '1 week', '1 month up'],
+    first:['< 1 day', '1 day', '1 week', '2 week', '1 month', '3 month', '6 month', '1 year up']
+  };
+
   const COLOR = {
     FIND: "#A52A2A",
     CLICKED: "#ccc",
@@ -50,9 +56,13 @@ $(document).ready(function() {
   $(document).on('click', '.edit-button', changeProfile);
   $(document).on('click','#userInfo-submit',submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
+  $(document).on('click','.dropdown-menu', function(event){
+    event.stopPropagation();
+  });
   setInterval(() => {
     closeIdleRoomTry();
   }, 20000);
+
 
 
   function agentName() {    //enter agent name
@@ -74,7 +84,8 @@ $(document).ready(function() {
     // } //'name already taken'功能未做、push agent name 未做
     //
 
-    console.log(auth);
+
+
     var userId = auth.currentUser.uid;
 
     database.ref('users/' + userId).on('value', snap => {
@@ -103,10 +114,191 @@ $(document).ready(function() {
   }
 
   socket.on("push tags to chat", data=> {
-    console.log("data:");
-    console.log(data);
     TagsData = data;
+    for(let i in data) if( data[i].name=="TAG" ) filterData.tag = data[i].set;
+    initialFilterBar();
   });
+
+  function initialFilterBar() {
+    $('.filterSlider').slider({
+      orientation: "vertical",
+      range: true,
+      min: 0,
+      step: 1,
+      values: [-100, 100]
+    }).each(function() {
+      let id = $(this).attr('id');
+      $(this).slider( "option", "max", filterData[id].length-1 );
+      let count = $(this).slider("option", "max") - $(this).slider("option", "min");
+      for (let i in filterData[id]) {
+        var el = $('<label>' + filterData[id][i] + '</label>').css('top', 100-(i/count*100) + '%');
+        $(this).append(el);
+      }
+    });
+
+    $('.filterSlider#age').slider( "option", "change", function(event, ui){
+      let values = $(this).slider("values");
+      let str = "";
+      let min = 0;
+      let max = 999;
+      if( values[1]-values[0] == filterData["age"].length-1 ) str="全選";
+      else {
+        if( values[1]==values[0] ) str="未篩選";
+        else {
+          str = filterData["age"][ values[0] ] + "~" + filterData["age"][ values[1] ];
+          min = parseInt(filterData["age"][ values[0] ]);
+          if( filterData["age"][ values[1] ].indexOf('up')==-1 ) max = parseInt(filterData["age"][ values[1] ]);
+        }
+      }
+      $(this).parent().parent().find('.multiselect-selected-text').text(str).attr('min',min).attr('max',max);
+    });
+
+    function toTimeStamp(str) {
+      if( str.indexOf('up')!=-1 ) return 9999999999999;
+      else if( str.indexOf('<')!=-1 ) return 0;
+      let num = parseInt(str);
+      let unit = str.substr(str.indexOf(' ')+1);
+      console.log("num = "+num+", unit="+unit+".");
+      if( unit=='min' ) return num*1000*60;
+      else if( unit=='hr' ) return num*1000*60*60;
+      else if( unit=='day' ) return num*1000*60*60*24;
+      else if( unit=='week' )  return num*1000*60*60*24*7;
+      else if( unit=='month' )  return num*1000*60*60*24*30;
+      else if( unit=='year' )  return num*1000*60*60*24*365;
+    }
+    $('.filterSlider#recent').slider( "option", "change", function(event, ui){
+      let values = $(this).slider("values");
+      let str = "";
+      let min = 0;
+      let max = 9999999999999;
+      if( values[1]-values[0] == filterData["recent"].length-1 ) str="全選";
+      else {
+        if( values[1]==values[0] ) str="未篩選";
+        else {
+          str = filterData["recent"][ values[0] ] + "~" + filterData["recent"][ values[1] ];
+          min = toTimeStamp(filterData["recent"][ values[0] ]);
+          max = toTimeStamp(filterData["recent"][ values[1] ]);
+        }
+      }
+      $(this).parent().parent().find('.multiselect-selected-text').text(str).attr('min',min).attr('max',max);
+    });
+    $('.filterSlider#first').slider( "option", "change", function(event, ui){
+      let values = $(this).slider("values");
+      let str = "";
+      let min = 0;
+      let max = 9999999999999;
+      if( values[1]-values[0] == filterData["first"].length-1 ) str="全選";
+      else {
+        if( values[1]==values[0] ) str="未篩選";
+        else {
+          str = filterData["first"][ values[0] ] + "~" + filterData["first"][ values[1] ];
+          min = toTimeStamp(filterData["first"][ values[0] ]);
+          max = toTimeStamp(filterData["first"][ values[1] ]);
+        }
+      }
+      $(this).parent().parent().find('.multiselect-selected-text').text(str).attr('min',min).attr('max',max);
+    });
+
+    let _data = filterData.tag;
+    for( let i in _data ) {
+      $('.filterSelect#tag').append('<li><input type="checkbox" value="'+_data[i]+'" checked>'+_data[i]+'</li>');
+    }
+  }
+
+  $('#filterBtn').on('click', function() {
+    $('.tablinks').each(function() {
+      $(this).show();
+      let userId = $(this).attr('rel');
+      let profile = userProfiles[userId];
+      console.log(profile);
+      console.log($('#filter_sex .multiselect-selected-text').text());
+
+      let user_option = profile['年齡'];
+      if( user_option ) {
+        let user_age = parseInt(user_option);
+        let min = $('#filter_age .multiselect-selected-text').attr('min');
+        let max = $('#filter_age .multiselect-selected-text').attr('max');
+        console.log("user_age = "+user_age + "min="+min+",max="+max);
+        if( user_age < min || user_age > max ) {
+          $(this).hide();
+          return;
+        }
+      }
+
+      user_option = profile['性別'];
+      let select_option = $('#filter_sex .multiselect-selected-text').text();
+      if( user_option && select_option!="全選") {
+        console.log(userId+" gender = "+user_option + "select_option = "+select_option);
+        if( user_option!=select_option ) {
+          $(this).hide();
+          return;
+        }
+      }
+
+      user_option = profile['地區'];
+      select_option = $('#filter_place .multiselect-selected-text').text();
+      if( user_option && select_option!="全選") {
+        console.log(userId+" place = "+user_option + "select_option = "+select_option);
+        if( select_option.indexOf(user_option)==-1 ) {
+          $(this).hide();
+          return;
+        }
+      }
+
+      user_option = profile['TAG'];
+      select_option = $('#filter_tag .multiselect-selected-text').text();
+      if( select_option!="全選") {
+        if( !user_option ) {
+          $(this).hide();
+          return;
+        }
+        console.log(userId+" tag = "+user_option + "select_option = "+select_option);
+        user_option = user_option.split(',');
+        console.log(user_option);
+        let i;
+        for( i=0; i<user_option.length; i++ ) {
+          console.log("now user option = "+user_option[i]);
+          if( select_option.indexOf(user_option[i])!=-1 ) break;
+        }
+        if( i==user_option.length ) {
+          $(this).hide();
+          return;
+        }
+      }
+
+      user_option = profile['上次聊天時間'];
+      if( user_option ) {
+        let min = $('#filter_recent .multiselect-selected-text').attr('min');
+        let max = $('#filter_recent .multiselect-selected-text').attr('max');
+        let user_time_gap = Date.now() - user_option;
+        console.log("user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
+        if( user_time_gap < min || user_time_gap > max ) {
+          $(this).hide();
+          return;
+        }
+      }
+
+      user_option = profile['firstChat'];
+      if( user_option ) {
+        let min = $('#filter_first .multiselect-selected-text').attr('min');
+        let max = $('#filter_first .multiselect-selected-text').attr('max');
+        let user_time_gap = Date.now() - user_option;
+        console.log(" user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
+        if( user_time_gap < min || user_time_gap > max ) {
+          $(this).hide();
+          return;
+        }
+      }
+
+    });
+  });
+  $('#filterBtn-clean').on('click', function() {
+    $('.tablinks').show();
+    $('.filterSlider').slider("values",[0,999]);
+    $('.filterSelect').find('input[type="checkbox"]').prop('checked',true);
+    $('.filterSelect').parent().parent().find('.multiselect-selected-text').text('全選');
+  })
+
 
   socket.on('push json to front', (data) => {   //www emit data of history msg
     console.log("push json to front");
@@ -224,7 +416,7 @@ $(document).ready(function() {
     );    //new a tablinks
 
     name_list.push(profile.userId); //make a name list of all chated user
-    userProfiles.push(profile);
+    userProfiles[profile.userId] = profile;
   }
 
   function closeIdleRoomTry() {
@@ -371,7 +563,7 @@ $(document).ready(function() {
     if (name_list.indexOf(data.id) !== -1 ) {
       console.log('user existed');
       let target = $(".tablinks[rel='"+data.id+"']");
-      target.find("span").text(toTimeStr(data.time)+remove_href_msg(data.message)).css("font-weight", font_weight);
+      target.find("span").html(toTimeStr(data.time)+remove_href_msg(data.message)).css("font-weight", font_weight);
       target.attr("data-recentTime", data.time);
       //update tablnks's last msg
 
@@ -479,6 +671,7 @@ $(document).ready(function() {
           let text = userProfiles[i][wayStr];
           if( text && text.toLowerCase().indexOf(searchStr)!=-1 ) {
             let userId = userProfiles[i].userId;
+            console.log("482, userId = "+userId+", i = "+i);
             $('.tablinks[rel="'+userId+'"]').css("color", COLOR.FIND);
           }
         }
@@ -624,13 +817,12 @@ $(document).ready(function() {
     }
     console.log("show profile of userId " + target);
     reload_tags();
-    for( let i in userProfiles ) {
-      if( userProfiles[i].userId == target ) {
-        showTargetProfile(userProfiles[i]);
-        break;
-      }
-    }
+    socket.emit('get profile', target );
   }
+  socket.on('show profile', data => {
+    userProfiles[data.userId] = data;
+    showTargetProfile(data);
+  });
 
   function reload_tags(){
     infoTable.empty();
@@ -641,20 +833,21 @@ $(document).ready(function() {
       let modify = TagsData[i].modify;
       let tdHtml = "";
       if( type=='text' ) tdHtml = '<p id="td-inner">尚未輸入<p>';
-      else if( type=="time" && modify=="true" ) tdHtml = '<input type="datetime-local" id="td-inner"></input>';
-      else if( type=="time" && modify=="false" ) tdHtml = '<input type="datetime-local" id="td-inner" readOnly></input>';
+      else if( type=="time" && modify==true ) tdHtml = '<input type="datetime-local" id="td-inner"></input>';
+      else if( type=="time" && modify==false ) tdHtml = '<input type="datetime-local" id="td-inner" readOnly></input>';
       else if( type=='single_select' ) {
-        if( modify=="true" ) tdHtml = '<select id="td-inner">';
+        if( modify==true ) tdHtml = '<select id="td-inner">';
         else tdHtml = '<select id="td-inner" disabled>';
         for( let j in set ) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
         tdHtml += '</select>';
       }
       else if( type=='multi_select' ) {
         tdHtml = '<div class="btn-group" id="td-inner" data="">';
-        if( modify=="true") tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
+        if( modify==true) tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
         else tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false" disabled>';
         tdHtml += '<span class="multiselect-selected-text"></span><b class="caret"></b></button>'
           + '<ul class="multiselect-container dropdown-menu">';
+          // + '<li><button value="全選" id="select-all">全選</li>';
         for( let j in set ) tdHtml += '<li><input type="checkbox" value="' + set[j] + '">' + set[j] + '</li>';
         tdHtml += '</ul></div>';
       }
@@ -668,8 +861,8 @@ $(document).ready(function() {
   }
 
   function showTargetProfile(profile) {
-    buffer = JSON.parse(JSON.stringify(profile));
-    $('.userPhoto').attr('src', buffer.photo);
+    buffer = JSON.parse(JSON.stringify(profile));   //clone object
+    $('.userPhoto').attr('src', buffer.photo? buffer.photo: "" );
 
     $('.info_input_table .userInfo-td').each( function() {
       let data = buffer[ $(this).attr('id') ];
@@ -696,7 +889,6 @@ $(document).ready(function() {
         }
       }
       else {    ///if undefined, load default string, not prev string
-        console.log("data of user's " + $(this).attr('id') + " undefined!");
         if( type=='text' ) inner.text("尚未輸入");
         else if( type=='single_select' ) inner.val("");
         else if( type=="multi_select" ) {
@@ -755,15 +947,31 @@ $(document).ready(function() {
     $(this).find('#td-inner').select();
   }
 
+
+  // $(document).on('click', '#select-all', function(event) {multiselect_all(event.target);});
+  //
+  // function multiselect_all( box ) {
+  //   console.log("select all !");
+  //   if( $(box).prop('checked') == true ) {
+  //     console.log("checked");
+  //     $(box).parent().parent().find('input').prop('checked', 'checked');
+  //   }
+  //   else {
+  //     console.log("UN");
+  //     $(box).parent().parent().find('input').prop('checked', false);
+  //   }
+  // }
   function multiselect_change() {
+    let boxes = $(this).find('input');
     let arr = [];
-    $(this).find('input').each(function() {
+    boxes.each(function() {
       if( $(this).is(':checked') ) arr.push( $(this).val() );
     });
-    arr = arr.join(',');
-    $(this).parent().attr("data", arr)
-      .find($('.multiselect-selected-text')).text(arr);
+    if( arr.length==boxes.length ) arr="全選";
+    else arr = arr.join(',');
+    $(this).parent().find($('.multiselect-selected-text')).text(arr);
   }
+
 
   function changeProfile(edit) {
     let td = $(this).parent().children('.userInfo-td');
@@ -777,11 +985,12 @@ $(document).ready(function() {
       let content;
       if( type=="text") {
         content = inner.val();
+        if( !content ) content = "尚未輸入";
         td.html('<p id="td-inner">'+content+'</p>');
       }
       else if( type=='single_select' ) content = inner.val();
       else if( type=="multi_select" ) {
-        content = inner.attr('data');
+        content = inner.find('.multiselect-selected-text').text();
       }
       else if( type=="time" ) {
         content = new Date(inner.val()).getTime();
@@ -794,10 +1003,12 @@ $(document).ready(function() {
       if( origin==undefined ) origin = "";
       console.log("origin = "+origin);
 
-      if( type=="text") td.html('<p id="td-inner">'+origin+'</p>');
+      if( type=="text") {
+        if( !origin ) origin = "尚未輸入";
+        td.html('<p id="td-inner">'+origin+'</p>');
+      }
       else if( type=='single_select' ) inner.val(origin);
       else if( type=="multi_select" ) {
-        inner.attr('data',origin);
         inner.find('.multiselect-selected-text').text(origin);
 
         inner.find('input').prop('checked', false);
@@ -817,7 +1028,6 @@ $(document).ready(function() {
   }
 
   function submitProfile() {
-  console.log(userProfiles[0]);
     if( $('.edit-button:visible').length>0 ) {
       alert('please check all tags change');
     }
@@ -825,22 +1035,14 @@ $(document).ready(function() {
       console.log(buffer);
       socket.emit('update profile',buffer);
       $('.modal').modal('hide');
-      for( let i in userProfiles ) {
-        if( userProfiles[i].userId == buffer.userId ) {
-          userProfiles[i] = JSON.parse(JSON.stringify(buffer));
-          break;
-        }
-      }
+      userProfiles[buffer.userId] = JSON.parse(JSON.stringify(buffer));   //clone object
     }
 
   }
 
 
   $(document).on('click','#userInfo-cancel',function() {
-    let abc = $('.edit-button');
-    console.log("abc length = "+abc.length);
-    abc = $('.edit-button:visible');
-    console.log("visible length = "+abc.length);
+
   });
 
   function toAgentStr(msg, name, time) {
@@ -888,6 +1090,7 @@ $(document).ready(function() {
   }
 
 }); //document ready close tag
+
 
 
 // Data: [
