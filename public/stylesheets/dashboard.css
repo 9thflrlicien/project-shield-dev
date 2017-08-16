@@ -1,0 +1,131 @@
+body{
+	background-color:#fffffb;
+}
+h2{
+  font-family: 'OCR A Std', 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serifpx;
+  font-weight: lighter;
+  font-size:120%;
+  line-height: 200%;
+  margin-left: 0%
+}
+h4{
+	text-align: center;
+	line-height: 150%;
+	margin-top: 30%;
+}
+
+#nav-header{
+	margin-top:1%;
+	margin-left: 5%;
+	float:left;
+}
+#box{
+	position:absolute;
+	width:100%;
+	height:500px;
+	margin-top: 100px;
+	background-color: #f3f3f1;
+}
+#create_btn{
+	width:120px;
+	height:47px;
+	margin:2%;	
+	padding-top:1%;
+	border-radius: 0;
+	border: solid 1px grey;
+	background-color: transparent;
+	font-family: 'OCR A Std', 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serifpx;
+  	font-weight: lighter;
+  	font-size:70%;
+  	float:right;
+}
+#create_btn:hover{
+	background-color: black;
+	color:white;
+	font-size:75%;
+}
+#profile_btn{
+	margin-top: 1.8%;
+	width:55px;
+	height:55px;
+	border-radius:50px;
+	border: transparent;
+	background-color: lightgray;
+	font-family: 'OCR A Std', 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serifpx;
+  	font-weight: lighter;
+  	font-size:70%;
+  	float:right;
+  	margin-right: 3%;
+
+}
+#profile_btn:hover{
+	border: solid 1px grey;
+	color:white;
+}
+#info{
+	width:15%;
+	height:30%;
+	border: grey 1px solid;
+	margin:5% 5% 1% 5%;
+	float:left;
+	color:grey;
+}
+#info:hover{
+	color:white;
+	background-color: grey;
+	animation-name: example;
+    animation-duration: 1s;
+
+	}
+/* Standard syntax */
+@keyframes example {
+    from {padding-top:2%;}
+    to {padding-top:0;}
+}
+#info:active{
+	color:white;
+	background-color: grey;	
+}
+#sheet{
+	width:50%;
+	height:80%;
+	color:grey;
+	margin: 45% 20% 10% 20%;
+	position:absolute;
+	box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+#purchase{
+	width:50%;
+	height:80%;
+	color:grey;
+	text-align: center;
+	margin: 20% 20% 10% 20%;
+	position:absolute;
+	box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+}
+table{
+	margin:3% 7% 2% 7%;
+	width:80%;
+}
+tr{
+	border-bottom: lightgrey 1px solid;
+	height:80px;
+	width:300px;
+}
+#edit{
+	border:transparent;
+	background-color: lightgrey;
+	padding:10%;
+	border-radius: 10px
+
+	}
+#edit:hover{
+	background-color: darkgrey;
+	color:white;
+	border-radius: 15px
+}
+
+
+
+

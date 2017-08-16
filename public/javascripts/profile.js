@@ -5,6 +5,7 @@ $(document).ready(function() {
   var id = $('#prof-id').text();
   var dob = $('#prof-dob').text();
   var email = $('#prof-email').text();
+  var news = $('#prof-news').text();
   var gender = $('#prof-gender').text();
   var phone = $('#prof-phone').text();
   var chanId = $('#prof-channelId').text();
@@ -14,6 +15,7 @@ $(document).ready(function() {
   $('#prof-name').text('');
   $('#prof-dob').text('');
   $('#prof-email').text('');
+  $('#prof-news').text('');
   $('#prof-gender').text('');
   $('#prof-phone').text('');
   $('#prof-channelId').text('');
@@ -57,6 +59,7 @@ function loadProf() {
       $('#prof-name').text(profInfo[0].username);
       $('#prof-dob').text(profInfo[0].dob);
       $('#prof-email').text(profInfo[0].email);
+      $('#prof-news').text(profInfo[0].news);
       $('#prof-gender').text(profInfo[0].gender);
       $('#prof-phone').text(profInfo[0].phone);
       $('#prof-channelId').text(profInfo[0].chanId);
@@ -65,6 +68,7 @@ function loadProf() {
     }
 
   });
+
 
   // $('#prof-email').append(email);
 }
@@ -75,6 +79,7 @@ function profEdit() {
   let name = $('#prof-name').text();
   let dob = $('#prof-dob').text();
   let email = $('#prof-email').text();
+  let news = $('#prof-news').text();
   let gender = $('#prof-gender').text();
   let phone = $('#prof-phone').text();
   let chanId = $('#prof-channelId').text();
@@ -87,6 +92,7 @@ function profEdit() {
   $('#prof-edit-name').val(name);
   $('#prof-edit-dob').val(dob);
   $('#prof-edit-email').val(email);
+  $('#prof-edit-news').val(news);
   $('#prof-edit-gender').val(gender);
   $('#prof-edit-phone').val(phone);
   $('#prof-edit-channelId').val(chanId);
@@ -100,6 +106,7 @@ function profSubmit() {
   let name = $('#prof-edit-name').val();
   let dob = $('#prof-edit-dob').val();
   let email = $('#prof-edit-email').val();
+  let news = $('#prof-edit-news').val();
   let gender = $('#prof-edit-gender').val();
   let phone = $('#prof-edit-phone').val();
   let chanId = $('#prof-edit-channelId').val();
@@ -114,6 +121,7 @@ function profSubmit() {
       username: name,
       dob: dob,
       email: email,
+      news: news,
       gender: gender,
       phone: phone,
       chanId: chanId,
@@ -125,6 +133,7 @@ function profSubmit() {
       username: name,
       dob: dob,
       email: email,
+      news: news,
       gender: gender,
       phone: phone,
       chanId: chanId,
@@ -144,6 +153,7 @@ function profClear() {
   $('#prof-edit-name').val('');
   $('#prof-edit-dob').val('');
   $('#prof-edit-email').val('');
+  $('#prof-edit-news').val('');
   $('#prof-edit-gender').val('Male');
   $('#prof-edit-phone').val('');
   $('#prof-edit-channelId').val('');

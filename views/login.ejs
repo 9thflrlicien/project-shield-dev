@@ -43,6 +43,8 @@
             <label>Platform Login</label><br />
             <button type="button" class="btn btn-danger"  id="google-log"><span class="fa fa-google fa-fw"></span></button>
             <button type="button" class="btn btn-primary" id="facebook-log"><span class="fa fa-facebook-official fa-fw"></span></button>
+            <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+            </fb:login-button>
             <button type="button" class="btn btn-success" id="line-log"><span class="fa socicon-line fa-fw"></span></button>
           </div>
         </div>

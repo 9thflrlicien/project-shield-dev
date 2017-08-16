@@ -3,7 +3,16 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'SHIELD' });
+  res.render('dashboard', { title: 'SHIELD' });
+});
+/* GET index page. */
+router.get('/index', function(req, res, next) {
+  res.render('index', { title: 'SHIELD dashboard' });
+});
+
+/* GET order page. */
+router.get('/order', function(req, res, next) {
+  res.render('order', { title: 'SHIELD order' });
 });
 
 /* GET calendar page. */

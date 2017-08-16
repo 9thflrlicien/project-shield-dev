@@ -83,6 +83,15 @@ io.sockets.on('connection', (socket) => {
             chanSecret = data.chanSecret.trim();
             chanAT = data.chanAT.trim();
 
+            bot = linebot({
+    
+              channelId: chanId, 
+              channelSecret: chanSecret, 
+              channelAccessToken: chanAT, 
+            });
+
+            connectLine();
+
 
 //             bot = linebot({
 //             channelId: chanId, //'1527218429'
@@ -491,24 +500,6 @@ io.sockets.on('connection', (socket) => {
 
 //===================================================================
 //===================================================================
-//LINE bot設定(暫時性移至line87)
-setTimeout(() => {
-    bot = linebot({
-    
-    channelId: chanId, 
-    channelSecret: chanSecret, 
-    channelAccessToken: chanAT, 
-});
-    linebotParser = bot.parser();
-    connectLine();
-
-    console.log('chanId in setTimeout');
-    console.log(chanId);        
-          }, 10000)
-
-
-
-
 
 
 // api ai setting
@@ -522,9 +513,20 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 
+// LINE bot設定(暫時性移至line87)
+function connectLine(){
+
+    bot = linebot({
+    
+    channelId: chanId, 
+    channelSecret: chanSecret, 
+    channelAccessToken: chanAT, 
+});
+    linebotParser = bot.parser();
+
+
 // 接收訊息
 // LINE bot implement
-function connectLine(){
 bot.on('message', event => {
     console.log(event);
     let message_type = event.message.type;
