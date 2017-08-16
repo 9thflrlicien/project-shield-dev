@@ -76,88 +76,94 @@
 
       <div id="headBar">
 
-        <div class="filterBar btn-group" id="filter_age">
+        <div class="filterUnit btn-group" id="filter_option">
           <button data-toggle="dropdown" aria-expanded="false">
-            年齡:<span class="multiselect-selected-text" min="0" max="999">全選</span>
+            選擇搜尋依據
             <b class="caret"></b>
           </button>
           <ul class="multiselect-container dropdown-menu">
-            <div class="filterSlider" id="age">
+            <div class="filterSelect" id="selectBy">
+              <li><p id="warning" style="font-size:8px; color: red;">&nbsp;</p></li>
+              <li><input type="checkbox" value="filter_age" checked>年齡</li>
+              <li><input type="checkbox" value="filter_place" checked>地區</li>
+              <li><input type="checkbox" value="filter_recent" checked>上次聊天時間</li>
+              <li><input type="checkbox" value="filter_first" checked>首次聊天時間</li>
             </div>
           </ul>
         </div>
 
-        <div class="filterBar btn-group" id="filter_sex">
-          <button data-toggle="dropdown" aria-expanded="false">
-            性別:<span class="multiselect-selected-text">全選</span>
-            <b class="caret"></b>
-          </button>
-          <ul class="multiselect-container dropdown-menu">
-            <div class="filterSelect" id="sex">
-              <!-- <li><button value="全選" checked id="select-all">全選</li> -->
-              <li><input type="checkbox" value="男" checked>男</li>
-              <li><input type="checkbox" value="女" checked>女</li>
-            </div>
-          </ul>
-        </div>
-
-        <div class="filterBar btn-group" id="filter_place">
-          <button data-toggle="dropdown" aria-expanded="false">
-            地區:<span class="multiselect-selected-text">全選</span>
-            <b class="caret"></b>
-          </button>
-          <ul class="multiselect-container dropdown-menu">
-            <div class="filterSelect" id="place">
-              <!-- <li><button value="全選" checked id="select-all">全選</li> -->
-              <li><input type="checkbox" value="北部" checked>北部</li>
-              <li><input type="checkbox" value="中部" checked>中部</li>
-              <li><input type="checkbox" value="東部" checked>東部</li>
-              <li><input type="checkbox" value="南部" checked>南部</li>
-            </div>
-          </ul>
-        </div>
-
-        <div class="filterBar btn-group" id="filter_tag">
-          <button data-toggle="dropdown" aria-expanded="false">
-            Tag:<span class="multiselect-selected-text">全選</span>
-            <b class="caret"></b>
-          </button>
-          <ul class="multiselect-container dropdown-menu">
-            <div class="filterSelect" id="tag">
-              <!-- <li><input type="checkbox" value="全選" checked>全選</li> -->
-            </div>
-          </ul>
-        </div>
-
-        <div class="filterBar btn-group" id="filter_recent">
-          <button data-toggle="dropdown" aria-expanded="false">
-            上次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
-            <b class="caret"></b>
-          </button>
-          <ul class="multiselect-container dropdown-menu">
-            <div class="filterSlider" id="recent">
-            </div>
-          </ul>
-        </div>
-
-        <div class="filterBar btn-group" id="filter_first" >
-          <button data-toggle="dropdown" aria-expanded="false">
-            首次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
-            <b class="caret"></b>
-          </button>
-          <ul class="multiselect-container dropdown-menu">
-            <div class="filterSlider" id="first">
-            </div>
-          </ul>
-        </div>
-
-        <div class="filterBar">
+        <div class="filterUnit">
           <button id="filterBtn">filter</button>
         </div>
-        <div class="filterBar">
+        <div class="filterUnit">
           <button id="filterBtn-clean">show all</button>
         </div>
 
+        <div class="filterPanel">
+
+          <div class="filterUnit filterBar btn-group" id="filter_age">
+            <button data-toggle="dropdown" aria-expanded="false">
+              年齡:<span class="multiselect-selected-text" min="0" max="999">全選</span>
+              <b class="caret"></b>
+            </button>
+            <ul class="multiselect-container dropdown-menu">
+              <div class="filterSlider" id="age">
+              </div>
+            </ul>
+          </div>
+
+          <!-- <div class="filterUnit filterBar btn-group" id="filter_sex">
+            <button data-toggle="dropdown" aria-expanded="false">
+              性別:<span class="multiselect-selected-text">全選</span>
+              <b class="caret"></b>
+            </button>
+            <ul class="multiselect-container dropdown-menu">
+              <div class="filterSelect" id="sex">
+                <li><input type="checkbox" value="男" checked>男</li>
+                <li><input type="checkbox" value="女" checked>女</li>
+              </div>
+            </ul>
+          </div> -->
+
+          <div class="filterUnit filterBar btn-group" id="filter_place">
+            <button data-toggle="dropdown" aria-expanded="false">
+              地區:<span class="multiselect-selected-text">全選</span>
+              <b class="caret"></b>
+            </button>
+            <ul class="multiselect-container dropdown-menu">
+              <div class="filterSelect" id="place">
+                <!-- <li><button value="全選" checked id="select-all">全選</li> -->
+                <li><input type="checkbox" value="北部" checked>北部</li>
+                <li><input type="checkbox" value="中部" checked>中部</li>
+                <li><input type="checkbox" value="東部" checked>東部</li>
+                <li><input type="checkbox" value="南部" checked>南部</li>
+              </div>
+            </ul>
+          </div>
+
+          <div class="filterUnit filterBar btn-group" id="filter_recent">
+            <button data-toggle="dropdown" aria-expanded="false">
+              上次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
+              <b class="caret"></b>
+            </button>
+            <ul class="multiselect-container dropdown-menu">
+              <div class="filterSlider" id="recent">
+              </div>
+            </ul>
+          </div>
+
+          <div class="filterUnit filterBar btn-group" id="filter_first" >
+            <button data-toggle="dropdown" aria-expanded="false">
+              首次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
+              <b class="caret"></b>
+            </button>
+            <ul class="multiselect-container dropdown-menu">
+              <div class="filterSlider" id="first">
+              </div>
+            </ul>
+          </div>
+
+        </div>
       </div>
 
       <div class="tab">
@@ -207,13 +213,14 @@
         <form action="" id="send-message" disabled>
           <select id="user-rooms">
             <option id="selectAll" value="全選">全選</option>
+            <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
           </select>
           <input size="35" id="message" />
           <input type="submit"/>
         </form>
 
       </div>
-      
+
       <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Open User Info</button>
 
       <!-- Modal -->

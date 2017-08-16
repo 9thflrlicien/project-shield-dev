@@ -26,11 +26,12 @@ $(document).ready(function() {
   var infoTable = $('.info_input_table'); //user info table
   var TagsData;                       //data of user info tags
 
-  var filterData = {
+  var filterDataBasic = {
     age:['0', '20', '30', '40', '50', '60', '60 up'],
-    recent:['< 10 min', '10 min', '30 min', '60 min', '2 hr', '12 hr', '1 day', '1 week', '1 month up'],
-    first:['< 1 day', '1 day', '1 week', '2 week', '1 month', '3 month', '6 month', '1 year up']
+    recent:['< 10 min', '10 min', '30 min', '60 min', '2 hr', '12 hr', '1 day', '1 week', '1 month', '1 month up'],
+    first:['< 1 day', '1 day', '1 week', '2 week', '1 month', '3 month', '6 month', '1 year', '1 year up']
   };
+  var filterDataCustomer = {};
 
   const COLOR = {
     FIND: "#A52A2A",
@@ -65,29 +66,9 @@ $(document).ready(function() {
 
 
 
-  function agentName() {    //enter agent name
-    // while( person=="" ) {
-    //   person = prompt("Please enter your name");
-    // }
-    // if (person != null) {
-    //   socket.emit('new user', person, (data) => {
-    //     if(data){
-    //
-    //     } else {
-    //       alert('username is already taken');
-    //     }
-    //   });
-    //   printAgent.append("Welcome <b>" + person + "</b>! You're now on board.");
-    // }
-    // else {
-    //   window.location.replace("/");
-    // } //'name already taken'功能未做、push agent name 未做
-    //
-
-
-
+  function agentName() {
+    //enter agent name
     var userId = auth.currentUser.uid;
-
     database.ref('users/' + userId).on('value', snap => {
       let profInfo = snap.val();
       let profId = Object.keys(profInfo);
@@ -115,11 +96,67 @@ $(document).ready(function() {
 
   socket.on("push tags to chat", data=> {
     TagsData = data;
-    for(let i in data) if( data[i].name=="TAG" ) filterData.tag = data[i].set;
-    initialFilterBar();
+    initialFilterWay();
+    initialFilterSilder();
   });
 
-  function initialFilterBar() {
+  function initialFilterWay() {
+    for(let i in TagsData) {
+      if( TagsData[i].type.indexOf('select')!=-1 ) {
+        filterDataCustomer[TagsData[i].name] = TagsData[i].set;
+      }
+    }
+    console.log("filterDataCustomer");
+    console.log(filterDataCustomer);
+    for( let way in filterDataCustomer ) {
+      console.log(way);
+      $('#selectBy').append('<li><input type="checkbox" value="filter_'+way+'">'+way+'</li>');
+      $('.filterPanel').append(
+        '<div class="filterUnit filterBar btn-group" id="filter_'+way+'" style="display:none;">'
+        + '<button data-toggle="dropdown" aria-expanded="false">'
+        + way + ':<span class="multiselect-selected-text">全選</span>'
+        + '<b class="caret"></b></button>'
+        + '<ul class="multiselect-container dropdown-menu">'
+        + '<div class="filterSelect" id="'+way+'">'
+        + '</div></ul></div>'
+      );
+      let _data = filterDataCustomer[way];
+      for( let i in _data ) {
+        $('.filterSelect#'+way).append('<li><input type="checkbox" value="'+_data[i]+'" checked>'+_data[i]+'</li>');
+      }
+    }
+  }
+  $('#selectBy').on('change',function() {
+    let selected = [];
+    if( $(this).find('input:checked').length>5 ) {
+      console.log("most 5 QQ");
+      $(this).find('#warning').text('at most 5 filter way');
+      return;
+    }
+    else {
+      $(this).find('#warning').html('&nbsp;');
+      $(this).find('input:checked').each(function() {
+        selected.push($(this).attr('value'));
+      });
+      console.log("selected = ");
+      console.log(selected);
+
+      $('.filterBar').each(function() {
+        let filter_way = $(this).attr('id');
+        if( selected.indexOf(filter_way)!=-1 ) {
+            $(this).show();
+        }
+        else {
+          $(this).hide();
+          $(this).find('.filterSlider').slider("values",[0,999]);
+          $(this).find('.filterSelect').find('input[type="checkbox"]').prop('checked',true);
+          $(this).find('.multiselect-selected-text').text('全選');
+        }
+      });
+    }
+  });
+
+  function initialFilterSilder() {
     $('.filterSlider').slider({
       orientation: "vertical",
       range: true,
@@ -128,26 +165,27 @@ $(document).ready(function() {
       values: [-100, 100]
     }).each(function() {
       let id = $(this).attr('id');
-      $(this).slider( "option", "max", filterData[id].length-1 );
+      $(this).slider( "option", "max", filterDataBasic[id].length-1 );
       let count = $(this).slider("option", "max") - $(this).slider("option", "min");
-      for (let i in filterData[id]) {
-        var el = $('<label>' + filterData[id][i] + '</label>').css('top', 100-(i/count*100) + '%');
+      for (let i in filterDataBasic[id]) {
+        var el = $('<label>' + filterDataBasic[id][i] + '</label>').css('top', 100-(i/count*100) + '%');
         $(this).append(el);
       }
     });
 
     $('.filterSlider#age').slider( "option", "change", function(event, ui){
+      let data = filterDataBasic["age"];
       let values = $(this).slider("values");
       let str = "";
       let min = 0;
       let max = 999;
-      if( values[1]-values[0] == filterData["age"].length-1 ) str="全選";
+      if( values[1]-values[0] == data.length-1 ) str="全選";
       else {
         if( values[1]==values[0] ) str="未篩選";
         else {
-          str = filterData["age"][ values[0] ] + "~" + filterData["age"][ values[1] ];
-          min = parseInt(filterData["age"][ values[0] ]);
-          if( filterData["age"][ values[1] ].indexOf('up')==-1 ) max = parseInt(filterData["age"][ values[1] ]);
+          str = data[values[0]] + "~" + data[values[1]];
+          min = parseInt( data[values[0]] );
+          if( data[values[1]].indexOf('up')==-1 ) max = parseInt( data[values[1]] );
         }
       }
       $(this).parent().parent().find('.multiselect-selected-text').text(str).attr('min',min).attr('max',max);
@@ -155,7 +193,7 @@ $(document).ready(function() {
 
     function toTimeStamp(str) {
       if( str.indexOf('up')!=-1 ) return 9999999999999;
-      else if( str.indexOf('<')!=-1 ) return 0;
+      else if( str.indexOf('<')!=-1 ) return -99999;
       let num = parseInt(str);
       let unit = str.substr(str.indexOf(' ')+1);
       console.log("num = "+num+", unit="+unit+".");
@@ -167,42 +205,40 @@ $(document).ready(function() {
       else if( unit=='year' )  return num*1000*60*60*24*365;
     }
     $('.filterSlider#recent').slider( "option", "change", function(event, ui){
+      let data = filterDataBasic["recent"];
       let values = $(this).slider("values");
       let str = "";
-      let min = 0;
+      let min = -99999;
       let max = 9999999999999;
-      if( values[1]-values[0] == filterData["recent"].length-1 ) str="全選";
+      if( values[1]-values[0] == data.length-1 ) str="全選";
       else {
         if( values[1]==values[0] ) str="未篩選";
         else {
-          str = filterData["recent"][ values[0] ] + "~" + filterData["recent"][ values[1] ];
-          min = toTimeStamp(filterData["recent"][ values[0] ]);
-          max = toTimeStamp(filterData["recent"][ values[1] ]);
+          str = data[values[0]] + "~" + data[values[1]];
+          min = toTimeStamp( data[values[0]] );
+          max = toTimeStamp( data[values[1]] );
         }
       }
       $(this).parent().parent().find('.multiselect-selected-text').text(str).attr('min',min).attr('max',max);
     });
     $('.filterSlider#first').slider( "option", "change", function(event, ui){
+      let data = filterDataBasic["first"];
       let values = $(this).slider("values");
       let str = "";
-      let min = 0;
+      let min = -99999;
       let max = 9999999999999;
-      if( values[1]-values[0] == filterData["first"].length-1 ) str="全選";
+      if( values[1]-values[0] == data.length-1 ) str="全選";
       else {
         if( values[1]==values[0] ) str="未篩選";
         else {
-          str = filterData["first"][ values[0] ] + "~" + filterData["first"][ values[1] ];
-          min = toTimeStamp(filterData["first"][ values[0] ]);
-          max = toTimeStamp(filterData["first"][ values[1] ]);
+          str = data[values[0]] + "~" + data[values[1]];
+          min = toTimeStamp( data[values[0]] );
+          max = toTimeStamp( data[values[1]] );
         }
       }
       $(this).parent().parent().find('.multiselect-selected-text').text(str).attr('min',min).attr('max',max);
     });
 
-    let _data = filterData.tag;
-    for( let i in _data ) {
-      $('.filterSelect#tag').append('<li><input type="checkbox" value="'+_data[i]+'" checked>'+_data[i]+'</li>');
-    }
   }
 
   $('#filterBtn').on('click', function() {
@@ -213,80 +249,96 @@ $(document).ready(function() {
       console.log(profile);
       console.log($('#filter_sex .multiselect-selected-text').text());
 
-      let user_option = profile['年齡'];
-      if( user_option ) {
-        let user_age = parseInt(user_option);
-        let min = $('#filter_age .multiselect-selected-text').attr('min');
-        let max = $('#filter_age .multiselect-selected-text').attr('max');
-        console.log("user_age = "+user_age + "min="+min+",max="+max);
-        if( user_age < min || user_age > max ) {
-          $(this).hide();
-          return;
+      if( $('#filter_age').is(':visible') ) {
+        console.log('filter age');
+        let user_option = profile['年齡'];
+        if( user_option ) {
+          let user_age = parseInt(user_option);
+          let min = $('#filter_age .multiselect-selected-text').attr('min');
+          let max = $('#filter_age .multiselect-selected-text').attr('max');
+          console.log("user_age = "+user_age + "min="+min+",max="+max);
+          if( user_age < min || user_age > max ) {
+            $(this).hide();
+            return;
+          }
+        }
+      }
+      if( $('#filter_place').is(':visible') ) {
+        console.log('filter place');
+        user_option = profile['地區'];
+        select_option = $('#filter_place .multiselect-selected-text').text();
+        if( user_option && select_option!="全選") {
+          console.log(userId+" place = "+user_option + "select_option = "+select_option);
+          if( select_option.indexOf(user_option)==-1 ) {
+            $(this).hide();
+            return;
+          }
         }
       }
 
-      user_option = profile['性別'];
-      let select_option = $('#filter_sex .multiselect-selected-text').text();
-      if( user_option && select_option!="全選") {
-        console.log(userId+" gender = "+user_option + "select_option = "+select_option);
-        if( user_option!=select_option ) {
-          $(this).hide();
-          return;
+      if( $('#filter_recent').is(':visible') ) {
+        console.log('filter recent');
+        user_option = profile['上次聊天時間'];
+        if( user_option ) {
+          let min = $('#filter_recent .multiselect-selected-text').attr('min');
+          let max = $('#filter_recent .multiselect-selected-text').attr('max');
+          let user_time_gap = Date.now() - user_option;
+          console.log("user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
+          if( user_time_gap < min || user_time_gap > max ) {
+            $(this).hide();
+            return;
+          }
+        }
+      }
+      if( $('#filter_first').is(':visible') ) {
+        console.log('filter first');
+        user_option = profile['firstChat'];
+        if( user_option ) {
+          let min = $('#filter_first .multiselect-selected-text').attr('min');
+          let max = $('#filter_first .multiselect-selected-text').attr('max');
+          let user_time_gap = Date.now() - user_option;
+          console.log(" user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
+          if( user_time_gap < min || user_time_gap > max ) {
+            $(this).hide();
+            return;
+          }
         }
       }
 
-      user_option = profile['地區'];
-      select_option = $('#filter_place .multiselect-selected-text').text();
-      if( user_option && select_option!="全選") {
-        console.log(userId+" place = "+user_option + "select_option = "+select_option);
-        if( select_option.indexOf(user_option)==-1 ) {
-          $(this).hide();
-          return;
+      if( $('#filter_sex').is(':visible') ) {
+        console.log('filter sex');
+        user_option = profile['性別'];
+        let select_option = $('#filter_sex .multiselect-selected-text').text();
+        if( user_option && select_option!="全選") {
+          console.log(userId+" gender = "+user_option + "select_option = "+select_option);
+          if( user_option!=select_option ) {
+            $(this).hide();
+            return;
+          }
         }
       }
 
-      user_option = profile['TAG'];
-      select_option = $('#filter_tag .multiselect-selected-text').text();
-      if( select_option!="全選") {
-        if( !user_option ) {
-          $(this).hide();
-          return;
-        }
-        console.log(userId+" tag = "+user_option + "select_option = "+select_option);
-        user_option = user_option.split(',');
-        console.log(user_option);
-        let i;
-        for( i=0; i<user_option.length; i++ ) {
-          console.log("now user option = "+user_option[i]);
-          if( select_option.indexOf(user_option[i])!=-1 ) break;
-        }
-        if( i==user_option.length ) {
-          $(this).hide();
-          return;
-        }
-      }
-
-      user_option = profile['上次聊天時間'];
-      if( user_option ) {
-        let min = $('#filter_recent .multiselect-selected-text').attr('min');
-        let max = $('#filter_recent .multiselect-selected-text').attr('max');
-        let user_time_gap = Date.now() - user_option;
-        console.log("user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
-        if( user_time_gap < min || user_time_gap > max ) {
-          $(this).hide();
-          return;
-        }
-      }
-
-      user_option = profile['firstChat'];
-      if( user_option ) {
-        let min = $('#filter_first .multiselect-selected-text').attr('min');
-        let max = $('#filter_first .multiselect-selected-text').attr('max');
-        let user_time_gap = Date.now() - user_option;
-        console.log(" user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
-        if( user_time_gap < min || user_time_gap > max ) {
-          $(this).hide();
-          return;
+      for( let way in filterDataCustomer ) {
+        user_option = profile[way];
+        select_option = $('#filter_'+way+' .multiselect-selected-text').text();
+        if( select_option!="全選") {
+          if( !user_option ) {
+            $(this).hide();
+            return;
+          }
+          console.log(userId);
+          console.log(way+" = "+user_option + " select_option = "+select_option);
+          user_option = user_option.split(',');
+          console.log(user_option);
+          let i;
+          for( i=0; i<user_option.length; i++ ) {
+            console.log("now user option = "+user_option[i]);
+            if( select_option.indexOf(user_option[i])!=-1 ) break;
+          }
+          if( i==user_option.length ) {
+            $(this).hide();
+            return;
+          }
         }
       }
 
@@ -295,7 +347,7 @@ $(document).ready(function() {
   $('#filterBtn-clean').on('click', function() {
     $('.tablinks').show();
     $('.filterSlider').slider("values",[0,999]);
-    $('.filterSelect').find('input[type="checkbox"]').prop('checked',true);
+    $('.filterBar .filterSelect').find('input[type="checkbox"]').prop('checked',true);
     $('.filterSelect').parent().parent().find('.multiselect-selected-text').text('全選');
   })
 
@@ -325,7 +377,6 @@ $(document).ready(function() {
         historyMsgStr += "<p class='message-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";  //plus date info
       }
 
-
       if( historyMsg[i].time - prevTime > 15*60*1000 ) { //if out of 15min section, new a section
         historyMsgStr += "<p class='message-day' style='text-align: center'><strong>" + toDateStr(historyMsg[i].time) + "</strong></p>";  //plus date info
       }
@@ -351,8 +402,7 @@ $(document).ready(function() {
 
     let lastMsg = historyMsg[historyMsg.length-1];    //this part code is temporary
     let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
-    let lastMsgStr = "";
-    lastMsgStr = "<br><span style='font-weight: "+ font_weight + "'>" + toTimeStr(lastMsg.time) + remove_href_msg(lastMsg.message) + "</span>";
+    let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
     //display last message at tablinks
 
     let avgChatTime;
@@ -388,15 +438,15 @@ $(document).ready(function() {
 
       socket.emit("update chat time", {   //tell www to update this user's chat time info
         id: profile.userId,
-        avgTime: avgChatTime,
-        totalTime: totalChatTime,
+        avgChat: avgChatTime,
+        totalChat: totalChatTime,
         chatTimeCount: chatTimeCount,
-        recentTime: lastMsg.time
+        recentChat: lastMsg.time
       });
-      profile.avgTime = avgChatTime;
-      profile.totalTime = totalChatTime;
+      profile.avgChat = avgChatTime;
+      profile.totalChat = totalChatTime;
       profile.chatTimeCount = chatTimeCount;
-      profile.recentTime = lastMsg.time;
+      profile.recentChat = lastMsg.time;
     }
     else {      //it means database dont need update, just get info from DB
       avgChatTime = profile.avgChat;
@@ -410,7 +460,7 @@ $(document).ready(function() {
       + "data-chatTimeCount=\"" + chatTimeCount +"\" "
       + "data-firstTime=\"" + profile.firstChat +"\" "
       + "data-recentTime=\"" + lastMsg.time +"\"> "
-      + profile.nickname
+      + '<span id="nick">' + profile.nickname + '</span>'
       + lastMsgStr
       + "</button></b>"
     );    //new a tablinks
@@ -423,7 +473,7 @@ $(document).ready(function() {
     let early_time = Date.now() - 15*60*1000;        //15min before now
     let last = clients.find('.tablinks').last();      //last user in online room
     while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
-      console.log("push " + last.attr('rel') + " to idle!");
+      // console.log("push " + last.attr('rel') + " to idle!");
       let b = last.parents('b');
       b.remove();
       idles.prepend(b);
@@ -563,7 +613,7 @@ $(document).ready(function() {
     if (name_list.indexOf(data.id) !== -1 ) {
       console.log('user existed');
       let target = $(".tablinks[rel='"+data.id+"']");
-      target.find("span").html(toTimeStr(data.time)+remove_href_msg(data.message)).css("font-weight", font_weight);
+      target.find("#msg").html(toTimeStr(data.time)+data.message).css("font-weight", font_weight);
       target.attr("data-recentTime", data.time);
       //update tablnks's last msg
 
@@ -572,17 +622,20 @@ $(document).ready(function() {
       clients.prepend(b);
     }
     else{     //new user, make a tablinks
-      clients.prepend("<b><button rel=\"" + data.id + "\" class=\"tablinks\" >" + data.name
-        + "<br><span style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
-        + remove_href_msg(data.message) +  "</span></button></b>"
+      clients.prepend('<b><button rel="' + data.id + '" class="tablinks"><span id="nick">' + data.name
+        + "</span><br><span id='msg' style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
+        + data.message +  "</span></button></b>"
       );
     }
   } //close client function
+  socket.on('new user profile', function(data){
+    console.log('new user come in from www!');
+    console.log(data);
+    userProfiles[data.userId] = data;
+  });
 
   messageForm.submit((e) => {
     e.preventDefault();
-    // selectAll();
-    console.log(Date.now());
     let sendObj = {
       id: "",
       msg: messageInput.val(),
@@ -598,6 +651,16 @@ $(document).ready(function() {
           console.log(name_list[i]);
         });//snap=
       };//for
+    }
+    else if( $("#user-rooms option:selected" ).val()=='對可見用戶發送' ) {
+      $('.tablinks:visible').each(function() {
+        console.log($(this).attr('rel'));
+        sendObj.id = $(this).attr('rel');
+        socket.emit('send message2', sendObj, (data) => {
+          messageContent.append('<span class="error">' + data + "</span><br/>");
+        });
+      });
+
     }
     else {
       sendObj.id = $("#user-rooms option:selected").val();
@@ -817,12 +880,13 @@ $(document).ready(function() {
     }
     console.log("show profile of userId " + target);
     reload_tags();
-    socket.emit('get profile', target );
+    showTargetProfile(userProfiles[target]);
+    // socket.emit('get profile', target );
   }
-  socket.on('show profile', data => {
-    userProfiles[data.userId] = data;
-    showTargetProfile(data);
-  });
+  // socket.on('show profile', data => {
+  //   userProfiles[data.userId] = data;
+  //   showTargetProfile(data);
+  // });
 
   function reload_tags(){
     infoTable.empty();
@@ -901,26 +965,6 @@ $(document).ready(function() {
     });
   }
 
-  // function showProfile() {
-  //   var target = $('#selected').attr('rel'); //get useridd of current selected user
-  //   console.log("show profile");
-  //   socket.emit('get profile',{id: target}) ;
-  // }
-  // socket.on('show profile',(data) => {
-  //   var Th = $('.userInfo-th');
-  //   var Td = $('.userInfo-td');
-  //   var but = $('.edit-button');
-  //   for(let i in but){but.eq(i).hide();}
-  //   for(let i in Th ){Th.eq(i).text(Th.eq(i).attr('id')+' : ') ;}
-  //   let key ;
-  //   buffer = data ;  //storage profile in buffer zone
-  //   Td.each( function() {
-  //     key = $(this).attr('id');
-  //     if( data.hasOwnProperty(key) ) $(this).text(data[key]); //show each profile data
-  //     else $(this).text("");
-  //     if(key == 'userId'||key == 'totalChat'){$(this).click(false);}  //disable editing of userid and totalchat
-  //   });
-  // });
   function editProfile() {
     if( $(this).parent().children('.edit-button').is(':visible') ) return;
     else $(this).parent().children('.edit-button').show(); //show yes/no button
@@ -1036,8 +1080,8 @@ $(document).ready(function() {
       socket.emit('update profile',buffer);
       $('.modal').modal('hide');
       userProfiles[buffer.userId] = JSON.parse(JSON.stringify(buffer));   //clone object
+      $('.tablinks[rel='+buffer.userId+']').find('#nick').text(buffer.nickname);
     }
-
   }
 
 
@@ -1069,61 +1113,4 @@ $(document).ready(function() {
   function addZero(val){
     return val<10 ? '0'+val : val;
   }
-
-  function remove_href_msg(msg) {   //let last msg display correct, not well tested, may many bug
-    // if( msg.indexOf('target="_blank"')!=-1 && msg.indexOf('href')!=-1 ) {
-    //   let aPos = msg.indexOf('target="_blank"');
-    //   let bPos = msg.indexOf('href');
-    //   if( bPos>aPos ) { //image, video, audio, location
-    //     if( msg.indexOf('image')!=-1 ) return "send a image";
-    //     else if( msg.indexOf('audio')!=-1 ) return "send an audio";
-    //     else if( msg.indexOf('video')!=-1 ) return "send a video";
-    //     else if( msg.indexOf('https://www.google.com.tw/maps/') != -1) return "send a location";
-    //   }
-    //   else {  //url
-    //     let cPos = msg.lastIndexOf('target');
-    //     return msg.substring( bPos+6, cPos-2 ) ;
-    //   }
-    // }
-    // else return msg;
-    return msg;
-  }
-
 }); //document ready close tag
-
-
-
-// Data: [
-//   -KqMcXFiOawbOmg: {
-//     Profile: {
-//       nickname: "Nick",
-//       userId: "U123456782452345",
-//       unRead: true    //agent hasnt read user's newest msg yet
-//       address: "",
-//       age: 18,
-//       telephone: "0987654321",
-//       avgChat: 13,  //user chat for 13 min per times
-//       totalChat: 39,  //user chat for 39 min totally
-//       firstChat: 1501487574140,   //user's first chat time
-//       recentChat: 1501577478051,  //user's recent chat time
-//     },
-//     Messages: [
-//       0: {
-//         owner: "user",  //"user" or "agent"
-//         name: "Nick",   //"Nick", "AgentNick"
-//         time: 15345674568,
-//         message: "Hi there!"
-//       },
-//       1: {
-//         owner: "agent",  //"user" or "agent"
-//         name: "AgentNick",   //"Nick", "AgentNick"
-//         time: 15345677568,
-//         message: "Hi there!"
-//       },
-//     ]
-//
-//   },
-//   -KqwedgKsdfyBssweoP: {
-//
-//   }.
-// ]

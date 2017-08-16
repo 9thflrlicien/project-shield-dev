@@ -1,7 +1,13 @@
 #headBar {
   margin-bottom: 20px;
 }
-.filterBar {
+#filter_option .multiselect-container {
+  padding-top: 0px;
+}
+.filterPanel {
+  margin-top: 10px;
+}
+.filterUnit {
   display: inline;
   padding: 5px;
   margin-bottom: 50px;

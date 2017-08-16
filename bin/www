@@ -128,7 +128,7 @@ bot.on('message', event => {
               newDBRef.update(updateObj);
               newDBRef.child(prop).child("Profile").update({
                 unRead: true,
-                photo: profile.pictureUrl
+                photo: profile.pictureUrl? profile.pictureUrl :""
               });
               flag = false;
               break;
@@ -153,11 +153,12 @@ bot.on('message', event => {
                 平均每次聊天時間: 1,
                 聊天次數: 1,
                 unRead: true,
-                photo: profile.pictureUrl
+                photo: profile.pictureUrl? profile.pictureUrl :""
               },
               Messages: [obj]
             };
             newDBRef.push(newData);
+            io.sockets.emit('new user profile', newData.Profile);
           }
         }
         function sendToLocalDB(obj) {
@@ -196,7 +197,9 @@ bot.on('message', event => {
         if (message_type === 'sticker') {
           let packageId = event.message.packageId;
           let stickerId = event.message.stickerId;
-          msgObj.message = 'Sticker packageId = ('+packageId+', '+stickerId+')';
+          msgObj.message = "YOYO";
+          msgObj.message = '<img src="https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/'+stickerId+'/android/sticker.png"' +
+          'width="20%" alt="sticker cant display!"/>';
           emitIO_and_pushDB(msgObj);
           type_sticker += 1;  ///what is this var QQ
 
@@ -637,6 +640,7 @@ io.sockets.on('connection', (socket) => {
     });
 
     socket.on('get tags from chat', data => {
+      console.log("tags socket");
       io.sockets.emit('push tags to chat', tagsData);
     });
     socket.on('get tags from tags', data => {
@@ -651,6 +655,7 @@ io.sockets.on('connection', (socket) => {
     });
 
     socket.on('get json from back', (data, callback) => {
+      console.log("chat data socket");
       // var DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
       io.sockets.emit('push json to front', chatData);
     });
@@ -685,15 +690,15 @@ io.sockets.on('connection', (socket) => {
         if( chatData[i].Profile.userId == data.id ) {
           let updateObj = {};
           newDBRef.child(i).child("Profile").update({
-            "avgChat": data.avgTime,
-            "totalChat": data.totalTime,
+            "avgChat": data.avgChat,
+            "totalChat": data.totalChat,
             "chatTimeCount": data.chatTimeCount,
             // "recentChat": data.recentTime
-            "recentChat": data.recentTime,
-            "平均每次聊天時間": data.avgTime,
-            "總共聊天時間": data.totalTime,
+            "recentChat": data.recentChat,
+            "平均每次聊天時間": data.avgChat,
+            "總共聊天時間": data.totalChat,
             "聊天次數": data.chatTimeCount,
-            "上次聊天時間": data.recentTime
+            "上次聊天時間": data.recentChat
           });
           break;
         }
