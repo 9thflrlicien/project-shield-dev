@@ -526,8 +526,8 @@ $(document).ready(function() {
     $("#selected").attr('id','').css("background-color", "");   //selected tablinks change, clean prev's color
     $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
 
-    if( $(this).find('span').css("font-weight")=="bold" ) {
-      $(this).find('span').css("font-weight", "normal");                //read msg, let msg dis-bold
+    if( $(this).find('#msg').css("font-weight")=="bold" ) {
+      $(this).find('#msg').css("font-weight", "normal");                //read msg, let msg dis-bold
       socket.emit("read message", {id: $(this).attr('rel')} );          //tell socket that this user isnt unRead
     }
 

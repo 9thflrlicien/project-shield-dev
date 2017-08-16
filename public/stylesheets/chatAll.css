@@ -75,6 +75,9 @@ div.tab button {
   /*overflow-y: scroll;*/
   overflow-x: hidden; /*byFWL*/
 }
+/*#nick {
+  font-weight: bold;
+}*/
 /* Change background color of buttons on hover */
 div.tab button:hover {
   background-color: #ddd;
