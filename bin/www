@@ -657,7 +657,48 @@ io.sockets.on('connection', (socket) => {
     socket.on('get json from back', (data, callback) => {
       console.log("chat data socket");
       // var DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
-      io.sockets.emit('push json to front', chatData);
+      // console.log(chatData);
+      let sendData = [];
+      for( let i in chatData ) {
+        let msgs = chatData[i].Messages;
+        let position = 0;
+        if( msgs.length>20 ) {
+          position = msgs.length-20;
+          msgs = msgs.slice(position);
+        }
+        sendData.push({
+          Messages: msgs,
+          position: position,
+          Profile: chatData[i].Profile
+        });
+      }
+      // console.log(sendData);
+      io.sockets.emit('push json to front', sendData);
+    });
+    socket.on('upload history msg from front', data => {
+      console.log('upload history msg of userId = '+data.userId+', head = '+data.head+', tail = '+data.tail);
+      let userId = data.userId;
+      let head = data.head;
+      let tail = data.tail;
+      let sendData = [];
+
+      for( let i in chatData ) {
+        if( chatData[i].Profile.userId==userId ) {
+          for( let j=head; j<tail+1; j++ ) {
+            console.log("j = "+j);
+            // console.log(chatData[i].Messages[j]);
+            sendData.push( chatData[i].Messages[j] );
+          }
+          break;
+        }
+      }
+      console.log("sendData = ");
+      console.log(sendData);
+      socket.emit('upload history msg from back', {
+        userId: userId,
+        messages: sendData
+      });
+
     });
     socket.on('read message', (data) => {
       console.log("agent read message of user "+data.id);
