@@ -26,6 +26,9 @@ router.get('/history', function(req, res, next) {
   res.render('history', { title: 'SHIELD history' });
 });
 
+router.get('/agentChat', function(req, res, next) {
+  res.render('agentChat', { title: 'SHEILD agent chat'});
+});
 //authentication
 router.get('/login', function(req, res, next) {
   res.render('login', { title: 'Login' });

@@ -22,21 +22,27 @@ var config = {
 firebase.initializeApp(config);
 
 const usersRef = firebase.database().ref().child('chats/users2');
-const agentsRef = firebase.database().ref().child('chats/agents2');
 const newDBRef = firebase.database().ref().child('chats/Data');
+const agentDBRef = firebase.database().ref().child('chats/AgentChatData');
 const tagsRef = firebase.database().ref().child('tags');
 
 var chatData;
 newDBRef.on('value', snapshot=> {
    chatData = snapshot.val();
-   console.log("chat data loading complete!");
+   console.log("chat data loaded");
   // ...
 });
+
+var agentChatData;
+agentDBRef.on('value', snapshot=> {
+  agentChatData = snapshot.val();
+  console.log("agent chat loaded");
+})
 
 var tagsData;
 tagsRef.on('value', snapshot=> {
    tagsData = snapshot.val().Data;
-   console.log("tags data loading complete!");
+   console.log("tags data loaded");
   // ...
 });
 /**
@@ -197,7 +203,6 @@ bot.on('message', event => {
         if (message_type === 'sticker') {
           let packageId = event.message.packageId;
           let stickerId = event.message.stickerId;
-          msgObj.message = "YOYO";
           msgObj.message = '<img src="https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/'+stickerId+'/android/sticker.png"' +
           'width="20%" alt="sticker cant display!"/>';
           emitIO_and_pushDB(msgObj);
@@ -641,10 +646,10 @@ io.sockets.on('connection', (socket) => {
 
     socket.on('get tags from chat', data => {
       console.log("tags socket");
-      io.sockets.emit('push tags to chat', tagsData);
+      socket.emit('push tags to chat', tagsData);
     });
     socket.on('get tags from tags', data => {
-      io.sockets.emit('push tags to tags', tagsData);
+      socket.emit('push tags to tags', tagsData);
     });
 
     socket.on('update tags', data => {
@@ -673,7 +678,7 @@ io.sockets.on('connection', (socket) => {
         });
       }
       // console.log(sendData);
-      io.sockets.emit('push json to front', sendData);
+      socket.emit('push json to front', sendData);
     });
     socket.on('upload history msg from front', data => {
       console.log('upload history msg of userId = '+data.userId+', head = '+data.head+', tail = '+data.tail);
@@ -750,111 +755,6 @@ io.sockets.on('connection', (socket) => {
     });
 
     // 從SHIELD chat傳送訊息
-    socket.on('send message', (data, callback) => {
-        console.log(data);
-        var msg = data.msg.trim();
-        agent_sendTo_receiver = data.id.trim();
-        console.log(agent_sendTo_receiver);
-
-        var message;
-        let d = Date.now();
-        let date = new Date(d);
-
-        if(msg.includes('/image')){
-          let link = msg.substr(7);
-          // console.log(link);
-          message = {
-            type: "image",
-            originalContentUrl: link,
-            previewImageUrl: link
-          };
-        } else if(msg.includes('/audio')){
-          let link = msg.substr(7);
-          // console.log(link);
-          message = {
-            type: "audio",
-            originalContentUrl: link,
-            duration: 6000
-          };
-        } else if(msg.includes('/video')){
-          let link = msg.substr(7);
-          // console.log(link);
-          message = {
-            type: "video",
-            originalContentUrl: link,
-            previewImageUrl: "https://www.movienewsguide.com/wp-content/uploads/2016/03/Phoenix-Suns.jpg"
-          };
-        } else if (msg.includes('/sticker')) {
-            message = {
-                type: "sticker",
-                packageId: parseInt(msg.substr(9)),
-                stickerId: parseInt(msg.substr(11))
-            };
-        } else {
-            message = {
-                type: "text",
-                text: msg
-            };
-        }
-
-        // 訊息傳到LINE
-        if (agent_sendTo_receiver !== undefined) {
-          bot.push(agent_sendTo_receiver, message);
-        }
-        else {
-            console.log("agent_sendTo_receiver undefined!");
-        }
-
-        var msgObj = {
-          agentName: socket.nickname,
-          id: agent_sendTo_receiver,
-          messageTime: Date.now()
-        }
-        function emitIO_and_pushDB(obj) {
-          console.log("sending object agent1: ");
-          console.log(obj);
-
-          // 訊息傳到後台介面上
-          console.log("sending to io sockets...");
-          io.sockets.emit('new message', obj);
-          console.log("io sockets sent!");
-
-          // 訊息儲存到firebase資料庫
-          console.log("sending to firebase database...");
-          agentsRef.push(obj);
-          console.log("DB sent!");
-        }
-
-        if (msg.includes('/image')) {
-          msgObj.message = 'Send image to user';
-          emitIO_and_pushDB(msgObj);
-
-        } else if (msg.includes('/audio')) {
-          msgObj.message = 'Send audio to user';
-          emitIO_and_pushDB(msgObj);
-
-        } else if (msg.includes('/video')) {
-          msgObj.message = 'Send video to user';
-          emitIO_and_pushDB(msgObj);
-
-        } else if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
-            let urlStr = '<a href=';
-            if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
-              urlStr += '"https://';
-            }
-            msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
-            emitIO_and_pushDB(msgObj);
-
-        } else if (msg.includes('/sticker')) {
-          msgObj.message = 'Send sticker to user';
-          emitIO_and_pushDB(msgObj);
-
-        } else {
-          msgObj.message = msg;
-          emitIO_and_pushDB(msgObj);
-        }
-    });//sent message
-
     socket.on('send message2', (data, callback) => {
         // console.log(data);
         let msg = data.msg.trim();
@@ -1069,6 +969,157 @@ io.sockets.on('connection', (socket) => {
           }
           console.log(updateObj);
           newDBRef.child(i).child("Profile").update(updateObj);
+          break;
+        }
+      }
+    });
+
+    socket.on('new room agentChat', (data, callback) => {
+      // data = {
+      //   name: "客服群組",
+      //   roomId: 0,
+      //   agent: [
+      //     "NICK0305",
+      //     "FillNickNam"
+      //   ],
+      //   description: "asdfasdfasdfasdf"
+      // }
+      agentDBRef.push({
+        Messages: [
+          {
+            message: "group establish",
+            name: "System",
+            time: (new Date()).getTime()
+          }
+        ],
+        Profile: data
+      })
+
+    });
+
+    socket.on('get json from agentChat', (data, callback) => {
+      let sendData = [];
+      for( let i in agentChatData ) {
+        // if( agentChatData[i].Profile.roomId!=1502948942368 ) return;
+        let msgs = agentChatData[i].Messages;
+        if( !msgs ) msgs = [];
+        let position = 0;
+        if( msgs.length>20 ) {
+          position = msgs.length-20;
+          msgs = msgs.slice(position);
+        }
+        sendData.push({
+          Messages: msgs,
+          position: position,
+          Profile: agentChatData[i].Profile
+        });
+      }
+      console.log(sendData);
+      socket.emit('push json to agentChat', sendData);
+    });
+
+    socket.on('upload history msg from front agentChat', data => {
+      console.log('upload history msg of userId = '+data.roomId+', head = '+data.head+', tail = '+data.tail);
+      let roomId = data.roomId;
+      let head = data.head;
+      let tail = data.tail;
+      let sendData = [];
+
+      for( let i in agentChatData ) {
+        if( agentChatData[i].Profile.roomId==roomId ) {
+          for( let j=head; j<tail+1; j++ ) {
+            console.log("j = "+j);
+            // console.log(chatData[i].Messages[j]);
+            sendData.push( agentChatData[i].Messages[j] );
+          }
+          break;
+        }
+      }
+      console.log("sendData = ");
+      console.log(sendData);
+      socket.emit('upload history msg from back agentChat', {
+        roomId: roomId,
+        messages: sendData
+      });
+
+    });
+
+    socket.on('send message agentChat', (data, callback) => {
+        // console.log(data);
+        let msg = data.msg.trim();
+        let receive_room = data.roomId.trim();
+        let nowTime = Date.now();
+
+        console.log(receive_room);
+        if(socket.nickname !== undefined){
+          agent_nickname = socket.nickname;
+        } else {
+          agent_nickname = 'agent';
+        }
+
+        var msgObj = {
+          name: data.sender,
+          time: nowTime,
+        };
+        function emitIO_and_pushDB(obj) {
+          console.log("sending object agent2: ");
+          console.log(obj);
+
+          console.log("sending to new firebase database");
+          sendToNewFb(obj);
+          console.log("sending to new io sockets...");
+          sendToFrontSocket(obj);
+          console.log("All sent!");
+        }
+
+        function sendToNewFb(obj){
+          for( let prop in agentChatData ) {
+            console.log("find next user data");
+            if(agentChatData[prop].Profile.roomId == receive_room) {
+              console.log("find the same room");
+              let length = agentChatData[prop].Messages.length;
+              let updateObj = {};
+              updateObj['/'+prop+'/Messages/'+length] = obj;
+              agentDBRef.update(updateObj);
+              flag = false;
+              break;
+            }
+          }
+        }
+        function sendToFrontSocket(obj) {
+          obj.roomId = receive_room;
+          io.sockets.emit('new message agentChat', obj);
+        }
+
+        if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
+            let urlStr = '<a href=';
+            if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
+              urlStr += '"https://';
+            }
+            msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
+            emitIO_and_pushDB(msgObj);
+
+        } else if (msg.includes('/sticker')) {
+          stickerId = msg.substr( msg.indexOf(' ')+1 );
+          msgObj.message = '<img src="https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/'+stickerId+'/android/sticker.png"' +
+          emitIO_and_pushDB(msgObj);
+
+        } else {
+          msgObj.message = msg;
+          emitIO_and_pushDB(msgObj);
+        }
+    });//sent message
+
+    socket.on('update profile agentChat', (data, callback) => {
+      console.log("update profile");
+      for( let i in agentChatData ) {
+        if( agentChatData[i].Profile.roomId == data.roomId ) {
+          let updateObj = {};
+          for( let prop in data ) {
+            updateObj[prop] = data[prop];
+          }
+          console.log(updateObj);
+          agentDBRef.child(i).child("Profile").update(updateObj);
           break;
         }
       }
