@@ -317,12 +317,14 @@ $(document).ready(function() {
     $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");   //clean tablinks color
   }
 
-  socket.on('new message2', (data) => {   //if www push "new message2"
+  socket.on('new message2', (data) => {
+     //if www push "new message2"
     console.log("Message get! identity = " + data.owner + ", name = " + data.name);
     //owner = "user", "agent" ; name = "Colman", "Ted", others...
     displayMessage( data ); //update canvas
     displayClient( data );  //update tablinks
 
+    if( data.owner=="user" ) change_document_title(data.name);
     if( name_list.indexOf(data.id) == -1 ) {  //if its never chated user, push his name into name list
       name_list.push(data.id);
       console.log("push into name_list!");
@@ -1103,7 +1105,6 @@ $(document).ready(function() {
     let returnStr = "";
     let nowDateStr = "";
     let prevTime = 0;
-    console.log("1170 messages");
     console.log(messages);
     for( let i in messages ) {    //this loop plus date info into history message, like "----Thu Aug 01 2017----"
       let d = new Date( messages[i].time ).toDateString();   //get msg's date
@@ -1146,6 +1147,9 @@ $(document).ready(function() {
     return " (" + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ") ";
   }
 
+  function change_document_title(name) {
+    // $(document).prop('title', 'SHEILD chat ver2');
+  }
   function addZero(val){
     return val<10 ? '0'+val : val;
   }
