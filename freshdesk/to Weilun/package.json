@@ -1,0 +1,22 @@
+{
+  "name": "test",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "~1.16.0",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.0",
+    "ejs": "~2.5.5",
+    "express": "~4.14.1",
+    "freshdesk-api": "^2.3.0",
+    "morgan": "~1.7.0",
+    "node-freshdesk": "^0.1.1",
+    "request": "^2.81.0",
+    "serve-favicon": "~2.3.2",
+    "socket.io": "^2.0.3",
+    "unirest": "^0.5.1"
+  }
+}

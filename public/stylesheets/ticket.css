@@ -156,3 +156,55 @@ div.tab button.active {
     width: 95%;
   }
 }
+
+body,html{height: 100%}
+
+h1 {
+  color: white ;
+  background-color: black;
+  padding: 1% 5%;
+  margin: 0;
+}
+
+h2{
+  font-size: 16px ;
+  margin: 0;
+  color: white;
+  background-color: rgb(4, 92, 76);
+  padding: 1% 5%;
+}
+
+input {
+  right: 1%;
+  margin: 1% 5% ;
+  position: absolute;
+}
+
+.ticket {
+  display: flex;
+  justify-content: center;
+  margin: 5% 10% ;
+  border : 1px solid gray ;
+  border-radius: 5px;
+  width: 100%
+}
+
+td, th {
+    border-bottom:  1px solid rgb(5, 82, 87);
+    text-align: left;
+    padding: 8px;
+    margin: 2px 0 ;
+}
+
+tr:nth-child(even) {
+    background-color: rgb(169, 196, 186);
+}
+table { width: 100%}
+.sidebar{
+  width: 20%;
+}
+.main{
+  display: flex;
+  margin: 0;
+  width: 100%
+}

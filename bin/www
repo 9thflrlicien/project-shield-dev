@@ -10,6 +10,10 @@ var firebase = require('firebase');
 var linebot = require('linebot');
 var apiai = require('apiai');
 var fs = require('fs');
+var ticket = {} ;
+var unirest = require('unirest');
+var API_KEY = "4qydTzwnD7xRGaTt7Hqw";
+var FD_ENDPOINT = "fongyu";
 
 var config = {
     apiKey: "AIzaSyAqzIra9YkeE0HZZBSwXrjh4GemO7yVdmI",
@@ -24,10 +28,19 @@ firebase.initializeApp(config);
 const usersRef = firebase.database().ref().child('chats/users2');
 const agentsRef = firebase.database().ref().child('chats/agents2');
 const newDBRef = firebase.database().ref().child('chats/Data');
+const tagsRef = firebase.database().ref().child('tags');
+
 var chatData;
 newDBRef.on('value', snapshot=> {
    chatData = snapshot.val();
    console.log("chat data loading complete!");
+  // ...
+});
+
+var tagsData;
+tagsRef.on('value', snapshot=> {
+   tagsData = snapshot.val().Data;
+   console.log("tags data loading complete!");
   // ...
 });
 
@@ -269,30 +282,31 @@ bot.on('message', event => {
             console.log(error);
           });
         }
-        else if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
-          let urlStr = '<a href=';
-          if (message_lineTochat.indexOf('https') === -1 || message_lineTochat.indexOf('http') === -1) {
-            urlStr += '"https://';
-          }
-          msgObj.message = urlStr + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>';
-          emitIO_and_pushDB(msgObj);
-        }
         else {
           msgObj.message = message_lineTochat;
           apiai(msgObj);
+          if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
+            let urlStr = '<a href=';
+            if (message_lineTochat.indexOf('https') === -1 || message_lineTochat.indexOf('http') === -1) {
+              urlStr += '"https://';
+            }
+            msgObj.message = urlStr + message_lineTochat + '/ target="_blank">' + message_lineTochat + '</a>';
+          }
           emitIO_and_pushDB(msgObj);
         }
 /*========================api.ai by FWL=============================*/
         function apiai(obj) {
           var apiai = require('apiai');
-          var app = apiai('5e29c1d48227420789ac915597c0f025');
+          var app = apiai('a84ed63ae3914a1fb4601f2824d4cabd');
           var request = app.textRequest(obj.message, {
-              sessionId: '9ceb250a-dbcc-463e-98dd-e2a5e56649b0'
+              sessionId: '0896c04e-218b-4951-b75d-2d09e1ce7d4b'
           });
           request.on('response', function(response) {
             let action = response.result.action ;
             let speech = response.result.fulfillment.messages[0].speech ;
-            console.log(action) ;
+            let parameter = response.result.parameters ;
+            let complete = !response.result.actionIncomplete ;
+            console.log(response.result) ;
             if(action != 'input.unknown'){
               msgObj.owner = 'agent';
               msgObj.name = 'api.ai';
@@ -307,9 +321,9 @@ bot.on('message', event => {
                     "title": "問題選項",
                     "text": "請選擇一個詢問主題",
                     "actions": [{
-                        "type": "message",
+                        "type": "postback",
                         "label": "購買方案",
-                        "text": "購買方案"
+                        "data": "purchasePlan"
                     },{
                         "type": "message",
                         "label": "服務時段",
@@ -321,33 +335,6 @@ bot.on('message', event => {
                     }]
                   }
                 });
-              }
-              if(action == 'PurchasePlan'){
-                msgObj.message = '已接收購買方案'+"4小時方案  "+"8小時方案  "+"16小時方案  ";
-                emitIO_and_pushDB(msgObj);
-                event.reply({
-                  "type": "template",
-                  "altText": "購買方案說明",    //text that customer see at chat list
-                  "template": {
-                    "type": "buttons",
-                    "title": "購買方案說明",
-                    "text": "請選擇一個方案",
-                    "actions": [{
-                      "type": "message",
-                      "label": "4小時方案",
-                      "text": "4小時方案"
-                    },{
-                      "type": "message",
-                      "label": "8小時方案",
-                      "text": "8小時方案"
-                    },{
-                      "type": "message",
-                      "label": "16小時方案",
-                      "text": "16小時方案"
-                    }]
-                  }
-                });
-                return ;
               }
               if(action == 'Questionnaire'){
                 console.log(obj.message);
@@ -490,12 +477,12 @@ bot.on('message', event => {
                       "title": "關於負責人",
                       "text": "以下是有關負責人的常見問題",
                       "actions": [{
-                        "type": "message",
+                        "type": "postback",
                         "label": "請問什麼樣的人可以擔任負責人?",
-                        "text": "請問什麼樣的人可以擔任負責人?"
-                      }]
+                        "data": "1-1"                      }]
                     }
                   });
+
                 }
                 else if(type == 'money'){
                   msgObj.message = '關於資本額';
@@ -508,21 +495,21 @@ bot.on('message', event => {
                       "title": "關於資本額",
                       "text": "以下是有關資本額的常見問題",
                       "actions": [{
-                        "type": "message",
+                        "type": "postback",
                         "label": "公司的資本額有最低限制嗎",
-                        "text": "公司的資本額有最低限制嗎?"
+                        "data": "2-1",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "資本額要在銀行放多久才能用",
-                        "text": "資本額要在銀行放多久才能用?"
+                        "data": "2-2",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "資本額一定要經過會計師簽證查核嗎",
-                        "text": "資本額一定要經過會計師簽證查核嗎?"
+                        "data": "2-3",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "我能請人代做資本額嗎",
-                        "text": "我能請人代做資本額嗎?"
+                        "data": "2-4",
                       }]
                     }
                   });
@@ -538,21 +525,21 @@ bot.on('message', event => {
                       "title": "關於附加服務",
                       "text": "以下是有關附加服務的常見問題",
                       "actions": [{
-                        "type": "message",
+                        "type": "postback",
                         "label": "什麼是商務中心",
-                        "text": "什麼是商務中心?"
+                        "data": "3-1",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "商務中心可以提供什麼服務",
-                        "text": "商務中心可以提供什麼服務?"
+                        "data": "3-2",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "App製作是怎麼樣的服務",
-                        "text": "App製作是怎麼樣的服務?"
+                        "data": "3-3",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "什麼樣的人適合使用商務中心",
-                        "text": "什麼樣的人適合使用商務中心?"
+                        "data": "3-4",
                       }]
                     }
                   });
@@ -568,17 +555,17 @@ bot.on('message', event => {
                       "title": "關於銀行帳戶",
                       "text": "以下是有關銀行帳戶的常見問題",
                       "actions": [{
-                        "type": "message",
+                        "type": "postback",
                         "label": "如何挑選辦理的銀行",
-                        "text": "如何挑選辦理的銀行?"
+                        "data": "4-1",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "如何將公司籌備處帳戶變成正式帳戶",
-                        "text": "如何將公司籌備處帳戶變成正式帳戶?"
+                        "data": "4-2",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "我可以在不同銀行開設公司銀行帳戶嗎",
-                        "text": "我可以在不同銀行開設公司銀行帳戶嗎?"
+                        "data": "4-3",
                       }]
                     }
                   });
@@ -595,77 +582,76 @@ bot.on('message', event => {
                             "text": "以下是有關公司設立的常見問題",
                             "actions": [
                                 {
-                                    "type": "message",
+                                    "type": "postback",
                                     "label": "印章不見時有什麼要注意的?",
-                                    "text": "印章不見時要準備的切結聲明有什麼要注意的?"
+                                    "data": "5-1",
                                 },
                                 {
-                                    "type": "message",
+                                    "type": "postback",
                                     "label": "我可以不設立公司或行號就開始營業嗎?",
-                                    "text": "我可以不設立公司或行號就開始營業嗎?"
+                                    "data": "5-2",
                                 },
                                 {
-                                    "type": "message",
+                                    "type": "postback",
                                     "label": "想用的名稱已被使用，但處於解散狀態",
-                                    "text": "想用的公司名稱已經有人使用，但是是處於解散、撤銷或廢止登記的狀態，那樣的話我能用那個名字嗎?"
+                                    "data": "5-3",
                                 }
                             ]
-                          },
-                          {
+                          },{
                             "text": "以下是有關公司設立的常見問題",
                             "actions": [
                                 {
-                                  "type": "message",
+                                  "type": "postback",
                                   "label": "想開小吃店或小店面還需要設立公司嗎",
-                                  "text": "如果是想開小吃店或是小店面還需要花大錢設立公司嗎?"
+                                  "data": "5-4",
                                 },
                                 {
-                                  "type": "message",
+                                  "type": "postback",
                                   "label": "請問我需要準備些什麼東西?",
-                                  "text": "請問我需要準備些什麼東西?"
+                                  "data": "5-5",
                                 },
                                 {
-                                  "type": "message",
+                                  "type": "postback",
                                   "label": "沒有建物所有權狀的話要怎麼辦?",
-                                  "text": "沒有建物所有權狀的話要怎麼辦?"
+                                  "data": "5-6",
                                 }
                             ]
                           },{
                             "text": "以下是有關公司設立的常見問題",
                             "actions": [
                                 {
-                                  "type": "message",
+                                  "type": "postback",
                                   "label": "如果公司大小章不見的話要怎麼處理?",
-                                  "text": "如果公司大小章不見的話要怎麼處理?"
+                                  "data": "5-7",
                                 },
                                 {
-                                  "type": "message",
+                                  "type": "postback",
                                   "label": "外國人在台灣設立公司時的步驟有什麼不同?",
-                                  "text": "外國人在台灣設立公司時的步驟有什麼不同?"
+                                  "data": "5-8",
                                 },
                                 {
-                                  "type": "message",
+                                  "type": "postback",
                                   "label": "公司申請要用的文件和資料要怎樣交給你們?",
-                                  "text": "公司申請要用的文件和資料要怎樣交給你們?"
+                                  "data": "5-9",
                                 }
                             ]
                           },{
                             "text": "以下是有關公司設立的常見問題",
                             "actions": [
                                 {
-                                  "type": "message",
+                                  "type": "postback",
                                   "label": "我該設立有限公司還是股份有限公司?",
-                                  "text": "我要怎麼知道我該設立有限公司還是股份有限公司?"
+                                  "data": "5-10",
                                 },
                                 {
-                                  "type": "message",
+                                  "type": "postback",
                                   "label": "營業項目要設多少個?有限制嗎?",
-                                  "text": "營業項目要設多少個?有限制嗎?"
+                                  "data": "5-11",
                                 },
                                 {
-                                  "type": "message",
+                                  "type": "postback",
                                   "label": " ",
-                                  "text": " "
+                                  "data": " ",
                                 }
                             ]
                           }
@@ -685,13 +671,13 @@ bot.on('message', event => {
                       "title": "關於營業項目",
                       "text": "以下是有關營業項目的常見問題",
                       "actions": [{
-                        "type": "message",
+                        "type": "postback",
                         "label": "什麼是特許營業項目",
-                        "text": "什麼是特許營業項目?"
+                        "data": "6-1",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "我能自行增加製造產品的項目嗎",
-                        "text": "我能自行增加製造產品的項目嗎?"
+                        "data": "6-2",
                       }]
                     }
                   });
@@ -707,13 +693,13 @@ bot.on('message', event => {
                       "title": "關於價格方案",
                       "text": "以下是有關價格方案的常見問題",
                       "actions": [{
-                        "type": "message",
+                        "type": "postback",
                         "label": "為什麼有特許營業項目時要另外計算費用?",
-                        "text": "為什麼營業項目有特許營業項目時要另外計算費用?"
+                        "data": "7-1",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "兩個方案差別在哪?",
-                        "text": "兩個方案差別在哪?"
+                        "data": "7-2",
                       }]
                     }
                   });
@@ -729,21 +715,21 @@ bot.on('message', event => {
                       "title": "關於勞健保",
                       "text": "以下是有關勞健保的常見問題",
                       "actions": [{
-                        "type": "message",
+                        "type": "postback",
                         "label": "我的員工很少，能不投保勞健保嗎?",
-                        "text": "我的員工很少，我能不幫他們投保勞健保嗎?"
+                        "data": "10-1",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "我是負責人，我要怎麼投勞保?",
-                        "text": "我是負責人，我要怎麼投勞保?"
+                        "data": "10-2",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "我是負責人，我要怎麼投健保?",
-                        "text": "我是負責人，我要怎麼投健保?"
+                        "data": "10-3",
                       },{
-                        "type": "message",
+                        "type": "postback",
                         "label": "現在加保勞健保會被追繳勞健保嗎?",
-                        "text": "負責人如果現在加保勞健保到自己公司會被追繳勞健保嗎?"
+                        "data": "10-4",
                       }]
                     }
                   });
@@ -755,39 +741,62 @@ bot.on('message', event => {
                     "type": "template",
                     "altText": "常見問題",
                     "template": {
-                      "type": "buttons",
-                      "title": "常見問題",
-                      "text": "以下是其他常見問題",
-                      "actions": [{
-                        "type": "message",
-                        "label": "請問貴公司的提供服務的區域有哪些?",
-                        "text": "請問貴公司的提供服務的區域有哪些?"
-                      },{
-                        "type": "message",
-                        "label": "請問貴公司的服務時間?",
-                        "text": "請問貴公司的服務時間?"
-                      },{
-                        "type": "message",
-                        "label": "你們怎麼幫我們進行客服代理的服務?",
-                        "text": "你們怎麼幫我們進行客服代理的服務?"
-                      },{
-                        "type": "message",
-                        "label": "我要怎麼向你們付費並取得正式文件?",
-                        "text": "我要怎麼向你們付費並取得正式文件?"
-                      },{
-                        "type": "message",
-                        "label": "我可以不用統一發票嗎?",
-                        "text": "我可以不用統一發票嗎?"
-                      }]
+                      "type": "carousel",
+                      "columns": [
+                        {
+                          "text": "以下是其他常見問題",
+                          "actions":[
+                            {
+                              "type": "postback",
+                              "label": "請問貴公司的提供服務的區域有哪些?",
+                              "data": "8-1",
+                            },
+                            {
+                              "type": "postback",
+                              "label": "請問貴公司的服務時間?",
+                              "data": "8-2",
+                            },
+                            {
+                              "type": "postback",
+                              "label": "你們怎麼幫我們進行客服代理的服務?",
+                              "data": "8-3",
+                            }
+                          ]
+                        },{
+                          "text": "以下是其他常見問題",
+                          "actions":[
+                            {
+                              "type": "postback",
+                              "label": "我要怎麼向你們付費並取得正式文件?",
+                              "data": "8-4",
+                            },
+                            {
+                              "type": "postback",
+                              "label": "我可以不用統一發票嗎?",
+                              "data": "9-1",
+                            },
+                            {
+                              "type": "postback",
+                              "label": " ",
+                              "data": " ",
+                            }
+                          ]
+                        }
+                      ]
                     }
                   });
                 }
-                else{
-                  msgObj.message = speech;
-                  emitIO_and_pushDB(msgObj);
-                  event.reply({ type: 'text', text: speech });
-                }
                 return ;
+              }
+              if(action == 'ticket' ){
+                ticket.email = parameter.email ;
+                ticket.phone = parameter.phone ;
+                ticket.goods = parameter.goods ;
+                ticket.name = receiver_name ;
+              }
+              if(action == 'ticket.description'){
+                ticket.description = parameter.any ;
+                if(complete) createTicket(ticket);
               }
               //console.log(speech);
               //obj.owner = 'agent';
@@ -809,6 +818,7 @@ bot.on('message', event => {
         }
 
         function updateProfile(text) {
+          console.log(text);
           let survey = {id:'',para:'',value:''};
           if(text.indexOf('：') != -1){
             let pos = event.message.text.indexOf('：');
@@ -830,41 +840,262 @@ bot.on('message', event => {
           }
         }
 
+        function createTicket(obj) {
+          var API_KEY = "VAxM08x35ThAOEqIgvOF";
+          var FD_ENDPOINT = "fongyu";
 
-        // 訊息是xxxxxx, template message
-        // AI 機器人 設定
-        // var request = appApiai.textRequest(message_lineTochat, {
-        //     sessionId: '46110120-6a78-4a0e-a5f0-a8596b53d37e'
-        // });
-        // request.on('response', function(response) {
-        //     console.log(response);
-        //     let res_msg = response.result.fulfillment.speech
-        //     if (response.result.action !== 'input.unknown') {
-        //         io.sockets.emit('new message', {
-        //             msg: res_msg,
-        //             name: 'BOT'
-        //         });
-        //         event.reply({
-        //             type: 'text',
-        //             text: 'BOT:' + res_msg
-        //         });
-        //     }
-        // });
-        // request.on('error', function(error) {
-        //     console.log(error);
-        // });
-        // request.end();
-        // AI  機器人 end
+          var PATH = "/api/v2/tickets";
+          var URL =  "https://" + FD_ENDPOINT + ".freshdesk.com"+ PATH;
+          //console.log('ticket:');
+          //console.log(obj);
+          var fields = {
+            'name': obj.name,
+            'email': obj.email,
+            'subject': '收到_'+obj.goods+'_訂單',
+            'description': obj.description,
+            'phone': obj.phone,
+            'status': 2,
+            'priority': 1
+          }
+          //console.log('fields:');
+          //console.log(fields);
+          var Request = unirest.post(URL);
+
+          Request.auth({
+            user: API_KEY,
+            pass: "X",
+            sendImmediately: true
+          })
+          .type('json')
+          .send(fields)
+          .end(function(response){
+            //console.log(response.body)
+            console.log("Response Status : " + response.status)
+            if(response.status == 201){
+              console.log("Location Header : "+ response.headers['location'])
+            }
+            else{
+              	console.log("X-Request-Id :" + response.headers['x-request-id']);
+            }
+            });
+        }
+
+    bot.on('postback', event =>{
+      //console.log("postback event");
+      let data = event.postback.data ;
+      console.log(event);
+
+
+
+      if(data == 'purchasePlan'){
+        msgObj.message = '已接收購買方案'+"4小時方案  "+"8小時方案  "+"16小時方案  ";
+        emitIO_and_pushDB(msgObj);
+        event.reply({
+          "type": "template",
+          "altText": "購買方案說明",    //text that customer see at chat list
+          "template": {
+            "type": "buttons",
+            "title": "購買方案說明",
+            "text": "請選擇一個方案",
+            "actions": [{
+              "type": "message",
+              "label": "4小時方案",
+              "text": "4小時方案"
+            },{
+              "type": "message",
+              "label": "8小時方案",
+              "text": "8小時方案"
+            },{
+              "type": "message",
+              "label": "16小時方案",
+              "text": "16小時方案"
+            }]
+          }
+        });
+      }
+      tinistartAns(event);
+
+      function tinistartAns(event) {
+        var gsjson = require('google-spreadsheet-to-json');
+
+        gsjson({
+            spreadsheetId: '1ZhR-f6BVHp4kIzBQL_VK9BDP4AS0KDTESYqq22RrtOA',
+            // other options...
+        })
+        .then(function(result) {
+          let ansId = event.postback.data;
+          console.log(ansId);
+        //  console.log(result.length);
+          //console.log(result);
+          for (let i in result){
+            if(result[i].id == ansId){
+              let ans = result[i].ans ;
+              let que = result[i].question ;
+              var msg = 'Q :\n'+que+'\n'+'A :\n'+ans ;
+              event.reply({ type: 'text', text: msg })
+              .then(function () {
+                let obj ={time:nowTime};
+                obj.owner = 'agent';
+                obj.name = 'api.ai';
+                obj.message = msg ;
+                emitIO_and_pushDB(obj) ;
+              });
+              break;
+            }
+          }
+
+        })
+        .catch(function(err) {
+            console.log(err.message);
+            console.log(err.stack);
+        });
+
+      }
+
+    });
+
+
+
   });
 });
+
 app.post('/webhook/', linebotParser);
-
-
-
 /**
  * Socket.io
  */
 //連接
+
+//==================ticket=======================
+var viewContact;
+var viewAgent;
+var viewTicket;
+
+function getTicketfromFD() {
+
+  var URL_ticket =  "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/tickets";
+  var URL_agent = "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/agents"
+  var URL_contact = "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/contacts"
+
+  var viewRequest_contact = unirest.get(URL_contact);
+
+  viewRequest_contact.auth({
+    user: API_KEY,
+    pass: "X",
+    sendImmediately: true
+  }).end(function(response){
+    viewContact = response.body;
+        // console.log(viewContact);
+        // {
+        //   active: false,
+        //   address: null,
+        //   company_id: null,
+        //   description: null,
+        //   email: 'hwt.hwang@gmail.com',
+        //   id: 33001006222,
+        //   job_title: null,
+        //   language: 'en',
+        //   mobile: null,
+        //   name: 'test1',
+        //   phone: null,
+        //   time_zone: 'Eastern Time (US & Canada)',
+        //   twitter_id: null,
+        //   custom_fields: {},
+        //   created_at: '2017-08-14T06:30:19Z',
+        //   updated_at: '2017-08-14T06:30:19Z'
+        // }
+    console.log("Contact Response Status : " + response.status)
+    if(response.status != 200){
+      console.log("X-Request-Id :" + response.headers['x-request-id']);
+    }
+  });
+
+
+  var viewRequest_agent = unirest.get(URL_agent);
+
+  viewRequest_agent.auth({
+    user: API_KEY,
+    pass: "X",
+    sendImmediately: true
+  }).end(function(response){
+    viewAgent = response.body;
+    // console.log(viewAgent);
+    // {
+    //   available: false,
+    //   occasional: false,
+    //   id: 33001006166, // agent id
+    //   signature: '<div dir="ltr">\n<p><br></p>\r\n</div>',
+    //   ticket_scope: 1,
+    //   created_at: '2017-08-14T06:19:37Z',
+    //   updated_at: '2017-08-16T07:43:16Z',
+    //   available_since: null,
+    //   contact: {
+    //     active: true,
+    //     email: 'wtfong@fongyuinvest.com',
+    //     job_title: 'Founder',
+    //     language: 'en',
+    //     last_login_at: null,
+    //     mobile: '',
+    //     name: 'Tom Fong',
+    //     phone: '',
+    //     time_zone: 'Eastern Time (US & Canada)',
+    //     created_at: '2017-08-14T06:19:37Z',
+    //     updated_at: '2017-08-16T07:43:23Z'
+    //   }
+    // }
+    console.log("Agent Response Status : " + response.status)
+    if(response.status != 200){
+      console.log("X-Request-Id :" + response.headers['x-request-id']);
+    }
+  });
+
+
+  var viewRequest_ticket = unirest.get(URL_ticket);
+
+  viewRequest_ticket.auth({
+    user: API_KEY,
+    pass: "X",
+    sendImmediately: true
+  }).end(function(response){
+    // console.log(response.body[0].subject)
+    viewTicket = response.body;
+    // console.log(viewTicket);
+    // {
+    //   cc_emails: [],
+    //   fwd_emails: [],
+    //   reply_cc_emails: [],
+    //   fr_escalated: false,
+    //   spam: false,
+    //   email_config_id: null,
+    //   group_id: null,
+    //   priority: 1,
+    //   requester_id: 33001062381, // agent id
+    //   responder_id: null,
+    //   source: 2,
+    //   company_id: null,
+    //   status: 2,
+    //   subject: 'case4',
+    //   to_emails: null,
+    //   product_id: null,
+    //   id: 7, // ticket id
+    //   type: null,
+    //   due_by: '2017-08-19T08:11:39Z',
+    //   fr_due_by: '2017-08-17T08:11:39Z',
+    //   is_escalated: false,
+    //   description: '<div>Ticket description.</div>', // content in html
+    //   description_text: 'Ticket description.', // content in text
+    //   custom_fields: {},
+    //   created_at: '2017-08-16T08:11:39Z',
+    //   updated_at: '2017-08-16T08:11:39Z'
+    // }
+    console.log("Ticket Response Status : " + response.status)
+    if(response.status != 200){
+      console.log("X-Request-Id :" + response.headers['x-request-id']);
+    }
+  });
+}
+//-----------------------ticket---------------------*/
+
+
 io.sockets.on('connection', (socket) => {
 
     // 新使用者
@@ -880,11 +1111,34 @@ io.sockets.on('connection', (socket) => {
         }
     });
 
+    socket.on('get tags from chat', data => {
+      io.sockets.emit('push tags to chat', tagsData);
+    });
+    socket.on('get tags from tags', data => {
+      io.sockets.emit('push tags to tags', tagsData);
+    });
+    socket.on('update tags', data => {
+      console.log(data);
+      let updateObj = {};
+      updateObj['/Data'] = data;
+      tagsRef.update(updateObj);
+    });
+
     socket.on('get json from back', (data, callback) => {
       var DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
       io.sockets.emit('push json to front', chatData);
     })
-
+    socket.on('read message', (data) => {
+      console.log("agent read message of user "+data.id);
+      for( let i in chatData ) {
+        if( chatData[i].Profile.userId == data.id ) {
+          newDBRef.child(i).child("Profile").update({
+            "unRead": false,
+          });
+          break;
+        }
+      }
+    });
     socket.on('update chat time', (data, callback) => {
       console.log("update chat time");
       // let DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
@@ -1034,7 +1288,6 @@ io.sockets.on('connection', (socket) => {
           emitIO_and_pushDB(msgObj);
         }
     });//sent message
-
     socket.on('send message2', (data, callback) => {
         console.log(data);
         var msg = data.msg.trim();
@@ -1105,12 +1358,7 @@ io.sockets.on('connection', (socket) => {
           time: nowTime,
         };
         function emitIO_and_pushDB(obj) {
-          // console.log("sending to io sockets...");
-          // io.sockets.emit('new message', obj);
-          // console.log("io sockets sent!");
-          // console.log("sending to old firebase database...");
-          // agentsRef.push(obj);
-          // console.log("DB sent!");
+
           console.log("sending object: ");
           console.log(obj);
 
@@ -1156,7 +1404,6 @@ io.sockets.on('connection', (socket) => {
             newDBRef.push(newData);
           }
         }
-
         function sendToFrontSocket(obj) {
           obj.id = agent_sendTo_receiver;
           io.sockets.emit('new message2', obj);
@@ -1192,7 +1439,6 @@ io.sockets.on('connection', (socket) => {
           console.log("send to local DB success");
         }
 
-
         if (msg.includes('/image')) {
           msgObj.message = 'Send image to user';
           emitIO_and_pushDB(msgObj);
@@ -1227,7 +1473,6 @@ io.sockets.on('connection', (socket) => {
           emitIO_and_pushDB(msgObj);
         }
     });//sent message
-
 
     socket.on('disconnect', (data) => {
         if (!socket.nickname) return;
@@ -1265,11 +1510,10 @@ io.sockets.on('connection', (socket) => {
       }
     });
 
-
   //test
     socket.on('send template',(data, callback )=> {
       console.log(data) ;
-      bot.push({
+      bot.push(data.id,{
           "type": "template",
           "altText": "this is button",
           "template": {
@@ -1278,31 +1522,29 @@ io.sockets.on('connection', (socket) => {
             "text": data.title,
             "actions": [{
               "type": "message",
-              "label": data.text,
-              "text": data.text
+              "label": data.text1,
+              "text": data.text1
+            },{
+              "type": "message",
+              "label": data.text2,
+              "text": data.text2
+            },{
+              "type": "message",
+              "label": data.text3,
+              "text": data.text3
             }]
           }
         });
     });
     //*/
+  //test ticket
 
-    //
-    //  /*  =======  Define Receiver  ========  */
-    //         var defReceiverr;
-    //         socket.on('receiver', (data, callback) => {
-    //             callback(true);
-    //             socket.defReceiver = data;
-    //             console.log('Just arived in www, tell me whats socket.defReceiver');
-    //             console.log(socket.defReceiver);
-    //
-    //         });
-    //
-    //
-    // /*  ==================================  */
-    //
-    //         console.log('before bot push, tell me what is socket.defReceiver');
-    //         console.log(socket.defReceiver);
+    getTicketfromFD();
+    socket.emit('clear ticket table',{}) ;
+    setTimeout(function () {socket.emit('all tickets info', viewTicket);},1000);
 
+    socket.emit('all agents info', viewAgent);
+    socket.emit('all contacts info', viewContact);
 
 });
 
@@ -1393,22 +1635,3 @@ function addZero(i) {
     }
     return i;
 }
-
-
-
-
-// if get user message
-//   use {
-//     userName, //user's nickname
-//     id, //user's receiverId
-//     messageTime, //time
-//     message //can be url, audio code ect
-//   } to deliver to DB & socket
-// else if get agent message
-//     use {
-//       agentName, //agent's nickname
-//       id, //receiverId of the user whom agent want to chat with
-//       messageTime, //time
-//       message //can be url, audio code ect
-//     } to deliver to DB & socket
-// then we can use hasOwnProperty(obj) to determine user & agent

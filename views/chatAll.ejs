@@ -55,6 +55,9 @@
                        <a href="/chatAll" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
                     </li>
                     <li>
+                      <a href="/tag"><i class="fa fa-commenting fa-fw"></i> Tag</a>
+                    </li>
+                    <li>
                        <a href="/history"><i class="fa fa-commenting fa-fw"></i> History</a>
                     </li>
                     <li>
@@ -177,11 +180,22 @@
            <input size="35" id="message" />
            <input type="submit"/>
          </form>
+         <!-- test -->
+         <div id = "sendTemplate" style="margin:20px">
+           <h2>Send template</h2>
+           <button id="addTemp">add template</button>
+           <div id="workspace">
+             <h3>template_0</h3>
+             <div id ="template_0">
+               <div id="editTemplate">
+                 title : <input id="test-input-1" /><br />
+                 text : <input class="test-input-2"/><br />
+               </div>
+               <button id="templateSubmit">submit</button>
+               <button id="addTempText">add more text</button>
+             </div>
 
-         <div id = " test-template" style="margin:20px">
-           title<input id="test-input-1" /><br />
-           text<input id="test-input-2"/><br />
-           <button id="test-submit">submit</button>
+           </div>
          </div>
 
       </div>

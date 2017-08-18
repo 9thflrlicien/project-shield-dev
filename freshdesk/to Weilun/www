@@ -1,0 +1,262 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('test:server');
+var http = require('http');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+// socket io
+const io = require('socket.io').listen(server);
+
+// freshdesk setting
+var unirest = require('unirest');
+var API_KEY = "4qydTzwnD7xRGaTt7Hqw";
+var FD_ENDPOINT = "fongyu";
+var URL_ticket =  "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/tickets";
+var URL_agent = "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/agents"
+var URL_contact = "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/contacts"
+
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+
+// var fields = {
+//   'email': 'ted@myname.com',
+//   'subject': 'case4',
+//   'description': 'Ticket description.',
+//   'status': 2,
+//   'priority': 1,
+//   'mobile': '0935352975'
+// }
+
+// var Request = unirest.post(URL_ticket);
+//
+// // create ticket
+// Request.auth({
+//   user: API_KEY,
+//   pass: "X",
+//   sendImmediately: true
+// })
+// .type('json')
+// .send(fields)
+// .end(function(response){
+//   console.log(response.body)
+//   console.log("Response Status : " + response.status)
+//   if(response.status == 201){
+//     console.log("Location Header : "+ response.headers['location'])
+//   } else {
+//     	console.log("X-Request-Id :" + response.headers['x-request-id']);
+//   }
+// });
+
+
+var viewRequest_contact = unirest.get(URL_contact);
+var viewContact;
+
+viewRequest_contact.auth({
+  user: API_KEY,
+  pass: "X",
+  sendImmediately: true
+}).end(function(response){
+  viewContact = response.body;
+  // console.log(viewContact);
+  // {
+  //   active: false,
+  //   address: null,
+  //   company_id: null,
+  //   description: null,
+  //   email: 'hwt.hwang@gmail.com',
+  //   id: 33001006222,
+  //   job_title: null,
+  //   language: 'en',
+  //   mobile: null,
+  //   name: 'test1',
+  //   phone: null,
+  //   time_zone: 'Eastern Time (US & Canada)',
+  //   twitter_id: null,
+  //   custom_fields: {},
+  //   created_at: '2017-08-14T06:30:19Z',
+  //   updated_at: '2017-08-14T06:30:19Z'
+  // }
+  console.log("Contact Response Status : " + response.status)
+  if(response.status != 200){
+    console.log("X-Request-Id :" + response.headers['x-request-id']);
+  }
+});
+
+
+var viewRequest_agent = unirest.get(URL_agent);
+var viewAgent;
+
+viewRequest_agent.auth({
+  user: API_KEY,
+  pass: "X",
+  sendImmediately: true
+}).end(function(response){
+  viewAgent = response.body;
+  // console.log(viewAgent);
+  // {
+  //   available: false,
+  //   occasional: false,
+  //   id: 33001006166, // agent id
+  //   signature: '<div dir="ltr">\n<p><br></p>\r\n</div>',
+  //   ticket_scope: 1,
+  //   created_at: '2017-08-14T06:19:37Z',
+  //   updated_at: '2017-08-16T07:43:16Z',
+  //   available_since: null,
+  //   contact: {
+  //     active: true,
+  //     email: 'wtfong@fongyuinvest.com',
+  //     job_title: 'Founder',
+  //     language: 'en',
+  //     last_login_at: null,
+  //     mobile: '',
+  //     name: 'Tom Fong',
+  //     phone: '',
+  //     time_zone: 'Eastern Time (US & Canada)',
+  //     created_at: '2017-08-14T06:19:37Z',
+  //     updated_at: '2017-08-16T07:43:23Z'
+  //   }
+  // }
+  console.log("Agent Response Status : " + response.status)
+  if(response.status != 200){
+    console.log("X-Request-Id :" + response.headers['x-request-id']);
+  }
+});
+
+
+var viewRequest_ticket = unirest.get(URL_ticket);
+var viewTicket;
+
+viewRequest_ticket.auth({
+  user: API_KEY,
+  pass: "X",
+  sendImmediately: true
+}).end(function(response){
+  // console.log(response.body[0].subject)
+  viewTicket = response.body;
+  // console.log(viewTicket);
+  // {
+  //   cc_emails: [],
+  //   fwd_emails: [],
+  //   reply_cc_emails: [],
+  //   fr_escalated: false,
+  //   spam: false,
+  //   email_config_id: null,
+  //   group_id: null,
+  //   priority: 1,
+  //   requester_id: 33001062381, // agent id
+  //   responder_id: null,
+  //   source: 2,
+  //   company_id: null,
+  //   status: 2,
+  //   subject: 'case4',
+  //   to_emails: null,
+  //   product_id: null,
+  //   id: 7, // ticket id
+  //   type: null,
+  //   due_by: '2017-08-19T08:11:39Z',
+  //   fr_due_by: '2017-08-17T08:11:39Z',
+  //   is_escalated: false,
+  //   description: '<div>Ticket description.</div>', // content in html
+  //   description_text: 'Ticket description.', // content in text
+  //   custom_fields: {},
+  //   created_at: '2017-08-16T08:11:39Z',
+  //   updated_at: '2017-08-16T08:11:39Z'
+  // }
+  console.log("Ticket Response Status : " + response.status)
+  if(response.status != 200){
+    console.log("X-Request-Id :" + response.headers['x-request-id']);
+  }
+});
+
+io.sockets.on('connection', (socket) => {
+
+  io.sockets.emit('all tickets info', viewTicket);
+  io.sockets.emit('all agents info', viewAgent);
+  io.sockets.emit('all contacts info', viewContact);
+
+})
+
+
+// functions
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

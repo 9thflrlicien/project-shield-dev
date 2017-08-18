@@ -166,7 +166,7 @@ $(document).ready(function() {
 
   }
 
-  function agentName() {    //enter agent name
+  function agentName() {
     var userId = auth.currentUser.uid;
 
     database.ref('users/' + userId).on('value', snap => {
@@ -192,7 +192,7 @@ $(document).ready(function() {
     });
   }
 
-  messageForm.submit((e) => {   //submit to_send message to user
+  messageForm.submit((e) => {
     e.preventDefault();
     let designated_user_id = $( "#user-rooms option:selected" ).val();
     socket.emit('send message2', {id: designated_user_id , msg: messageInput.val(),}, (data) => {
@@ -205,8 +205,7 @@ $(document).ready(function() {
     messageInput.val('');
   });
 
-  socket.on('usernames', (data) => {    //maybe no use now
-    var html = '';
+  socket.on('usernames', (data) => {
     for (i = 0; i < data.length; i++) {
       html += data[i] + '<br />';
     }
@@ -233,7 +232,7 @@ $(document).ready(function() {
     // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
   });
 
-  function displayMessage( data ) {     //update canvas
+  function displayMessage( data ) {
 
     if (name_list.indexOf(data.id) !== -1) {    //if its chated user
       let str;
@@ -271,7 +270,7 @@ $(document).ready(function() {
     }
   }//function
 
-  function displayClient( data ) {    //update tablinks
+  function displayClient( data ) {
     let font_weight = data.owner=="user" ? "bold" : "normal";   //if msg is by user, mark it unread
 
     if (name_list.indexOf(data.id) !== -1 ) {
@@ -437,7 +436,7 @@ $(document).ready(function() {
     return val<10 ? '0'+val : val;
   }
 
-  function remove_href_msg(msg) {   ///let last msg display correct, not well tested, may many bug
+  function remove_href_msg(msg) {
     if(msg.indexOf('image')!=-1 ) return "send a image";
     else if( msg.indexOf('audio')!=-1 ) return "send an audio";
     else if( msg.indexOf('video')!=-1 ) return "send a video";
@@ -455,12 +454,15 @@ $(document).ready(function() {
         return msg.substring( bPos+6, cPos-2 ) ;
       }
     }
-    else return msg;
+    else {
+      if(msg.length>40)   msg = msg.substring(0,40)+'...';
+      return msg;
+    }
   }
 /*======================= warren ====================================*/
   var buffer;
   function showProfile() {
-    var target = $('#selected').attr('rel'); //get useridd of current selected user
+    var target = $('#selected').attr('rel'); //get userid of current selected user
     var table = $('.userInfo-td') ;
     //  alert(target) ;
     for(let i in table){table.eq(i).html('');}//clear table
@@ -532,13 +534,27 @@ $(document).ready(function() {
   }
 
   //test
-  $('#test-submit').click(function () {
-    alert("qq");
+  var tempid = 1 ;
+  $("#addTemp").click(function () {
+    $("#workspace").append("<div id='template_"+tempid+"'><h3>template_"+tempid+"</h3><div id='editTemplate'>title : <input id='test-input-1' /><br />  text : <input class='test-input-2'/><br /></div>  <button id='templateSubmit'>submit</button>  <button id='addTempText'>add more text</button> </div>");
+    tempid++;
+  });
+  $('#templateSubmit').click(function () {
+    let target = $('#selected').attr('rel') ;
+    let text = $('.test-input-2') ;
     let obj={};
+    alert("work!");
+    obj.id = target ;
     obj.title = $('#test-input-1').val();
-    obj.text = $("#test-input-2").val();
+    obj.text1 = text.eq(0).val();
+    obj.text2 = text.eq(1).val();
+    obj.text3 = text.eq(2).val();
     socket.emit('send template',obj);
-    alert(obj);
+    alert("work done!");
+  });
+
+  $('#addTempText').click(function () {
+    $('#editTemplate').append('text : <input class="test-input-2"/><br />')
   });
 
   /*to receive other profile data go to chat All.ejs
