@@ -166,61 +166,10 @@ $(document).ready(function() {
     let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
     //display last message at tablinks
 
-    let avgChatTime;
-    let totalChatTime;
-    let chatTimeCount;
-    if( profile.recentChat != lastMsg.time) {
-      //it means database should update chat time of this user
-      let timeArr = historyMsg.map( function(ele) {
-        return ele.time;
-      });
-      let times = [];
-      let i=0;
-      const GAP = 1000*60*15; //15 min
-      let headTime;
-      let tailTime;
-      while( i<timeArr.length ) {
-        headTime = tailTime = timeArr[i];
-        while( timeArr[i]-tailTime < GAP ) {
-          tailTime = timeArr[i];
-          i++;
-          if( i==timeArr.length ) break;
-        }
-        let num = tailTime-headTime;
-        if( num<1000 ) num = 1000;
-        times.push(num);
-      }
-      let sum = 0;
-      for( let j in times ) sum += times[j];
-      sum /= 60000;
-      totalChatTime = sum;
-      avgChatTime = sum/times.length;
-      chatTimeCount = times.length;
-      if( isNaN(avgChatTime)||avgChatTime<1 ) avgChatTime = 1;
-      if( isNaN(totalChatTime)||totalChatTime<1 ) totalChatTime = 1;
-
-      socket.emit("update chat time", {   //tell www to update this user's chat time info
-        id: profile.userId,
-        avgChat: avgChatTime,
-        totalChat: totalChatTime,
-        chatTimeCount: chatTimeCount,
-        recentChat: lastMsg.time
-      });
-      profile.avgChat = avgChatTime;
-      profile.totalChat = totalChatTime;
-      profile.chatTimeCount = chatTimeCount;
-      profile.recentChat = lastMsg.time;
-    }
-    else {      //it means database dont need update, just get info from DB
-      avgChatTime = profile.avgChat;
-      totalChatTime = profile.totalChat;
-      chatTimeCount = profile.chatTimeCount;
-    }
-
     clients.append("<b><button rel=\""+profile.userId+"\" class=\"tablinks\""
-      + "data-avgTime=\""+ avgChatTime +"\" "
-      + "data-totalTime=\"" + totalChatTime +"\" "
-      + "data-chatTimeCount=\"" + chatTimeCount +"\" "
+      + "data-avgTime=\""+ profile.avgChat +"\" "
+      + "data-totalTime=\"" + profile.totalChat +"\" "
+      + "data-chatTimeCount=\"" + profile.chatTimeCount +"\" "
       + "data-firstTime=\"" + profile.firstChat +"\" "
       + "data-recentTime=\"" + lastMsg.time +"\"> "
       + '<span id="nick">' + profile.nickname + '</span>'
@@ -434,11 +383,14 @@ $(document).ready(function() {
   });
 
   function initialFilterWay() {
+    if( !TagsData ) return;
+
     TagsData.map( function(ele) {
       if( ele.type.indexOf('select')!=-1 ) {
         filterDataCustomer[ele.name] = ele.set;
       }
     });
+
     console.log("filterDataCustomer: ");
     console.log(filterDataCustomer);
     for( let way in filterDataCustomer ) {

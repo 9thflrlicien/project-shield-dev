@@ -665,6 +665,52 @@ io.sockets.on('connection', (socket) => {
       // console.log(chatData);
       let sendData = [];
       for( let i in chatData ) {
+        let profile = chatData[i].Profile;
+        let _lastMsg = chatData[i].Messages[ chatData[i].Messages.length-1 ];
+        if( profile.recentChat != _lastMsg.time ) {
+          console.log( "ID = "+profile.userId+" update time!");
+          profile.recentChat = _lastMsg.time;
+
+          let timeArr = chatData[i].Messages.map( function(ele) {
+            return ele.time;
+          });
+          let times = [];
+          let j=0;
+          const GAP = 1000*60*15; //15 min
+          let headTime;
+          let tailTime;
+          while( j<timeArr.length ) {
+            headTime = tailTime = timeArr[j];
+            while( timeArr[j]-tailTime < GAP ) {
+              tailTime = timeArr[j];
+              j++;
+              if( j==timeArr.length ) break;
+            }
+            let num = tailTime-headTime;
+            if( num<1000 ) num = 1000;
+            times.push(num);
+          }
+          let sum = 0;
+          for( let j in times ) sum += times[j];
+          sum /= 60000;
+          profile.totalChat = sum;
+          profile.avgChat = sum/times.length;
+          profile.chatTimeCount = times.length;
+          if( isNaN(profile.avgChat) || profile.avgChat<1 ) profile.avgChat = 1;
+          if( isNaN(profile.totalChat) || profile.totalChat<1 ) profile.totalChat  = 1;
+
+          let updateObj = {};
+          newDBRef.child(i).child("Profile").update({
+            "avgChat": profile.avgChat,
+            "totalChat": profile.totalChat,
+            "chatTimeCount": profile.chatTimeCount,
+            "recentChat": profile.recentChat,
+            "平均每次聊天時間": profile.avgChat,
+            "總共聊天時間": profile.totalChat,
+            "聊天次數": profile.chatTimeCount,
+            "上次聊天時間": profile.recentChat
+          });
+        }
         let msgs = chatData[i].Messages;
         let position = 0;
         if( msgs.length>20 ) {
@@ -674,7 +720,7 @@ io.sockets.on('connection', (socket) => {
         sendData.push({
           Messages: msgs,
           position: position,
-          Profile: chatData[i].Profile
+          Profile: profile
         });
       }
       // console.log(sendData);
@@ -690,7 +736,6 @@ io.sockets.on('connection', (socket) => {
       for( let i in chatData ) {
         if( chatData[i].Profile.userId==userId ) {
           for( let j=head; j<tail+1; j++ ) {
-            console.log("j = "+j);
             // console.log(chatData[i].Messages[j]);
             sendData.push( chatData[i].Messages[j] );
           }
@@ -715,43 +760,6 @@ io.sockets.on('connection', (socket) => {
           break;
         }
       }
-    });
-    socket.on('update chat time', (data, callback) => {
-      console.log("update chat time! id = "+data.id);
-      // let DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
-      // let i=0;
-      // for( i=0; i<DATA.length; i++ ) {
-      //   if( DATA[i].Profile.userId == data.id ) {
-      //     DATA[i].Profile.avgChat = data.avgTime;
-      //     DATA[i].Profile.totalChat = data.totalTime;
-      //     DATA[i].Profile.recentChat = data.recentTime;
-      //     break;
-      //   }
-      // }
-      // if( i==DATA.length ) console.log("408 impossible!!!");
-      // fs.writeFileSync('chatMsg.json', JSON.stringify(DATA, null, 2));
-
-
-      for( let i in chatData ) {
-        if( chatData[i].Profile.userId == data.id ) {
-          let updateObj = {};
-          newDBRef.child(i).child("Profile").update({
-            "avgChat": data.avgChat,
-            "totalChat": data.totalChat,
-            "chatTimeCount": data.chatTimeCount,
-            // "recentChat": data.recentTime
-            "recentChat": data.recentChat,
-            "平均每次聊天時間": data.avgChat,
-            "總共聊天時間": data.totalChat,
-            "聊天次數": data.chatTimeCount,
-            "上次聊天時間": data.recentChat
-          });
-          break;
-        }
-      }
-      // if( i==DATA.length ) console.log("408 impossible!!!");
-      // fs.writeFileSync('chatMsg.json', JSON.stringify(DATA, null, 2));
-
     });
 
     // 從SHIELD chat傳送訊息
