@@ -137,24 +137,33 @@ p {
   float:top;
 }
 
-#userInfoBtn {
+#roomInfoBtn, #newGroupBtn {
   margin-top: 20px;
   margin-bottom: 20px;
+  margin-right: 10px;
   float: left;
 }
 .info_input_table {
   width: 100%;
 }
-.info_input_table tr{
-}
-.userInfo-th {
-  width: 50%;
+.roomInfo-th {
+  width: 20%;
   padding-top: 10px;
 }
-.userInfo-td {
-  width: 50%;
+.roomInfo-td {
+  width: 80%;
   padding-top: 10px;
-  /*margin: 10px;*/
+}
+#agent span {
+  /*display: inline-block;*/
+  margin-right: 10px;
+}
+#agent span p {
+  display: inline-block;
+  margin-bottom: 0px;
+}
+#td-inner {
+  margin-bottom: 0px;
 }
 #send-message {
   margin-top: 20px;
@@ -176,10 +185,6 @@ p {
 
 .multiselect-container li {
   margin: 10px;
-}
-.userPhoto {
-  float: left;
-  margin-right: 40px;
 }
 
 .loadingIcon {

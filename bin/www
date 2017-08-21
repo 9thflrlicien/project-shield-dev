@@ -974,34 +974,16 @@ io.sockets.on('connection', (socket) => {
       }
     });
 
-    socket.on('new room agentChat', (data, callback) => {
-      // data = {
-      //   name: "客服群組",
-      //   roomId: 0,
-      //   agent: [
-      //     "NICK0305",
-      //     "FillNickNam"
-      //   ],
-      //   description: "asdfasdfasdfasdf"
-      // }
-      agentDBRef.push({
-        Messages: [
-          {
-            message: "group establish",
-            name: "System",
-            time: (new Date()).getTime()
-          }
-        ],
-        Profile: data
-      })
-
-    });
 
     socket.on('get json from agentChat', (data, callback) => {
+      let thisAgentData = [];
+      for( let i in agentChatData ){
+        if( agentChatData[i].Profile.agent.indexOf(data.person) != -1 ) thisAgentData.push( agentChatData[i] );
+      }
+
       let sendData = [];
-      for( let i in agentChatData ) {
-        // if( agentChatData[i].Profile.roomId!=1502948942368 ) return;
-        let msgs = agentChatData[i].Messages;
+      for( let i in thisAgentData ) {
+        let msgs = thisAgentData[i].Messages;
         if( !msgs ) msgs = [];
         let position = 0;
         if( msgs.length>20 ) {
@@ -1011,15 +993,14 @@ io.sockets.on('connection', (socket) => {
         sendData.push({
           Messages: msgs,
           position: position,
-          Profile: agentChatData[i].Profile
+          Profile: thisAgentData[i].Profile
         });
       }
-      console.log(sendData);
       socket.emit('push json to agentChat', sendData);
     });
 
     socket.on('upload history msg from front agentChat', data => {
-      console.log('upload history msg of userId = '+data.roomId+', head = '+data.head+', tail = '+data.tail);
+      console.log('upload history msg of roomId = '+data.roomId+', head = '+data.head+', tail = '+data.tail);
       let roomId = data.roomId;
       let head = data.head;
       let tail = data.tail;
@@ -1029,7 +1010,6 @@ io.sockets.on('connection', (socket) => {
         if( agentChatData[i].Profile.roomId==roomId ) {
           for( let j=head; j<tail+1; j++ ) {
             console.log("j = "+j);
-            // console.log(chatData[i].Messages[j]);
             sendData.push( agentChatData[i].Messages[j] );
           }
           break;
@@ -1042,6 +1022,20 @@ io.sockets.on('connection', (socket) => {
         messages: sendData
       });
 
+    });
+
+    socket.on('read message agentChat', data => {
+      for( let prop in agentChatData ) {
+        if( agentChatData[prop].Profile.roomId == data.roomId ) {
+          let unRead = agentChatData[prop].Profile.unRead;
+          if( unRead ) {
+            let pos = unRead.indexOf(data.reader);
+            if( pos!=-1 ) unRead.splice(pos,1);
+          }
+          else unRead = [];
+          agentDBRef.child(prop).child("Profile/unRead").set(unRead);
+        }
+      };
     });
 
     socket.on('send message agentChat', (data, callback) => {
@@ -1074,12 +1068,17 @@ io.sockets.on('connection', (socket) => {
 
         function sendToNewFb(obj){
           for( let prop in agentChatData ) {
-            console.log("find next user data");
+            console.log("find next room data");
             if(agentChatData[prop].Profile.roomId == receive_room) {
               console.log("find the same room");
               let length = agentChatData[prop].Messages.length;
               let updateObj = {};
               updateObj['/'+prop+'/Messages/'+length] = obj;
+
+              let unRead = agentChatData[prop].Profile.agent;
+              unRead.splice( unRead.indexOf( data.sender ), 1 );
+              updateObj['/'+prop+'/Profile/unRead'] = unRead;
+
               agentDBRef.update(updateObj);
               flag = false;
               break;
@@ -1114,15 +1113,28 @@ io.sockets.on('connection', (socket) => {
       console.log("update profile");
       for( let i in agentChatData ) {
         if( agentChatData[i].Profile.roomId == data.roomId ) {
-          let updateObj = {};
-          for( let prop in data ) {
-            updateObj[prop] = data[prop];
-          }
-          console.log(updateObj);
-          agentDBRef.child(i).child("Profile").update(updateObj);
-          break;
+          agentDBRef.child(i).child("Profile").update(data);
+          return;
         }
       }
+      console.log("new room come in!");
+
+      let nowTime = Date.now();
+      data.firstChat = nowTime;
+      data.recentChat = nowTime;
+      data.unRead = JSON.parse(JSON.stringify(data.agent));
+      data.unRead.splice(data.unRead.indexOf(data.owner),1);
+      console.log("data: ");
+      console.log(data);
+
+      agentDBRef.push({
+        Messages: [{
+          message: "group establish",
+          name: "System",
+          time: nowTime
+        }],
+        Profile: data
+      });
     });
 
     socket.on('disconnect', (data) => {
