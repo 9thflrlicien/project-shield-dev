@@ -113,21 +113,15 @@ $(document).ready(function() {
       source: agent_list,
       appendTo: '.modal-body',
       select: function(event, ui) {
-        // console.log(event);
-        // console.log(ui);
-        // console.log(event.target);
-        // console.log($(event.target));
-        // $(event.target).remove();
         $(event.target).parent().append('<span class="agent-in-room"><p class="name">'+ui.item.label+'</p><p class="delete">&times;</p></span><input type="text" class="autocomplete" id="td-inner" />')
           .find('.autocomplete').select();
         $(event.target).remove();
       }
     });
-  })
+  });
   $(document).on('click', '.agent-in-room .delete', function() {
     $(this).parent().remove();
-  })
-
+  });
 
   $(document).on('click','#roomInfo-submit',function() {
     if( ! confirm("Are you sure to change profile?") ) return;
