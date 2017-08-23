@@ -1,0 +1,35 @@
+#content {
+  display: none;
+  height: 450px;
+  width: 60%;
+  float: left;
+}
+#content table {
+  display: block;
+  /*width: 70%;*/
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: auto;
+}
+#content table th, td{
+  padding: 10px;
+  text-align: center;
+}
+#content tr:nth-child(even) {
+  background-color: #e8e8e8;
+}
+
+#option {
+  display: none;
+  /*padding: 10px;*/
+  width: 40%;
+  float: right;
+}
+#option-content {
+  margin: auto;
+  width: 50%;
+  padding: 10px;
+}
+select {
+  width: 100%;
+}

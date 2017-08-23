@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
+    <link rel="stylesheet" href="stylesheets/main.css" />
+    <link rel="stylesheet" href="stylesheets/analyzeQuestionnaire.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">SHIELD</a>
+        </div>
+        <!-- /.navbar-header -->
+        <ul class="nav navbar-top-links navbar-right">
+           <!-- /.dropdown -->
+           <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-user">
+                 <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                 </li>
+                 <li class="divider"></li>
+                 <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                 </li>
+              </ul>
+              <!-- /.dropdown-user -->
+           </li>
+           <!-- /.dropdown -->
+        </ul>
+        <!-- /.navbar-top-links -->
+
+        <div class="navbar-default sidebar" role="navigation">
+          <div class="sidebar-nav navbar-collapse">
+            <ul class="nav" id="side-menu">
+              <li>
+                <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+              </li>
+              <li>
+                <a href="/chatAll"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+              </li>
+              <li>
+                <a href="/tag"><i class="fa fa-commenting fa-fw"></i> Tag</a>
+              </li>
+              <li>
+                <a href="/calendar" class="active"><i class="fa fa-table fa-fw"></i> Calendar</a>
+              </li>
+              <li>
+                <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
+              </li>
+            </ul>
+          </div>
+          <!-- /.sidebar-collapse -->
+        </div>
+        <!-- /.navbar-static-side -->
+      </nav>
+    </div>
+
+    <div id="home2" style="display:none;">
+      <div class="rowField">
+        <div class="field">
+          <h4>查看各團評價</h4>
+          <div class="btn-vertical">
+            <button class="btn btn-default" id="">某團各客戶對各工人評價</button>
+            <!-- 選擇旅行團後 橫軸工人 一顏色條一客戶 旁邊可選客戶或全選 -->
+            <button class="btn btn-default" id="">abc</button>
+            <button class="btn btn-default" id="">abc</button>
+          </div>
+        </div>
+        <div class="field">
+          <h4>查看工人評價</h4>
+          <div class="btn-vertical">
+            <button class="btn btn-default" id="">所有旅行團對該職業工人評價</button>
+            <!-- 橫軸工人 縱軸分數 旁邊可選擇職業 -->
+            <button class="btn btn-default" id="">abc</button>
+            <button class="btn btn-default" id="">abc</button>
+          </div>
+        </div>
+      </div>
+      <div class="rowField">
+        <div class="field">
+          <h4>查看旅行團評價</h4>
+          <div class="btn-vertical">
+            <button class="btn btn-default" id="">旅行團對各項目評價</button>
+            <!-- 橫軸項目 一顏色條一旅行團 縱軸分數 旁邊可選擇旅行團或全選 -->
+            <button class="btn btn-default" id="">abc</button>
+            <button class="btn btn-default" id="">abc</button>
+          </div>
+        </div>
+        <div class="field">
+          <h4>詳細資料</h4>
+          <div class="btn-vertical">
+            <button class="btn btn-default" id="">詳細資料</button>
+            <!-- print db -->
+            <button class="btn btn-default" id="">abc</button>
+            <button class="btn btn-default" id="">abc</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="home">
+      <div class="rowField">
+        <h4>查看各團評價</h4>
+        <div class="btn-group">
+          <button class="btn btn-default get-chart" id="某團各客戶對各工人評價">某團各客戶對各工人評價</button>
+          <!-- 選擇旅行團後 橫軸工人 一顏色條一客戶 旁邊可選客戶或全選 -->
+          <button class="btn btn-default get-chart" id="所有旅行團對該職業工人評價">所有旅行團對該職業工人評價</button>
+          <!-- 橫軸工人 縱軸分數 旁邊可選擇職業 -->
+          <button class="btn btn-default get-chart" id="旅行團對各項目評價">旅行團對各項目評價</button>
+          <!-- 橫軸項目 一顏色條一旅行團 縱軸分數 旁邊可選擇旅行團或全選 -->
+          <button class="btn btn-default get-chart" id="詳細資料">詳細資料</button>
+          <!-- print db -->
+        </div>
+      </div>
+      <div id="footer">
+        <iframe src="/analyzeResponse" name="analyzeFrame" width="100%" marginwidth="0" marginheight="0" scrolling="No" frameborder="0" id="analyzeFrame" ></iframe>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="javascripts/analyzeQuestionnaire.js"></script>
+  </body>
+</html>

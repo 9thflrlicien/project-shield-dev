@@ -8,6 +8,7 @@ var cors = require('cors');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var analyzeResponse = require('./routes/analyzeResponse');
 
 var app = express();
 
@@ -31,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));// to import css and jav
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/analyzeResponse', analyzeResponse);
 
 app.use(cors());
 app.options('*', cors());

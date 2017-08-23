@@ -52,5 +52,10 @@ router.get('/profile', function(req, res, next) {
   res.render('profile', { title: 'Profile' });
 });
 
+router.get('/analyzeQuestionnaire', function(req, res, next) {
+  res.render('analyzeQuestionnaire', { title: 'SHIELD Analyze Questionnaire' });
+});
+
+
 
 module.exports = router;
