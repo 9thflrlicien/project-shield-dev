@@ -3,16 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('dashboard', { title: 'SHIELD' });
-});
-/* GET index page. */
-router.get('/index', function(req, res, next) {
-  res.render('index', { title: 'SHIELD dashboard' });
-});
-
-/* GET order page. */
-router.get('/order', function(req, res, next) {
-  res.render('order', { title: 'SHIELD order' });
+  res.render('index', { title: 'SHIELD' });
 });
 
 /* GET calendar page. */
@@ -28,10 +19,16 @@ router.get('/chatAll', function(req, res, next) {
   res.render('chatAll', { title: 'SHIELD chat ver2' });
 });
 
+router.get('/tag', function(req, res, next) {
+  res.render('tag', { title: 'SHIELD tag' });
+});
 router.get('/history', function(req, res, next) {
   res.render('history', { title: 'SHIELD history' });
 });
 
+router.get('/agentChat', function(req, res, next) {
+  res.render('agentChat', { title: 'SHEILD agent chat'});
+});
 //authentication
 router.get('/login', function(req, res, next) {
   res.render('login', { title: 'Login' });
@@ -48,6 +45,9 @@ router.get('/tform', function(req, res, next) {
   res.render('ticketForm', { title: 'SHIELD Form' });
 });
 
+router.get('/message_overview', function(req, res, next) {
+  res.render('message_overview', { title: 'SHIELD message' });
+});
 router.get('/profile', function(req, res, next) {
   res.render('profile', { title: 'Profile' });
 });

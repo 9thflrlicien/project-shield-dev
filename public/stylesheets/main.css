@@ -186,7 +186,7 @@ input {
   left: 300px;
   width: 73%;
 }
-#calendar-wrap, #profile-wrap, #ticket-wrap {
+#calendar-wrap, #profile-wrap, #ticket-wrap, #tag-wrap{
   position: relative;
   left: 250px;
   width: 78%;
