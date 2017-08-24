@@ -6,3 +6,8 @@ data.name (might link with profile)
 [回訊息：send message2]
 
 curl -X POST "https://graph.facebook.com/v2.6/me/messages?access_token=EAAGteBmOVWYBALdNL1F3IZCZCDPnuHUZBScabJU55iTDqPZCbCVQ5zHFbCxJuMEvfsyd1yTpkRdIUy2D038vl4BkbDwcfjyk6cy49zahoT4xx5P3ceu4uLyRnpj9r2wZAfcJnndZBc2PlSf5RwE99pSxPLLqNIrlJQzD26PQDfL2nnvfenV9Tk"
+
+curl -X GET "https://graph.facebook.com/v2.6/1411673998899808?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=EAAGteBmOVWYBALdNL1F3IZCZCDPnuHUZBScabJU55iTDqPZCbCVQ5zHFbCxJuMEvfsyd1yTpkRdIUy2D038vl4BkbDwcfjyk6cy49zahoT4xx5P3ceu4uLyRnpj9r2wZAfcJnndZBc2PlSf5RwE99pSxPLLqNIrlJQzD26PQDfL2nnvfenV9Tk"    
+
+
+user chat PUSH to DB 失敗 on www line168

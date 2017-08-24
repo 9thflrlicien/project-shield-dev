@@ -275,6 +275,19 @@ $(document).ready(function() {
       console.log("new user!!! push into name_list!");
     }
   });
+  socket.on('new message3', (data) => {
+     //if www push "new message2"
+    console.log("Message get! identity=" + data.owner + ", name=" + data.name);
+    //owner = "user", "agent" ; name = "Colman", "Ted", others...
+    displayMessage( data ); //update canvas
+    displayClient( data );  //update tablinks
+
+    if( data.owner=="user" ) change_document_title(data.name);    //not done yet
+    if( name_list.indexOf(data.id) == -1 ) {  //if its never chated user, push his name into name list
+      name_list.push(data.id);
+      console.log("new user!!! push into name_list!");
+    }
+  });
 
   function displayMessage( data ) {
     //update canvas
