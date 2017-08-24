@@ -98,6 +98,9 @@
         <div class="filterUnit">
           <button id="filterBtn-clean">show all</button>
         </div>
+        <div class="filterUnit" style="float: right;">
+          <button id="add-calendar" data-toggle="modal" data-target="#addCalendarModal">Add Calendar</button>
+        </div>
 
         <div class="filterPanel">
 
@@ -246,7 +249,56 @@
       </div>
       <!-- end -->
 
+      <div class="modal fade" id="addCalendarModal" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Add Calendar</h4>
+            </div>
+            <div class="modal-body">
+              <table class="addCalendar_input_table">
+                <tdody>
+                  <tr>
+                    <th class="addCalendar-th">Title</th>
+                    <td class="addCalendar-td" id="title">
+                      <input type="text" id="td-inner"></input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="addCalendar-th">Start Date</th>
+                    <td class="addCalendar-td" id="start_date">
+                      <input type="datetime-local" id="td-inner"></input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="addCalendar-th">End Date</th>
+                    <td class="addCalendar-td" id="end_date">
+                      <input type="datetime-local" id="td-inner"></input>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="addCalendar-th">Description</th>
+                    <td class="addCalendar-td" id="description">
+                      <textarea type="text" id="td-inner" rows="4" style="resize:vertical; width:90%">sdfg</textarea>
+                    </td>
+                  </tr>
+                </tbody>
+               </table>
+               <br>
+               <input type="checkbox" id="allday"> all day</input>
+               <div id="cal-error-msg" hidden>Please fill in the event name or start date or end date</div>
+               <div id="tim-error-msg" hidden>Start date cannot be greater than end date</div>
+            </div>
+            <div class="modal-footer">
+              <button id="addCalendar-submit" class="btn btn-primary">Add</button>
+              <button id="addCalendar-cancel" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>

@@ -15,6 +15,7 @@ $(document).ready(function() {
 
   var canvas = $("#canvas");          //panel of message canvas
   var person = "agentColman";         //agent name
+  var agentId;
 
   const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>"
     + "Loading History Messages..."
@@ -215,8 +216,8 @@ $(document).ready(function() {
 
   function agentName() {
     //enter agent name
-    var userId = auth.currentUser.uid;
-    database.ref('users/' + userId).on('value', snap => {
+    agentId = auth.currentUser.uid;
+    database.ref('users/' + agentId).on('value', snap => {
       let profInfo = snap.val();
       let profId = Object.keys(profInfo);
       let person = snap.child(profId[0]).val().nickname;  //從DB獲取agent的nickname
@@ -227,13 +228,13 @@ $(document).ready(function() {
           else {
             alert('username is already taken');
             person = prompt("Please enter your name");  //update new username
-            database.ref('users/' + userId + '/' + profId).update({nickname : person});
+            database.ref('users/' + agentId + '/' + profId).update({nickname : person});
           }
         });
       }
       else{
         person = prompt("Please enter your name");  //if username not exist,update username
-        database.ref('users/' + userId + '/' + profId).update({nickname : person});
+        database.ref('users/' + agentId + '/' + profId).update({nickname : person});
       }
       printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
     });
@@ -833,7 +834,7 @@ $(document).ready(function() {
 
     if( type=='text' ) {
       if( set=='single' ) $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
-      else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >'+text+'</textarea>');
+      else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns="20" style="resize: none;" >'+text+'</textarea>');
       else console.log("error 646");
     }
     else if( type=='single_select' ) {
@@ -928,6 +929,60 @@ $(document).ready(function() {
 
   $(document).on('click','#userInfo-cancel',function() {
   });
+
+  $(document).on('click', '#addCalendar-submit', function() {
+    console.log("addCalendar submit");
+    let title      = $('#title #td-inner').val();
+    let start_date = $('#start_date #td-inner').val();
+    let end_date   = $('#end_date #td-inner').val();
+    let description = $('#description #td-inner').val();
+    let allDay = $('#allday').prop('checked');
+
+    let flag = true;
+    if( !title || !start_date || !end_date ) {
+      $('#cal-error-msg').show();
+      flag = false;
+    }
+    else $('#cal-error-msg').hide();
+
+    if( Date.parse(end_date) <= Date.parse(start_date) ) {
+      $('#tim-error-msg').show();
+      flag = false;
+    }
+    else $('#tim-error-msg').hide();
+
+    if( !flag ) return;
+
+    if( allDay ) {
+      start_date = ISODateString( start_date );
+      end_date = ISOEndDate( end_date );
+    }
+    let obj = {
+      title: title,
+      start: start_date,
+      end: end_date,
+      description: description,
+      allDay: allDay
+    };
+    database.ref('cal-events/' + agentId ).push(obj);
+    $('#addCalendarModal').modal('hide');
+
+    function ISOEndDate(d) {
+      d = new Date(d);
+      if( d.getHours()==0 && d.getMinutes()==0 ) return ISODateString( d );
+      else return ISODateString( moment(d).add('days', 1) );
+    }
+    function ISODateString(d) {
+      d = new Date(d);
+      return d.getFullYear()+'-'
+           + addZero(d.getMonth()+1)+'-'
+           + addZero(d.getDate())+'T'
+           + '00:00';
+    }
+  });   //end on click
+
+
+
 
   function historyMsg_to_Str( messages ) {
     let returnStr = "";

@@ -142,19 +142,14 @@ p {
   margin-bottom: 20px;
   float: left;
 }
-.info_input_table {
+.info_input_table, .addCalendar_input_table {
   width: 100%;
 }
-.info_input_table tr{
+.info_input_table, .addCalendar_input_table tr{
 }
-.userInfo-th {
+.userInfo-th, .userInfo-td, .addCalendar-th, .addCalendar-td {
   width: 50%;
   padding-top: 10px;
-}
-.userInfo-td {
-  width: 50%;
-  padding-top: 10px;
-  /*margin: 10px;*/
 }
 #send-message {
   margin-top: 20px;
