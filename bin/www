@@ -102,6 +102,7 @@ app.post('/webhook', function (req, res) {
           console.log('this is message');
           console.log(event.message);
           sendToFrontSocket(event);
+          receivedMessage(event);
 
 
         } else {
@@ -145,6 +146,8 @@ function receivedMessage(event) {
   var recipientID = event.recipient.id;
   var timeOfMessage = event.timestamp;
   var message = event.message;
+  console.log('this is event.message');
+  console.log(message);
 
   console.log("Received message for user %d and page %d at %d with message:",
     senderID, recipientID, timeOfMessage);
@@ -153,49 +156,70 @@ function receivedMessage(event) {
   var messageId = message.mid;
 
   var messageText = message.text;
-  var messageAttachments = message.attachments;
 
-  if (messageText) {
+  var messageAttachments = message.attachments;
 
     // If we receive a text message, check to see if it matches a keyword
     // and send back the example. Otherwise, just echo the text we received.
-    switch (messageText) {
-      case 'generic':
-        sendGenericMessage(senderID);
-        break;
 
-      default:
-        sendTextMessage(senderID, messageText);
-    }
-  } else if (messageAttachments) {
-    sendTextMessage(senderID, "Message with attachment received");
-  }
+    sendTextMessage(senderID, message);
+
+ 
 }//received message
 
-function sendGenericMessage(recipientId, messageText) {
-  // To be expanded in later sections
-}
-
 function sendTextMessage(recipientId, messageText) {
-  var messageData = {
+  //===================
+    request({
+    uri: 'https://graph.facebook.com/v2.6/me/messages',
+    qs: { access_token: 'EAAGteBmOVWYBALdNL1F3IZCZCDPnuHUZBScabJU55iTDqPZCbCVQ5zHFbCxJuMEvfsyd1yTpkRdIUy2D038vl4BkbDwcfjyk6cy49zahoT4xx5P3ceu4uLyRnpj9r2wZAfcJnndZBc2PlSf5RwE99pSxPLLqNIrlJQzD26PQDfL2nnvfenV9Tk' },
+    method: 'POST',
+    json: {
     recipient: {
       id: recipientId
     },
     message: {
       text: messageText
     }
-  };
+  }
+
+  }, function (error, response, body) {
+    console.log(response)
+    if (!error && response.statusCode == 200) {
+      var recipientId = body.recipient_id;
+      var messageId = body.message_id;
+
+      console.log("Successfully sent generic message with id %s to recipient %s", 
+        messageId, recipientId);
+    } else {
+      console.error("Unable to send message.");
+      console.error(response);
+      console.error(error);
+    }
+  }); 
+  //===================
+
+  // var messageData = {
+  //   recipient: {
+  //     id: recipientId
+  //   },
+  //   message: {
+  //     text: messageText
+  //   }
+  // };
+
 
   // callSendAPI(messageData);
 }//sendTextMessage
 function callSendAPI(messageData) {
 
   request({
-    url: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: { access_token: 'EAAGteBmOVWYBAPZCPVVqiAvqXtoImxMOPQXZCfdPvmjPHo4HGtkt3gTobnU7E6URf7PZC0P9U6u60hYosvZC7ASgCziZC5ECtUCirBOBr7hUPZBZBimkfHuORHsqIAAufDa5EZCeeZCPVZA1tZAm08C6ObAh0ftt7JBQIB84ZAqQlnrRHfKNlELsuVXC' },
+    uri: 'https://graph.facebook.com/v2.6/me/messages',
+    qs: { access_token: 'EAAGteBmOVWYBALdNL1F3IZCZCDPnuHUZBScabJU55iTDqPZCbCVQ5zHFbCxJuMEvfsyd1yTpkRdIUy2D038vl4BkbDwcfjyk6cy49zahoT4xx5P3ceu4uLyRnpj9r2wZAfcJnndZBc2PlSf5RwE99pSxPLLqNIrlJQzD26PQDfL2nnvfenV9Tk' },
     method: 'POST',
     json: messageData
+
   }, function (error, response, body) {
+    console.log(response)
     if (!error && response.statusCode == 200) {
       var recipientId = body.recipient_id;
       var messageId = body.message_id;
@@ -208,7 +232,7 @@ function callSendAPI(messageData) {
       console.error(error);
     }
   });  
-
+  console.log('on line 187');
 }
 //============================================
 // LINE bot implement
