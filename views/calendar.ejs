@@ -89,17 +89,18 @@
           <!-- 內容 -->
           <form>
             <span id="keyId" hidden></span><br />
-            <input type="text" placeholder="Event" id="title" required="true" /><br /><br />
+            <input type="text" placeholder="Event" id="title" required="true" />
+            <br /><br />
             <input type="datetime-local" id="startDate" required="true" />
-            <!-- <input type="time" id="startTime" /> -->
             -
             <input type="datetime-local" id="endDate" />
-            <!-- <input type="time" id="endTime" /> -->
+            <br /><br />
+            <textarea type="text" placeholder="Description" id="description" required="false" rows="6" style="width:90%; resize:vertical; "></textarea>
+            <br /><br />
+            <input type="checkbox" id="allday" value="false"/> <span class="alldaylabel">All Day</span>
             <br /><br />
 
-            <input type="checkbox" id="allday" value="false"/> <span class="alldaylabel">All Day</span><br /><br />
-
-            <div id="cal-error-msg" hidden>Please fill in the event name or start date</div>
+            <div id="cal-error-msg" hidden>Please fill in the event name or start date or end date</div>
             <div id="tim-error-msg" hidden>Start date cannot be greater than end date</div>
             <!-- <textarea id="details" placeholder="Details">
             </textarea> -->
