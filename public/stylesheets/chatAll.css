@@ -145,12 +145,20 @@ p {
 .info_input_table, .addCalendar_input_table {
   width: 100%;
 }
-.info_input_table, .addCalendar_input_table tr{
+.info_input_table, .addCalendar_input_table tr {
 }
-.userInfo-th, .userInfo-td, .addCalendar-th, .addCalendar-td {
-  width: 50%;
+.userInfo-th, .addCalendar-th, {
+  width: 40%;
   padding-top: 10px;
 }
+.userInfo-td, .addCalendar-td {
+  width: 60%;
+  padding-top: 10px;
+}
+.btn-clear {
+  float: left;
+}
+
 #send-message {
   margin-top: 20px;
   margin-bottom: 20px;

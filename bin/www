@@ -127,7 +127,6 @@ bot.on('message', event => {
           let flag = true;
           for( let prop in chatData ) {
             if(chatData[prop].Profile.userId == receiverId) {
-              console.log("find user " + receiverId + " in database");
               let length = chatData[prop].Messages.length;
               let updateObj = {};
               updateObj['/'+prop+'/Messages/'+length] = obj;
@@ -219,7 +218,7 @@ bot.on('message', event => {
 
           event.message.content().then(function(content) {
             /*'base64'是圖片的編碼*/
-            console.log(content.toString('base64'));
+            // console.log(content.toString('base64'));
             /*把編碼轉換成圖片(image/png)做成連結的方式*/
             let latitude = event.message.latitude;
             let longitude = event.message.longitude;
@@ -238,7 +237,7 @@ bot.on('message', event => {
 
           event.message.content().then(function(content) {
             /*'base64'是圖片的編碼*/
-            console.log(content.toString('base64'));
+            // console.log(content.toString('base64'));
             /*把編碼轉換成圖片(image/png)做成連結的方式*/
             msgObj.message = '<a href="data:image/png;base64,' + content.toString('base64') + '" ' +
             ' target="_blank" ><img src="data:image/png;base64,' + content.toString('base64') + '" ' +
@@ -256,7 +255,7 @@ bot.on('message', event => {
           emitIO_and_pushDB(msgObj);
 
           event.message.content().then(function(content) {
-            console.log(content.toString('base64'));
+            // console.log(content.toString('base64'));
             msgObj.message = '<audio controls><source src="data:audio/mp4;base64,' + content.toString('base64') + '" ' +
               '" type="audio/mp4"></audio>';
             emitIO_and_pushDB(msgObj);
@@ -271,7 +270,7 @@ bot.on('message', event => {
           emitIO_and_pushDB(msgObj);
 
           event.message.content().then(function(content) {
-            console.log(content.toString('base64'));
+            // console.log(content.toString('base64'));
             msgObj.message = '<video width="20%" controls><source src="data:video/mp4;base64,' + content.toString('base64') + '" ' +
               '" type="video/mp4"></video>';
             emitIO_and_pushDB(msgObj);
@@ -523,7 +522,7 @@ bot.on('message', event => {
           });
 
         }
-        else if (event.message.type === 'text' && (message_lineTochat.trim() === '年齡：20以下' || message_lineTochat.trim() === '年齡：21-30' || message_lineTochat.trim() === '年齡：31-40' || message_lineTochat.trim() === '年齡：41-50' || message_lineTochat.trim() === '年齡：51-64' || message_lineTochat.trim() === '年齡：65以上')) {
+        else if (event.message.type === 'text' && (message_lineTochat.trim().indexOf('年齡')!=-1) ) {
           msgObj.message = message_lineTochat.trim();
           emitIO_and_pushDB(msgObj);
 
@@ -550,23 +549,41 @@ bot.on('message', event => {
           emitIO_and_pushDB(msgObj);
         }
 
+
         function apiai(obj) {
           var apiai = require('apiai');
-          var app = apiai('5e29c1d48227420789ac915597c0f025');
+          // var app = apiai('5e29c1d48227420789ac915597c0f025');
+          var app = apiai('065a1e6586a14d2b814e4a00e5d24fa6');
           var request = app.textRequest(obj.message, {
-              sessionId: '9ceb250a-dbcc-463e-98dd-e2a5e56649b0'
+              // sessionId: '9ceb250a-dbcc-463e-98dd-e2a5e56649b0'
+              sessionId: '6e8e6474-5e7f-441f-8f63-b6a7addda966'
           });
           request.on('response', function(response) {
             let action = response.result.action ;
+            console.log("api.ai action = " + action);
             let speech = response.result.fulfillment.speech ;
-            if(action != 'input.unknown'){
-              console.log(speech);
+            if( action == 'date' ) {
+              let date = response.result.parameters.date;
+              if( date ) {
+                console.log("Api.ai got Date!");
+                console.log("Emit calendar remind to chat page");
+                io.sockets.emit('chat calendar remind', {
+                  userId: receiverId,
+                  userName: receiver_name,
+                  date: date,
+                  msg: response.result.resolvedQuery
+                });
+
+              }
+            }
+            else if(action != 'input.unknown'){
+              // console.log(speech);
               obj.owner = 'agent';
               obj.name = 'api.ai';
               obj.message = response.result.fulfillment.speech ;
               emitIO_and_pushDB(obj) ;
-              console.log('api.ai:')
-              console.log(obj);
+              // console.log('api.ai:')
+              // console.log(obj);
               bot.push(obj.id,obj.message);
               if(action == 'test' ){
                 event.reply({
@@ -592,8 +609,10 @@ bot.on('message', event => {
                   }
                 });
               }
-            }else{console.log(action);}
-
+            }
+            else{
+              console.log(action);
+            }
           });
           request.on('error', function(error) {
               console.log(error);
@@ -1131,7 +1150,6 @@ io.sockets.on('connection', (socket) => {
       data.firstChat = nowTime;
       data.recentChat = nowTime;
       data.unRead = JSON.parse(JSON.stringify(data.agent));
-      data.unRead.splice(data.unRead.indexOf(data.owner),1);
       console.log("data: ");
       console.log(data);
 

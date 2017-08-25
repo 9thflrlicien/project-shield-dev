@@ -99,7 +99,10 @@
           <button id="filterBtn-clean">show all</button>
         </div>
         <div class="filterUnit" style="float: right;">
-          <button id="add-calendar" data-toggle="modal" data-target="#addCalendarModal">Add Calendar</button>
+          <button id="add-calendar" data-toggle="modal" data-target="#addCalendarModal">
+            <i class="fa fa-calendar-plus-o" id="add-calendar-icon"></i>
+            Add Calendar
+          </button>
         </div>
 
         <div class="filterPanel">
@@ -280,7 +283,7 @@
                   <tr>
                     <th class="addCalendar-th">Description</th>
                     <td class="addCalendar-td" id="description">
-                      <textarea type="text" id="td-inner" rows="4" style="resize:vertical; width:90%">sdfg</textarea>
+                      <textarea type="text" id="td-inner" rows="4" style="resize:vertical; width:90%"></textarea>
                     </td>
                   </tr>
                 </tbody>
@@ -291,6 +294,8 @@
                <div id="tim-error-msg" hidden>Start date cannot be greater than end date</div>
             </div>
             <div class="modal-footer">
+
+              <button id="addCalendar-clear" class="btn btn-default btn-clear">Clear</button>
               <button id="addCalendar-submit" class="btn btn-primary">Add</button>
               <button id="addCalendar-cancel" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
@@ -308,6 +313,7 @@
     <script src="javascripts/firebaseConfig.js"></script>
     <script src="javascripts/sb-admin-2.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src='javascripts/moment.min.js'></script>
     <script src="javascripts/chatAll.js"></script>
   </body>
 </html>

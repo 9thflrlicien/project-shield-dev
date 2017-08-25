@@ -927,7 +927,7 @@ $(document).ready(function() {
     }
   }
 
-  $(document).on('click','#userInfo-cancel',function() {
+  $(document).on('click','#userInfo-cancel', function() {
   });
 
   $(document).on('click', '#addCalendar-submit', function() {
@@ -965,24 +965,34 @@ $(document).ready(function() {
       allDay: allDay
     };
     database.ref('cal-events/' + agentId ).push(obj);
-    $('#addCalendarModal').modal('hide');
 
-    function ISOEndDate(d) {
-      d = new Date(d);
-      if( d.getHours()==0 && d.getMinutes()==0 ) return ISODateString( d );
-      else return ISODateString( moment(d).add('days', 1) );
-    }
-    function ISODateString(d) {
-      d = new Date(d);
-      return d.getFullYear()+'-'
-           + addZero(d.getMonth()+1)+'-'
-           + addZero(d.getDate())+'T'
-           + '00:00';
-    }
+    $('#addCalendarModal').modal('hide');
+    $('#addCalendar-clear').click();
   });   //end on click
 
+  socket.on('chat calendar remind', function(data) {
+    $('#title #td-inner').val('待辦事項 '+data.userName);
+    $('#start_date #td-inner').val(ISODateTimeString(Date.now()));
+    $('#end_date #td-inner').val(ISODateString(data.date));
+    $('#description #td-inner').val("UID = "+data.userId + "\n"+data.msg);
 
+    let animate_count = 0;
+    let calendar_icon_animate = setInterval( function() {
+      let icon = $('#add-calendar-icon');
+      if( animate_count%2 ) icon.css('background-color', "");
+      else icon.css('background-color', "red");
+      if( animate_count>10 ) clearInterval(calendar_icon_animate);
+      else animate_count++;
+    }, 500);
+  });
 
+  $(document).on('click', '#addCalendar-clear', function() {
+    $('#title #td-inner').val('');
+    $('#start_date #td-inner').val('');
+    $('#end_date #td-inner').val('');
+    $('#description #td-inner').val('');
+    $('#allday').prop('checked', false);
+  })
 
   function historyMsg_to_Str( messages ) {
     let returnStr = "";
@@ -1027,6 +1037,28 @@ $(document).ready(function() {
   function toTimeStr( input ) {
     let date = new Date(input);
     return " (" + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ") ";
+  }
+
+  function ISOEndDate(d) {
+    d = new Date(d);
+    if( d.getHours()==0 && d.getMinutes()==0 ) return ISODateString( d );
+    else return ISODateString( moment(d).add('days', 1) );
+  }
+  function ISODateString(d) {
+    d = new Date(d);
+    return d.getFullYear()+'-'
+         + addZero(d.getMonth()+1)+'-'
+         + addZero(d.getDate())+'T'
+         + '00:00';
+  }
+  function ISODateTimeString(d) {
+    d = new Date(d);
+    function pad(n) {return n<10 ? '0'+n : n}
+    return d.getFullYear()+'-'
+         + pad(d.getMonth()+1)+'-'
+         + pad(d.getDate())+'T'
+         + pad(d.getHours())+':'
+         + pad(d.getMinutes());
   }
 
   function change_document_title(name) {
