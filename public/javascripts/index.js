@@ -79,10 +79,3 @@ function getG() {
   $('#search-input').val('聊天室');
   filterChart();
 };
-
-function logout(){
-  auth.signOut()
-  .then(response => {
-    window.location.assign("/login");
-  })
-}
