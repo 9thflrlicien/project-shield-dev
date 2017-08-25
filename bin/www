@@ -11,7 +11,6 @@ var linebot = require('linebot');
 var apiai = require('apiai');
 var fs = require('fs');
 var MessengerPlatform = require('facebook-bot-messenger');
-var fb_user_name;
 var fb_bot = MessengerPlatform.create({
   pageID: '1198280690226258',
   appID: '472206313149798',
@@ -19,7 +18,10 @@ var fb_bot = MessengerPlatform.create({
   validationToken: '8d651e7bf52b3f923d099302268b8893',
   pageToken: 'EAAGteBmOVWYBAOpsz0pMcEzVKbIh0pBi1uc7SrFhmEYGpxxk3n5MRIpeXCsceKa2f2WQCHkhCVoemeHYwGK5fsXAYicRMOX6FsTCnaRXWTKsqqNtcm7hh8Jw5IS7ypXnhKtP9tjAg0SZCtfoJMzFR0sWzuGBpCXicItwa0IzFZArTcz5p6'
 });
-
+//============================================================================
+import {Bot, Elements} from 'facebook-messenger-bot'; // import Bot class
+const fb_bot_2 = new Bot('EAAGteBmOVWYBAOpsz0pMcEzVKbIh0pBi1uc7SrFhmEYGpxxk3n5MRIpeXCsceKa2f2WQCHkhCVoemeHYwGK5fsXAYicRMOX6FsTCnaRXWTKsqqNtcm7hh8Jw5IS7ypXnhKtP9tjAg0SZCtfoJMzFR0sWzuGBpCXicItwa0IzFZArTcz5p6', '8d651e7bf52b3f923d099302268b8893'); // create bot instance
+//============================================================================
 
 var config = {
     apiKey: "AIzaSyAqzIra9YkeE0HZZBSwXrjh4GemO7yVdmI",
@@ -89,9 +91,45 @@ server.on('error', onError);
 server.on('listening', onListening);
 // 接收訊息
 //==============FACEBOOK MESSAGE==============
+bot.on('message', async message => {
+    const {sender} = message;
+ 
+    // get sender id
+    console.log(`Received a message from ${sender.id}`);
+ 
+    // fetch additional user properties
+    await sender.fetch(`first_name,last_name,profile_pic`, true); // true: use cache
+ 
+    console.log(`Fetched ${sender.first_name}, ${sender.last_name}, ${sender.profile_pic}`);
+ 
+    const {text, images, videos, location, audio} = message;
+ 
+    if (text) {
+        console.log(text);      // 'hey'
+    }
+ 
+    if (images) {
+        console.log(images);    // ['http://...', 'http://...']
+    }
+ 
+    if (videos) {
+        console.log(videos);    // ['http://...', 'http://...']
+    }
+ 
+    if (location) {
+        console.log(location);  // {title, long, lat, url}
+    }
+ 
+    if (audio) {
+        console.log(audio);     // url
+    }
+ 
+    console.log(message);       // log the message to learn about all the attributes
+});
+
 app.post('/webhook', function (req, res) {
   var data = req.body;
-
+ 
   // Make sure this is a page subscription
   if (data.object === 'page') {
 
@@ -131,19 +169,25 @@ function loadFbProfile(obj, psid){
 fb_bot.webhook('/webhook');
 fb_bot.getProfile(psid).then(function(data) {
 
-fb_user_name = data.first_name +' '+ data.last_name;
-
+var fb_user_name = data.first_name +' '+ data.last_name;
 
     obj.id = obj.sender.id;
     obj.owner = obj.recipient.id;
     obj.name =  fb_user_name;
     obj.time = obj.timestamp;
     obj.message = obj.message.text;
+
+    if (obj.message.text !== 'undefined'){
+      obj.message = obj.message.text;
+    }else if (JSON.stringify(message.attachments.type) == 'image'){
+      console.log('you got an image');
+    }
+
     io.sockets.emit('new message2', obj);
+  
 }).catch(function(error) {
   // add your code when error. 
 }); 
-bot.listen(3000);
 
 //======receive message==========
 
@@ -151,8 +195,7 @@ bot.listen(3000);
   var recipientID = obj.recipient.id;
   var timeOfMessage = obj.timestamp;
   var message = obj.message;
-  console.log('this is event.message');
-  console.log(message);
+
 
   console.log("Received message for user %d and page %d at %d with message:",
     senderID, recipientID, timeOfMessage);
@@ -164,49 +207,30 @@ bot.listen(3000);
 
   var messageAttachments = message.attachments;
 
-
-  //=======push to database=======
+//=============saving to database============
     let message_lineTochat = obj.message;
-    let receiverId = senderID;
-    let receiver_name = fb_user_name;
+    let receiverId = obj.id;
+    let receiver_name = obj.name;
     let nowTime = Date.now();
 
 
-        if( receiver_name==undefined ) receiver_name = "userName_undefined";
-
-        // var msgObj = {    //MsgObj
-        //   userName: receiver_name,
-        //   id: receiverId,
-        //   messageTime: nowTime,
-        //   message: "default message"
-        // }
         var msgObj = {
           owner: "user",
           name: receiver_name,
-          time: nowTime
+          time: nowTime,
+          message: message_lineTochat
         };
         function emitIO_and_pushDB(obj) {
-          // console.log("sending to io sockets...");
-          // io.sockets.emit('new message', obj);
-          // console.log("io sockets sent!");
-          // console.log("sending to old firebase database...");
-          // usersRef.push(obj);
-          // console.log("DB sent!");
 
           console.log("sending object user: ");
           console.log(obj);
-          // console.log("sending to local DB");
-          // sendToLocalDB(obj);
+
           console.log("sending to new firebase database");
           sendToNewFb(obj);
           console.log("sending to new io sockets...");
-          sendToFrontSocket(obj);
           console.log("All sent!");
         }
-        function sendToFrontSocket(obj) {
-          obj.id = receiverId;
-          io.sockets.emit('new message2', obj);
-        }
+
         function sendToNewFb(obj){
           let flag = true;
           for( let prop in chatData ) {
@@ -247,40 +271,17 @@ bot.listen(3000);
               },
               Messages: [obj]
             };
+
             newDBRef.push(newData);
             io.sockets.emit('new user profile', newData.Profile);
           }
-        }
-        function sendToLocalDB(obj) {
-          let DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
-          let i=0;
-          for( i=0; i<DATA.length; i++ ) {
-            if( DATA[i].Profile.userId == receiverId ) {
-              DATA[i].Messages.push(obj);
-              break;
-            }
-          }
-          if( i==DATA.length ) {
-            console.log("new user come in");
-            let newData = {
-              Profile: {
-                nickname: receiver_name,
-                userId: receiverId,
-                age: -1,
-                telephone: "",
-                address: "",
-                firstChat: nowTime,
-                recentChat: nowTime,
-                totalChat: 1,
-                avgChat: 1
-              },
-              Messages: [obj]
-            };
-            DATA.push(newData);
-          }
-          fs.writeFileSync('chatMsg.json', JSON.stringify(DATA, null, 2));
-          console.log("send to local DB success");
-        }
+        }//sendTONewFb
+
+          // emitIO_and_pushDB(msgObj);
+
+
+//===========================================
+
 }//loadFbProfile
 //============================================
 // LINE bot implement
@@ -990,102 +991,10 @@ io.sockets.on('connection', (socket) => {
             message: message
           };
 
-           function emitIO_and_pushDB(obj) {
-              // console.log("sending to io sockets...");
-              // io.sockets.emit('new message', obj);
-              // console.log("io sockets sent!");
-              // console.log("sending to old firebase database...");
-              // agentsRef.push(obj);
-              // console.log("DB sent!");
-              console.log("sending object agent2: ");
-              console.log(obj);
 
-              console.log("sending to new firebase database");
-              sendToNewFb(obj);
-              // console.log("sending to local DB");
-              // sendToLocalDB(obj);
-              console.log("sending to new io sockets...");
-              sendToFrontSocket(obj);
-              console.log("All sent!");
-            }
-
-          function sendToNewFb(obj){
-          let flag = true;
-          for( let prop in chatData ) {
-            console.log("find next user data");
-            if(chatData[prop].Profile.userId == agent_sendTo_receiver) {
-              console.log("find the same user");
-              let length = chatData[prop].Messages.length;
-              let updateObj = {};
-              updateObj['/'+prop+'/Messages/'+length] = obj;
-              newDBRef.update(updateObj);
-              flag = false;
-              break;
-            }
-          }
-          if( flag ) {
-            console.log("new user come in, impossible!!!");
-            let newData = {
-              Profile: {
-                nickname: "undefined name at www.line.669",
-                userId: agent_sendTo_receiver,
-                age: -1,
-                telephone: "",
-                address: "",
-                firstChat: nowTime,
-                recentChat: nowTime,
-                totalChat: 1,
-                avgChat: 1
-              },
-              Messages: [obj]
-            };
-            newDBRef.push(newData);
-          }
-        }
-
-        function sendToFrontSocket(obj) {
-          obj.id = agent_sendTo_receiver;
-          io.sockets.emit('new message2', obj);
-        }
-        function sendToLocalDB(obj) {
-          let DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
-          let i=0;
-          for( i=0; i<DATA.length; i++ ) {
-            if( DATA[i].Profile.userId == agent_sendTo_receiver ) {
-              DATA[i].Messages.push(obj);
-              break;
-            }
-          }
-          if( i==DATA.length ) {
-            console.log("new user come in");
-            let newData = {
-              Profile: {
-                nickname: "unknown nickname",
-                userId: agent_sendTo_receiver,
-                age: -1,
-                telephone: "",
-                address: "",
-                firstChat: nowTime,
-                首次聊天時間: nowTime,
-                recentChat: nowTime,
-                totalChat: 1,
-                avgChat: 1
-              },
-              Messages:[obj]
-            };
-            DATA.push(newData);
-          }
-          fs.writeFileSync('chatMsg.json', JSON.stringify(DATA, null, 2));
-          console.log("send to local DB success");
-        }
-
-
-          emitIO_and_pushDB(msgObj);
-
-        }
 //================================================
 
-        else{
+        }else{
         let msg = data.msg.trim();
         agent_sendTo_receiver = data.id.trim();
         let msg_time = data.msgtime;

@@ -15,6 +15,7 @@
     "ejs": "^2.5.6",
     "express": "~4.14.1",
     "facebook-bot-messenger": "^1.0.6",
+    "facebook-messenger-bot": "^0.2.0",
     "firebase": "^4.1.2",
     "firebase-admin": "^5.0.0",
     "jsonfile": "^3.0.1",
