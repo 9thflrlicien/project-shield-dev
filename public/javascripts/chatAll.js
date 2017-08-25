@@ -15,7 +15,7 @@ $(document).ready(function() {
 
   var canvas = $("#canvas");          //panel of message canvas
   var person = "agentColman";         //agent name
-  var agentId;
+  var agentId;                        //agent ID in firebase
 
   const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>"
     + "Loading History Messages..."
@@ -46,28 +46,28 @@ $(document).ready(function() {
 
 
   $(document).on('click', '#signout-btn', logout); //登出
-  $(document).on('click', '.tablinks', clickUserTablink);
-  $(document).on('click', '.topright', clickSpan);
-  $(document).on('click', '#userInfoBtn', showProfile);
-  $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
-  $(document).on('click', '.edit-button', changeProfile);
-  $(document).on('click','#userInfo-submit',submitProfile);
-  $(document).on('change', '.multiselect-container', multiselect_change);
-  $(document).on('click','.dropdown-menu', function(event){
+  $(document).on('click', '.tablinks', clickUserTablink); //open user's canvas
+  $(document).on('click', '.topright', clickSpan);        //close now user's canvas
+  $(document).on('click', '#userInfoBtn', showProfile);   //open user's profile
+  $(document).on('click', '.userInfo-td[modify="true"]', editProfile);  //get into modify the column
+  $(document).on('click', '.edit-button', changeProfile);   //confirm modify of single column
+  $(document).on('click','#userInfo-submit',submitProfile); //confirm modify of user's whole profile
+  $(document).on('change', '.multiselect-container', multiselect_change); //execute when multi-select change option
+  $(document).on('click','.dropdown-menu', function(event){    //dont let dropdown-menu close by auto
     event.stopPropagation();
   });
 
-  setInterval(() => {
+  setInterval(() => {     //close idle room 1 time per 20 sec
     closeIdleRoomTry();
   }, 20000);
 
   if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
     setTimeout(function() {
-      socket.emit('get json from back');
+      socket.emit('get json from back');    //send request for chat data to back-end
     }, 10);  //load history msg
     setTimeout(agentName, 1500); //enter agent name
-    setTimeout(function() {
+    setTimeout(function() {   //send request for tag data to back-end
       socket.emit("get tags from chat");
     }, 10);
   }
@@ -76,10 +76,10 @@ $(document).ready(function() {
     let early_time = Date.now() - 15*60*1000;        //15min before now
     let last = clients.find('.tablinks:last');      //last user in online room
     while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
-      let ele = last.parents('b');
-      ele.remove();
-      idles.prepend(ele);
-      last = clients.find('.tablinks:last');
+      let ele = last.parents('b');        //push last user
+      ele.remove();                       //remove first
+      idles.prepend(ele);                 //prepend to top of idle room
+      last = clients.find('.tablinks:last');  //get next element of last online user
     }
   }
 
@@ -127,7 +127,10 @@ $(document).ready(function() {
   socket.on('push json to front', (data) => {
     //www emit data of history msg
     console.log("push json to front");
-    for( i in data ) pushMsg(data[i]);    //one user do function one time
+    for( i in data ) {
+      console.log(data[i]);
+      pushMsg(data[i]);    //one user do function one time
+    }
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );   //sort users by recent time
     closeIdleRoomTry();
     $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
@@ -183,22 +186,23 @@ $(document).ready(function() {
   }
 
   function detecetScrollTop( ele ) {
-    if( ele.scrollTop()==0 ) {
-      let tail = parseInt(ele.attr('data-position'));
+    if( ele.scrollTop()==0 ) {    //if scroll to top of canvas
+      let tail = parseInt(ele.attr('data-position'));   //get early 20 messages of this user canvas
       let head = parseInt(ele.attr('data-position')) - 20;
       if( head<0 ) head = 0;
-      let request = {
-        userId: ele.parent().attr('id'),
-        head: head,
-        tail: tail
+      let request = {       //socket object
+        userId: ele.parent().attr('id'),    //userid
+        head: head,                   //to get messages's index head
+        tail: tail                    //to get messages's index tail
       };
-      if( head==0 ) ele.off('scroll');
-      ele.attr('data-position', head);
-      socket.emit('upload history msg from front', request);
+      if( head==0 ) ele.off('scroll');    //if no more unloaded messages, stop detect scroll to top event
+      ele.attr('data-position', head);    //if some messages unloaded yet, update head of messages index
+      socket.emit('upload history msg from front', request);  //send request for early messages
       console.log('upload! head = '+head+', tail = '+tail);
     }
   }
   socket.on('upload history msg from back', data=>{
+    //get response of early messages
     console.log('get uploaded history msg');
     let msgContent = $('#'+data.userId+'-content');
 
