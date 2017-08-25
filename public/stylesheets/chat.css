@@ -6,7 +6,6 @@ div.tab {
   height: 300px;
   text-align: center;
   padding:10px 0;
-  overflow-x: hidden; /*byFWL*/
 }
 /* Style the buttons inside the tab */
 div.tab button {
@@ -49,7 +48,6 @@ div.tab button.active {
 .messagePanel {
   height: 95%;
   overflow-y: scroll;
-  overflow-x: hidden;
   clear:right;
 }
 .topright{
@@ -63,24 +61,28 @@ p {
   float:top;
 }
 .tablinks{
-  padding-left: 10px
+  padding-left: 10px;
 }
-#clients {
+#clients, #idle-roomes {
   list-style: none;
 }
-.edit-button{
-  display: none;
-  width: 40px;
-  text-align: center;
-  padding: 2px 5px;
-  border-radius: 5%;
-  transition: all .4s ease-in-out;
+
+
+#userInfoBtn {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
-.yes:hover{
-  background-color: rgba(137, 226, 143, 0.8);
-  cursor: pointer;
+.info_input_table {
+  width: 100%;
 }
-.no:hover{
-  background-color: rgba(221, 139, 130, 0.85);
-  cursor: pointer;
+.info_input_table tr{
+}
+.userInfo-th {
+  width: 50%;
+  padding-top: 10px;
+}
+.userInfo-td {
+  width: 50%;
+  padding-top: 10px;
+  /*margin: 10px;*/
 }

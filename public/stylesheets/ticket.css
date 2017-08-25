@@ -208,3 +208,49 @@ table { width: 100%}
   margin: 0;
   width: 100%
 }
+
+.select{
+  width : 100px ;
+}
+
+.inner{
+  margin: 0 15px ;
+  position: relative;
+  float: left;
+  width: 80%;
+}
+
+.ticket_content:hover{
+  cursor:  pointer;
+  background-color: rgba(183, 208, 181, 0.77) ;
+  transition: .3s ease-in-out ;
+
+}
+.overdue{
+  padding: 1px 10px;
+  margin: 1px;
+  border-radius: 8px ;
+  background-color: rgb(227, 79, 79) ;
+  color: white ;
+  font-weight: bold;
+}
+
+.non{
+  background-color: rgb(91, 195, 92)
+}
+#ID_num{
+  display: flex;
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px ;
+  margin-right: 10px;
+  font-weight: bold;
+  color: white;
+  border-radius: 50%;
+}
+.modal-title{
+  display: flex;
+  align-items: flex-end;
+}
