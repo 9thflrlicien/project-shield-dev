@@ -162,9 +162,11 @@ $(document).ready(function() {
     $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>');  //new a option in select bar
 
     let lastMsg = historyMsg[historyMsg.length-1];
+    console.log('lastMsg on line 165');
+    console.log(lastMsg);
     let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
     let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
-    //display last message at tablinks
+    // display last message at tablinks
 
     clients.append("<b><button rel=\""+profile.userId+"\" class=\"tablinks\""
       + "data-avgTime=\""+ profile.avgChat +"\" "

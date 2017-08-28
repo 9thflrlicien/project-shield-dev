@@ -18,19 +18,14 @@ var fb_bot = MessengerPlatform.create({
   validationToken: '8d651e7bf52b3f923d099302268b8893',
   pageToken: 'EAAGteBmOVWYBAOpsz0pMcEzVKbIh0pBi1uc7SrFhmEYGpxxk3n5MRIpeXCsceKa2f2WQCHkhCVoemeHYwGK5fsXAYicRMOX6FsTCnaRXWTKsqqNtcm7hh8Jw5IS7ypXnhKtP9tjAg0SZCtfoJMzFR0sWzuGBpCXicItwa0IzFZArTcz5p6'
 });
-//============================================================================
-import {Bot, Elements} from 'facebook-messenger-bot'; // import Bot class
-const fb_bot_2 = new Bot('EAAGteBmOVWYBAOpsz0pMcEzVKbIh0pBi1uc7SrFhmEYGpxxk3n5MRIpeXCsceKa2f2WQCHkhCVoemeHYwGK5fsXAYicRMOX6FsTCnaRXWTKsqqNtcm7hh8Jw5IS7ypXnhKtP9tjAg0SZCtfoJMzFR0sWzuGBpCXicItwa0IzFZArTcz5p6', '8d651e7bf52b3f923d099302268b8893'); // create bot instance
-//============================================================================
-
 var config = {
-    apiKey: "AIzaSyAqzIra9YkeE0HZZBSwXrjh4GemO7yVdmI",
-    authDomain: "shield-88fd0.firebaseapp.com",
-    databaseURL: "https://shield-88fd0.firebaseio.com",
-    projectId: "shield-88fd0",
-    storageBucket: "shield-88fd0.appspot.com",
-    messagingSenderId: "376341346069"
-};
+    apiKey: "AIzaSyAr1ic8lr_asYZTwwIjBNp3uiqFdu1QJKI",
+    authDomain: "shield-dev-91210.firebaseapp.com",
+    databaseURL: "https://shield-dev-91210.firebaseio.com",
+    projectId: "shield-dev-91210",
+    storageBucket: "",
+    messagingSenderId: "514816655617"
+  };
 firebase.initializeApp(config);
 
 const usersRef = firebase.database().ref().child('chats/users2');
@@ -51,12 +46,12 @@ agentDBRef.on('value', snapshot=> {
   console.log("agent chat loaded");
 })
 
-var tagsData;
-tagsRef.on('value', snapshot=> {
-   tagsData = snapshot.val().Data;
-   console.log("tags data loaded");
-  // ...
-});
+// var tagsData;
+// tagsRef.on('value', snapshot=> {
+//    tagsData = snapshot.val().Data;
+//    console.log("tags data loaded");
+//   // ...
+// });
 /**
  * Get port from environment and store in Express.
  */
@@ -91,42 +86,6 @@ server.on('error', onError);
 server.on('listening', onListening);
 // 接收訊息
 //==============FACEBOOK MESSAGE==============
-bot.on('message', async message => {
-    const {sender} = message;
- 
-    // get sender id
-    console.log(`Received a message from ${sender.id}`);
- 
-    // fetch additional user properties
-    await sender.fetch(`first_name,last_name,profile_pic`, true); // true: use cache
- 
-    console.log(`Fetched ${sender.first_name}, ${sender.last_name}, ${sender.profile_pic}`);
- 
-    const {text, images, videos, location, audio} = message;
- 
-    if (text) {
-        console.log(text);      // 'hey'
-    }
- 
-    if (images) {
-        console.log(images);    // ['http://...', 'http://...']
-    }
- 
-    if (videos) {
-        console.log(videos);    // ['http://...', 'http://...']
-    }
- 
-    if (location) {
-        console.log(location);  // {title, long, lat, url}
-    }
- 
-    if (audio) {
-        console.log(audio);     // url
-    }
- 
-    console.log(message);       // log the message to learn about all the attributes
-});
-
 app.post('/webhook', function (req, res) {
   var data = req.body;
  
@@ -147,7 +106,6 @@ app.post('/webhook', function (req, res) {
           loadFbProfile(event, event.sender.id);
 
 
-
         } else {
           console.log("Webhook received unknown event: ", event);
         }
@@ -165,7 +123,6 @@ app.post('/webhook', function (req, res) {
 
 function loadFbProfile(obj, psid){
 
-
 fb_bot.webhook('/webhook');
 fb_bot.getProfile(psid).then(function(data) {
 
@@ -176,50 +133,39 @@ var fb_user_name = data.first_name +' '+ data.last_name;
     obj.name =  fb_user_name;
     obj.time = obj.timestamp;
     obj.message = obj.message.text;
-
-    if (obj.message.text !== 'undefined'){
-      obj.message = obj.message.text;
-    }else if (JSON.stringify(message.attachments.type) == 'image'){
-      console.log('you got an image');
-    }
-
     io.sockets.emit('new message2', obj);
-  
-}).catch(function(error) {
-  // add your code when error. 
-}); 
+
+
 
 //======receive message==========
 
   var senderID = obj.sender.id;
   var recipientID = obj.recipient.id;
   var timeOfMessage = obj.timestamp;
-  var message = obj.message;
+  var message_text = obj.message;
+
 
 
   console.log("Received message for user %d and page %d at %d with message:",
     senderID, recipientID, timeOfMessage);
-  console.log(JSON.stringify(message));
+  console.log(JSON.stringify(obj.message));
 
-  var messageId = message.mid;
-
-  var messageText = message.text;
-
-  var messageAttachments = message.attachments;
+//===========================================
 
 //=============saving to database============
-    let message_lineTochat = obj.message;
-    let receiverId = obj.id;
-    let receiver_name = obj.name;
+    let message_lineTochat = message_text;
+    let receiverId = senderID;
+    let receiver_name = fb_user_name;
     let nowTime = Date.now();
-
 
         var msgObj = {
           owner: "user",
           name: receiver_name,
           time: nowTime,
-          message: message_lineTochat
+          message: message_lineTochat,
+          id: receiverId
         };
+
         function emitIO_and_pushDB(obj) {
 
           console.log("sending object user: ");
@@ -230,7 +176,6 @@ var fb_user_name = data.first_name +' '+ data.last_name;
           console.log("sending to new io sockets...");
           console.log("All sent!");
         }
-
         function sendToNewFb(obj){
           let flag = true;
           for( let prop in chatData ) {
@@ -240,20 +185,23 @@ var fb_user_name = data.first_name +' '+ data.last_name;
               let updateObj = {};
               updateObj['/'+prop+'/Messages/'+length] = obj;
               newDBRef.update(updateObj);
-              newDBRef.child(prop).child("Profile").update({
-                unRead: true,
-                photo: profile.pictureUrl? profile.pictureUrl :""
-              });
+              // newDBRef.child(prop).child("Profile").update({
+              //   unRead: true,
+              //   photo: profile.pictureUrl? profile.pictureUrl :""
+              // });//NOTE:有問題暫時先comment
+
+
               flag = false;
               break;
             }
           }
           if( flag ) {
             console.log("new user come in");
+
             let newData = {
               Profile: {
-                nickname: receiver_name,
-                userId: receiverId,
+                nickname: obj.name,
+                userId: obj.id,
                 age: -1,
                 telephone: "",
                 address: "",
@@ -267,20 +215,24 @@ var fb_user_name = data.first_name +' '+ data.last_name;
                 平均每次聊天時間: 1,
                 聊天次數: 1,
                 unRead: true,
-                photo: profile.pictureUrl? profile.pictureUrl :""
+                // photo: profile.pictureUrl? profile.pictureUrl :""
               },
-              Messages: [obj]
+              Messages: obj
             };
-
+            console.log('this is new data on line 221');
+            console.log(newData);
             newDBRef.push(newData);
             io.sockets.emit('new user profile', newData.Profile);
           }
         }//sendTONewFb
 
-          // emitIO_and_pushDB(msgObj);
+          emitIO_and_pushDB(msgObj);
 
-
-//===========================================
+    
+  
+}).catch(function(error) {
+  // add your code when error. 
+});//fb_bot
 
 }//loadFbProfile
 //============================================
@@ -852,7 +804,7 @@ io.sockets.on('connection', (socket) => {
 
     socket.on('get tags from chat', data => {
       console.log("tags socket");
-      socket.emit('push tags to chat', tagsData);
+    //   socket.emit('push tags to chat', tagsData);
     });
     socket.on('get tags from tags', data => {
       socket.emit('push tags to tags', tagsData);
@@ -873,50 +825,50 @@ io.sockets.on('connection', (socket) => {
       for( let i in chatData ) {
         let profile = chatData[i].Profile;
         let _lastMsg = chatData[i].Messages[ chatData[i].Messages.length-1 ];
-        if( profile.recentChat != _lastMsg.time ) {
-          console.log( "ID = "+profile.userId+" update time!");
-          profile.recentChat = _lastMsg.time;
+        // if( profile.recentChat != _lastMsg.time ) {
+        //   console.log( "ID = "+profile.userId+" update time!");
+        //   profile.recentChat = _lastMsg.time;
 
-          let timeArr = chatData[i].Messages.map( function(ele) {
-            return ele.time;
-          });
-          let times = [];
-          let j=0;
-          const GAP = 1000*60*15; //15 min
-          let headTime;
-          let tailTime;
-          while( j<timeArr.length ) {
-            headTime = tailTime = timeArr[j];
-            while( timeArr[j]-tailTime < GAP ) {
-              tailTime = timeArr[j];
-              j++;
-              if( j==timeArr.length ) break;
-            }
-            let num = tailTime-headTime;
-            if( num<1000 ) num = 1000;
-            times.push(num);
-          }
-          let sum = 0;
-          for( let j in times ) sum += times[j];
-          sum /= 60000;
-          profile.totalChat = sum;
-          profile.avgChat = sum/times.length;
-          profile.chatTimeCount = times.length;
-          if( isNaN(profile.avgChat) || profile.avgChat<1 ) profile.avgChat = 1;
-          if( isNaN(profile.totalChat) || profile.totalChat<1 ) profile.totalChat  = 1;
+        //   let timeArr = chatData[i].Messages.map( function(ele) {
+        //     return ele.time;
+        //   });
+        //   let times = [];
+        //   let j=0;
+        //   const GAP = 1000*60*15; //15 min
+        //   let headTime;
+        //   let tailTime;
+        //   while( j<timeArr.length ) {
+        //     headTime = tailTime = timeArr[j];
+        //     while( timeArr[j]-tailTime < GAP ) {
+        //       tailTime = timeArr[j];
+        //       j++;
+        //       if( j==timeArr.length ) break;
+        //     }
+        //     let num = tailTime-headTime;
+        //     if( num<1000 ) num = 1000;
+        //     times.push(num);
+        //   }
+        //   let sum = 0;
+        //   for( let j in times ) sum += times[j];
+        //   sum /= 60000;
+        //   profile.totalChat = sum;
+        //   profile.avgChat = sum/times.length;
+        //   profile.chatTimeCount = times.length;
+        //   if( isNaN(profile.avgChat) || profile.avgChat<1 ) profile.avgChat = 1;
+        //   if( isNaN(profile.totalChat) || profile.totalChat<1 ) profile.totalChat  = 1;
 
-          let updateObj = {};
-          newDBRef.child(i).child("Profile").update({
-            "avgChat": profile.avgChat,
-            "totalChat": profile.totalChat,
-            "chatTimeCount": profile.chatTimeCount,
-            "recentChat": profile.recentChat,
-            "平均每次聊天時間": profile.avgChat,
-            "總共聊天時間": profile.totalChat,
-            "聊天次數": profile.chatTimeCount,
-            "上次聊天時間": profile.recentChat
-          });
-        }
+        //   let updateObj = {};
+        //   newDBRef.child(i).child("Profile").update({
+        //     "avgChat": profile.avgChat,
+        //     "totalChat": profile.totalChat,
+        //     "chatTimeCount": profile.chatTimeCount,
+        //     "recentChat": profile.recentChat,
+        //     "平均每次聊天時間": profile.avgChat,
+        //     "總共聊天時間": profile.totalChat,
+        //     "聊天次數": profile.chatTimeCount,
+        //     "上次聊天時間": profile.recentChat
+        //   });
+        // }//if
         let msgs = chatData[i].Messages;
         let position = 0;
         if( msgs.length>20 ) {
@@ -973,7 +925,9 @@ io.sockets.on('connection', (socket) => {
 //==============  F B  ======================
         if (data){
           var psid = data.id;
-          var message = data.msg
+          var message = data.msg;
+          agent_sendTo_receiver = psid;
+
 
           fb_bot.sendTextMessage(psid, message);
 
@@ -985,11 +939,97 @@ io.sockets.on('connection', (socket) => {
           let nowTime = Date.now();
 
           var msgObj = {
-            owner: "agent",
-            name: agent_nickname,
-            time: nowTime,
-            message: message
-          };
+          owner: "agent",
+          name: agent_nickname,
+          time: nowTime,
+          message: message
+        };
+        function emitIO_and_pushDB(obj) {
+
+          console.log("sending object agent2: ");
+          console.log(obj);
+
+          console.log("sending to new firebase database");
+          sendToNewFb(obj);
+          // console.log("sending to local DB");
+          // sendToLocalDB(obj);
+          console.log("sending to new io sockets...");
+          sendToFrontSocket(obj);
+          console.log("All sent!");
+        }
+
+        function sendToNewFb(obj){
+          let flag = true;
+          for( let prop in chatData ) {
+            console.log("find next user data");
+            if(chatData[prop].Profile.userId == agent_sendTo_receiver) {
+              console.log("find the same user");
+              let length = chatData[prop].Messages.length;
+              let updateObj = {};
+              updateObj['/'+prop+'/Messages/'+length] = obj;
+              newDBRef.update(updateObj);
+              flag = false;
+              break;
+            }
+          }
+          if( flag ) {
+            console.log("new user come in, impossible!!!");
+            let newData = {
+              Profile: {
+                nickname: "undefined name at www.line.669",
+                userId: agent_sendTo_receiver,
+                age: -1,
+                telephone: "",
+                address: "",
+                firstChat: nowTime,
+                recentChat: nowTime,
+                totalChat: 1,
+                avgChat: 1
+              },
+              Messages: obj
+            };
+            newDBRef.push(newData);
+          }
+        }
+
+        function sendToFrontSocket(obj) {
+          obj.id = agent_sendTo_receiver;
+          io.sockets.emit('new message2', obj);
+        }
+        function sendToLocalDB(obj) {
+          let DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
+          let i=0;
+          for( i=0; i<DATA.length; i++ ) {
+            if( DATA[i].Profile.userId == agent_sendTo_receiver ) {
+              DATA[i].Messages.push(obj);
+              break;
+            }
+          }
+          if( i==DATA.length ) {
+            console.log("new user come in");
+            let newData = {
+              Profile: {
+                nickname: "unknown nickname",
+                userId: agent_sendTo_receiver,
+                age: -1,
+                telephone: "",
+                address: "",
+                firstChat: nowTime,
+                首次聊天時間: nowTime,
+                recentChat: nowTime,
+                totalChat: 1,
+                avgChat: 1
+              },
+              Messages:obj
+            };
+            DATA.push(newData);
+          }
+          fs.writeFileSync('chatMsg.json', JSON.stringify(DATA, null, 2));
+          console.log("send to local DB success");
+        }
+
+
+          emitIO_and_pushDB(msgObj);
 
 
 //================================================
