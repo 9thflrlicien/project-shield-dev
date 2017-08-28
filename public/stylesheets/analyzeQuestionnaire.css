@@ -10,7 +10,7 @@
   /*display: inline-block;*/
   margin-top: 20px;
   width: 100%;
-  height: 450px;
+  height: 700px;
 }
 iframe {
   height: 100%;
@@ -30,7 +30,7 @@ iframe {
 .btn-group .btn {
   margin: auto 1%;
   display: inline-block;
-  width: 24%;
+  width: 19%;
 }
 
 @media (max-width: 1135px){
