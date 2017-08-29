@@ -1,18 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var mysql = require('mysql');
 
-var con = mysql.createConnection({
-  host: "192.168.0.135",
-  path: "%",
-  user: "newuser",
-  password: "shield123"
-});
-
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Shield in MySQL Connected!");
-});
+var con = require('./mysql');
 
 //insert();
 function insert() {
@@ -39,18 +28,218 @@ router.get('/', function(req, res, next) {
     title: 'Analyze Response'
   });
 });
-router.post('/', function(req, res, next) {
-  let updated = false;
 
-  //更新WORKER的評價資料
+router.post('/getChart', function(req, res, next) {
+  console.log("get post! chart = "+req.body.chart);
+  let chart = req.body.chart;
+  if( chart=="某團對各工人評價" ) {
+    let group_id = req.body.option;
+
+    let sql = "SELECT shield.group_worker.worker_id, shield.worker.worker_name"
+      + " FROM shield.group_worker, shield.worker"
+      + " WHERE shield.group_worker.group_id = ? and shield.group_worker.worker_id = shield.worker.ID"
+      + " ORDER BY shield.group_worker.worker_id";
+    con.query(sql, group_id, function(err, result, fields) {
+      let length = result.length;
+      let names = [];
+      let scores = [];
+      for( let i in result ) {
+        names.push(result[i].worker_name);
+        let sql = "SELECT vote_score FROM shield.vote WHERE group_id = ? and worker_id = ?";
+        con.query( sql, [ group_id, result[i].worker_id ], function(err, result, fields) {
+          let sum = 0;
+          for( let i in result ) sum += result[i].vote_score;
+          scores.push( sum/result.length );
+        });
+      }
+
+      let timer = setInterval( function() {
+        if( scores.length == length ) clearInterval(timer);
+        else return;
+        console.log(names);
+        console.log(scores);
+        res.send({
+          names: names,
+          scores: scores
+        });
+      }, 10 );
+    });
+  }
+
+  else if( chart=="某項目各工人評價" ) {
+    let category_id = req.body.option;
+    let sql = 'SELECT worker_name, score FROM shield.worker WHERE category_id = ?';
+    con.query( sql, category_id, function(err, result, fields) {
+      console.log(result);
+      let worker_name = [];
+      let score = [];
+      for( let i in result ) {
+        worker_name.push( result[i].worker_name );
+        score.push( result[i].score );
+      }
+      res.send({
+        worker_name: worker_name,
+        score: score
+      });
+      console.log("sent");
+    });
+
+  }
+  else if( chart=="某團對各項目評價" ) {
+    let group_id = req.body.option;
+
+    con.query( "SELECT * FROM shield.category", function(err, result, fields) {
+      let length = result.length;
+      let category_names = [];
+      let scores = [];
+      for( let i in result ) {
+        category_names.push( result[i].category_name );
+        let sql = "SELECT vote_score FROM shield.vote WHERE group_id = ? and category_id = ?";
+        con.query( sql, [ group_id, result[i].ID ], function(err, result, fields) {
+          let sum = 0;
+          for( let i in result ) sum += result[i].vote_score;
+          scores.push( sum/result.length );
+        });
+      }
+
+      let timer = setInterval( function() {
+        if( scores.length == length ) clearInterval(timer);
+        else return;
+        console.log(category_names);
+        console.log(scores);
+        res.send({
+          category_names: category_names,
+          scores: scores
+        });
+      }, 10 );
+    });
+  }
+  else {
+    console.log("chart = "+chart+", not found!");
+  }
+});
+
+router.post('/getData', function(req, res, next) {
+  console.log(req.body);
+  console.log(req.type);
+  console.log("get data! type = "+req.body.type);
+  let type = req.body.type;
+  if( type=="details" ) {
+    sql = "SELECT shield.vote.*, shield.category.category_name"
+      + ", shield.worker.worker_name, shield.group.group_name "
+      + " FROM shield.category, shield.worker, shield.group, shield.vote "
+      + " WHERE shield.vote.category_id = shield.category.ID "
+      + " and shield.vote.worker_id = shield.worker.ID "
+      + " and shield.vote.group_id = shield.group.ID";
+
+    con.query(sql, function(err, result, fields) {
+      if( err ) {
+        console.log("ERROR when SELECT * FROM shield.vote");
+        console.log(err);
+      }
+      else {
+        for( let i in result ) {
+          delete result[i].category_id;
+          delete result[i].worker_id;
+          delete result[i].group_id;
+        }
+        res.send(result);
+      }
+    });
+  }
+  else if( type=="category" ) {
+    con.query("SELECT * FROM shield.category", function(err, result, fields) {
+      if( err ) console.log(err);
+      else res.send(result);
+    });
+  }
+  else if( type=="group" ) {
+    con.query("SELECT * FROM shield.group", function(err, result, fields) {
+      if( err ) console.log(err);
+      else res.send(result);
+    });
+  }
+  else {
+    console.log("type = "+type+", not found!");
+  }
+});
+
+router.post('/setCategory', function(req, res, next) {
+  let updateData = JSON.parse(req.body.data);
+  console.log(updateData);
+  updateData.map( function(data) {
+    let ID = data.ID;
+    let category_name = data.category_name;
+    console.log(ID+", "+category_name);
+    if( ID && category_name ) {
+      console.log("UPDATE");
+      let sql = "UPDATE shield.category SET category_name = ? WHERE ID = ? ";
+      con.query( sql, [ category_name, ID ], function(err, rows) {
+        if(err) console.log(err);
+      });
+    }
+    else if( ID && !category_name ) {
+      console.log("DELETE");
+      let sql = "DELETE FROM shield.category WHERE ID = ? ";
+      con.query( sql, ID, function(err, rows) {
+        if(err) console.log(err);
+      });
+    }
+    else if( !ID && category_name ) {
+      console.log("INSERT");
+      let sql = "INSERT INTO shield.category SET ? ";
+      con.query( sql, { category_name: category_name }, function(err, rows) {
+        if(err) console.log(err);
+      });
+    }
+  });
+  res.send("SUCCESS");
+});
+
+router.post('/setGroup', function(req, res, next) {
+  let updateData = JSON.parse(req.body.data);
+  console.log(updateData);
+  updateData.map( function(data) {
+    let ID = data.ID;
+    let group_name = data.group_name;
+    console.log(ID+", "+group_name);
+    if( ID && group_name ) {
+      console.log("UPDATE");
+      let sql = "UPDATE shield.group SET group_name = ? WHERE ID = ? ";
+      con.query( sql, [ group_name, ID ], function(err, rows) {
+        if(err) console.log(err);
+      });
+    }
+    else if( ID && !group_name ) {
+      console.log("DELETE");
+      let sql = "DELETE FROM shield.group WHERE ID = ? ";
+      con.query( sql, ID, function(err, rows) {
+        if(err) console.log(err);
+      });
+    }
+    else if( !ID && group_name ) {
+      console.log("INSERT");
+      let sql = "INSERT INTO shield.group SET ? ";
+      con.query( sql, { group_name: group_name }, function(err, rows) {
+        if(err) console.log(err);
+      });
+    }
+  });
+  res.send("SUCCESS");
+});
+//更新WORKER的評價資料
+setInterval( function() {
+  console.log("check worker update");
+
   con.query('SELECT * FROM shield.update_info ORDER BY ID DESC LIMIT 1', function(err, result, fields) {
     let update_to = result[0].update_to;      //取得上次更新VOTE資料庫到哪
-    con.query('SELECT * FROM shield.vote WHERE shield.vote.ID > ? ORDER BY worker_id', update_to,  function(err, result, fields) {
+
+    let sql = 'SELECT * FROM shield.vote WHERE shield.vote.ID > ? ORDER BY worker_id';
+    con.query( sql, update_to,  function(err, result, fields) {
       //取得上次更新VOTE資料庫之後，產生的新資料
       if( result.length==0 ) {
         //no need to update
         console.log("no need update");  //若產生的新資料，長度=0，則不需更新
-        updated = true;
       }
       else {
         console.log("need update");     //若有產生新資料，則須更新
@@ -107,157 +296,13 @@ router.post('/', function(req, res, next) {
           con.query('INSERT INTO shield.update_info SET ?', {update_to: new_update_to}, function(err, rows) {
             if(err) throw err;  //將此資訊寫進DB，下次就知道要從這筆資料後更新
           });
-          updated = true;
         }); //end con.query
       } //end else
     }); //end con.query vote
   }); //end con.query update_info
 
-  let timer = setInterval( function() {
-    //js異步處理特性，須用此方法，確認在DB更新完後，再載入資料
-    if( updated ) clearInterval(timer);
-    else {
-      console.log("update not done yet");
-      return;
-    }
+}, 60*1000 );
 
-    console.log("get post! chart = "+req.body.chart);
-    let chart = req.body.chart;
-    let sql = req.body.sql;
-    if( chart=="某團各客戶對各工人評價" ) {
-      let group_id = req.body.option;
-      let count = 0;
-      let group_with_workers = [];
-      let users_votes = [];
-
-
-      let sql = "SELECT shield.group_worker.worker_id, shield.worker.worker_name FROM shield.group_worker, shield.worker"
-        + " WHERE shield.group_worker.group_id = ? and shield.group_worker.worker_id = shield.worker.ID"
-        + " ORDER BY shield.group_worker.worker_id";
-      con.query(sql, group_id, function(err, result, fields) {
-        group_with_workers = result;
-        console.log(group_with_workers);
-        count++;
-      });
-      con.query("SELECT * FROM shield.vote WHERE group_id = ? ORDER BY vote_voter, worker_id", group_id, function(err, result, fields) {
-        users_votes = package(result, "vote_voter", "worker_id", "vote_score");
-        for( let i in users_votes ) console.log(users_votes[i]);
-        count++;
-      });
-
-
-      // con.query("SELECT * FROM shield.vote WHERE group_id = ? ORDER BY worker_id, vote_voter", group_id, function(err, result, fields) {
-      //
-      // });
-
-
-      let timer = setInterval(function() {
-        if( count==2 ) clearInterval(timer);
-        else return;
-        res.send({
-          group_with_workers: group_with_workers,
-          users_votes: users_votes
-        });
-      });
-
-    }
-
-    else if( chart=="所有旅行團對該職業工人評價" ) {
-      let category_id = req.body.option;
-      con.query('SELECT worker_name, score FROM shield.worker WHERE category_id = ?', category_id, function(err, result, fields) {
-        console.log(result);
-        let worker_name = result.map( function(ele) {
-          return ele.worker_name;
-        });
-        let score = result.map( function(ele) {
-          return ele.score;
-        });
-        res.send({
-          worker_name: worker_name,
-          score: score
-        });
-        console.log("sent");
-      });
-
-    }
-
-    else if( chart=="旅行團對各項目評價" ) {
-
-
-    }
-
-    else if( chart=="詳細資料" ) {
-      sql = "SELECT shield.vote.*, shield.category.category_name, shield.worker.worker_name, shield.group.group_name "
-       + " FROM shield.category, shield.worker, shield.group, shield.vote "
-       + " WHERE shield.vote.category_id = shield.category.ID "
-       + " and shield.vote.worker_id = shield.worker.ID "
-       + " and shield.vote.group_id = shield.group.ID";
-
-      con.query(sql, function(err, result, fields) {
-        if( err ) {
-          console.log("ERROR when SELECT * FROM shield.vote");
-          console.log(err);
-        }
-        else {
-          for( let i in result ) {
-            delete result[i].category_id;
-            delete result[i].worker_id;
-            delete result[i].group_id;
-          }
-          res.send(result);
-        }
-      });
-    }
-    else if( chart=="設定" ) {
-      let data = {};
-      let count = 0;
-      con.query("SELECT * FROM shield.category", function(err, result, fields) {
-        if( err ) console.log(err);
-        else {
-          data.category = result;
-          count++;
-        }
-      });
-      con.query("SELECT * FROM shield.worker", function(err, result, fields) {
-        if( err ) console.log(err);
-        else {
-          data.worker = result;
-          count++;
-        }
-      });
-      con.query("SELECT * FROM shield.group", function(err, result, fields) {
-        if( err ) console.log(err);
-        else {
-          data.group = result;
-          count++;
-        }
-      });
-      con.query("SELECT * FROM shield.group_worker", function(err, result, fields) {
-        if( err ) console.log(err);
-        else {
-          data.group_worker = result;
-          count++;
-        }
-      });
-      con.query("SELECT * FROM shield.vote", function(err, result, fields) {
-        if( err ) console.log(err);
-        else {
-          data.vote = result;
-          count++;
-        }
-      });
-      let timer = setInterval( function() {
-        if( count==5 ) clearInterval(timer);
-        else return;
-        res.send(data);
-      }, 10 );
-    }
-    else {
-      console.log("chart = "+chart+", not found!");
-    }
-
-  }, 2 ); //end updated timer
-});
 
 function package(arr, prop) {
   console.log("prop = "+prop);

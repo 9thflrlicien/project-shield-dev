@@ -12,12 +12,27 @@
   <body>
     <div id="content">
     </div>
-    <div id="option">
-      <div id="option-content">
-        <select>
-        </select>
+
+    <div class="modal fade" id="addModal" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Setting</h4>
+          </div>
+          <div class="modal-body">
+            <table class="info_input_table">
+
+             </table>
+          </div>
+          <div class="modal-footer">
+            <button id="userInfo-submit" class="btn btn-default" style="background-color: greenyellow;">Confirm</button>
+            <button id="userInfo-cancel" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
       </div>
     </div>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="javascripts/Chart.min.js"></script>

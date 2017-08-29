@@ -113,16 +113,58 @@
     <div id="home">
       <div class="rowField">
         <h4>查看各團評價</h4>
-        <div class="btn-group">
-          <button class="btn btn-default get-chart" id="某團各客戶對各工人評價">某團各客戶對各工人評價</button>
-          <!-- 選擇旅行團後 橫軸工人 一顏色條一客戶 旁邊可選客戶或全選 -->
-          <button class="btn btn-default get-chart" id="所有旅行團對該職業工人評價">所有旅行團對該職業工人評價</button>
-          <!-- 橫軸工人 縱軸分數 旁邊可選擇職業 -->
-          <button class="btn btn-default get-chart" id="旅行團對各項目評價">旅行團對各項目評價</button>
-          <!-- 橫軸項目 一顏色條一旅行團 縱軸分數 旁邊可選擇旅行團或全選 -->
-          <button class="btn btn-default get-chart" id="詳細資料">詳細資料</button>
-          <!-- print db -->
-          <button class="btn btn-default get-chart" id="設定">設定</button>
+        <div class="btn-group rowBtn-group">
+
+          <div class="rowBtn-container" id="某團對各工人評價">
+            <!-- 選擇旅行團後 橫軸工人 一顏色條一客戶 旁邊可選客戶或全選 -->
+            <button class="btn btn-default rowBtn" data-toggle="dropdown" aria-expanded="false">
+              某團對各工人評價
+            </button>
+            <ul class="dropdown-menu">
+              <div class="btn-group colBtn-group">
+              </div>
+            </ul>
+          </div>
+
+          <div class="rowBtn-container" id="某項目各工人評價">
+            <!-- 橫軸工人 縱軸分數 旁邊可選擇職業 -->
+            <button class="btn btn-default rowBtn" data-toggle="dropdown" aria-expanded="false">
+              某項目各工人評價
+            </button>
+            <ul class="dropdown-menu">
+              <div class="btn-group colBtn-group">
+              </div>
+            </ul>
+          </div>
+
+          <div class="rowBtn-container" id="某團對各項目評價">
+            <!-- 橫軸項目 一顏色條一旅行團 縱軸分數 旁邊可選擇旅行團或全選 -->
+            <button class="btn btn-default rowBtn" data-toggle="dropdown" aria-expanded="false">
+              某團對各項目評價
+            </button>
+            <ul class="dropdown-menu">
+              <div class="btn-group colBtn-group">
+              </div>
+            </ul>
+          </div>
+
+          <div class="rowBtn-container">
+            <button class="btn btn-default rowBtn get-data" id="details">詳細資料</button>
+            <!-- print db -->
+          </div>
+
+          <div class="rowBtn-container" id="設定">
+            <button class="btn btn-default rowBtn" data-toggle="dropdown" aria-expanded="false">
+              設定
+            </button>
+            <ul class="dropdown-menu">
+              <div class="btn-group colBtn-group">
+                <button class="btn btn-default colBtn get-data" id="category">項目</button>
+                <button class="btn btn-default colBtn get-data" id="group">旅行團</button>
+                <button class="btn btn-default colBtn get-data" id="worker">工作人員職稱</button>
+              </div>
+            </ul>
+          </div>
         </div>
       </div>
       <div id="footer">
@@ -130,8 +172,13 @@
       </div>
     </div>
 
+    <script>
+      var group = <%-JSON.stringify( group )%>;
+      var category = <%-JSON.stringify( category )%>;
+    </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="javascripts/analyzeQuestionnaire.js"></script>
+
   </body>
 </html>

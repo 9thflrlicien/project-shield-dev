@@ -53,7 +53,20 @@ router.get('/profile', function(req, res, next) {
 });
 
 router.get('/analyzeQuestionnaire', function(req, res, next) {
-  res.render('analyzeQuestionnaire', { title: 'SHIELD Analyze Questionnaire' });
+  let con = require('./mysql');
+
+  con.query("SELECT * FROM shield.group", function(err, result, fields) {
+    let group = result;
+    con.query("SELECT * FROM shield.category", function(err, result, fields) {
+      let category = result;
+      res.render('analyzeQuestionnaire', {
+        title: 'SHIELD Analyze Questionnaire',
+        group: group,
+        category: category
+      });
+    })
+  });
+
 });
 
 
