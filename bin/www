@@ -15,13 +15,13 @@ var API_KEY = "VAxM08x35ThAOEqIgvOF";
 var FD_ENDPOINT = "fongyu";
 
 var config = {
-    apiKey: "AIzaSyAqzIra9YkeE0HZZBSwXrjh4GemO7yVdmI",
-    authDomain: "shield-88fd0.firebaseapp.com",
-    databaseURL: "https://shield-88fd0.firebaseio.com",
-    projectId: "shield-88fd0",
-    storageBucket: "shield-88fd0.appspot.com",
-    messagingSenderId: "376341346069"
-};
+    apiKey: "AIzaSyAr1ic8lr_asYZTwwIjBNp3uiqFdu1QJKI",
+    authDomain: "shield-dev-91210.firebaseapp.com",
+    databaseURL: "https://shield-dev-91210.firebaseio.com",
+    projectId: "shield-dev-91210",
+    storageBucket: "",
+    messagingSenderId: "514816655617"
+  };
 firebase.initializeApp(config);
 
 const usersRef = firebase.database().ref().child('chats/users2');
@@ -295,6 +295,7 @@ bot.on('message', event => {
             let speech = response.result.fulfillment.messages[0].speech ;
             let parameter = response.result.parameters ;
             let complete = !response.result.actionIncomplete ;
+            let userSay = response.result.resolvedQuery ;
 
             if(action != 'input.unknown'){
               console.log(response.result) ;
@@ -326,129 +327,7 @@ bot.on('message', event => {
                   }
                 });
               }
-              /*
-              if(action == 'Questionnaire'){
-                console.log(obj.message);
-                updateProfile(obj.message);
-                let type = response.result.fulfillment.messages[1].speech ;
-                console.log(type);
-                if(type == 'start'){
-                  event.reply({
-                    "type": "template",
-                    "altText": "問券調查part1",
-                    "template": {
-                      "type": "buttons",
-                      "title": "問券調查:性別",
-                      "text": "請選擇您的性別",
-                      "actions": [{
-                        "type": "message",
-                        "label": "性別:男",
-                        "text": "性別:男"
-                      },{
-                        "type": "message",
-                        "label": "性別:女",
-                        "text": "性別:女"
-                      }]
-                    }
-                  });
-                  msgObj.message = '詢問客戶資料(性別)';
-                  emitIO_and_pushDB(msgObj);
-                }
-                else if(type == 'gender'){
-                  msgObj.message = '詢問客戶資料(居住地)';
-                  emitIO_and_pushDB(msgObj);
-                  event.reply({
-                    "type": "template",
-                    "altText": "問券調查",
-                    "template": {
-                      "type": "buttons",
-                      "title": "問券調查:地區",
-                      "text": "請選擇您的性別",
-                      "actions": [{
-                        "type": "message",
-                        "label": "地區:北部",
-                        "text": "地區:北部"
-                      },{
-                        "type": "message",
-                        "label": "地區:中部",
-                        "text": "地區:中部"
-                      },{
-                        "type": "message",
-                        "label": "地區:南部",
-                        "text": "地區:南部"
-                      },{
-                        "type": "message",
-                        "label": "地區:東部",
-                        "text": "地區:東部"
-                      }]
-                    }
-                  });
-                  return ;
-                }
-                else if(type == 'place'){
-                  msgObj.message = '詢問客戶資料(年齡層)';
-                  emitIO_and_pushDB(msgObj);
-                  event.reply({
-                    "type": "template",
-                    "altText": "問券調查part2",
-                    "template": {
-                      "type": "carousel",
-                      "columns": [
-                          {
-                            "text": "您的年齡層。請左右滑動並選擇您的年齡層",
-                            "actions": [
-                                {
-                                    "type": "message",
-                                    "label": "年齡:20以下",
-                                    "text": "年齡:20以下"
-                                },
-                                {
-                                    "type": "message",
-                                    "label": "年齡:21-30",
-                                    "text": "年齡:21-30"
-                                },
-                                {
-                                    "type": "message",
-                                    "label": "年齡:31-40",
-                                    "text": "年齡:31-40"
-                                }
-                            ]
-                          },
-                          {
-                            "text": "您的年齡層。請左右滑動並選擇您的年齡層",
-                            "actions": [
-                                {
-                                  "type": "message",
-                                  "label": "年齡:41-50",
-                                  "text": "年齡:41-50"
-                                },
-                                {
-                                  "type": "message",
-                                  "label": "年齡:51-64",
-                                  "text": "年齡:51-64"
-                                },
-                                {
-                                  "type": "message",
-                                  "label": "年齡:65以上",
-                                  "text": "年齡:65以上"
-                                }
-                            ]
-                          }
-                      ]
-                    }
-                  });
-                  return ;
-                }
-                else if(type == 'age'){
-                  msgObj.message = response.result.fulfillment.messages[2].speech ;
-                  emitIO_and_pushDB(msgObj);
-                  //bot.push(obj.id,msgObj.message);
-                  event.reply({ type: 'text', text: msgObj.message });
-                  return ;
-                }
-              }
-              //*/
-              if(action == 'tinistart.faq'){
+              else if(action == 'tinistart.faq'){
                 let type = speech ;
                 //let content = '';
                 let incomplete = response.result.actionIncomplete ;
@@ -780,14 +659,15 @@ bot.on('message', event => {
                 }
                 return ;
               }
-              if(action == 'ticket' ){
+              else if(action == 'ticket' ){
                 ticket.email = parameter.email ;
                 ticket.phone = parameter.phone ;
                 ticket.goods = parameter.goods ;
                 ticket.name = receiver_name ;
               }
-              if(action == 'ticket.description'){
-                ticket.description = parameter.any ;
+              else if(action == 'ticket.description'){
+                ticket.description = userSay ;
+                ticket.priority = parameter.priority ;
                 if(complete) createTicket(ticket);
               }
               //console.log(speech);
@@ -812,8 +692,14 @@ bot.on('message', event => {
 
           var PATH = "/api/v2/tickets";
           var URL =  "https://" + FD_ENDPOINT + ".freshdesk.com"+ PATH;
-          //console.log('ticket:');
-          //console.log(obj);
+          console.log('ticket:');
+          console.log(obj);
+
+          let priority ;
+          if(obj.priority.indexOf('high')) priority = 3 ;
+          else if(obj.priority.indexOf('medium'))priority = 2 ;
+          else priority = 1;
+
           var fields = {
             'name': obj.name,
             'email': obj.email,
@@ -821,7 +707,7 @@ bot.on('message', event => {
             'description': obj.description,
             'phone': obj.phone,
             'status': 2,
-            'priority': 1
+            'priority': priority
           }
           //console.log('fields:');
           //console.log(fields);
@@ -1712,6 +1598,7 @@ io.sockets.on('connection', (socket) => {
 function updateTicket(data) {
   console.log('update ticket') ;
   console.log(data) ;
+  let dueday = new Date(data.due);
   var PATH = "/api/v2/tickets";
   var URL =  "https://" + FD_ENDPOINT + ".freshdesk.com"+ PATH + "/"+data.id;
   var fields = {
@@ -1719,7 +1606,8 @@ function updateTicket(data) {
     'description': data.description,
     'priority': data.priority,
     'status': data.status,
-    'due_by': data.due
+    'due_by': dueday.toJSON(),
+    'responder_id': data.responder
   }
   var Request = unirest.put(URL);
   console.log(fields) ;

@@ -17,15 +17,6 @@ $(document).ready(function() {
   $(document).on('keypress', '.inner',function (e) {
     if(e.which == 13) $(this).blur() ;
   });
-  $(document).on('click', '.edit-time', showTime) ;
-
-
-
-    // $(document).on('click', '.edit', updateStatus) ;
-  // $(document).on('click', '.select',function () {
-  //   event.stopPropagation();
-  // });
-
 
   socket.on('all tickets info', data => {
     ticket_content.empty() ;
@@ -42,18 +33,20 @@ $(document).ready(function() {
         '<td>' + data[i].subject + '</td>' +
         '<td class="status">' + statusMark(data[i].status) + '</td>' +
         '<td class="priority">' + priorityMark(data[i].priority) + '</td>' +
-        '<td>'+dueDate(data[i].due_by)+'</td>' +
+        '<td>'+displayDate(data[i].due_by)+'</td>' +
+        '<td>'+ dueDate(data[i].due_by)+'</td>' +
         '</tr>'
+
       );
       // console.log(data[i].subject);
     }
   });
   socket.on('all agents info', data => {
     //$("#console").append('<b>Agent</b></br>');
-    //for (i in data[1]) {$("#console").append(i+":"+data[0][i]+"</br>");}
+    // for (i in data) {$("#console").append(data[i].id+":"+responderName(data[i].id)+"</br>");}
     agentInfo = data ;
     console.log('Agent: ');
-    console.log(data[0]);
+    console.log(data[1]);
   });
   socket.on('all contacts info', data => {
     //$("#console").append('<b>Contact</b></br>');
@@ -62,51 +55,63 @@ $(document).ready(function() {
     console.log('Contact: ');
     console.log(data[0]);
   });
-  // socket.on('clear ticket table', data => {
-  //   ticket_content.html(' ') ;
-  // });
 
 });
 
-function showTime() {
-  let original = $(this).text() ;
-  let day = original.split(" ") ;
-  let date = day[0].split("/") ;
-  $(this).html(
-    "<input type='datetime-local' class='inner' value='"+
-    date[0]+'-'+date[1]+'-'+date[2]+'T'+day[1]
-    +"'></input>"
-  );
-}
 
 function showInput() {
+  let prop = $(this).parent().children("th").text() ;
   let original = $(this).text() ;
-  $(this).html(
-    "<input type='text' class='inner' value='"+
-    original+
-    "' autofocus>"
-  );
-
+  if(prop.indexOf('due date') != -1 ){
+    let day = new Date(original) ;
+    day = Date.parse(day)+8*60*60*1000 ;
+    day = new Date(day) ;
+    // console.log(day);
+    $(this).html(
+      "<input type='datetime-local' class='inner' value='"+
+      day.toJSON().substring(0,23)
+      +"'></input>"
+    );
+  }
+  else if(prop == 'description'){
+    $(this).html(
+      "<textarea  class='inner' rows=4' cols='50'>"+
+      original+
+      "</textarea>"
+    );
+  }
+  else{
+    $(this).html(
+      "<input type='text' class='inner' value='"+
+      original+
+      "' autofocus>"
+    );
+  }
 }
 function hideInput() {
   let change = $(this).val();
+  if($(this).attr('type')== 'datetime-local'){
+    $(this).parent().html(displayDate(change)) ;
+  }
   $(this).parent().html(change) ;
 }
 
 function updateStatus() {
-  let select = $(".select") ;
+  let select = $(".select"),
+      editable = $(".edit"),
+      input = $("input");
   let name, value, json = '{' ;
   let obj = {} ;
   let id = $(this).attr("val") ;
-  let subject = $(".modal-title").text() ;
-  let description = $("td.edit").html() ;
-  let due = $("td.edit-time").text() ;
 
-  console.log(subject+":"+description);
+  input.each(function () {$(this).blur();});
 
-  json += '"subject":"'+subject+'",' ;
-  json += '"description":"'+description+'",' ;
-  json += '"due":"'+due+'",' ;
+  // alert(editable.length) ;
+  for(let i=0;i<editable.length;i++){
+    name = editable.eq(i).parent().children("th").text().split(" ") ;
+    value = editable.eq(i).text() ;
+    json += '"'+name[0]+'":"'+value+'",';
+  }
   // alert(select.length) ;
   for(let i=0;i<select.length;i++){
     name = select.eq(i).parent().parent().children("th").text() ;
@@ -116,7 +121,7 @@ function updateStatus() {
   }
 
   json += '"id":"'+id+'"}' ;
-  // alert(json) ;
+  console.log(json) ;
   obj = JSON.parse(json) ;
 
   if(confirm("Are you sure to change ticket?")) socket.emit('update ticket',obj);
@@ -136,10 +141,19 @@ function showSelect(prop,n) {
 
   }
   else if(prop == 'status'){
+
     html += "<option value="+n+">"+statusMark(n)+"</option>" ;
     for(let i=2;i<6;i++){
       if(i == n) continue ;
       html += "<option value="+i+">"+statusMark(i)+"</option>" ;
+    }
+  }
+  else if(prop == 'responder'){
+    html += "<option value="+n+">"+responderName(n)+"</option>" ;
+    for(let i in agentInfo){
+      let id = agentInfo[i].id ;
+      if( id == n) continue ;
+      html += "<option value="+id+">"+responderName(id)+"</option>" ;
     }
   }
   html += "</select>" ;
@@ -159,11 +173,8 @@ function moreInfo() {
 
   display =
   '<tr>'+
-  // '<th>ticket ID</th>'+
-  // '<td>'+Tinfo.id+'</td>'+
-  // '</tr><tr>'+
   '<th>responder</th>'+
-  '<td>'+responderName(Tinfo.responder_id)+'</td>'+
+  '<td>'+showSelect('responder',Tinfo.responder_id)+'</td>'+
   '</tr><tr>'+
   '<th>priority</th>'+
   '<td>'+showSelect('priority',Tinfo.priority)+'</td>'+
@@ -175,7 +186,7 @@ function moreInfo() {
   '<td class="edit">'+Tinfo.description+'</td>'+
   '</tr><tr>'+
   '<th>due date '+dueDate(Tinfo.due_by)+'</th>'+
-  '<td class="edit-time">'+displayDate(Tinfo.due_by)+'</td>'+
+  '<td class="edit">'+displayDate(Tinfo.due_by)+'</td>'+
   '</tr><tr>'+
   '<th>creat date</th>'+
   '<td>'+displayDate(Tinfo.created_at)+'</td>'+
@@ -264,24 +275,18 @@ function priorityMark(priority){
   }
 }
 function displayDate(date) {
-  let posA = date.indexOf('T'),
-      posB = date.indexOf('Z');
-  let day = date.substring(0,posA),
-      time = date.substring(posA+1,posB) ;
-  let arr = day.split("-"),
-      brr = time.split(":") ;
-  // arr[2] = Number(arr[2]) ;
-  // brr[0] = Number(brr[0]) ;
-  // brr[0] += 8 ;
-  // if(brr[0] > 24){
-  //   arr[2] += 1 ;
-  //   brr[0] -= 24 ;
-  // }
-  for(let i in brr){
-    brr[i] = Number(brr[i]);
-    if(brr[i]<10) brr[i] = '0'+brr[i] ;
-  }
-  return arr[0]+"/"+arr[1]+"/"+arr[2]+" "+brr[0]+":"+brr[1]+":"+brr[2] ;
+  let origin = new Date(date) ;
+  origin = origin.getTime();
+  let gmt8 = new Date(origin );
+
+  let yy = gmt8.getFullYear(),
+      mm = gmt8.getMonth()+1,
+      dd = gmt8.getDate(),
+      hr = gmt8.getHours(),
+      min= gmt8.getMinutes(),
+      sec= gmt8.getSeconds();
+
+  return yy+"/"+mm+"/"+dd+" "+hr+":"+min+":"+sec ;
 }
 function priorityColor(priority) {
   switch(priority) {
@@ -316,7 +321,9 @@ function dueDate(day) {
 function responderName(id) {
   for(let i in agentInfo){
     if(agentInfo[i].id == id) return agentInfo[i].contact.name ;
-    else return "unassigned" ;
   }
-
+  return "unassigned" ;
+}
+function addZero(n) {
+  n = Number()
 }
