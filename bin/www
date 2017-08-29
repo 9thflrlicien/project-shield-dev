@@ -46,12 +46,12 @@ agentDBRef.on('value', snapshot=> {
   console.log("agent chat loaded");
 })
 
-// var tagsData;
-// tagsRef.on('value', snapshot=> {
-//    tagsData = snapshot.val().Data;
-//    console.log("tags data loaded");
-//   // ...
-// });
+var tagsData;
+tagsRef.on('value', snapshot=> {
+   tagsData = snapshot.val().Data;
+   console.log("tags data loaded");
+  // ...
+});
 /**
  * Get port from environment and store in Express.
  */
@@ -88,6 +88,8 @@ server.on('listening', onListening);
 //==============FACEBOOK MESSAGE==============
 app.post('/webhook', function (req, res) {
   var data = req.body;
+  console.log('data on line 91');
+  console.log(data);
  
   // Make sure this is a page subscription
   if (data.object === 'page') {
@@ -118,6 +120,8 @@ app.post('/webhook', function (req, res) {
     // you've successfully received the callback. Otherwise, the request
     // will time out and we will keep trying to resend.
     res.sendStatus(200);
+  }else{
+    console.log('on line 124');
   }
 });//app.post
 
@@ -127,12 +131,47 @@ fb_bot.webhook('/webhook');
 fb_bot.getProfile(psid).then(function(data) {
 
 var fb_user_name = data.first_name +' '+ data.last_name;
+var fb_user_profilePic = data.profile_pic;
+var fb_user_locale = data.locale; 
+var fb_user_gender = data.gender;
+
+
+
+    if (obj.message.attachments) {
+    //Checking if there are any image attachments 
+    if(obj.message.attachments[0].type === "image"){
+     var imageURL = obj.message.attachments[0].payload.url;
+     obj.message = '<img src="'+imageURL+'"/>';
+   }//if image
+   else if (obj.message.attachments[0].type === "video"){
+     var videoURL = obj.message.attachments[0].payload.url;
+     obj.message = '<video controls><source src="'+videoURL+'" type="video/mp4"></video>';
+
+   }//if video
+   else if (obj.message.attachments[0].type === "audio"){
+     var audioURL = obj.message.attachments[0].payload.url;
+     obj.message = '<audio controls><source src="'+audioURL+'" type="audio/mpeg"/></audio>';
+
+   }//if audio
+   else if (obj.message.attachments[0].type === "file"){
+     var fileURL = obj.message.attachments[0].payload.url;
+     obj.message = 'The user sent a file, click <a target="blank" href="'+fileURL+'">HERE</a> for download.';
+
+   }//if audio    
+   else if (obj.message.attachments[0].type === "location"){
+     var locateURL = obj.message.attachments[0].url;
+     obj.message = 'The user sent a location, click <a target="blank" href="'+locateURL+'">HERE</a> for map link.';
+
+   }//if location  
+   }else{
+        obj.message = obj.message.text;
+
+     }
 
     obj.id = obj.sender.id;
     obj.owner = obj.recipient.id;
     obj.name =  fb_user_name;
     obj.time = obj.timestamp;
-    obj.message = obj.message.text;
     io.sockets.emit('new message2', obj);
 
 
@@ -163,7 +202,10 @@ var fb_user_name = data.first_name +' '+ data.last_name;
           name: receiver_name,
           time: nowTime,
           message: message_lineTochat,
-          id: receiverId
+          id: receiverId,
+          prof_pic: fb_user_profilePic,
+          locale: fb_user_locale,
+          gend: fb_user_gender
         };
 
         function emitIO_and_pushDB(obj) {
@@ -185,10 +227,10 @@ var fb_user_name = data.first_name +' '+ data.last_name;
               let updateObj = {};
               updateObj['/'+prop+'/Messages/'+length] = obj;
               newDBRef.update(updateObj);
-              // newDBRef.child(prop).child("Profile").update({
-              //   unRead: true,
-              //   photo: profile.pictureUrl? profile.pictureUrl :""
-              // });//NOTE:有問題暫時先comment
+              newDBRef.child(prop).child("Profile").update({
+                unRead: true,
+                photo: obj.prof_pic
+              });//NOTE:有問題暫時先comment
 
 
               flag = false;
@@ -203,6 +245,8 @@ var fb_user_name = data.first_name +' '+ data.last_name;
                 nickname: obj.name,
                 userId: obj.id,
                 age: -1,
+                地區: obj.locale,
+                性別: obj.gend,
                 telephone: "",
                 address: "",
                 firstChat: nowTime,
@@ -215,9 +259,9 @@ var fb_user_name = data.first_name +' '+ data.last_name;
                 平均每次聊天時間: 1,
                 聊天次數: 1,
                 unRead: true,
-                // photo: profile.pictureUrl? profile.pictureUrl :""
+                photo: obj.prof_pic
               },
-              Messages: obj
+              Messages: [obj]
             };
             console.log('this is new data on line 221');
             console.log(newData);
@@ -231,7 +275,7 @@ var fb_user_name = data.first_name +' '+ data.last_name;
     
   
 }).catch(function(error) {
-  // add your code when error. 
+  console.log('on line 276');
 });//fb_bot
 
 }//loadFbProfile
@@ -804,7 +848,7 @@ io.sockets.on('connection', (socket) => {
 
     socket.on('get tags from chat', data => {
       console.log("tags socket");
-    //   socket.emit('push tags to chat', tagsData);
+      socket.emit('push tags to chat', tagsData);
     });
     socket.on('get tags from tags', data => {
       socket.emit('push tags to tags', tagsData);
@@ -924,12 +968,13 @@ io.sockets.on('connection', (socket) => {
     socket.on('send message2', (data, callback) => {
 //==============  F B  ======================
         if (data){
+          console.log('this is data on line 961');
+          console.log(data);
           var psid = data.id;
           var message = data.msg;
           agent_sendTo_receiver = psid;
 
 
-          fb_bot.sendTextMessage(psid, message);
 
           if(socket.nickname !== undefined){
             agent_nickname = socket.nickname;
@@ -937,6 +982,10 @@ io.sockets.on('connection', (socket) => {
             agent_nickname = 'agent';
           }
           let nowTime = Date.now();
+
+
+
+
 
           var msgObj = {
           owner: "agent",
@@ -986,7 +1035,7 @@ io.sockets.on('connection', (socket) => {
                 totalChat: 1,
                 avgChat: 1
               },
-              Messages: obj
+              Messages: [obj]
             };
             newDBRef.push(newData);
           }
@@ -1020,7 +1069,7 @@ io.sockets.on('connection', (socket) => {
                 totalChat: 1,
                 avgChat: 1
               },
-              Messages:obj
+              Messages:[obj]
             };
             DATA.push(newData);
           }

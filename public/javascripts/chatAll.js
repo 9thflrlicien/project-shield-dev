@@ -52,10 +52,51 @@ $(document).ready(function() {
   $(document).on('click', '.edit-button', changeProfile);
   $(document).on('click','#userInfo-submit',submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
+  $(document).on('click', '#attImg', attImg);
+  $(document).on('click', '#upImg', upImg);
+  $(document).on('click', '#attVid', attVid);
+  $(document).on('click', '#upVid', upVid);
+  $(document).on('click', '#attAud', attAud);
+  $(document).on('click', '#upAud', upAud);
   $(document).on('click','.dropdown-menu', function(event){
     event.stopPropagation();
   });
 
+  function attImg(){
+    if ($('#showAttImg').is(":visible") == false){
+    $('#showAttImg').show();
+    }else{
+      $('#showAttImg').hide();
+    } 
+  }//function attImg
+  function upImg(){
+    var imgAtt = $('#attImgFill').val();
+    $('#message').val('<img src="'+imgAtt+'"/>');
+  }
+    function attVid(){
+    if ($('#showAttVid').is(":visible") == false){
+    $('#showAttVid').show();
+    }else{
+      $('#showAttVid').hide();
+    } 
+  }//function attVid
+  function upVid(){
+    var vidAtt = $('#attVidFill').val();
+    $('#message').val('<video controls><source src="'+vidAtt+'" type="video/mp4"></video>');
+  }
+    function attAud(){
+    if ($('#showAttAud').is(":visible") == false){
+    $('#showAttAud').show();
+    }else{
+      $('#showAttAud').hide();
+    } 
+
+  }//function attAud
+  function upAud(){
+    console.log('exe on line 96');
+    var audAtt = $('#attAudFill').val();
+    $('#message').val('<video controls><source src="'+audAtt+'" type="video/mp4"></video>');
+  }
   setInterval(() => {
     closeIdleRoomTry();
   }, 20000);
@@ -162,8 +203,6 @@ $(document).ready(function() {
     $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>');  //new a option in select bar
 
     let lastMsg = historyMsg[historyMsg.length-1];
-    console.log('lastMsg on line 165');
-    console.log(lastMsg);
     let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
     let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
     // display last message at tablinks
