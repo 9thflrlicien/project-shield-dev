@@ -670,14 +670,9 @@ bot.on('message', event => {
                 ticket.priority = parameter.priority ;
                 if(complete) createTicket(ticket);
               }
-              //console.log(speech);
-              //obj.owner = 'agent';
-              //obj.name = 'api.ai';
               obj.message = speech ;
               emitIO_and_pushDB(obj) ;
-              //console.log('api.ai:')
-              //console.log(obj);
-              bot.push(obj.id,msgObj.message);
+              event.reply({ type: 'text', text: msgObj.message });
             }
             else{console.log(action);}
 
@@ -1609,6 +1604,7 @@ function updateTicket(data) {
     'due_by': dueday.toJSON(),
     'responder_id': data.responder
   }
+  if(data.status != '2') delete fields.due_by ;
   var Request = unirest.put(URL);
   console.log(fields) ;
 
