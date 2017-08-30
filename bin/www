@@ -230,7 +230,7 @@ var fb_user_gender = data.gender;
               newDBRef.child(prop).child("Profile").update({
                 unRead: true,
                 photo: obj.prof_pic
-              });//NOTE:有問題暫時先comment
+              });
 
 
               flag = false;
@@ -263,8 +263,6 @@ var fb_user_gender = data.gender;
               },
               Messages: [obj]
             };
-            console.log('this is new data on line 221');
-            console.log(newData);
             newDBRef.push(newData);
             io.sockets.emit('new user profile', newData.Profile);
           }

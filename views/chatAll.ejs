@@ -30,7 +30,6 @@
         </div>
         <!-- /.navbar-header -->
         <ul class="nav navbar-top-links navbar-right">
-
           <!-- /.dropdown -->
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -46,38 +45,36 @@
           <!-- /.dropdown -->
         </ul>
         <!-- /.navbar-top-links -->
-        <div class="navbar-default sidebar" role="navigation">
+<!--         <div class="navbar-default sidebar" role="navigation">
           <div class="sidebar-nav navbar-collapse">
-            <ul class="nav" id="side-menu">
-              <li>
+            <ul class="nav" id="side-menu"> -->
+              <li class="navMenu">
                 <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
               </li>
-              <li>
+              <li class="navMenu">
                 <a href="/chatAll" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
               </li>
-              <li>
+              <li class="navMenu">
                 <a href="/tag"><i class="fa fa-commenting fa-fw"></i> Tag</a>
               </li>
-              <li>
+              <li class="navMenu">
                 <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
               </li>
-              <li>
+              <li class="navMenu">
                 <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
               </li>
-            </ul>
-          </div>
           <!-- /.sidebar-collapse -->
-        </div>
         <!-- /.navbar-static-side -->
       </nav>
     </div>
-    <div id="home">
-      <h4 style="text-align: center" id="printAgent"></h4>
 
+      <h5 style="text-align: center; " id="printAgent"></h5>
+
+      <!--headBar-->
       <div id="headBar">
 
         <div class="filterUnit btn-group" id="filter_option">
-          <button data-toggle="dropdown" aria-expanded="false">
+          <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
             選擇搜尋依據
             <b class="caret"></b>
           </button>
@@ -93,16 +90,16 @@
         </div>
 
         <div class="filterUnit">
-          <button id="filterBtn">filter</button>
+          <button class="filter_btn" id="filterBtn">filter</button>
         </div>
         <div class="filterUnit">
-          <button id="filterBtn-clean">show all</button>
+          <button class="filter_btn" id="filterBtn-clean">show all</button>
         </div>
 
         <div class="filterPanel">
 
           <div class="filterUnit filterBar btn-group" id="filter_age">
-            <button data-toggle="dropdown" aria-expanded="false">
+            <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
               年齡:<span class="multiselect-selected-text" min="0" max="999">全選</span>
               <b class="caret"></b>
             </button>
@@ -112,21 +109,8 @@
             </ul>
           </div>
 
-          <!-- <div class="filterUnit filterBar btn-group" id="filter_sex">
-            <button data-toggle="dropdown" aria-expanded="false">
-              性別:<span class="multiselect-selected-text">全選</span>
-              <b class="caret"></b>
-            </button>
-            <ul class="multiselect-container dropdown-menu">
-              <div class="filterSelect" id="sex">
-                <li><input type="checkbox" value="男" checked>男</li>
-                <li><input type="checkbox" value="女" checked>女</li>
-              </div>
-            </ul>
-          </div> -->
-
           <div class="filterUnit filterBar btn-group" id="filter_place">
-            <button data-toggle="dropdown" aria-expanded="false">
+            <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
               地區:<span class="multiselect-selected-text">全選</span>
               <b class="caret"></b>
             </button>
@@ -142,7 +126,7 @@
           </div>
 
           <div class="filterUnit filterBar btn-group" id="filter_recent">
-            <button data-toggle="dropdown" aria-expanded="false">
+            <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
               上次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
               <b class="caret"></b>
             </button>
@@ -153,7 +137,7 @@
           </div>
 
           <div class="filterUnit filterBar btn-group" id="filter_first" >
-            <button data-toggle="dropdown" aria-expanded="false">
+            <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
               首次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
               <b class="caret"></b>
             </button>
@@ -164,9 +148,20 @@
           </div>
 
         </div>
+      </div><!--end headBar-->
+      <!--聊天軟體-->
+      <div style="width:10%;background-color: #e4d1d1" class="tab">
+      <button><img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png"></button>
+      <button><img class="software_icon" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png"></button>
+      <button><img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/wechat.svg"></button>
+      <button><img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/kakaotalk.svg"></button>
+      <button><img class="software_icon" src="https://cdn0.iconfinder.com/data/icons/social-flat-rounded-rects/512/whatsapp-256.png"></button>
+      <!--end 聊天軟體-->
+
+
       </div>
 
-      <div class="tab">
+      <div class="tab" style="background-color: #ddeedd">
         <h4 class="tablinks_head">Network Loading...</h4>
         <div class="tablinks_area">
           <div id="chat-area">chat-area-------------</div>
@@ -176,14 +171,14 @@
         </div>
       </div>
 
-      <div class="contentPanel">
-        <input type="text" class="datepicker" id="startdate" placeholder="start date" readonly></input>
+      <div class="contentPanel" style="background-color: #c2d4dd">
+<!--         <input type="text" class="datepicker" id="startdate" placeholder="start date" readonly></input>
         <input type="text" class="datepicker" id="enddate" placeholder="end date" readonly></input>
         <button class="filterDate" id="firsttime">filter first chat time</button>
         <button class="filterDate" id="recenttime">filter recent chat time</button>
-        <br>
+        <br> -->
 
-        <select id="filterTimeSelect">
+<!--         <select id="filterTimeSelect">
           <option value="0">0~5 min</option>
           <option value="1">5~10 min</option>
           <option value="2">10~30 min</option>
@@ -192,7 +187,7 @@
         </select>
         <button class="filterTime" id="avgtime">filter average time</button>
         <button class="filterTime" id="totaltime">filter total time</button>
-        <br>
+        <br> -->
 
 
         <select class="searchSelect">
@@ -229,10 +224,25 @@
           <div style="display:none" id="showAttAud"><input size="35" id="attAudFill" placeholder="輸入音訊網址"/><button id="upAud">Upload</button></div>
           </div>
 
+      </div><!--end contentPanel-->
+
+      <!--customer info -->
+      <div style="background-color: #c2d4dd" class="tab">
+        <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">查看用戶檔案</button>
+        <h5><b>用戶偏好</b></h5>
+        <h5><b>代辦事項</b></h5>
+        <h5><b>購買記錄</b></h5>
 
       </div>
+      <!-- end customer info-->
 
-      <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Open User Info</button>
+      <!--internal chat-->
+        <section style="float:right;height:500px;width: 350px;background-color: #b0aac0;border:solid 1px lightgrey;float:right;" id="canvas_info">
+        <h5 style="text-align:center"><b>內部聊天室</b></h5>
+
+        </section>
+      <!--end internal chat-->
+
 
       <!-- Modal -->
       <div class="modal fade" id="userInfoModal" role="dialog">
@@ -257,7 +267,6 @@
       </div>
       <!-- end -->
 
-    </div>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
