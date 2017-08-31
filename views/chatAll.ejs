@@ -31,6 +31,22 @@
         <!-- /.navbar-header -->
         <ul class="nav navbar-top-links navbar-right">
 
+          <li>
+            <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+          </li>
+          <li>
+            <a href="/chatAll" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+          </li>
+          <li>
+            <a href="/tag"><i class="fa fa-commenting fa-fw"></i> Tag</a>
+          </li>
+          <li>
+            <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
+          </li>
+          <li>
+            <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
+          </li>
+
           <!-- /.dropdown -->
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -46,7 +62,7 @@
           <!-- /.dropdown -->
         </ul>
         <!-- /.navbar-top-links -->
-        <div class="navbar-default sidebar" role="navigation">
+        <!-- <div class="navbar-default sidebar" role="navigation">
           <div class="sidebar-nav navbar-collapse">
             <ul class="nav" id="side-menu">
               <li>
@@ -65,7 +81,7 @@
                 <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
               </li>
             </ul>
-          </div>
+          </div> -->
           <!-- /.sidebar-collapse -->
         </div>
         <!-- /.navbar-static-side -->
@@ -213,8 +229,44 @@
         </form>
 
       </div>
-      
-      <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Open User Info</button>
+
+      <div class="infoPanel">
+
+
+
+        <div class="card text-center">
+          <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item">
+                <a class="nav-link active" >Profile</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" >Ticket</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link " >ToDo</a>
+              </li>
+            </ul>
+          </div>
+          <section id="infoCanvas">
+
+          </section>
+          <!-- <div class="card-group">
+            <div class="card-body" id="profile">
+              Profile
+            </div>
+            <div class="card-body" id="ticket" hidden="true">
+              Ticket
+            </div>
+            <div class="card-body" id="todo" hidden="true">
+              ToDo
+            </div>
+          </div> -->
+        </div>
+
+      </div>
+
+      <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Edit User Info</button>
 
       <!-- Modal -->
       <div class="modal fade" id="userInfoModal" role="dialog">

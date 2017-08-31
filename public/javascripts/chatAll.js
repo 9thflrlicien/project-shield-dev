@@ -14,6 +14,7 @@ $(document).ready(function() {
 
   var canvas = $("#canvas");          //panel of message canvas
   var person = "agentColman";         //agent name
+  var infoCanvas = $("#infoCanvas") ;
 
   var searchBox = $('.searchBox');    //input of search box
   var sortAvgBool = true;             //bool for sort average time up or down
@@ -59,6 +60,7 @@ $(document).ready(function() {
   $(document).on('click','.dropdown-menu', function(event){
     event.stopPropagation();
   });
+  $(document).on('click','.nav-link',toggleInfoPanel);
   setInterval(() => {
     closeIdleRoomTry();
   }, 20000);
@@ -91,6 +93,7 @@ $(document).ready(function() {
   }
 
   socket.on("push tags to chat", data=> {
+    console.log('TagsData comes~');
     TagsData = data;
     for(let i in data) if( data[i].name=="TAG" ) filterData.tag = data[i].set;
     initialFilterBar();
@@ -280,11 +283,83 @@ $(document).ready(function() {
   socket.on('push json to front', (data) => {
     //www emit data of history msg
     console.log("push json to front");
+    console.log(data);
     for( i in data ) pushMsg(data[i]);    //one user do function one time
+    setTimeout(function () {
+      for( i in data ) pushInfo(data[i]);
+    },500);
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
     closeIdleRoomTry();
     $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
+
+  function pushInfo(data) {
+    let profile = data.Profile;
+    infoCanvas.append(
+        '<div class="card-group" id="'+profile.userId+'-info" style="display:none">'+
+          '<div class="card-body" id="profile">'+
+            "<div class='photoContainer'>"+
+              '<img src="'+profile.photo+'" alt="無法顯示相片" style="width:128px;height:128px;">'+
+            "</div>"+
+            loadPanelProfile(profile)+
+          '</div>'+
+          '<div class="card-body" id="ticket" hidden="true">Ticket</div>'+
+          '<div class="card-body" id="todo" hidden="true">ToDo</div>'+
+        '</div>'+
+      '</div>'
+    );
+  }
+  function loadPanelProfile(profile) {
+    let html ="<table class='panelTable'>" ;
+    for( let i in TagsData ) {
+      let name = TagsData[i].name;
+      let type = TagsData[i].type;
+      let set = TagsData[i].set;
+      let modify = TagsData[i].modify;
+      let tdHtml = "";
+      if(name == 'userId') continue ;
+      if( type=='text' || type=='single_select' ){
+        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) tdHtml = '<p id="td-inner">'+profile[name]+'</p>';
+        else tdHtml = '<p id="td-inner">尚未輸入</p>';
+      }
+      else if( type=="time" ){
+        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) {
+          let d = new Date(profile[name]) ;
+          tdHtml = '<p id="td-inner">'+d.getFullYear()+'/'+addZero(d.getMonth()+1)+'/'+addZero(d.getDate())+' '+addZero(d.getHours())+':'+addZero(d.getMinutes())+'<p>';
+        }
+        else tdHtml = '<p id="td-inner">尚未輸入<p>';
+      }
+      else if( type=='multi_select' ) {
+        console.log(profile[name]) ;
+        if(profile[name] == undefined || profile[name] == null || profile[name] == "" ) tdHtml = '<p id="td-inner">尚未輸入</p>';
+        else {
+          let arr = profile[name].split(",") ;
+          for(let i in arr) tdHtml += '<span id="td-inner" class="tagSpan">'+arr[i]+'</span></br>';
+        }
+
+
+      }
+      html +=
+      '<tr>'
+        + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
+        + '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="false">' + tdHtml + '</td>' ;
+    }
+    html += "</table>" ;
+    // let html = "" ;
+    // html +=
+    //
+    // "<table>"+
+    // "<tr><th>nickname</th><td>"+profile.nickname+"</td></tr>"+
+    // "<tr><th>userId</th><td>"+profile.userId+"</td></tr>"+
+    // "<tr><th>年齡</th><td>"+profile.年齡+"</td></tr>"+
+    // "<tr><th>性別</th><td>"+profile.性別+"</td></tr>"+
+    // "<tr><th>地區</th><td>"+profile.地區+"</td></tr>"+
+    // "<tr><th>address</th><td>"+profile.address+"</td></tr>"+
+    // "<tr><th>telephone</th><td>"+profile.telephone+"</td></tr>"+
+    // "<tr><th>telephone</th><td>"+profile.telephone+"</td></tr>"+
+    // "</table>" ;
+    return html ;
+  }
 
   function pushMsg(data){
     //one user do function one time; data structure see file's end
@@ -397,7 +472,6 @@ $(document).ready(function() {
     name_list.push(profile.userId); //make a name list of all chated user
     userProfiles[profile.userId] = profile;
   }
-
   function closeIdleRoomTry() {
     let early_time = Date.now() - 15*60*1000;        //15min before now
     let last = clients.find('.tablinks').last();      //last user in online room
@@ -409,7 +483,6 @@ $(document).ready(function() {
       last = clients.find('.tablinks').last();
     }
   }
-
   function closeIdleRoom() {
     // declare current datetime and parse into ms
     // get the message sent time in ms
@@ -464,14 +537,14 @@ $(document).ready(function() {
     $("#"+target).show().siblings().hide();   //show it, and close others
     $('#user-rooms').val(target);             //change value in select bar
     $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
-
+    $("#"+target+"-info").show().siblings().hide();
     console.log('click tablink executed');
   }
-
   function clickSpan() {
     //close the message canvas
     let userId = $(this).parent().css("display", "none").attr("id");
     $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");   //clean tablinks color
+    $("#"+userId+"-info").hide();
   }
 
   socket.on('new message2', (data) => {
@@ -591,29 +664,6 @@ $(document).ready(function() {
     }//else
     messageInput.val('');
   });
-  //
-  // function selectAll(){
-  //   if ($( "#user-rooms option:selected" ).val()=='全選'){
-  //     designated_user_id = name_list;
-  //     select = 'true';
-  //   }
-  //   else{
-  //     designated_user_id = $( "#user-rooms option:selected" ).val();
-  //     select = 'false';
-  //   }
-  // }
-
-  // socket.on('usernames', (data) => {    //maybe no use now
-  //   var html = '';
-  //   for (i = 0; i < data.length; i++) {
-  //     html += data[i] + '<br />';
-  //   }
-  //   users.html(html);
-  // });
-
-
-  /*  =================================  */
-
 
   //extend jquery, let searching case insensitive
   $.extend($.expr[':'], {
@@ -632,9 +682,6 @@ $(document).ready(function() {
     });
   }
 
-    // $(document).on('keypress', '.tag-name input', function(e) {
-    //   let code = (e.keyCode ? e.keyCode : e.which);
-    //   if (code == 13) {
   searchBox.on('keypress', function (e) {
     //not clean code ><,  just some search function
     let code = (e.keyCode ? e.keyCode : e.which);
@@ -843,7 +890,6 @@ $(document).ready(function() {
       );
     }
   }
-
   function showTargetProfile(profile) {
     buffer = JSON.parse(JSON.stringify(profile));   //clone object
     $('.userPhoto').attr('src', buffer.photo? buffer.photo: "" );
@@ -884,27 +930,6 @@ $(document).ready(function() {
       }
     });
   }
-
-  // function showProfile() {
-  //   var target = $('#selected').attr('rel'); //get useridd of current selected user
-  //   console.log("show profile");
-  //   socket.emit('get profile',{id: target}) ;
-  // }
-  // socket.on('show profile',(data) => {
-  //   var Th = $('.userInfo-th');
-  //   var Td = $('.userInfo-td');
-  //   var but = $('.edit-button');
-  //   for(let i in but){but.eq(i).hide();}
-  //   for(let i in Th ){Th.eq(i).text(Th.eq(i).attr('id')+' : ') ;}
-  //   let key ;
-  //   buffer = data ;  //storage profile in buffer zone
-  //   Td.each( function() {
-  //     key = $(this).attr('id');
-  //     if( data.hasOwnProperty(key) ) $(this).text(data[key]); //show each profile data
-  //     else $(this).text("");
-  //     if(key == 'userId'||key == 'totalChat'){$(this).click(false);}  //disable editing of userid and totalchat
-  //   });
-  // });
   function editProfile() {
     if( $(this).parent().children('.edit-button').is(':visible') ) return;
     else $(this).parent().children('.edit-button').show(); //show yes/no button
@@ -932,19 +957,6 @@ $(document).ready(function() {
   }
 
 
-  // $(document).on('click', '#select-all', function(event) {multiselect_all(event.target);});
-  //
-  // function multiselect_all( box ) {
-  //   console.log("select all !");
-  //   if( $(box).prop('checked') == true ) {
-  //     console.log("checked");
-  //     $(box).parent().parent().find('input').prop('checked', 'checked');
-  //   }
-  //   else {
-  //     console.log("UN");
-  //     $(box).parent().parent().find('input').prop('checked', false);
-  //   }
-  // }
   function multiselect_change() {
     let boxes = $(this).find('input');
     let arr = [];
@@ -1010,7 +1022,6 @@ $(document).ready(function() {
         // td.on('click',editProfile); //restore click of userInfo-td
         // console.log("open click"); //on click, off click has some bug QQ
   }
-
   function submitProfile() {
     if( $('.edit-button:visible').length>0 ) {
       alert('please check all tags change');
@@ -1022,6 +1033,11 @@ $(document).ready(function() {
       userProfiles[buffer.userId] = JSON.parse(JSON.stringify(buffer));   //clone object
     }
 
+  }
+
+  function toggleInfoPanel() {
+    let panel = $(this).text().trim().toLowerCase() ;
+    $('.card-group:visible').find('#'+panel).show().siblings().hide();;
   }
 
 
