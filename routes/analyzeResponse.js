@@ -120,10 +120,8 @@ router.post('/getChart', function(req, res, next) {
 });
 
 router.post('/getData', function(req, res, next) {
-  console.log(req.body);
-  console.log(req.type);
-  console.log("get data! type = "+req.body.type);
   let type = req.body.type;
+  console.log("get data! type = "+type);
   if( type=="details" ) {
     sql = "SELECT shield.vote.*, shield.category.category_name"
       + ", shield.worker.worker_name, shield.group.group_name "
@@ -157,6 +155,22 @@ router.post('/getData', function(req, res, next) {
     con.query("SELECT * FROM shield.group", function(err, result, fields) {
       if( err ) console.log(err);
       else res.send(result);
+    });
+  }
+  else if( type=="worker" ) {
+    let sql = "SELECT shield.worker.ID, shield.worker.worker_name, shield.worker.category_id"
+      + ", shield.worker.vote_count, shield.worker.score FROM shield.worker";
+    con.query(sql, function(err, result, fields) {
+      if( err ) console.log(err);
+      else {
+        let workerData = result;
+        con.query("SELECT * from shield.category", function(err, result, fields) {
+          res.send({
+            worker: workerData,
+            category: result
+          });
+        });
+      }
     });
   }
   else {
@@ -227,6 +241,41 @@ router.post('/setGroup', function(req, res, next) {
   });
   res.send("SUCCESS");
 });
+
+router.post('/setWorker', function(req, res, next) {
+  let updateData = JSON.parse(req.body.data);
+  console.log(updateData);
+  updateData.map( function(data) {
+    console.log("now data: ");
+    console.log(data);
+    let ID = data.ID;
+    let worker_name = data.worker_name;
+    let category_id = data.category_id;
+    if( ID && worker_name ) {
+      console.log("UPDATE");
+      let sql = "UPDATE shield.worker SET worker_name = ?, category_id = ? WHERE ID = ? ";
+      con.query( sql, [ worker_name, category_id, ID ], function(err, rows) {
+        if(err) console.log(err);
+      });
+    }
+    else if( ID && !worker_name ) {
+      console.log("DELETE");
+      let sql = "DELETE FROM shield.worker WHERE ID = ? ";
+      con.query( sql, ID, function(err, rows) {
+        if(err) console.log(err);
+      });
+    }
+    else if( !ID && worker_name ) {
+      console.log("INSERT");
+      let sql = "INSERT INTO shield.worker SET ? ";
+      con.query( sql, { worker_name: worker_name, category_id: category_id }, function(err, rows) {
+        if(err) console.log(err);
+      });
+    }
+  });
+  res.send("SUCCESS");
+});
+
 //更新WORKER的評價資料
 setInterval( function() {
   console.log("check worker update");

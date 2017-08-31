@@ -145,7 +145,9 @@ function getData( type ) {
       if( type=="details" ) showData_details(data);
       else if( type=="category" ) showData_category(data);
       else if( type=="group" ) showData_group(data);
-      else if( type=="worker" ) showData_worker(data);
+      else if( type=="worker" ) {
+        showData_worker(data);
+      }
       else {
         console.log("success error 3");
       }
@@ -207,18 +209,29 @@ function showData_group(data) {
   $('#content').css('width', '95%').show();
 }
 
+var select_html = "";
 function showData_worker(data) {
+
+  select_html = '<select class="select-category">';
+  data.category.map(function(ele) {
+    select_html += '<option value="'+ele.ID+'">'+ele.category_name+'</option>';
+  });
+  select_html += '</select>';
+
   $('#content').append('<table id="worker"></table>'
     + '<button class="btn btn-primary btn-update-db">Confirm</button>'
     + '<button class="btn btn-default btn-new-row">Add</button>'
   );
 
-  $('#worker').append('<tr><th>序號</th><th>項目名稱</th></tr>');
-  data.map(function(ele) {
-    // console.log(ele);
+  $('#worker').append('<tr><th>序號</th><th>名稱</th><th>服務項目</th><th>被評價次數</th><th>被評價分數</th></tr>');
+  data.worker.map(function(ele) {
     $('#worker').append('<tr><td>'+ele.ID+'</td>'
-      + '<td class="modify-td">'+ele.worker_name+'</td></tr>'
+      + '<td class="modify-td">'+ele.worker_name+'</td>'
+      + '<td class="select-td">'+select_html+'</td>'
+      + '<td>'+ele.vote_count+'</td>'
+      + '<td>'+ele.score+'</td></tr>'
     );
+    $('.select-category:last').val(ele.category_id);
   });
 
   $('#content').css('width', '95%').show();
@@ -247,6 +260,21 @@ $(document).on('blur', '.modify-td input', function() {
   $(this).parent().html(val);
 });
 
+
+$(document).on('click', '.btn-new-row', function() {
+  let table = $(this).siblings('table');
+  if( table.attr('id')=="category" ) table.find('tbody').append('<tr><td></td><td class="modify-td"></td></tr>');
+  else if( table.attr('id')=="group" ) table.find('tbody').append('<tr><td></td><td class="modify-td"></td></tr>');
+  else if( table.attr('id')=="worker" ) table.find('tbody').append('<tr><td></td>'
+    + '<td class="modify-td"></td>'
+    + '<td class="select-td">'+select_html+'</td>'
+    + '<td>0</td><td>0</td></tr>'
+  );
+  else console.log("table id = "+table.attr('id')+", not found!");
+  $('.modify-td:last').click();
+  table.scrollTop(table[0].scrollHeight);
+});
+
 $(document).on('click', '.btn-update-db', function() {
   let DBtable = $(this).siblings('table').attr('id');
   let trs = $(this).siblings('table').find('tr');
@@ -272,6 +300,17 @@ $(document).on('click', '.btn-update-db', function() {
       });
     }
   }
+  else if( DBtable=="worker" ) {
+    url += "setWorker";
+    for( let i=1; i<trs.length; i++ ) {
+      let tds = trs.eq(i).find('td');
+      updateData.push({
+        ID: tds.eq(0).text(),
+        worker_name: tds.eq(1).text(),
+        category_id: tds.eq(2).find('select').val()
+      });
+    }
+  }
   console.log(updateData);
 
   $.ajax({
@@ -284,6 +323,7 @@ $(document).on('click', '.btn-update-db', function() {
 
     success: function(data) {
       console.log("POST "+url+" SUCCESS");
+      getData( DBtable );
     },
     error: function(xhr, ajaxOptions, thrownError) {
       console.log("ERRR when POST "+url);
@@ -305,10 +345,14 @@ Chart.plugins.register({
     if (chartInstance.config.options.showDatapoints) {
       var helpers = Chart.helpers;
       var ctx = chartInstance.chart.ctx;
-      var fontColor = helpers.getValueOrDefault(chartInstance.config.options.showDatapoints.fontColor, chartInstance.config.options.defaultFontColor);
+      var fontColor = helpers.getValueOrDefault(chartInstance.config.options.showDatapoints.fontColor
+        , chartInstance.config.options.defaultFontColor
+      );
 
       // render the value of the chart above the bar
-      ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, 'normal', Chart.defaults.global.defaultFontFamily);
+      ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, 'normal'
+        , Chart.defaults.global.defaultFontFamily
+      );
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       ctx.fillStyle = fontColor;
