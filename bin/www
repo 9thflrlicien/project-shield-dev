@@ -12,12 +12,12 @@ var apiai = require('apiai');
 var fs = require('fs');
 
 var config = {
-    apiKey: "AIzaSyAqzIra9YkeE0HZZBSwXrjh4GemO7yVdmI",
-    authDomain: "shield-88fd0.firebaseapp.com",
-    databaseURL: "https://shield-88fd0.firebaseio.com",
-    projectId: "shield-88fd0",
-    storageBucket: "shield-88fd0.appspot.com",
-    messagingSenderId: "376341346069"
+  apiKey: "AIzaSyAr1ic8lr_asYZTwwIjBNp3uiqFdu1QJKI",
+  authDomain: "shield-dev-91210.firebaseapp.com",
+  databaseURL: "https://shield-dev-91210.firebaseio.com",
+  projectId: "shield-dev-91210",
+  storageBucket: "",
+  messagingSenderId: "514816655617"
 };
 firebase.initializeApp(config);
 
@@ -65,12 +65,16 @@ var agent_nickname = 'agent';
 var receiverId = '';
 var agent_sendTo_receiver;
 // LINE bot設定
-var bot = linebot({
-    channelId: '1526051164',
-    channelSecret: '1f9ae458218fc325e98dbf7db4605a07',
-    channelAccessToken: 'RUStzbie3C1mTpE3Y2IHgeD9HVZZdrSnESjiGPjtLyLZPbxg4Ibt4Rx/wmCvRECZotk9XWRg/tx0tGpf+6O0FcoPpWYO/kNs54kh4pHdH8AR/KLky9R8OpMQelQOzZqWd5MYLF3xZxhrbnnvq6rslQdB04t89/1O/w1cDnyilFU='
-});
-const linebotParser = bot.parser();
+var bot;
+// var bot = linebot({
+//     channelId: '1526051164',
+//     channelSecret: '1f9ae458218fc325e98dbf7db4605a07tttt',
+//     channelAccessToken: 'RUStzbie3C1mTpE3Y2IHgeD9HVZZdrSnESjiGPjtLyLZPbxg4Ibt4Rx/wmCvRECZotk9XWRg/tx0tGpf+6O0FcoPpWYO/kNs54kh4pHdH8AR/KLky9R8OpMQelQOzZqWd5MYLF3xZxhrbnnvq6rslQdB04t89/1O/w1cDnyilFU='
+// });
+var linebotParser = function() {
+  console.log("Enter channel information first");
+}
+// var linebotParser = bot.parser();
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -79,7 +83,7 @@ server.on('error', onError);
 server.on('listening', onListening);
 // 接收訊息
 // LINE bot implement
-bot.on('message', event => {
+function bot_on_message(event) {
     let message_type = event.message.type;
     let message_lineTochat = event.message.text;
     let receiverId = event.source.userId;
@@ -620,7 +624,7 @@ bot.on('message', event => {
           request.end();
 
         }
-//test*/
+        //test*/
         function updateProfile(event) {
           let survey = {id:'',para:'',value:''};
           let pos = event.message.text.indexOf('：');
@@ -641,13 +645,29 @@ bot.on('message', event => {
           }
         }
   });
+}
+
+// bot.on('message', bot_on_message);
+
+app.post('/webhook/', function() {
+  console.log("webhook arguments length = "+arguments.length);
+  linebotParser(arguments[0], arguments[1], arguments[2]);
 });
-app.post('/webhook/', linebotParser);
 /**
  * Socket.io
  */
 //連接
 io.sockets.on('connection', (socket) => {
+
+  socket.on('update bot', (data) => {
+    if( bot ) bot._events = {};
+    console.log("update Line channel information.");
+    console.log(data);
+    bot = linebot(data);
+    linebotParser = bot.parser();
+    bot.on('message', bot_on_message);
+    console.log('update done');
+  });
 
     // 新使用者
     socket.on('new user', (data, callback) => {

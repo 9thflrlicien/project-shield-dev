@@ -128,6 +128,11 @@ function profSubmit() {
     chanSecret: chanSecret,
     chanAT: chanAT
   });
+  io.connect().emit('update bot', {
+    channelId: chanId,
+    channelSecret: chanSecret,
+    channelAccessToken: chanAT
+  });
   // if(id === ''){
   //   database.ref('users/' + userId).push({
   //     name: name,
