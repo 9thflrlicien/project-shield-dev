@@ -93,7 +93,6 @@ $(document).ready(function() {
 
   }//function attAud
   function upAud(){
-    console.log('exe on line 96');
     var audAtt = $('#attAudFill').val();
     $('#message').val('<video controls><source src="'+audAtt+'" type="video/mp4"></video>');
   }
@@ -448,10 +447,11 @@ $(document).ready(function() {
     console.log("filterDataCustomer: ");
     console.log(filterDataCustomer);
     for( let way in filterDataCustomer ) {
+      if (way != 'VIP等級'){
       $('#selectBy').append('<li><input type="checkbox" value="filter_'+way+'">'+way+'</li>');
       $('.filterPanel').append(
         '<div class="filterUnit filterBar btn-group" id="filter_'+way+'" style="display:none;">'
-        + '<button data-toggle="dropdown" aria-expanded="false">'
+        + '<button class="filter_btn" data-toggle="dropdown" aria-expanded="false">'
         + way + ':<span class="multiselect-selected-text">全選</span>'
         + '<b class="caret"></b></button>'
         + '<ul class="multiselect-container dropdown-menu">'
@@ -463,6 +463,7 @@ $(document).ready(function() {
         $('.filterSelect#'+way).append('<li><input type="checkbox" value="'+option+'" checked>'+option+'</li>');
       });
     }
+  }
   }
 
   function initialFilterSilder() {
@@ -620,13 +621,28 @@ $(document).ready(function() {
             return;
           }
         }
-      }
+      }//end if 
+      if ($('#filter_VIP等級').is(':visible')){
+        user_option = profile['VIP等級'];
+        select_option = $('#filter_VIP等級 .multiselect-selected-text').text();
+        console.log('this is select_option on line 627');
+        console.log(select_option);
+        if( select_option!="全選" ){
+          if( !user_option){
+            $(this).hide();
+            return;
+          }
 
+        }
+      }
       for( let way in filterDataCustomer ) {
         if( $('#filter_'+way).is(':visible') ) {
           user_option = profile[way];
           select_option = $('#filter_'+way+' .multiselect-selected-text').text();
+ 
           if( select_option!="全選") {
+
+
             if( !user_option ) {
               $(this).hide();
               return;
@@ -637,14 +653,14 @@ $(document).ready(function() {
             let i;
             for( i=0; i<user_option.length; i++ ) {
               if( select_option.indexOf(user_option[i])!=-1 ) break;
-            }
+            }//for
             if( i==user_option.length ) {
               $(this).hide();
               return;
-            }
-          }
+            }//if
+          }//if全選
         }
-      }
+      }//end for 
 
     });
   });
