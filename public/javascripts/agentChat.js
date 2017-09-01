@@ -4,7 +4,6 @@ $(document).ready(function() {
   var printAgent = $('#printAgent');  //agent welcome text
   var messageForm = $('#send-message'); //button for agent to send message
   var messageInput = $('#message');     //input for agent to send message
-  var messageContent = $('#chat');      //what's this
 
   var clients = $('#clients');        //online rooms of tablinks
   var idles = $('#idle-roomes');      //idle rooms of tablinks
@@ -12,7 +11,8 @@ $(document).ready(function() {
 
   var canvas = $("#canvas");          //panel of message canvas
   var person = "";         //agent name
-  var agent_list = ["NICK0305", "ag1", "ag2", "Ted", "Archor", "Warren", "Wendy", "Sandy", "Andy", "Danny", "Janny", "Mandy"];
+  var agent_list_id = [];
+  var agent_list_nick = [];
   const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>"
     + "Loading History Messages..."
     + "</i></strong><span class='loadingIcon'></span></p>";
@@ -46,129 +46,56 @@ $(document).ready(function() {
 
   $(document).on('click', '#signout-btn', logout); //登出
 
-  $(document).on('click', '.tablinks', function() {
-    $("#selected").removeAttr('id').css("background-color", "");   //selected tablinks change, clean prev's color
-    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
-
-    let target = $(this).attr('rel');         //find the message canvas
-    $("#"+target).show().siblings().hide();   //show it, and close others
-    $('#room-select').val(target);             //change value in select bar
-    $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
-
-    if( $(this).find('#msg').css("font-weight")=="bold" ) {
-      $(this).find('#msg').css("font-weight", "normal");                //read msg, let 0msg dis-bold
-      socket.emit("read message agentChat", {reader: person, roomId: target} );          //tell socket that this user isnt unRead
-    }
-  });
-
-  $(document).on('click', '.topright', function() {
-    //close the message canvas
-    let roomId = $(this).parent().hide().attr("id");
-    $(".tablinks[rel='" + roomId +"'] ").attr("id", "").css("background-color","");   //clean tablinks color
-  });
-
-  $(document).on('click', '#newGroupBtn', function() {
-    reload_tags();
-    infoModal.find('.roomInfo-td#roomId').find('#td-inner').text(Date.now());
-    infoModal.find('.roomInfo-td#owner').find('#td-inner').text(person);
-    infoModal.find('.roomInfo-td#agent').find('.autocomplete').text("");
-    infoModal.find('.roomInfo-td#agent').prepend('<span class="agent-in-room"><p class="name">'+person+'</p><p class="delete">&times;</p></span>');
-
-  });
-
-  $(document).on('click', '#roomInfoBtn', function() {
-    let target = $('#selected').attr('rel'); //get useridd of current selected user
-    if( target ){
-      console.log("show profile of roomId " + target);
-      reload_tags();
-      showTargetProfile(roomProfiles[target]);
-    }
-    else infoTable.html("please choose a room");
-  });
-
-  $(document).on('click', '.roomInfo-td[modify="true"]', function() {
-    if( $(this).find('input').length!=0 || $(this).find('textarea').length!=0 ) return;
-
-    let set = $(this).attr('set');
-    let text = $(this).find('#td-inner').text();
-
-    if( set=='single' ) $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
-    else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >'+text+'</textarea>');
-    else console.log("error 646");
-
-    $(this).find('#td-inner').select();
-  });
-  $(document).on('keypress', '.roomInfo-td .textarea', function(e) {
-    let code = (e.keyCode ? e.keyCode : e.which);
-    if (code == 13) $(this).blur();
-  });
-  $(document).on('blur', '.roomInfo-td .textarea', function() {
-    console.log(132);
-    let val = $(this).val() ? $(this).val() : "尚未輸入";
-    $(this).parent().html( '<p id="td-inner">'+val+'</p>');
-  });
-
-  $(document).on('DOMNodeInserted', '.autocomplete', function() {
-    $('.autocomplete').autocomplete({
-      source: agent_list,
-      appendTo: '.modal-body',
-      select: function(event, ui) {
-        $(event.target).parent().append('<span class="agent-in-room"><p class="name">'+ui.item.label+'</p><p class="delete">&times;</p></span><input type="text" class="autocomplete" id="td-inner" />')
-          .find('.autocomplete').select();
-        $(event.target).remove();
-      }
-    });
-  });
-  $(document).on('click', '.agent-in-room .delete', function() {
-    $(this).parent().remove();
-  });
-
-  $(document).on('click','#roomInfo-submit',function() {
-    if( ! confirm("Are you sure to change profile?") ) return;
-
-    let data = {};
-    infoModal.find('.roomInfo-td').each(function() {
-      let id = $(this).attr('id');
-      if( id=="agent" ) {
-        let arr = [];
-        $(this).find('.agent-in-room .name').each(function() {
-          arr.push( $(this).text() );
-        });
-        console.log(arr);
-        data[id] = arr;
-      }
-      else {
-        data[id] = $(this).find('#td-inner').text();
-      }
-    })
-    console.log(data);
-    socket.emit('update profile agentChat',data);
-    $('.modal').modal('hide');
-
-    roomProfiles[data.roomId] = JSON.parse(JSON.stringify(data));   //clone object
-    $('.tablinks[rel='+data.roomId+']').find('#nick').text(data.roomName);
-  });
-
-  setInterval( closeIdleRoomTry, 20000);
-
   if (window.location.pathname === '/agentChat') {
-    setTimeout( agentName, 1000 ); //enter agent name
-    console.log("Start loading history message...");
-    setTimeout(function() {
-      console.log("person = "+person);
-      socket.emit('get json from agentChat', {person: person} );
-    }, 2000);  //load history msg
+    getAgentList();
+    let timer_1 = setInterval(function() {
+      if( !auth.currentUser ) console.log("firebase auth not loaded yet");
+      else {
+        clearInterval( timer_1 );
+        agentName();
+      }
+    }, 100);
   }
 
-  function closeIdleRoomTry() {
-    let early_time = Date.now() - 15*60*1000;        //15min before now
-    let last = clients.find('.tablinks').last();      //last user in online room
-    while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
-      let b = last.parents('b');
-      b.remove();
-      idles.prepend(b);
-      last = clients.find('.tablinks').last();
-    }
+  function getAgentList() {
+    database.ref().child('users/').once('value', snap => {
+      let users = snap.val();
+      for( let prop in users ) {
+        agent_list_nick.push(users[prop].nickname);
+        agent_list_id.push(prop);
+      }
+      console.log(agent_list_id);
+      console.log(agent_list_nick);
+    });
+  }
+
+  function agentName() {
+    let userId = auth.currentUser.uid;
+
+    database.ref('users/' + userId).once('value', snap => {
+      let profInfo = snap.val();
+      let profId = Object.keys(profInfo);
+      person = profInfo.nickname;  //從DB獲取agent的nickname
+
+      if (person != '' && person != null) {
+        socket.emit('new user', person, (data) => {
+          // console.log(data);
+          if(data){}   //check whether username is already taken
+          else {
+            alert('username is already taken');
+            person = prompt("Please enter your name");  //update new username
+            database.ref('users/' + userId ).update({nickname : person});
+          }
+        });
+      }
+      else{
+        person = prompt("Please enter your name");  //if username not exist,update username
+        database.ref('users/' + userId ).update({nickname : person});
+      }
+
+      printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
+      socket.emit('get json from agentChat', { id: userId } );
+    });
   }
 
   socket.on('push json to agentChat', (data) => {
@@ -219,7 +146,7 @@ $(document).ready(function() {
 
     clients.append("<b><button rel=\""+profile.roomId+"\" class=\"tablinks\" "
       + "data-recentTime=" + lastMsg.time + "> "
-      + '<span id="nick">' + profile.roomName + '</span>'
+      + '<span id="roomName">' + profile.roomName + '</span>'
       + lastMsgStr
       + "</button></b>"
     );    //new a tablinks
@@ -264,39 +191,131 @@ $(document).ready(function() {
     );
   });
 
-  function agentName() {
-    // person = prompt("Please enter your name");
-    // printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
-    // return;
-    let userId = auth.currentUser.uid;
+  setInterval( closeIdleRoomTry, 20000);
 
-    database.ref('users/' + userId).on('value', snap => {
-      let profInfo = snap.val();
-      let profId = Object.keys(profInfo);
-      person = snap.child(profId[0]).val().nickname;  //從DB獲取agent的nickname
-      // console.log(person);
-
-      if (person != '' && person != null) {
-        socket.emit('new user', person, (data) => {
-          // console.log(data);
-          if(data){}   //check whether username is already taken
-          else {
-            alert('username is already taken');
-            person = prompt("Please enter your name");  //update new username
-            database.ref('users/' + userId + '/' + profId).update({nickname : person});
-          }
-        });
-      }
-      else{
-        person = prompt("Please enter your name");  //if username not exist,update username
-        database.ref('users/' + userId + '/' + profId).update({nickname : person});
-      }
-
-      printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
-    });
+  function closeIdleRoomTry() {
+    let early_time = Date.now() - 15*60*1000;        //15min before now
+    let last = clients.find('.tablinks').last();      //last user in online room
+    while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
+      let b = last.parents('b');
+      b.remove();
+      idles.prepend(b);
+      last = clients.find('.tablinks').last();
+    }
   }
 
+  $(document).on('click', '.tablinks', function() {
+    $("#selected").removeAttr('id').css("background-color", "");   //selected tablinks change, clean prev's color
+    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
+
+    let target = $(this).attr('rel');         //find the message canvas
+    $("#"+target).show().siblings().hide();   //show it, and close others
+    $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
+    $('#room-select').val(target);             //change value in select bar
+
+    if( $(this).find('#msg').css("font-weight")=="bold" ) {
+      $(this).find('#msg').css("font-weight", "normal");                //read msg, let 0msg dis-bold
+      socket.emit("read message agentChat", {reader: person, roomId: target} );          //tell socket that this user isnt unRead
+    }
+  });
+
+  $(document).on('click', '.topright', function() {
+    //close the message canvas
+    let roomId = $(this).parent().hide().attr("id");
+    $(".tablinks[rel='" + roomId +"'] ").removeAttr('id').css("background-color","");   //clean tablinks color
+  });
+
+  $(document).on('click', '#newGroupBtn', function() {
+    reload_tags();
+    infoModal.find('.roomInfo-td#roomId').find('#td-inner').text(Date.now());
+    infoModal.find('.roomInfo-td#owner').find('#td-inner').text(person);
+    infoModal.find('.roomInfo-td#agent').find('.autocomplete').text("");
+    let id = agent_list_id[ agent_list_nick.indexOf(person) ];
+    infoModal.find('.roomInfo-td#agent').prepend('<span class="agent-in-room" rel="'+id+'"><p class="name">'+person+'</p>'
+      + '<p class="delete">&times;</p></span>'
+    );
+  });
+
+  $(document).on('click', '#roomInfoBtn', function() {
+    let target = $('#selected').attr('rel'); //get useridd of current selected user
+    if( target ){
+      console.log("show profile of roomId " + target);
+      reload_tags();
+      showTargetProfile(roomProfiles[target]);
+    }
+    else infoTable.html("please choose a room");
+  });
+
+  $(document).on('click', '.roomInfo-td[modify="true"]', function() {
+    if( $(this).find('input').length!=0 || $(this).find('textarea').length!=0 ) return;
+
+    let set = $(this).attr('set');
+    let text = $(this).find('#td-inner').text();
+
+    if( set=='single' ) $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
+    else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >'+text+'</textarea>');
+    else console.log("error 646");
+
+    $(this).find('#td-inner').select();
+  });
+  $(document).on('keypress', '.roomInfo-td .textarea', function(e) {
+    let code = (e.keyCode ? e.keyCode : e.which);
+    if (code == 13) $(this).blur();
+  });
+  $(document).on('blur', '.roomInfo-td .textarea', function() {
+    let val = $(this).val() ? $(this).val() : "尚未輸入";
+    $(this).parent().html( '<p id="td-inner">'+val+'</p>');
+  });
+
+  $(document).on('DOMNodeInserted', '.autocomplete', function() {
+    $('.autocomplete').autocomplete({
+      source: agent_list_nick,
+      appendTo: '.modal-body',
+      select: function(event, ui) {
+        let nick = ui.item.label;
+        let id = agent_list_id[ agent_list_nick.indexOf(nick) ];
+        $(event.target).parent().append('<span class="agent-in-room" rel="'+id+'"><p class="name">'+nick+'</p>'
+          + '<p class="delete">&times;</p></span>'
+          + '<input type="text" class="autocomplete" id="td-inner" />'
+        ).find('.autocomplete').select();
+        $(event.target).remove();
+      }
+    });
+  });
+  $(document).on('click', '.agent-in-room .delete', function() {
+    $(this).parent().remove();
+  });
+
+  $(document).on('click','#roomInfo-submit',function() {
+    if( ! confirm("Are you sure to change profile?") ) return;
+
+    let data = {};
+    infoModal.find('.roomInfo-td').each(function() {
+      let id = $(this).attr('id');
+      if( id=="agent" ) {
+        let arr = [];
+        $(this).find('.agent-in-room').each(function() {
+          arr.push( $(this).attr('rel') );
+        });
+        console.log(arr);
+        data[id] = arr;
+      }
+      else {
+        data[id] = $(this).find('#td-inner').text();
+      }
+    })
+    console.log(data);
+    socket.emit('update profile agentChat',data);
+    $('.modal').modal('hide');
+
+    roomProfiles[data.roomId] = JSON.parse(JSON.stringify(data));   //clone object
+    $('.tablinks[rel='+data.roomId+']').find('#roomName').text(data.roomName);
+  });
+
+
+
   socket.on('new message agentChat', (data) => {
+    console.log("get mesg!!");
     displayMessage( data ); //update canvas
     displayClient( data );  //update tablinks
 
@@ -364,11 +383,11 @@ $(document).ready(function() {
       clients.prepend(b);
     }
     else{     //new user, make a tablinks
-      clients.prepend('<b><button rel="' + data.roomId + '" class="tablinks"><span id="nick">' + data.name
+      clients.prepend('<b><button rel="' + data.roomId + '" class="tablinks"><span id="roomName">' + data.roomName
         + "</span><br><span id='msg' style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
         + data.message +  "</span></button></b>"
       );
-      ('#room-select').append('<option value="' + data.roomId + '">' + data.name + '</option>');
+      $('#room-select').append('<option value="' + data.roomId + '">' + data.roomName + '</option>');
     }
   } //close client function
 
@@ -558,7 +577,11 @@ $(document).ready(function() {
       if( $(this).attr('id')=="agent" ) {
         $(this).find('.autocomplete').text("");
         for( let i in data ) {
-          $(this).prepend('<span class="agent-in-room"><p class="name">'+data[i]+'</p><p class="delete">&times;</p></span>');
+          let id = data[i];
+          let nick = agent_list_nick[ agent_list_id.indexOf(id) ];
+          $(this).prepend( '<span class="agent-in-room" rel="'+id+'"><p class="name">'+nick+'</p>'
+            + '<p class="delete">&times;</p></span>'
+          );
         }
       }
       else {
@@ -584,7 +607,7 @@ $(document).ready(function() {
         returnStr += "<p class='message-day' style='text-align: center'><strong>" + toDateStr(messages[i].time) + "</strong></p>";  //plus date info
       }
       prevTime = messages[i].time;
-
+      
       if( messages[i].name == person ) {    //plus every history msg into string
         returnStr += toAgentStr(messages[i].message, messages[i].name, messages[i].time);
       }
@@ -621,6 +644,3 @@ $(document).ready(function() {
     return val<10 ? '0'+val : val;
   }
 }); //document ready close tag
-function L(str) {
-  console.log(str);
-}

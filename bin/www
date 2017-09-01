@@ -675,11 +675,12 @@ io.sockets.on('connection', (socket) => {
         // agent_nickname
         console.log(data);
         if (data in users) {
-            callback(false);
-        } else {
-            callback(true);
-            socket.nickname = data;
-            users[socket.nickname] = socket;
+          callback(false);
+        }
+        else {
+          callback(true);
+          socket.nickname = data;
+          users[socket.nickname] = socket;
         }
     });
 
@@ -1021,11 +1022,14 @@ io.sockets.on('connection', (socket) => {
       }
     });
 
+    // socket.on('get agent list agentChat', () => {
+    //
+    // });
 
-    socket.on('get json from agentChat', (data, callback) => {
+    socket.on('get json from agentChat', (data) => {
       let thisAgentData = [];
       for( let i in agentChatData ){
-        if( agentChatData[i].Profile.agent.indexOf(data.person) != -1 ) thisAgentData.push( agentChatData[i] );
+        if( agentChatData[i].Profile.agent.indexOf(data.id) != -1 ) thisAgentData.push( agentChatData[i] );
       }
 
       let sendData = [];
@@ -1164,23 +1168,26 @@ io.sockets.on('connection', (socket) => {
           return;
         }
       }
+      //if not return, its new room
       console.log("new room come in!");
-
       let nowTime = Date.now();
       data.firstChat = nowTime;
       data.recentChat = nowTime;
-      data.unRead = JSON.parse(JSON.stringify(data.agent));
-      console.log("data: ");
-      console.log(data);
-
+      data.unRead = data.agent;
+      let firstMsg = {
+        message: "group establish",
+        name: "System",
+        time: nowTime
+      };
       agentDBRef.push({
-        Messages: [{
-          message: "group establish",
-          name: "System",
-          time: nowTime
-        }],
+        Messages: [firstMsg],
         Profile: data
       });
+
+      firstMsg.roomId = data.roomId;
+      firstMsg.roomName = data.roomName;
+      io.sockets.emit('new message agentChat', firstMsg);
+      console.log(firstMsg);
     });
 
     socket.on('disconnect', (data) => {
