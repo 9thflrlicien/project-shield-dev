@@ -7,9 +7,12 @@ $(document).ready(function() {
   var email = $('#prof-email').text();
   var gender = $('#prof-gender').text();
   var phone = $('#prof-phone').text();
-  var chanId = $('#prof-channelId').text();
-  var chanSecret = $('#prof-channelSecret').text();
-  var chanAT = $('#prof-channelAccessToken').text();
+  var chanId_1 = $('#prof-channelId_1').text();
+  var chanSecret_1 = $('#prof-channelSecret_1').text();
+  var chanAT_1 = $('#prof-channelAccessToken_1').text();
+  var chanId_2 = $('#prof-channelId_2').text();
+  var chanSecret_2 = $('#prof-channelSecret_2').text();
+  var chanAT_2 = $('#prof-channelAccessToken_2').text();
 
   $('#prof-name').text('');
   $('#prof-dob').text('');
@@ -17,9 +20,12 @@ $(document).ready(function() {
   $('#prof-gender').text('');
   $('#prof-phone').text('');
   $('#prof-nick').text('');
-  $('#prof-channelId').text('');
-  $('#prof-channelSecret').text('');
-  $('#prof-channelAccessToken').text('');
+  $('#prof-channelId_1').text('');
+  $('#prof-channelSecret_1').text('');
+  $('#prof-channelAccessToken_1').text('');
+  $('#prof-channelId_2').text('');
+  $('#prof-channelSecret_2').text('');
+  $('#prof-channelAccessToken_2').text('');
 
   setTimeout(loadProf, 1000);
 
@@ -50,21 +56,21 @@ function loadProf() {
       $('#error-message').show();
     }
     else {
-      let profInfo = []
-      let profData = snap.val();
-      let profId = Object.keys(profData);
-      profInfo.push(snap.child(profId[0]).val());
-      // console.log(profInfo);
+      let profInfo = snap.val();
+      let profId = Object.keys(profInfo);
       $('#prof-id').text(profId);
-      $('#prof-name').text(profInfo[0].name);
-      $('#prof-dob').text(profInfo[0].dob);
-      $('#prof-email').text(profInfo[0].email);
-      $('#prof-gender').text(profInfo[0].gender);
-      $('#prof-phone').text(profInfo[0].phone);
-      $('#prof-nick').text(profInfo[0].nickname);
-      $('#prof-channelId').text(profInfo[0].chanId);
-      $('#prof-channelSecret').text(profInfo[0].chanSecret);
-      $('#prof-channelAccessToken').text(profInfo[0].chanAT);
+      $('#prof-name').text(profInfo.name);
+      $('#prof-dob').text(profInfo.dob);
+      $('#prof-email').text(profInfo.email);
+      $('#prof-gender').text(profInfo.gender);
+      $('#prof-phone').text(profInfo.phone);
+      $('#prof-nick').text(profInfo.nickname);
+      $('#prof-channelId_1').text(profInfo.chanId_1);
+      $('#prof-channelSecret_1').text(profInfo.chanSecret_1);
+      $('#prof-channelAccessToken_1').text(profInfo.chanAT_1);
+      $('#prof-channelId_2').text(profInfo.chanId_2);
+      $('#prof-channelSecret_2').text(profInfo.chanSecret_2);
+      $('#prof-channelAccessToken_2').text(profInfo.chanAT_2);
     }
 
   });
@@ -81,9 +87,12 @@ function profEdit() {
   let email = $('#prof-email').text();
   let gender = $('#prof-gender').text();
   let phone = $('#prof-phone').text();
-  let chanId = $('#prof-channelId').text();
-  let chanSecret = $('#prof-channelSecret').text();
-  let chanAT = $('#prof-channelAccessToken').text();
+  let chanId_1 = $('#prof-channelId_1').text();
+  let chanSecret_1 = $('#prof-channelSecret_1').text();
+  let chanAT_1 = $('#prof-channelAccessToken_1').text();
+  let chanId_2 = $('#prof-channelId_2').text();
+  let chanSecret_2 = $('#prof-channelSecret_2').text();
+  let chanAT_2 = $('#prof-channelAccessToken_2').text();
 
   // console.log(id, name, dob, email, gender,phone);
 
@@ -95,9 +104,12 @@ function profEdit() {
   $('#prof-edit-phone').val(phone);
   $('#prof-edit-nick').val(nick);
 
-  $('#prof-edit-channelId').val(chanId);
-  $('#prof-edit-channelSecret').val(chanSecret);
-  $('#prof-edit-channelAccessToken').val(chanAT);
+  $('#prof-edit-channelId_1').val(chanId_1);
+  $('#prof-edit-channelSecret_1').val(chanSecret_1);
+  $('#prof-edit-channelAccessToken_1').val(chanAT_1);
+  $('#prof-edit-channelId_2').val(chanId_2);
+  $('#prof-edit-channelSecret_2').val(chanSecret_2);
+  $('#prof-edit-channelAccessToken_2').val(chanAT_2);
 }
 
 function profSubmit() {
@@ -110,29 +122,42 @@ function profSubmit() {
   let gender = $('#prof-edit-gender').val();
   let phone = $('#prof-edit-phone').val();
 
-  let chanId = $('#prof-edit-channelId').val();
-  let chanSecret = $('#prof-edit-channelSecret').val();
-  let chanAT = $('#prof-edit-channelAccessToken').val();
+  let chanId_1 = $('#prof-edit-channelId_1').val();
+  let chanSecret_1 = $('#prof-edit-channelSecret_1').val();
+  let chanAT_1 = $('#prof-edit-channelAccessToken_1').val();
+  let chanId_2 = $('#prof-edit-channelId_2').val();
+  let chanSecret_2 = $('#prof-edit-channelSecret_2').val();
+  let chanAT_2 = $('#prof-edit-channelAccessToken_2').val();
   // console.log(id, name, dob, email, gender,phone);
 
   // console.log(id);
-  database.ref('users/' + userId).remove();
-  database.ref('users/' + userId).push({
+  // database.ref('users/' + userId).remove();
+  database.ref('users/' + userId).set({
     name: name,
     dob: dob,
     email: email,
     gender: gender,
     phone: phone,
     nickname: nick,
-    chanId: chanId,
-    chanSecret: chanSecret,
-    chanAT: chanAT
+    chanId_1: chanId_1,
+    chanSecret_1: chanSecret_1,
+    chanAT_1: chanAT_1,
+    chanId_2: chanId_2,
+    chanSecret_2: chanSecret_2,
+    chanAT_2: chanAT_2
   });
-  io.connect().emit('update bot', {
-    channelId: chanId,
-    channelSecret: chanSecret,
-    channelAccessToken: chanAT
-  });
+  io.connect().emit('update bot', [
+    {
+      channelId: chanId_1,
+      channelSecret: chanSecret_1,
+      channelAccessToken: chanAT_1
+    },
+    {
+      channelId: chanId_2,
+      channelSecret: chanSecret_2,
+      channelAccessToken: chanAT_2
+    },
+  ]);
   // if(id === ''){
   //   database.ref('users/' + userId).push({
   //     name: name,
@@ -168,7 +193,10 @@ function profClear() {
   $('#prof-edit-gender').val('Male');
   $('#prof-edit-phone').val('');
   $('#prof-edit-nick').val('');
-  $('#prof-edit-channelId').val('');
-  $('#prof-edit-channelSecret').val('');
-  $('#prof-edit-channelAccessToken').val('');
+  $('#prof-edit-channelId_1').val('');
+  $('#prof-edit-channelSecret_1').val('');
+  $('#prof-edit-channelAccessToken_1').val('');
+  $('#prof-edit-channelId_2').val('');
+  $('#prof-edit-channelSecret_2').val('');
+  $('#prof-edit-channelAccessToken_2').val('');
 }

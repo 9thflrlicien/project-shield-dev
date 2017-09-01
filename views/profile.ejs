@@ -132,16 +132,28 @@
                     <td id="prof-phone"></td>
                   </tr>
                   <tr>
-                    <td>Channel Id: </td>
-                    <td id="prof-channelId"></td>
+                    <td>Channel Id 1: </td>
+                    <td id="prof-channelId_1"></td>
                   </tr>
                   <tr>
-                    <td>Channel Secret: </td>
-                    <td id="prof-channelSecret"></td>
+                    <td>Channel Secret 1: </td>
+                    <td id="prof-channelSecret_1"></td>
                   </tr>
                   <tr>
-                    <td>Channel Access Token: </td>
-                    <td id="prof-channelAccessToken"></td>
+                    <td>Channel Access Token 1: </td>
+                    <td id="prof-channelAccessToken_1"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Id 2: </td>
+                    <td id="prof-channelId_2"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Secret 2: </td>
+                    <td id="prof-channelSecret_2"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Access Token 2: </td>
+                    <td id="prof-channelAccessToken_2"></td>
                   </tr>
                 </tbody>
               </table>
@@ -222,23 +234,44 @@
 
                             <!-- Channel Id -->
               <div class="form-group">
-                <label for="prof-edit-channelId" class="col-2 col-form-label">Channel Id: </label>
+                <label for="prof-edit-channelId_1" class="col-2 col-form-label">Channel Id 1: </label>
                 <div class="col-4">
-                  <input class="form-control" type="tel" value="" id="prof-edit-channelId">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelId_1">
                 </div>
               </div>
                             <!-- Channel Secret -->
               <div class="form-group">
-                <label for="prof-edit-channelSecret" class="col-2 col-form-label">Channel Secret: </label>
+                <label for="prof-edit-channelSecret_1" class="col-2 col-form-label">Channel Secret 1: </label>
                 <div class="col-4">
-                  <input class="form-control" type="tel" value="" id="prof-edit-channelSecret">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelSecret_1">
                 </div>
               </div>
                             <!-- Channel Access Token -->
               <div class="form-group">
-                <label for="prof-edit-channelAccessToken" class="col-2 col-form-label">Channel Access Token: </label>
+                <label for="prof-edit-channelAccessToken_1" class="col-2 col-form-label">Channel Access Token 1: </label>
                 <div class="col-4">
-                  <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken_1">
+                </div>
+              </div>
+                            <!-- Channel Id -->
+              <div class="form-group">
+                <label for="prof-edit-channelId_2" class="col-2 col-form-label">Channel Id 2: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelId_2">
+                </div>
+              </div>
+                            <!-- Channel Secret -->
+              <div class="form-group">
+                <label for="prof-edit-channelSecret_2" class="col-2 col-form-label">Channel Secret 2: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelSecret_2">
+                </div>
+              </div>
+                            <!-- Channel Access Token -->
+              <div class="form-group">
+                <label for="prof-edit-channelAccessToken_2" class="col-2 col-form-label">Channel Access Token 2: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken_2">
                 </div>
               </div>
 
@@ -257,6 +290,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
     <script src="javascripts/firebaseConfig.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/profile.js"></script>
   </body>
 </html>
