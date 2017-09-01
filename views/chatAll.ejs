@@ -68,6 +68,25 @@
       </nav>
     </div>
 
+    <nav style="width:100%;height:50px;margin-left:20%">
+                  <li class="navMenu">
+                <a class="onclick_show" href="#" rel="聊天軟體"><i class="fa fa-dashboard fa-fw"></i> 聊天軟體</a>
+              </li>
+              <li class="navMenu">
+                <a class="onclick_show" href="#" class="active" rel="聊天用戶"><i class="fa fa-commenting fa-fw"></i> 聊天用戶</a>
+              </li>
+              <li class="navMenu">
+                <a class="onclick_show" href="#" rel="聊天室"><i class="fa fa-commenting fa-fw"></i> 對話窗</a>
+              </li>
+              <li class="navMenu">
+                <a class="onclick_show" href="#" rel="用戶檔案"><i class="fa fa-table fa-fw"></i> 用戶檔案</a>
+              </li>
+              <li class="navMenu">
+                <a class="onclick_show" href="#" rel="canvas_info"><i class="fa fa-ticket fa-fw"></i> 內部聊天室</a>
+              </li>
+      
+    </nav>
+
       <h5 style="text-align: center; " id="printAgent"></h5>
 
       <!--headBar-->
@@ -98,7 +117,7 @@
 
         <div class="filterPanel">
 
-          <div class="filterUnit filterBar btn-group" id="filter_age">
+          <div style="display:none" class="filterUnit filterBar btn-group" id="filter_age">
             <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
               年齡:<span class="multiselect-selected-text" min="0" max="999">全選</span>
               <b class="caret"></b>
@@ -109,7 +128,7 @@
             </ul>
           </div>
 
-          <div class="filterUnit filterBar btn-group" id="filter_place">
+          <div  style="display:none"  class="filterUnit filterBar btn-group" id="filter_place">
             <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
               地區:<span class="multiselect-selected-text">全選</span>
               <b class="caret"></b>
@@ -125,7 +144,7 @@
             </ul>
           </div>
 
-          <div class="filterUnit filterBar btn-group" id="filter_recent">
+          <div  style="display:none"  class="filterUnit filterBar btn-group" id="filter_recent">
             <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
               上次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
               <b class="caret"></b>
@@ -136,7 +155,7 @@
             </ul>
           </div>
 
-          <div class="filterUnit filterBar btn-group" id="filter_first" >
+          <div  style="display:none" class="filterUnit filterBar btn-group" id="filter_first" >
             <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
               首次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
               <b class="caret"></b>
@@ -150,7 +169,7 @@
         </div>
       </div><!--end headBar-->
       <!--聊天軟體-->
-      <div style="width:10%;background-color: #e4d1d1" class="tab">
+      <div id="聊天軟體" style="width:9%;background-color: /*#e4d1d1*/;margin-left:0.5%" class="tab"><span onclick="this.parentElement.style.display='none'">x</span> 
 <!--LINE DROPDOWN-->
           <div class="filterUnit filterBar btn-group" id="filter_VIP等級">
             <button class="filter_btn" data-toggle="dropdown" aria-expanded="false"><img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png"><span class="multiselect-selected-text">全選</span>
@@ -230,17 +249,17 @@
 
       </div>
 
-      <div class="tab" style="background-color: #ddeedd">
+      <div id="聊天用戶" class="tab" style="background-color: /*#ddeedd*/;"><span onclick="this.parentElement.style.display='none'">x</span>
         <h4 class="tablinks_head">Network Loading...</h4>
         <div class="tablinks_area">
-          <div id="chat-area">chat-area-------------</div>
+          <div id="chat-area"><b>-聊天中-</b></div>
           <ol class="list-group" id="clients"></ol>
-          <div id="idle-area">idle-area-------------</div>
+          <div id="idle-area"><b>-閒置中-</b></div>
           <ol class="list-group" id="idle-roomes"></ol>
         </div>
       </div>
 
-      <div class="contentPanel" style="background-color: #c2d4dd">
+      <div id="聊天室" class="contentPanel" style="background-color: /*#c2d4dd*/;width:30%"><span onclick="this.parentElement.style.display='none'">x</span>
 <!--         <input type="text" class="datepicker" id="startdate" placeholder="start date" readonly></input>
         <input type="text" class="datepicker" id="enddate" placeholder="end date" readonly></input>
         <button class="filterDate" id="firsttime">filter first chat time</button>
@@ -276,37 +295,42 @@
         <!-- Trigger the modal with a button -->
         <div style="float:left">
         <form action="" id="send-message" disabled>
-          <select id="user-rooms">
+          <button style="background-color: transparent" rel="showAttImg" id="attImg" class="onclick_show"><i class="fa fa-file-image-o fa-2x" aria-hidden="true"></i></button>
+          <button style="background-color: transparent" rel="showAttVid" id="attVid" class="onclick_show"><i class="fa fa-file-video-o fa-2x" aria-hidden="true"></i></button>
+          <button style="background-color: transparent" rel="showAttAud" id="attAud" class="onclick_show"><i class="fa fa-file-audio-o fa-2x" aria-hidden="true"></i></button>
+          <select style="float:right" id="user-rooms">
             <option id="selectAll" value="全選">全選</option>
             <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
           </select>
-          <input size="35" id="message" />
+          <input style="width:100%; height:100px" size="35" id="message" />
           <input type="submit"/>
         </form>
+        <div style="float:bottom">
+            <div style="display:none; float:left" id="showAttImg"><input size="35" id="attImgFill" placeholder="輸入圖片網址"/><button id="upImg">Upload</button></div>
+            <div style="display:none; float:left" id="showAttVid"><input size="35" id="attVidFill" placeholder="輸入影片網址"/><button id="upVid">Upload</button></div>
+            <div style="display:none; float:left" id="showAttAud"><input size="35" id="attAudFill" placeholder="輸入音訊網址"/><button id="upAud">Upload</button></div>
         </div>
-          <div style="float:left">傳送影音附件檔：
-          <button style="background-color: transparent" id="attImg"><i class="fa fa-file-image-o fa-2x" aria-hidden="true"></i></button>
-          <button style="background-color: transparent" id="attVid"><i class="fa fa-file-video-o fa-2x" aria-hidden="true"></i></button>
-          <button style="background-color: transparent" id="attAud"><i class="fa fa-file-audio-o fa-2x" aria-hidden="true"></i></button>
-          <div style="display:none" id="showAttImg"><input size="35" id="attImgFill" placeholder="輸入圖片網址"/><button id="upImg">Upload</button></div>
-          <div style="display:none" id="showAttVid"><input size="35" id="attVidFill" placeholder="輸入影片網址"/><button id="upVid">Upload</button></div>
-          <div style="display:none" id="showAttAud"><input size="35" id="attAudFill" placeholder="輸入音訊網址"/><button id="upAud">Upload</button></div>
-          </div>
+        </div>
+
 
       </div><!--end contentPanel-->
 
       <!--customer info -->
-      <div style="background-color: #c2d4dd" class="tab">
+      <div id="用戶檔案" style="padding:1%;background-color: /*#c2d4dd*/;" class="tab"><span onclick="this.parentElement.style.display='none'">x</span>
         <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">查看用戶檔案</button>
+              <img src="" alt="無法顯示相片" class="userPhoto" style="width:128px;height:128px;">
+              <table class="info_input_table"></table>
+              <div style="padding-top: 3%">
+              <button id="userInfo-submit" class="btn btn-default">儲存變更</button>
+              </div>
         <h5><b>用戶偏好</b></h5>
         <h5><b>代辦事項</b></h5>
         <h5><b>購買記錄</b></h5>
-
       </div>
       <!-- end customer info-->
 
       <!--internal chat-->
-        <section style="float:right;height:500px;width: 350px;background-color: #b0aac0;border:solid 1px lightgrey;float:right;" id="canvas_info">
+        <section style="float:left!important;height:600px;width: 30%;background-color: /*#b0aac0*/;border:solid 1px lightgrey;float:right;" id="canvas_info"><span onclick="this.parentElement.style.display='none'">x</span>
         <h5 style="text-align:center"><b>內部聊天室</b></h5>
 
         </section>

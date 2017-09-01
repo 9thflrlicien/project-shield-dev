@@ -1,11 +1,14 @@
-
+.tablinks_head{
+  font-size:14px;
+  font-weight:bold;
+}
 .filter_btn{
   margin:0;
   border-style: none;
   border-radius: 10px;
 }
 .software_icon{
-  width:40%;
+  width:50px;
   height:auto;
   margin:0;
 }
@@ -29,6 +32,8 @@
   display: inline;
   margin-bottom: 50px;
   float:top;
+  resize: both;
+  overflow: auto;
 }
 .filterSlider label {
   position: absolute;
@@ -56,9 +61,11 @@ div.tab {
   border: 1px solid #ccc;
   background-color: #f1f1f1;
   width: 15%;
-  height: 500px;
+  height: 600px;
   text-align: center;
   padding:5px 0;
+  resize: horizontal;
+  overflow: auto;
 }
 /* Style the buttons inside the tab */
 div.tab button {
@@ -107,9 +114,11 @@ div.tab button.active {
 /* Style the tab content */
 .contentPanel {
   /*margin-left: 100px;*/
-  height: 500px;
+  height: 600px;
   width: 35%;
   float: left;
+  resize: both;
+  overflow: auto;
 }
 .searchBox {
   padding-left: 10px;
@@ -128,7 +137,9 @@ div.tab button.active {
   height: 85%;
   width: 100%;
 }
-.canvas_info{
+#canvas_info{
+  resize: both;
+  overflow: auto;
 
 }
 .tabcontent {
@@ -138,9 +149,10 @@ div.tab button.active {
   height: 100%;
   border-left: none;
   display:block;
-  background-color: lightblue;
+  background-color: transparent;
   display: none;
   width: 100%;
+  padding:2%;
 }
 .messagePanel {
   height: 95%;
@@ -168,6 +180,7 @@ p {
   width: 100%;
 }
 .info_input_table tr{
+  font-size:12px;
 }
 .userInfo-th {
   width: 50%;
@@ -175,16 +188,15 @@ p {
 }
 .userInfo-td {
   width: 50%;
-  padding-top: 10px;
+  padding-top: 20px;
   /*margin: 10px;*/
 }
 #send-message {
   margin-top: 20px;
-  margin-bottom: 20px;
   float: right;
 }
 .tablinks{
-  padding-left: 10px
+  padding-left: 10px;
 }
 #clients {
   list-style: none;

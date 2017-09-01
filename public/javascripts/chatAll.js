@@ -20,7 +20,7 @@ $(document).ready(function() {
     + "Loading History Messages..."
     + "</i></strong><span class='loadingIcon'></span></p>";
   const NO_HISTORY_MSG = "<p class='message-day' style='text-align: center'><strong><i>"
-    + "-------------------------------------------------------No More History Message-------------------------------------------------------"
+    + "-沒有更舊的歷史訊息-"
     + "</i></strong></p>";
 
   var searchBox = $('.searchBox');    //input of search box
@@ -52,46 +52,31 @@ $(document).ready(function() {
   $(document).on('click', '.edit-button', changeProfile);
   $(document).on('click','#userInfo-submit',submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
-  $(document).on('click', '#attImg', attImg);
   $(document).on('click', '#upImg', upImg);
-  $(document).on('click', '#attVid', attVid);
   $(document).on('click', '#upVid', upVid);
-  $(document).on('click', '#attAud', attAud);
   $(document).on('click', '#upAud', upAud);
+
   $(document).on('click','.dropdown-menu', function(event){
     event.stopPropagation();
   });
 
-  function attImg(){
-    if ($('#showAttImg').is(":visible") == false){
-    $('#showAttImg').show();
-    }else{
-      $('#showAttImg').hide();
-    } 
-  }//function attImg
+    $('.onclick_show').on('click', function(){
+        var target = $(this).attr('rel');
+        if ($("#"+target).is(":visible")){
+            $("#"+target).hide();
+        }else{
+            $("#"+target).show()
+      }
+      });
+
   function upImg(){
     var imgAtt = $('#attImgFill').val();
     $('#message').val('<img src="'+imgAtt+'"/>');
   }
-    function attVid(){
-    if ($('#showAttVid').is(":visible") == false){
-    $('#showAttVid').show();
-    }else{
-      $('#showAttVid').hide();
-    } 
-  }//function attVid
   function upVid(){
     var vidAtt = $('#attVidFill').val();
     $('#message').val('<video controls><source src="'+vidAtt+'" type="video/mp4"></video>');
   }
-    function attAud(){
-    if ($('#showAttAud').is(":visible") == false){
-    $('#showAttAud').show();
-    }else{
-      $('#showAttAud').hide();
-    } 
-
-  }//function attAud
   function upAud(){
     var audAtt = $('#attAudFill').val();
     $('#message').val('<video controls><source src="'+audAtt+'" type="video/mp4"></video>');
@@ -186,7 +171,7 @@ $(document).ready(function() {
 
     historyMsgStr += historyMsg_to_Str(historyMsg);
     historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
-      + "-------------------------------------------------------Present Message-------------------------------------------------------"
+      + "-即時訊息-"
       +" </italic></strong></p>";   //history message string tail
 
     canvas.append(    //push string into canvas
@@ -203,7 +188,7 @@ $(document).ready(function() {
 
     let lastMsg = historyMsg[historyMsg.length-1];
     let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
-    let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
+    let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '; font-size:12px">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
     // display last message at tablinks
 
     clients.append("<b><button rel=\""+profile.userId+"\" class=\"tablinks\""
@@ -280,6 +265,7 @@ $(document).ready(function() {
   }
 
   function clickUserTablink(){
+    setTimeout(showProfile,100);
     $("#selected").removeAttr('id').css("background-color", "");   //selected tablinks change, clean prev's color
     $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
 
@@ -336,7 +322,7 @@ $(document).ready(function() {
 
       let designated_chat_room_msg_time = $("#" + data.id + "-content").find(".message:last").attr('rel');
       if(data.time - designated_chat_room_msg_time >= 900000){    // 如果現在時間多上一筆聊天記錄15分鐘
-        $("#" + data.id + "-content").append('<p class="message-day" style="text-align: center"><strong>-------------------New Session starts-------------------</strong></p>');
+        $("#" + data.id + "-content").append('<p class="message-day" style="text-align: center"><strong>-新訊息-</strong></p>');
       }
       if( data.owner == "agent" ) str = toAgentStr(data.message, data.name, data.time);
       else str = toUserStr(data.message, data.name, data.time);
@@ -1024,10 +1010,10 @@ $(document).ready(function() {
   }
 
   function toAgentStr(msg, name, time) {
-    return '<p class="message" rel="' + time + '" style="text-align: right;" title="' + toDateStr(time) + '"><span class="content">' + msg + '</span><strong> : <span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
+    return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span class="content" style="border:1px solid lightgrey; padding:8px; border-radius:10px; background-color:lightgrey">  ' + msg + '</span><strong> : <span class="sender">' + name + '</span><span  class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
   }
   function toUserStr(msg, name, time) {
-    return '<p class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span class="content">' + msg + '</span><br/></p>';
+    return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span style="border:1px solid grey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><br/></p>';
   }
 
   function toDateStr( input ) {
