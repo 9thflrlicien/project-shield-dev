@@ -664,6 +664,7 @@ bot.on('message', event => {
                 ticket.phone = parameter.phone ;
                 ticket.goods = parameter.goods ;
                 ticket.name = receiver_name ;
+                ticket.lineId = receiverId;
               }
               else if(action == 'ticket.description'){
                 ticket.description = userSay ;
@@ -691,23 +692,44 @@ bot.on('message', event => {
           console.log(obj);
 
           let priority ;
-          if(obj.priority.indexOf('high')) priority = 3 ;
-          else if(obj.priority.indexOf('medium'))priority = 2 ;
+          if(obj.priority.indexOf('high') != -1) priority = 3 ;
+          else if(obj.priority.indexOf('medium') != -1)priority = 2 ;
           else priority = 1;
 
           var fields = {
-            'name': obj.name,
-            'email': obj.email,
-            'subject': '收到_'+obj.goods+'_訂單',
             'description': obj.description,
+            'email': obj.email,
+            'name': obj.name,
             'phone': obj.phone,
+            'priority': priority,
             'status': 2,
-            'priority': priority
+            'subject': '收到_'+obj.goods+'_訂單'
+            // 'tags': [obj.lineId.substring(1)]
           }
           //console.log('fields:');
           //console.log(fields);
-          var Request = unirest.post(URL);
 
+          for( let prop in chatData ) {
+            if(chatData[prop].Profile.userId == obj.lineId) {
+              console.log("Ticket find user " + obj.lineId + " in database");
+              let updateObj = {};
+              if(chatData[prop].Profile.email == undefined || chatData[prop].Profile.email == '' || chatData[prop].Profile.email == null){
+                updateObj['/'+prop+'/Profile/email/'+0] = obj.email;
+              }
+              else{
+                let length = chatData[prop].Profile.email.length ;
+                updateObj['/'+prop+'/Profile/email/'+length] = obj.email;
+              }
+              newDBRef.update(updateObj) ;
+              newDBRef.child(prop).child("Profile").update({phone: obj.phone});
+              console.log('firebase update ticket info complete') ;
+              break;
+            }
+          }
+
+          var Request = unirest.post(URL);
+          console.log('fields:');
+          console.log(fields);
           Request.auth({
             user: API_KEY,
             pass: "X",
@@ -716,7 +738,7 @@ bot.on('message', event => {
           .type('json')
           .send(fields)
           .end(function(response){
-            //console.log(response.body)
+            console.log(response.body)
             console.log("Response Status : " + response.status)
             if(response.status == 201){
               console.log("Location Header : "+ response.headers['location'])
@@ -1265,7 +1287,8 @@ io.sockets.on('connection', (socket) => {
             originalContentUrl: link,
             previewImageUrl: link
           };
-        } else if(msg.includes('/audio')){
+        }
+        else if(msg.includes('/audio')){
           let link = msg.substr(7);
           // console.log(link);
           message = {
@@ -1273,7 +1296,8 @@ io.sockets.on('connection', (socket) => {
             originalContentUrl: link,
             duration: 6000
           };
-        } else if(msg.includes('/video')){
+        }
+        else if(msg.includes('/video')){
           let link = msg.substr(7);
           // console.log(link);
           message = {
@@ -1281,13 +1305,15 @@ io.sockets.on('connection', (socket) => {
             originalContentUrl: link,
             previewImageUrl: "https://www.movienewsguide.com/wp-content/uploads/2016/03/Phoenix-Suns.jpg"
           };
-        } else if (msg.includes('/sticker')) {
+        }
+        else if (msg.includes('/sticker')) {
             message = {
                 type: "sticker",
                 packageId: parseInt(msg.substr(9)),
                 stickerId: parseInt(msg.substr(11))
             };
-        } else {
+        }
+        else {
             message = {
                 type: "text",
                 text: msg
@@ -1326,15 +1352,18 @@ io.sockets.on('connection', (socket) => {
           msgObj.message = 'Send image to user';
           emitIO_and_pushDB(msgObj);
 
-        } else if (msg.includes('/audio')) {
+        }
+        else if (msg.includes('/audio')) {
           msgObj.message = 'Send audio to user';
           emitIO_and_pushDB(msgObj);
 
-        } else if (msg.includes('/video')) {
+        }
+        else if (msg.includes('/video')) {
           msgObj.message = 'Send video to user';
           emitIO_and_pushDB(msgObj);
 
-        } else if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
+        }
+        else if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
             let urlStr = '<a href=';
             if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
               urlStr += '"https://';
@@ -1342,11 +1371,13 @@ io.sockets.on('connection', (socket) => {
             msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
             emitIO_and_pushDB(msgObj);
 
-        } else if (msg.includes('/sticker')) {
+        }
+        else if (msg.includes('/sticker')) {
           msgObj.message = 'Send sticker to user';
           emitIO_and_pushDB(msgObj);
 
-        } else {
+        }
+        else {
           msgObj.message = msg;
           emitIO_and_pushDB(msgObj);
         }
@@ -1360,7 +1391,8 @@ io.sockets.on('connection', (socket) => {
         console.log(agent_sendTo_receiver);
         if(socket.nickname !== undefined){
           agent_nickname = socket.nickname;
-        } else {
+        }
+        else {
           agent_nickname = 'agent';
         }
 
@@ -1416,30 +1448,17 @@ io.sockets.on('connection', (socket) => {
             console.log("agent_sendTo_receiver undefined!");
         }
 
-        // var msgObj = {
-        //   agentName: socket.nickname,
-        //   id: agent_sendTo_receiver,
-        //   messageTime: nowTime
-        // }
         var msgObj = {
           owner: "agent",
           name: agent_nickname,
           time: nowTime,
         };
         function emitIO_and_pushDB(obj) {
-          // console.log("sending to io sockets...");
-          // io.sockets.emit('new message', obj);
-          // console.log("io sockets sent!");
-          // console.log("sending to old firebase database...");
-          // agentsRef.push(obj);
-          // console.log("DB sent!");
           console.log("sending object agent2: ");
           console.log(obj);
 
           console.log("sending to new firebase database");
           sendToNewFb(obj);
-          // console.log("sending to local DB");
-          // sendToLocalDB(obj);
           console.log("sending to new io sockets...");
           sendToFrontSocket(obj);
           console.log("All sent!");
@@ -1577,9 +1596,7 @@ io.sockets.on('connection', (socket) => {
     });
 
     getTicketfromFD();
-    socket.emit('clear ticket table',{}) ;
-    setTimeout(function () {socket.emit('all tickets info', viewTicket);},1000);
-
+    socket.emit('all tickets info', viewTicket);
     socket.emit('all agents info', viewAgent);
     socket.emit('all contacts info', viewContact);
 
@@ -1587,7 +1604,34 @@ io.sockets.on('connection', (socket) => {
       console.log(data) ;
       updateTicket(data) ;
     });
+    socket.on('get ticket', (data ,callback) => {
+      console.log(data) ;
+      getUserTicket(data);
 
+    });
+    function getUserTicket(data) {
+      var email = data.email ;
+      var id = data.id ;
+      var URL_ticket =  "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/tickets?email="+email;
+      var viewRequest_ticket = unirest.get(URL_ticket);
+
+      viewRequest_ticket.auth({
+        user: API_KEY,
+        pass: "X",
+        sendImmediately: true
+      })
+      .end(function(response){
+        console.log("Ticket Response Status : " + response.status)
+        if(response.status != 200){
+          console.log("X-Request-Id :" + response.headers['x-request-id']);
+          return ;
+        }
+        socket.emit('push user ticket',{
+          id: id,
+          ticket: response.body
+        });
+      });
+    }
 });
 
 function updateTicket(data) {

@@ -210,3 +210,30 @@ p {
   border: .75px solid black ;
   border-radius: 5px ;
 }
+.nav-link{
+  padding-top: 10px ;
+  transition: .2s ease-in-out;
+}
+.nav-link[active~='true'] {
+  background-color: rgb(185, 233, 249);
+  margin: 0 5px ;
+  margin-top: 5px ;
+  padding-top: 5px ;
+  border-radius: 5px 5px -5px -5px  ;
+  border-bottom: 2px solid rgb(20, 79, 149) ;
+}
+.nav-link[active~='true']:hover{
+  background-color: rgb(185, 233, 249);
+  border: none ;
+  border-bottom: 2px solid rgb(20, 79, 149) ;
+}
+.ticket-card{
+  border: 1px solid black;
+  border-radius: 5px;
+  margin: 3% 1%;
+  width: 98%;
+  overflow: hidden;
+}
+.card-footer{
+  background-color: lightgray ;
+}

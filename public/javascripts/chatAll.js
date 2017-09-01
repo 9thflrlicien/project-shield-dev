@@ -93,7 +93,6 @@ $(document).ready(function() {
   }
 
   socket.on("push tags to chat", data=> {
-    console.log('TagsData comes~');
     TagsData = data;
     for(let i in data) if( data[i].name=="TAG" ) filterData.tag = data[i].set;
     initialFilterBar();
@@ -292,7 +291,29 @@ $(document).ready(function() {
     closeIdleRoomTry();
     $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
-
+  socket.on('push user ticket',(data) => {
+    console.log(data);
+    let id = data.id ;
+    let ticket = data.ticket ;
+    let content = '' ;
+    for(let i in ticket){
+      content +=
+      "<div class='card text-center ticket-card'>"+
+      "<div class='ticket-card-header' "+
+      "style='color:white;background-color:"+priorityColor(ticket[i].priority)+"'>"+
+      "ticket No."+ticket[i].id+
+      "</div>"+
+      "<div class='card-body'>"+
+      "<h4 class='card-title'>"+ticket[i].subject+"</h4>"+
+      "<p class='card-text'>"+ticket[i].description+"</p>"+
+      "</div>"+
+      "<div class='card-footer text-muted'>"+
+      "Create at "+CreateDate(ticket[i].created_at)+" ago"+
+      "</div>"+
+      "</div>"
+    }
+    $("#"+id+"-info").children("#ticket").append(content);
+  });
   function pushInfo(data) {
     let profile = data.Profile;
     infoCanvas.append(
@@ -301,15 +322,21 @@ $(document).ready(function() {
             "<div class='photoContainer'>"+
               '<img src="'+profile.photo+'" alt="無法顯示相片" style="width:128px;height:128px;">'+
             "</div>"+
-            loadPanelProfile(profile)+
+              loadPanelProfile(profile)+
           '</div>'+
-          '<div class="card-body" id="ticket" hidden="true">Ticket</div>'+
+          '<div class="card-body" id="ticket" hidden="true"></div>'+
           '<div class="card-body" id="todo" hidden="true">ToDo</div>'+
         '</div>'+
       '</div>'
     );
   }
   function loadPanelProfile(profile) {
+    for(let i in profile.email){
+      socket.emit('get ticket',{
+        email: profile.email[i],
+        id: profile.userId
+      });
+    }
     let html ="<table class='panelTable'>" ;
     for( let i in TagsData ) {
       let name = TagsData[i].name;
@@ -330,14 +357,11 @@ $(document).ready(function() {
         else tdHtml = '<p id="td-inner">尚未輸入<p>';
       }
       else if( type=='multi_select' ) {
-        console.log(profile[name]) ;
         if(profile[name] == undefined || profile[name] == null || profile[name] == "" ) tdHtml = '<p id="td-inner">尚未輸入</p>';
         else {
           let arr = profile[name].split(",") ;
           for(let i in arr) tdHtml += '<span id="td-inner" class="tagSpan">'+arr[i]+'</span></br>';
         }
-
-
       }
       html +=
       '<tr>'
@@ -345,21 +369,9 @@ $(document).ready(function() {
         + '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="false">' + tdHtml + '</td>' ;
     }
     html += "</table>" ;
-    // let html = "" ;
-    // html +=
-    //
-    // "<table>"+
-    // "<tr><th>nickname</th><td>"+profile.nickname+"</td></tr>"+
-    // "<tr><th>userId</th><td>"+profile.userId+"</td></tr>"+
-    // "<tr><th>年齡</th><td>"+profile.年齡+"</td></tr>"+
-    // "<tr><th>性別</th><td>"+profile.性別+"</td></tr>"+
-    // "<tr><th>地區</th><td>"+profile.地區+"</td></tr>"+
-    // "<tr><th>address</th><td>"+profile.address+"</td></tr>"+
-    // "<tr><th>telephone</th><td>"+profile.telephone+"</td></tr>"+
-    // "<tr><th>telephone</th><td>"+profile.telephone+"</td></tr>"+
-    // "</table>" ;
     return html ;
   }
+
 
   function pushMsg(data){
     //one user do function one time; data structure see file's end
@@ -538,6 +550,7 @@ $(document).ready(function() {
     $('#user-rooms').val(target);             //change value in select bar
     $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
     $("#"+target+"-info").show().siblings().hide();
+    toggleInfoPanel() ;
     console.log('click tablink executed');
   }
   function clickSpan() {
@@ -1036,8 +1049,9 @@ $(document).ready(function() {
   }
 
   function toggleInfoPanel() {
-    let panel = $(this).text().trim().toLowerCase() ;
-    $('.card-group:visible').find('#'+panel).show().siblings().hide();;
+    $(this).attr("active",'true').parent().siblings().children().attr("active",'false') ;
+    let panel = $('.nav-link[active=true]').text().trim().toLowerCase() ;
+    $('.card-group:visible').find('#'+panel).show().siblings().hide();
   }
 
 
@@ -1092,6 +1106,62 @@ $(document).ready(function() {
       }
     }
     return msg;
+  }
+  function priorityColor(priority) {
+    switch(priority) {
+      case 4:
+          return 'rgb(230, 100, 100)';
+          break;
+      case 3:
+          return 'rgb(233, 198, 13)';
+          break;
+      case 2:
+          return 'rgb(113, 180, 209)';
+          break;
+      case 1:
+          return 'rgb(126, 215, 170)';
+          break;
+      default:
+          return 'N/A';
+    }
+  }
+  function displayDate(date) {
+    let origin = new Date(date) ;
+    origin = origin.getTime();
+    let gmt8 = new Date(origin );
+
+    let yy = gmt8.getFullYear(),
+        mm = gmt8.getMonth()+1,
+        dd = gmt8.getDate(),
+        hr = gmt8.getHours(),
+        min= gmt8.getMinutes(),
+        sec= gmt8.getSeconds();
+
+    return yy+"/"+mm+"/"+dd+" "+hr+":"+min+":"+sec ;
+  }
+  function CreateDate(day) {
+    let html = '' ;
+    let nowTime = new Date().getTime() ;
+    let dueday = Date.parse(displayDate(day)) ;
+    let sec = (nowTime - dueday)/1000  ;
+
+    if(sec<60) return Math.round(sec)+" second(s)";
+    else{
+      let min = sec/60 ;
+      if(min<60) return Math.round(min)+" minute(s)" ;
+      else{
+        let hr = min/60 ;
+        if(hr<48) return Math.round(hr)+" hours(s)";
+        else{
+          let day = Math.floor(hr/24) ;
+          hr %= 24 ;
+          return day+" day(s) "+Math.round(hr)+" hour(s) " ;
+        }
+      }
+    }
+    // if(hr<0) html = '<span class="overdue">overdue</span>' ;
+    // else html = '<span class="non overdue">response due</span>' ;
+    // return html ;
   }
 
 }); //document ready close tag
