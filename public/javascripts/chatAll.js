@@ -127,10 +127,7 @@ $(document).ready(function() {
   socket.on('push json to front', (data) => {
     //www emit data of history msg
     console.log("push json to front");
-    for( i in data ) {
-      console.log(data[i]);
-      pushMsg(data[i]);    //one user do function one time
-    }
+    for( i in data ) pushMsg(data[i]);    //one user do function one time
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );   //sort users by recent time
     closeIdleRoomTry();
     $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
@@ -221,10 +218,10 @@ $(document).ready(function() {
   function agentName() {
     //enter agent name
     agentId = auth.currentUser.uid;
-    database.ref('users/' + agentId).on('value', snap => {
+    database.ref('users/' + agentId).once('value', snap => {
       let profInfo = snap.val();
       let profId = Object.keys(profInfo);
-      let person = snap.child(profId[0]).val().nickname;  //從DB獲取agent的nickname
+      person = profInfo.nickname;  //從DB獲取agent的nickname
 
       if (person != '' && person != null) {
         socket.emit('new user', person, (data) => {
@@ -232,13 +229,13 @@ $(document).ready(function() {
           else {
             alert('username is already taken');
             person = prompt("Please enter your name");  //update new username
-            database.ref('users/' + agentId + '/' + profId).update({nickname : person});
+            database.ref('users/' + agentId ).update({nickname : person});
           }
         });
       }
       else{
         person = prompt("Please enter your name");  //if username not exist,update username
-        database.ref('users/' + agentId + '/' + profId).update({nickname : person});
+        database.ref('users/' + agentId ).update({nickname : person});
       }
       printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
     });
