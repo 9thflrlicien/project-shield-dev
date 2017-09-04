@@ -198,16 +198,38 @@ function showData_group(data) {
     + '<button class="btn btn-default btn-new-row">Add</button>'
   );
 
-  $('#group').append('<tr><th>序號</th><th>旅行團團名</th></tr>');
-  data.map(function(ele) {
+  $('#group').append('<tr><th>序號</th><th>旅行團團名</th><th>工作人員</th></tr>');
+  data.group.map(function(ele) {
     // console.log(ele);
     $('#group').append('<tr><td>'+ele.ID+'</td>'
-      + '<td class="modify-td">'+ele.group_name+'</td></tr>'
+      + '<td class="modify-td">'+ele.group_name+'</td>'
+      + '<td class="workers"><input type="text" class="worker-autocomplete" /></td></tr>'
     );
+    ele.workers.map(function(worker) {
+      $('.workers:last').prepend('<span class="worker-in-group"><p class="name">'+worker.worker_name+'</p>'
+        + '<p class="delete">&times;</p></span>'
+      );
+    });
   });
+
+  let autocomplete = {
+    source: data.worker.map( function(ele) { return ele.worker_name; } ),
+    select: function(event, ui) {
+      console.log("selete!");
+      let name = ui.item.label;
+      $(event.target).parent().append('<span class="worker-in-group"><p class="name">'+name+'</p>'
+        + '<p class="delete">×</p></span>'
+        + '<input type="text" class="worker-autocomplete" />'
+      ).find('.worker-autocomplete').autocomplete(autocomplete).select();
+      $(event.target).remove();
+    },
+    delay: 100
+  };
+  $('.worker-autocomplete').autocomplete(autocomplete);
 
   $('#content').css('width', '95%').show();
 }
+
 
 var select_html = "";
 function showData_worker(data) {
@@ -260,6 +282,10 @@ $(document).on('blur', '.modify-td input', function() {
   $(this).parent().html(val);
 });
 
+$(document).on('click', '.worker-in-group .delete', function() {
+  console.log('clicked delete');
+  $(this).parent().remove();
+});
 
 $(document).on('click', '.btn-new-row', function() {
   let table = $(this).siblings('table');
@@ -278,9 +304,11 @@ $(document).on('click', '.btn-new-row', function() {
 $(document).on('click', '.btn-update-db', function() {
   let DBtable = $(this).siblings('table').attr('id');
   let trs = $(this).siblings('table').find('tr');
-  let updateData = [];
+  let updateData;
   let url = "/analyzeResponse/";
+
   if( DBtable=="category" ) {
+    updateData = [];
     url += "setCategory";
     for( let i=1; i<trs.length; i++ ) {
       let tds = trs.eq(i).find('td');
@@ -291,16 +319,32 @@ $(document).on('click', '.btn-update-db', function() {
     }
   }
   else if( DBtable=="group" ) {
+    updateData = {};
     url += "setGroup";
+    updateData.group = [];
+    updateData.group_worker = [];
     for( let i=1; i<trs.length; i++ ) {
       let tds = trs.eq(i).find('td');
-      updateData.push({
+      updateData.group.push({
         ID: tds.eq(0).text(),
         group_name: tds.eq(1).text()
+      });
+
+      let seen = {};
+      tds.eq(2).find('.worker-in-group .name').each( function()  {
+        let name = $(this).text();
+        if( ! seen.hasOwnProperty(name) ) {
+          seen[name] = true;
+          updateData.group_worker.push({
+            group_id: tds.eq(0).text(),
+            worker_name: name
+          });
+        }
       });
     }
   }
   else if( DBtable=="worker" ) {
+    updateData = [];
     url += "setWorker";
     for( let i=1; i<trs.length; i++ ) {
       let tds = trs.eq(i).find('td');

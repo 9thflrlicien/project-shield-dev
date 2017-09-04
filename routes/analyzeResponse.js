@@ -3,26 +3,6 @@ var router = express.Router();
 
 var con = require('./mysql');
 
-//insert();
-function insert() {
-  let obj = {
-    category_name : "餐廳"
-  };
-  con.query("INSERT INTO shield.category SET ?", obj, function(err, rows) {
-    //放入新的category資料，其中ID欄位MYSQL會自己指定
-    //有點像是C語言，有幾個"?"，後面就要多幾個參數，參數就是"?"代表的東西
-    //但還是有點不同，若有很多個?，後面的參數要包成array，下面會再解釋
-
-    console.log("INSERT OBJ = ");
-    console.log(obj);
-    if(err) {
-      console.log("ERROR when INSERT INTO shield.category");
-      throw err;
-    }
-    else console.log("SUCCESS when INSERT INTO shield.category");
-  });
-}
-
 router.get('/', function(req, res, next) {
   res.render('analyzeResponse', {
     title: 'Analyze Response'
@@ -152,9 +132,37 @@ router.post('/getData', function(req, res, next) {
     });
   }
   else if( type=="group" ) {
-    con.query("SELECT * FROM shield.group", function(err, result, fields) {
-      if( err ) console.log(err);
-      else res.send(result);
+    con.query("SELECT worker_name FROM shield.worker", function(err, result, fields ){
+      let data = {
+        worker: result
+      };
+      con.query("SELECT * FROM shield.group", function(err, result, fields) {
+        if( err ) console.log(err);
+        data.group = [];
+        let length = result.length;
+        let count = 0;
+        result.map( function(ele) {
+          let sql = "SELECT shield.worker.worker_name FROM shield.worker, shield.group_worker"
+            + " where shield.group_worker.group_id = ? and shield.group_worker.worker_id = shield.worker.ID"
+            + " ORDER BY shield.group_worker.worker_id";
+          con.query(sql, ele.ID, function(err, result, fields) {
+            if( err ) console.log(err);
+            else {
+              data.group.push({
+                ID: ele.ID,
+                group_name: ele.group_name,
+                workers: result
+              });
+              count++;
+            }
+          });
+        });
+        let timer = setInterval( function() {
+          if( count==length ) clearInterval(timer);
+          else return;
+          res.send(data);
+        }, 10 );
+      });
     });
   }
   else if( type=="worker" ) {
@@ -212,8 +220,7 @@ router.post('/setCategory', function(req, res, next) {
 
 router.post('/setGroup', function(req, res, next) {
   let updateData = JSON.parse(req.body.data);
-  console.log(updateData);
-  updateData.map( function(data) {
+  updateData.group.map( function(data) {
     let ID = data.ID;
     let group_name = data.group_name;
     console.log(ID+", "+group_name);
@@ -238,6 +245,22 @@ router.post('/setGroup', function(req, res, next) {
         if(err) console.log(err);
       });
     }
+  });
+
+  con.query("TRUNCATE shield.group_worker", function(err, rows) {
+    if(err) console.log(err);
+  });
+  updateData.group_worker.map( function(ele) {
+    con.query("SELECT ID FROM shield.worker WHERE worker_name = ?", ele.worker_name, function(err, result, fields) {
+      let id = result[0].ID;
+      let data = {
+        group_id: ele.group_id,
+        worker_id: id
+      };
+      con.query("INSERT INTO shield.group_worker SET ? ", data , function(err, rows) {
+        if(err) console.log(err);
+      });
+    });
   });
   res.send("SUCCESS");
 });

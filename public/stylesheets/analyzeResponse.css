@@ -37,6 +37,17 @@ tr:nth-child(even) {
   padding-left: 50px;
   padding-right: 50px;
 }
+.worker-in-group {
+  margin: auto 10px;
+  display: inline-table;
+}
+.worker-in-group p {
+  margin: 2px;
+  display: inline-table;
+}
+.ui-menu-item {
+  padding-left: 5px;
+}
 .btn-update-db {
   position: absolute;
   z-index: -1;
