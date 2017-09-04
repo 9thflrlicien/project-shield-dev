@@ -199,11 +199,12 @@ $(document).ready(function() {
     if( data.position!=0 ) $('#'+profile.userId+'-content').on('scroll', function() {
       detecetScrollTop( $(this) );
     });
-    $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>');  //new a option in select bar
 
+    $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>');  //new a option in select bar
     let lastMsg = historyMsg[historyMsg.length-1];
     let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
-    let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '; font-size:12px">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
+    let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '; font-size:12px; margin-left:12px">' + lastMsg.message + "</span>";
+    let msgTime = '<span style="float:right;font-size:12px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) +'</span>'
     // display last message at tablinks
 
     clients.append("<b><button style='text-align:left' rel=\""+profile.userId+"\" class=\"tablinks\""
@@ -214,9 +215,12 @@ $(document).ready(function() {
       + "data-recentTime=\"" + lastMsg.time +"\" id=\"userInfoBtn\"> "
       // + "<img src=\"\" alt=\"無法顯示相片\" class=\"userPhoto\" style=\"width:128px;height:128px;\"/>"
       + '<span style="text-align:left; float:left; margin-left:12px" id="nick">' + profile.nickname + '</span>'
-      + lastMsgStr+'<div class="unread_msg">1</div>'
+      + msgTime
+      + lastMsgStr+'<div class="unread_msg">'+profile.unRead+'</div>'
       + "</button></b>"
     );    //new a tablinks
+    var unread_target = $(this).attr('.unread_msg');
+    if(profile.unRead == 0 || false){ $('.'+unread_target).hide();}else{ $('.'+unread_target).show();}
 
     name_list.push(profile.userId); //make a name list of all chated user
     userProfiles[profile.userId] = profile;
@@ -289,6 +293,8 @@ $(document).ready(function() {
       $(this).find('#msg').css("font-weight", "normal");                //read msg, let msg dis-bold
       socket.emit("read message", {id: $(this).attr('rel')} );          //tell socket that this user isnt unRead
     }
+
+    $(this).find('.unread_msg').hide();
 
     let target = $(this).attr('rel');         //find the message canvas
     $("#"+target).show().siblings().hide();   //show it, and close others
@@ -371,6 +377,7 @@ $(document).ready(function() {
     if (name_list.indexOf(data.id) !== -1 ) {
       let target = $(".tablinks[rel='"+data.id+"']");
       target.find("#msg").html( toTimeStr(data.time)+data.message ).css( "font-weight", font_weight );
+      target.find('.unread_msg').html(data.unRead);
       target.attr("data-recentTime", data.time);
       //update tablnks's last msg
 
@@ -382,10 +389,10 @@ $(document).ready(function() {
       clients.prepend('<b><button id="userInfoBtn" data-toggle="modal" data-target="#userInfoModal"  rel="' + data.id + '" class="tablinks"><span id="nick">'+
         + data.name
         + "</span><br><span id='msg' style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
-        + data.message +  "</span></button></b>"
+        + data.message +  "</span><div class='unread_msg'>"+data.profile.unRead+"</div></button></b>"
       );
     }
-  } //close client function
+  } //close displayClient function
   socket.on('new user profile', function(data){
     console.log('new user come in from www!');
     console.log(data);
@@ -1054,7 +1061,11 @@ $(document).ready(function() {
     let date = new Date(input);
     return " (" + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ") ";
   }
+function toTimeStr_minusQuo( input ){
+    let date = new Date(input);
+    return  addZero(date.getHours()) + ':' + addZero(date.getMinutes());
 
+}
   function change_document_title(name) {
     // $(document).prop('title', 'SHEILD chat ver2');
   }
