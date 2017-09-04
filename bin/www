@@ -33,6 +33,9 @@ const newDBRef = firebase.database().ref().child('chats/Data');
 const agentDBRef = firebase.database().ref().child('chats/AgentChatData');
 const tagsRef = firebase.database().ref().child('tags');
 
+let count_unread = 1;
+
+
 var chatData;
 newDBRef.on('value', snapshot=> {
    chatData = snapshot.val();
@@ -333,9 +336,12 @@ bot.on('message', event => {
               updateObj['/'+prop+'/Messages/'+length] = obj;
               newDBRef.update(updateObj);
               newDBRef.child(prop).child("Profile").update({
-                unRead: true,
+                unRead: count_unread,
                 photo: profile.pictureUrl? profile.pictureUrl :""
               });
+              count_unread++;
+              console.log('this is count_unread');
+              console.log(count_unread);
               flag = false;
               break;
             }

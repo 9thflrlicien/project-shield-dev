@@ -1,3 +1,14 @@
+.unread_msg{
+  border:1px solid limegreen; 
+  border-radius:50px; 
+  width:25px;
+  height:20px; 
+  background-color:limegreen; 
+  color:white;
+  text-align:center; 
+  float:right; 
+  margin-top:30px
+}
 .tablinks_head{
   font-size:14px;
   font-weight:bold;
@@ -122,22 +133,22 @@ div.tab button.active {
 }
 .searchBox {
   padding-left: 10px;
-  margin-right: 3px;
+  margin-right:;
   float: left;
   border: 1px solid #ccc;
   border-radius: 10px;
   width: 70%;
-  height: 5%;
+  height: 25px;
   display:block;
 }
 .datepicker, .filterDate{
   /*width: 25%;*/
 }
 #canvas{
-  height: 85%;
+  height: 64%;
   width: 100%;
 }
-#canvas_info{
+#內部聊天室{
   resize: both;
   overflow: auto;
 

@@ -60,14 +60,29 @@ $(document).ready(function() {
     event.stopPropagation();
   });
 
+    // $('#nav_subMenu').on('click', function(){
+    //   console.log('nav_subMenu clicked on line 64');
+    //     var target = $(this).attr('rel');
+    //     console.log('target on line 371.ejs')
+    //     console.log(target);
+    //     if ($("#"+target).is(":visible")){
+    //         $('#check_mark').hide();
+    //     }else{
+    //         $('#check_mark').show()
+    //       }
+    //   });
+
+
     $('.onclick_show').on('click', function(){
+      console.log('onclick_show exe');
         var target = $(this).attr('rel');
+
         if ($("#"+target).is(":visible")){
             $("#"+target).hide();
         }else{
-            $("#"+target).show()
+            $("#"+target).show();
       }
-      });
+      });//onclick_show
 
   function upImg(){
     var imgAtt = $('#attImgFill').val();
@@ -191,14 +206,15 @@ $(document).ready(function() {
     let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '; font-size:12px">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
     // display last message at tablinks
 
-    clients.append("<b><button rel=\""+profile.userId+"\" class=\"tablinks\""
+    clients.append("<b><button style='text-align:left' rel=\""+profile.userId+"\" class=\"tablinks\""
       + "data-avgTime=\""+ profile.avgChat +"\" "
       + "data-totalTime=\"" + profile.totalChat +"\" "
       + "data-chatTimeCount=\"" + profile.chatTimeCount +"\" "
       + "data-firstTime=\"" + profile.firstChat +"\" "
-      + "data-recentTime=\"" + lastMsg.time +"\"> "
-      + '<span id="nick">' + profile.nickname + '</span>'
-      + lastMsgStr
+      + "data-recentTime=\"" + lastMsg.time +"\" id=\"userInfoBtn\"> "
+      // + "<img src=\"\" alt=\"無法顯示相片\" class=\"userPhoto\" style=\"width:128px;height:128px;\"/>"
+      + '<span style="text-align:left; float:left; margin-left:12px" id="nick">' + profile.nickname + '</span>'
+      + lastMsgStr+'<div class="unread_msg">1</div>'
       + "</button></b>"
     );    //new a tablinks
 
@@ -363,7 +379,8 @@ $(document).ready(function() {
       clients.prepend(ele);
     }
     else{     //new user, make a tablinks
-      clients.prepend('<b><button rel="' + data.id + '" class="tablinks"><span id="nick">' + data.name
+      clients.prepend('<b><button id="userInfoBtn" data-toggle="modal" data-target="#userInfoModal"  rel="' + data.id + '" class="tablinks"><span id="nick">'+
+        + data.name
         + "</span><br><span id='msg' style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
         + data.message +  "</span></button></b>"
       );
@@ -1010,10 +1027,18 @@ $(document).ready(function() {
   }
 
   function toAgentStr(msg, name, time) {
-    return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span class="content" style="border:1px solid lightgrey; padding:8px; border-radius:10px; background-color:lightgrey">  ' + msg + '</span><strong> : <span class="sender">' + name + '</span><span  class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
+    if (msg.startsWith("<img")){ 
+      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span class="content">  ' + msg + '</span><strong> : <span class="sender">' + name + '</span><span  class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
+    }else{
+      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong> : <span class="sender">' + name + '</span><span  class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
+    }    
   }
   function toUserStr(msg, name, time) {
-    return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span style="border:1px solid grey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><br/></p>';
+    if (msg.startsWith("<img")){ 
+      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span class="content">  ' + msg + '</span><br/></p>';
+    }else{
+      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><br/></p>';
+    }
   }
 
   function toDateStr( input ) {
