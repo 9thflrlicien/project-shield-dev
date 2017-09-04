@@ -15,12 +15,13 @@ $(document).ready(function() {
 
   var canvas = $("#canvas");          //panel of message canvas
   var person = "agentColman";         //agent name
+  var agentId;                        //agent ID in firebase
 
   const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>"
     + "Loading History Messages..."
     + "</i></strong><span class='loadingIcon'></span></p>";
   const NO_HISTORY_MSG = "<p class='message-day' style='text-align: center'><strong><i>"
-    + "-沒有更舊的歷史訊息-"
+    + "-------------------------------------------------------No More History Message-------------------------------------------------------"
     + "</i></strong></p>";
 
   var searchBox = $('.searchBox');    //input of search box
@@ -45,68 +46,28 @@ $(document).ready(function() {
 
 
   $(document).on('click', '#signout-btn', logout); //登出
-  $(document).on('click', '.tablinks', clickUserTablink);
-  $(document).on('click', '.topright', clickSpan);
-  $(document).on('click', '#userInfoBtn', showProfile);
-  $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
-  $(document).on('click', '.edit-button', changeProfile);
-  $(document).on('click','#userInfo-submit',submitProfile);
-  $(document).on('change', '.multiselect-container', multiselect_change);
-  $(document).on('click', '#upImg', upImg);
-  $(document).on('click', '#upVid', upVid);
-  $(document).on('click', '#upAud', upAud);
-
-  $(document).on('click','.dropdown-menu', function(event){
+  $(document).on('click', '.tablinks', clickUserTablink); //open user's canvas
+  $(document).on('click', '.topright', clickSpan);        //close now user's canvas
+  $(document).on('click', '#userInfoBtn', showProfile);   //open user's profile
+  $(document).on('click', '.userInfo-td[modify="true"]', editProfile);  //get into modify the column
+  $(document).on('click', '.edit-button', changeProfile);   //confirm modify of single column
+  $(document).on('click','#userInfo-submit',submitProfile); //confirm modify of user's whole profile
+  $(document).on('change', '.multiselect-container', multiselect_change); //execute when multi-select change option
+  $(document).on('click','.dropdown-menu', function(event){    //dont let dropdown-menu close by auto
     event.stopPropagation();
   });
 
-    // $('#nav_subMenu').on('click', function(){
-    //   console.log('nav_subMenu clicked on line 64');
-    //     var target = $(this).attr('rel');
-    //     console.log('target on line 371.ejs')
-    //     console.log(target);
-    //     if ($("#"+target).is(":visible")){
-    //         $('#check_mark').hide();
-    //     }else{
-    //         $('#check_mark').show()
-    //       }
-    //   });
-
-
-    $('.onclick_show').on('click', function(){
-      console.log('onclick_show exe');
-        var target = $(this).attr('rel');
-
-        if ($("#"+target).is(":visible")){
-            $("#"+target).hide();
-        }else{
-            $("#"+target).show();
-      }
-      });//onclick_show
-
-  function upImg(){
-    var imgAtt = $('#attImgFill').val();
-    $('#message').val('<img src="'+imgAtt+'"/>');
-  }
-  function upVid(){
-    var vidAtt = $('#attVidFill').val();
-    $('#message').val('<video controls><source src="'+vidAtt+'" type="video/mp4"></video>');
-  }
-  function upAud(){
-    var audAtt = $('#attAudFill').val();
-    $('#message').val('<video controls><source src="'+audAtt+'" type="video/mp4"></video>');
-  }
-  setInterval(() => {
+  setInterval(() => {     //close idle room 1 time per 20 sec
     closeIdleRoomTry();
   }, 20000);
 
-  if (window.location.pathname === '/agentChat') {
+  if (window.location.pathname === '/chatAll') {
     console.log("Start loading history message...");
     setTimeout(function() {
-      socket.emit('get json from back');
+      socket.emit('get json from back');    //send request for chat data to back-end
     }, 10);  //load history msg
     setTimeout(agentName, 1500); //enter agent name
-    setTimeout(function() {
+    setTimeout(function() {   //send request for tag data to back-end
       socket.emit("get tags from chat");
     }, 10);
   }
@@ -115,10 +76,10 @@ $(document).ready(function() {
     let early_time = Date.now() - 15*60*1000;        //15min before now
     let last = clients.find('.tablinks:last');      //last user in online room
     while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
-      let ele = last.parents('b');
-      ele.remove();
-      idles.prepend(ele);
-      last = clients.find('.tablinks:last');
+      let ele = last.parents('b');        //push last user
+      ele.remove();                       //remove first
+      idles.prepend(ele);                 //prepend to top of idle room
+      last = clients.find('.tablinks:last');  //get next element of last online user
     }
   }
 
@@ -186,7 +147,7 @@ $(document).ready(function() {
 
     historyMsgStr += historyMsg_to_Str(historyMsg);
     historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
-      + "-即時訊息-"
+      + "-------------------------------------------------------Present Message-------------------------------------------------------"
       +" </italic></strong></p>";   //history message string tail
 
     canvas.append(    //push string into canvas
@@ -203,18 +164,17 @@ $(document).ready(function() {
 
     let lastMsg = historyMsg[historyMsg.length-1];
     let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
-    let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '; font-size:12px">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
-    // display last message at tablinks
+    let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '">' + toTimeStr(lastMsg.time) + lastMsg.message + "</span>";
+    //display last message at tablinks
 
-    clients.append("<b><button style='text-align:left' rel=\""+profile.userId+"\" class=\"tablinks\""
+    clients.append("<b><button rel=\""+profile.userId+"\" class=\"tablinks\""
       + "data-avgTime=\""+ profile.avgChat +"\" "
       + "data-totalTime=\"" + profile.totalChat +"\" "
       + "data-chatTimeCount=\"" + profile.chatTimeCount +"\" "
       + "data-firstTime=\"" + profile.firstChat +"\" "
-      + "data-recentTime=\"" + lastMsg.time +"\" id=\"userInfoBtn\"> "
-      // + "<img src=\"\" alt=\"無法顯示相片\" class=\"userPhoto\" style=\"width:128px;height:128px;\"/>"
-      + '<span style="text-align:left; float:left; margin-left:12px" id="nick">' + profile.nickname + '</span>'
-      + lastMsgStr+'<div class="unread_msg">1</div>'
+      + "data-recentTime=\"" + lastMsg.time +"\"> "
+      + '<span id="nick">' + profile.nickname + '</span>'
+      + lastMsgStr
       + "</button></b>"
     );    //new a tablinks
 
@@ -223,22 +183,23 @@ $(document).ready(function() {
   }
 
   function detecetScrollTop( ele ) {
-    if( ele.scrollTop()==0 ) {
-      let tail = parseInt(ele.attr('data-position'));
+    if( ele.scrollTop()==0 ) {    //if scroll to top of canvas
+      let tail = parseInt(ele.attr('data-position'));   //get early 20 messages of this user canvas
       let head = parseInt(ele.attr('data-position')) - 20;
       if( head<0 ) head = 0;
-      let request = {
-        userId: ele.parent().attr('id'),
-        head: head,
-        tail: tail
+      let request = {       //socket object
+        userId: ele.parent().attr('id'),    //userid
+        head: head,                   //to get messages's index head
+        tail: tail                    //to get messages's index tail
       };
-      if( head==0 ) ele.off('scroll');
-      ele.attr('data-position', head);
-      socket.emit('upload history msg from front', request);
+      if( head==0 ) ele.off('scroll');    //if no more unloaded messages, stop detect scroll to top event
+      ele.attr('data-position', head);    //if some messages unloaded yet, update head of messages index
+      socket.emit('upload history msg from front', request);  //send request for early messages
       console.log('upload! head = '+head+', tail = '+tail);
     }
   }
   socket.on('upload history msg from back', data=>{
+    //get response of early messages
     console.log('get uploaded history msg');
     let msgContent = $('#'+data.userId+'-content');
 
@@ -256,10 +217,11 @@ $(document).ready(function() {
 
   function agentName() {
     //enter agent name
-    var userId = auth.currentUser.uid;
-    database.ref('users/' + userId).on('value', snap => {
+    agentId = auth.currentUser.uid;
+    database.ref('users/' + agentId).once('value', snap => {
       let profInfo = snap.val();
-      let person = profInfo.nickname;  //從DB獲取agent的nickname
+      let profId = Object.keys(profInfo);
+      person = profInfo.nickname;  //從DB獲取agent的nickname
 
       if (person != '' && person != null) {
         socket.emit('new user', person, (data) => {
@@ -267,21 +229,19 @@ $(document).ready(function() {
           else {
             alert('username is already taken');
             person = prompt("Please enter your name");  //update new username
-            database.ref('users/' + userId + '/' + profId).update({nickname : person});
+            database.ref('users/' + agentId ).update({nickname : person});
           }
         });
       }
       else{
         person = prompt("Please enter your name");  //if username not exist,update username
-        database.ref('users/' + userId + '/' + profId).update({nickname : person});
+        database.ref('users/' + agentId ).update({nickname : person});
       }
       printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
     });
-    socket.emit('get json from agentChat', { id: userId } );
   }
 
   function clickUserTablink(){
-    setTimeout(showProfile,100);
     $("#selected").removeAttr('id').css("background-color", "");   //selected tablinks change, clean prev's color
     $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
 
@@ -317,19 +277,6 @@ $(document).ready(function() {
       console.log("new user!!! push into name_list!");
     }
   });
-  socket.on('new message3', (data) => {
-     //if www push "new message2"
-    console.log("Message get! identity=" + data.owner + ", name=" + data.name);
-    //owner = "user", "agent" ; name = "Colman", "Ted", others...
-    displayMessage( data ); //update canvas
-    displayClient( data );  //update tablinks
-
-    if( data.owner=="user" ) change_document_title(data.name);    //not done yet
-    if( name_list.indexOf(data.id) == -1 ) {  //if its never chated user, push his name into name list
-      name_list.push(data.id);
-      console.log("new user!!! push into name_list!");
-    }
-  });
 
   function displayMessage( data ) {
     //update canvas
@@ -338,7 +285,7 @@ $(document).ready(function() {
 
       let designated_chat_room_msg_time = $("#" + data.id + "-content").find(".message:last").attr('rel');
       if(data.time - designated_chat_room_msg_time >= 900000){    // 如果現在時間多上一筆聊天記錄15分鐘
-        $("#" + data.id + "-content").append('<p class="message-day" style="text-align: center"><strong>-新訊息-</strong></p>');
+        $("#" + data.id + "-content").append('<p class="message-day" style="text-align: center"><strong>-------------------New Session starts-------------------</strong></p>');
       }
       if( data.owner == "agent" ) str = toAgentStr(data.message, data.name, data.time);
       else str = toUserStr(data.message, data.name, data.time);
@@ -379,8 +326,7 @@ $(document).ready(function() {
       clients.prepend(ele);
     }
     else{     //new user, make a tablinks
-      clients.prepend('<b><button id="userInfoBtn" data-toggle="modal" data-target="#userInfoModal"  rel="' + data.id + '" class="tablinks"><span id="nick">'+
-        + data.name
+      clients.prepend('<b><button rel="' + data.id + '" class="tablinks"><span id="nick">' + data.name
         + "</span><br><span id='msg' style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
         + data.message +  "</span></button></b>"
       );
@@ -450,11 +396,10 @@ $(document).ready(function() {
     console.log("filterDataCustomer: ");
     console.log(filterDataCustomer);
     for( let way in filterDataCustomer ) {
-      if (way != 'VIP等級'){
       $('#selectBy').append('<li><input type="checkbox" value="filter_'+way+'">'+way+'</li>');
       $('.filterPanel').append(
         '<div class="filterUnit filterBar btn-group" id="filter_'+way+'" style="display:none;">'
-        + '<button class="filter_btn" data-toggle="dropdown" aria-expanded="false">'
+        + '<button data-toggle="dropdown" aria-expanded="false">'
         + way + ':<span class="multiselect-selected-text">全選</span>'
         + '<b class="caret"></b></button>'
         + '<ul class="multiselect-container dropdown-menu">'
@@ -466,7 +411,6 @@ $(document).ready(function() {
         $('.filterSelect#'+way).append('<li><input type="checkbox" value="'+option+'" checked>'+option+'</li>');
       });
     }
-  }
   }
 
   function initialFilterSilder() {
@@ -624,28 +568,13 @@ $(document).ready(function() {
             return;
           }
         }
-      }//end if
-      if ($('#filter_VIP等級').is(':visible')){
-        user_option = profile['VIP等級'];
-        select_option = $('#filter_VIP等級 .multiselect-selected-text').text();
-        console.log('this is select_option on line 627');
-        console.log(select_option);
-        if( select_option!="全選" ){
-          if( !user_option){
-            $(this).hide();
-            return;
-          }
-
-        }
       }
+
       for( let way in filterDataCustomer ) {
         if( $('#filter_'+way).is(':visible') ) {
           user_option = profile[way];
           select_option = $('#filter_'+way+' .multiselect-selected-text').text();
-
           if( select_option!="全選") {
-
-
             if( !user_option ) {
               $(this).hide();
               return;
@@ -656,14 +585,14 @@ $(document).ready(function() {
             let i;
             for( i=0; i<user_option.length; i++ ) {
               if( select_option.indexOf(user_option[i])!=-1 ) break;
-            }//for
+            }
             if( i==user_option.length ) {
               $(this).hide();
               return;
-            }//if
-          }//if全選
+            }
+          }
         }
-      }//end for
+      }
 
     });
   });
@@ -906,7 +835,7 @@ $(document).ready(function() {
 
     if( type=='text' ) {
       if( set=='single' ) $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
-      else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >'+text+'</textarea>');
+      else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns="20" style="resize: none;" >'+text+'</textarea>');
       else console.log("error 646");
     }
     else if( type=='single_select' ) {
@@ -999,8 +928,72 @@ $(document).ready(function() {
     }
   }
 
-  $(document).on('click','#userInfo-cancel',function() {
+  $(document).on('click','#userInfo-cancel', function() {
   });
+
+  $(document).on('click', '#addCalendar-submit', function() {
+    console.log("addCalendar submit");
+    let title      = $('#title #td-inner').val();
+    let start_date = $('#start_date #td-inner').val();
+    let end_date   = $('#end_date #td-inner').val();
+    let description = $('#description #td-inner').val();
+    let allDay = $('#allday').prop('checked');
+
+    let flag = true;
+    if( !title || !start_date || !end_date ) {
+      $('#cal-error-msg').show();
+      flag = false;
+    }
+    else $('#cal-error-msg').hide();
+
+    if( Date.parse(end_date) <= Date.parse(start_date) ) {
+      $('#tim-error-msg').show();
+      flag = false;
+    }
+    else $('#tim-error-msg').hide();
+
+    if( !flag ) return;
+
+    if( allDay ) {
+      start_date = ISODateString( start_date );
+      end_date = ISOEndDate( end_date );
+    }
+    let obj = {
+      title: title,
+      start: start_date,
+      end: end_date,
+      description: description,
+      allDay: allDay
+    };
+    database.ref('cal-events/' + agentId ).push(obj);
+
+    $('#addCalendarModal').modal('hide');
+    $('#addCalendar-clear').click();
+  });   //end on click
+
+  socket.on('chat calendar remind', function(data) {
+    $('#title #td-inner').val('待辦事項 '+data.userName);
+    $('#start_date #td-inner').val(ISODateTimeString(Date.now()));
+    $('#end_date #td-inner').val(ISODateString(data.date));
+    $('#description #td-inner').val("UID = "+data.userId + "\n"+data.msg);
+
+    let animate_count = 0;
+    let calendar_icon_animate = setInterval( function() {
+      let icon = $('#add-calendar-icon');
+      if( animate_count%2 ) icon.css('background-color', "");
+      else icon.css('background-color', "red");
+      if( animate_count>10 ) clearInterval(calendar_icon_animate);
+      else animate_count++;
+    }, 500);
+  });
+
+  $(document).on('click', '#addCalendar-clear', function() {
+    $('#title #td-inner').val('');
+    $('#start_date #td-inner').val('');
+    $('#end_date #td-inner').val('');
+    $('#description #td-inner').val('');
+    $('#allday').prop('checked', false);
+  })
 
   function historyMsg_to_Str( messages ) {
     let returnStr = "";
@@ -1027,18 +1020,10 @@ $(document).ready(function() {
   }
 
   function toAgentStr(msg, name, time) {
-    if (msg.startsWith("<img")){
-      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span class="content">  ' + msg + '</span><strong> : <span class="sender">' + name + '</span><span  class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
-    }else{
-      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong> : <span class="sender">' + name + '</span><span  class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
-    }
+    return '<p class="message" rel="' + time + '" style="text-align: right;" title="' + toDateStr(time) + '"><span class="content">' + msg + '</span><strong> : <span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
   }
   function toUserStr(msg, name, time) {
-    if (msg.startsWith("<img")){
-      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span class="content">  ' + msg + '</span><br/></p>';
-    }else{
-      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><br/></p>';
-    }
+    return '<p class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span class="content">' + msg + '</span><br/></p>';
   }
 
   function toDateStr( input ) {
@@ -1053,6 +1038,28 @@ $(document).ready(function() {
   function toTimeStr( input ) {
     let date = new Date(input);
     return " (" + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ") ";
+  }
+
+  function ISOEndDate(d) {
+    d = new Date(d);
+    if( d.getHours()==0 && d.getMinutes()==0 ) return ISODateString( d );
+    else return ISODateString( moment(d).add('days', 1) );
+  }
+  function ISODateString(d) {
+    d = new Date(d);
+    return d.getFullYear()+'-'
+         + addZero(d.getMonth()+1)+'-'
+         + addZero(d.getDate())+'T'
+         + '00:00';
+  }
+  function ISODateTimeString(d) {
+    d = new Date(d);
+    function pad(n) {return n<10 ? '0'+n : n}
+    return d.getFullYear()+'-'
+         + pad(d.getMonth()+1)+'-'
+         + pad(d.getDate())+'T'
+         + pad(d.getHours())+':'
+         + pad(d.getMinutes());
   }
 
   function change_document_title(name) {
