@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var con = require('./mysql');
+var con = require('./mysql');   //取得mysql config
 
 router.get('/', function(req, res, next) {
   res.render('analyzeResponse', {
@@ -10,11 +10,12 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/getChart', function(req, res, next) {
-  console.log("get post! chart = "+req.body.chart);
+  //前端傳送POST請求，取得問卷分析圖表
   let chart = req.body.chart;
+  console.log("get post! chart = "+chart);
   if( chart=="某團對各工人評價" ) {
     let group_id = req.body.option;
-
+    //取得所有該團的worker的ID及NAME
     let sql = "SELECT shield.group_worker.worker_id, shield.worker.worker_name"
       + " FROM shield.group_worker, shield.worker"
       + " WHERE shield.group_worker.group_id = ? and shield.group_worker.worker_id = shield.worker.ID"
@@ -24,18 +25,20 @@ router.post('/getChart', function(req, res, next) {
       let names = [];
       let scores = [];
       for( let i in result ) {
-        names.push(result[i].worker_name);
+        names.push(result[i].worker_name);    //將worker名字push進names
         let sql = "SELECT vote_score FROM shield.vote WHERE group_id = ? and worker_id = ?";
         con.query( sql, [ group_id, result[i].worker_id ], function(err, result, fields) {
+          //從DB取得所有該團旅客投給該worker的分數
           let sum = 0;
           for( let i in result ) sum += result[i].vote_score;
-          scores.push( sum/result.length );
+          scores.push( sum/result.length );   //平均過後push進scores
         });
       }
 
       let timer = setInterval( function() {
-        if( scores.length == length ) clearInterval(timer);
-        else return;
+        //因con.query是異步處理，需等待for迴圈真的跑完，再將respone送回前端
+        if( scores.length == length ) clearInterval(timer); //確認for跑完後，停止此timer
+        else return;    //若還沒跑完，則先不送資料回前端
         console.log(names);
         console.log(scores);
         res.send({
@@ -48,12 +51,14 @@ router.post('/getChart', function(req, res, next) {
 
   else if( chart=="某項目各工人評價" ) {
     let category_id = req.body.option;
+    //取得該項目的所有工人
     let sql = 'SELECT worker_name, score FROM shield.worker WHERE category_id = ?';
     con.query( sql, category_id, function(err, result, fields) {
       console.log(result);
       let worker_name = [];
       let score = [];
       for( let i in result ) {
+        //將所有工人的name及score，push進兩陣列裡
         worker_name.push( result[i].worker_name );
         score.push( result[i].score );
       }
@@ -67,24 +72,25 @@ router.post('/getChart', function(req, res, next) {
   }
   else if( chart=="某團對各項目評價" ) {
     let group_id = req.body.option;
-
+    //取得所有項目
     con.query( "SELECT * FROM shield.category", function(err, result, fields) {
       let length = result.length;
       let category_names = [];
       let scores = [];
       for( let i in result ) {
         category_names.push( result[i].category_name );
+        //取得所有投給該項目的分數
         let sql = "SELECT vote_score FROM shield.vote WHERE group_id = ? and category_id = ?";
         con.query( sql, [ group_id, result[i].ID ], function(err, result, fields) {
           let sum = 0;
           for( let i in result ) sum += result[i].vote_score;
-          scores.push( sum/result.length );
+          scores.push( sum/result.length ); //計算完後，push進scores裡
         });
       }
 
-      let timer = setInterval( function() {
-        if( scores.length == length ) clearInterval(timer);
-        else return;
+      let timer = setInterval( function() {        //因con.query是異步處理，需等待for迴圈真的跑完，再將respone送回前端
+        if( scores.length == length ) clearInterval(timer); //確認for跑完後，停止此timer
+        else return;    //若還沒跑完，則先不送資料回前端
         console.log(category_names);
         console.log(scores);
         res.send({
@@ -100,6 +106,7 @@ router.post('/getChart', function(req, res, next) {
 });
 
 router.post('/getData', function(req, res, next) {
+  //前端傳送POST request，取得資料庫的DATA
   let type = req.body.type;
   console.log("get data! type = "+type);
   if( type=="details" ) {
@@ -109,7 +116,7 @@ router.post('/getData', function(req, res, next) {
       + " WHERE shield.vote.category_id = shield.category.ID "
       + " and shield.vote.worker_id = shield.worker.ID "
       + " and shield.vote.group_id = shield.group.ID";
-
+    //取得所有vote資料，並搜尋其他table以將id轉為string
     con.query(sql, function(err, result, fields) {
       if( err ) {
         console.log("ERROR when SELECT * FROM shield.vote");
@@ -117,11 +124,12 @@ router.post('/getData', function(req, res, next) {
       }
       else {
         for( let i in result ) {
+          //這裡選擇抓到名稱後就不顯示id
           delete result[i].category_id;
           delete result[i].worker_id;
           delete result[i].group_id;
         }
-        res.send(result);
+        res.send(result);   //將所有vote資料送至前端
       }
     });
   }
@@ -133,15 +141,18 @@ router.post('/getData', function(req, res, next) {
   }
   else if( type=="group" ) {
     con.query("SELECT worker_name FROM shield.worker", function(err, result, fields ){
+      //前端要可幫GROUP加入新工人，因此需取得所有工人的名字
       let data = {
-        worker: result
+        worker: result.map( function(ele) { return ele.worker_name; } )
       };
       con.query("SELECT * FROM shield.group", function(err, result, fields) {
+        //取得所有旅行團的資料
         if( err ) console.log(err);
         data.group = [];
         let length = result.length;
         let count = 0;
         result.map( function(ele) {
+          //對每個旅行團，都去group_worker尋找有參加該團的工人
           let sql = "SELECT shield.worker.worker_name FROM shield.worker, shield.group_worker"
             + " where shield.group_worker.group_id = ? and shield.group_worker.worker_id = shield.worker.ID"
             + " ORDER BY shield.group_worker.worker_id";
@@ -149,15 +160,16 @@ router.post('/getData', function(req, res, next) {
             if( err ) console.log(err);
             else {
               data.group.push({
-                ID: ele.ID,
-                group_name: ele.group_name,
-                workers: result
+                ID: ele.ID,     //group.ID
+                group_name: ele.group_name,   //group.group_name
+                workers: result     //group_worker.worker_name
               });
               count++;
             }
           });
         });
         let timer = setInterval( function() {
+          //異步問題，需確認每個旅行團的資料都push進去了，才送出資料至前端
           if( count==length ) clearInterval(timer);
           else return;
           res.send(data);
@@ -187,7 +199,7 @@ router.post('/getData', function(req, res, next) {
 });
 
 router.post('/setCategory', function(req, res, next) {
-  let updateData = JSON.parse(req.body.data);
+  let updateData = JSON.parse(req.body.data); //需先parse成JSON才可使用
   console.log(updateData);
   updateData.map( function(data) {
     let ID = data.ID;
@@ -353,7 +365,8 @@ setInterval( function() {
             + ', score_5_count = ?, score_4_count = ?, score_3_count = ?, score_2_count = ?, score_1_count = ?'
             + ', score = ?'
             + ' WHERE ID = ?'
-            , [worker.vote_count, worker.score_5_count, worker.score_4_count, worker.score_3_count, worker.score_2_count, worker.score_1_count, worker.score, data.worker_id]
+            , [worker.vote_count, worker.score_5_count, worker.score_4_count, worker.score_3_count
+              , worker.score_2_count, worker.score_1_count, worker.score, data.worker_id]
             , function(err, rows) {   //UPDATE進資料庫
               if(err) throw err;
             });

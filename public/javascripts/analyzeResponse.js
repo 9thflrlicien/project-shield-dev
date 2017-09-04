@@ -3,7 +3,10 @@ $(document).on('ready', function(){
 });
 
 function getChart( chart, option ) {
+  //當analyzeQuestionnaire呼叫getChart
+  //並傳入chart種類跟option
   $.ajax({
+    //傳送POST請求
     url: "/analyzeResponse/getChart",
     type: "POST",
     dateType: 'html',
@@ -12,6 +15,7 @@ function getChart( chart, option ) {
        option: option
      },
     success: function(data) {
+      //後端傳送response
       $("#content").empty();
       if( chart=="某團對各工人評價" ) drawChart_1(data);
       else if( chart=="某項目各工人評價" ) drawChart_2(data);
@@ -29,35 +33,35 @@ function getChart( chart, option ) {
 }
 
 function drawChart_1(input) {
-
+  //某團對各工人評價
   // console.log(input);
-  $('#content').append('<canvas id="myChart"></canvas>');
-  let ctx = $('#myChart').get(0).getContext('2d');
-  let color = getRandomColor();
-  var myChart = new Chart(ctx,
+  $('#content').append('<canvas id="myChart"></canvas>');   //創造chart canvas
+  let ctx = $('#myChart').get(0).getContext('2d');    //取得DOM 2d的資訊
+  let color = getRandomColor();   //隨機指定長條圖的顏色
+  var myChart = new Chart(ctx,    //使用Chart.min.js裡的功能
     {
-      type: 'bar',
+      type: 'bar',          //種類是長條圖
       data: {
-        labels: input.names,
+        labels: input.names,    //X軸節點名稱，陣列形式
         //group_worker order by worker_id
-        datasets: [{
+        datasets: [{        //陣列形式，陣列裡一個物件代表一組長條，這裡只有一組長條
           label: "score",
-          data: input.scores,
+          data: input.scores,       //對應X軸各節點的分數
           backgroundColor: color
         }]
       },
       options: {
         scales: {
            yAxes: [{
-             scaleLabel: { display: true, labelString: '評價分數' },
-             ticks: { beginAtZero: true, stepSize: 1, min: 0, max: 5 }
+             scaleLabel: { display: true, labelString: '評價分數' },   //Y軸標籤
+             ticks: { beginAtZero: true, stepSize: 1, min: 0, max: 5 }  //從0~5分，每次間隔1分
            }],
            xAxes: [{
-               barPercentage: 0.6
+               barPercentage: 0.6     //長條圖的寬度
            }]
          },
-         showDatapoints: {
-           fontColor: color
+         showDatapoints: {    //Chart擴充，CODE在最下方，可顯示各長條的數值
+           fontColor: color   //數字顏色
          }
       }
     }
@@ -132,6 +136,7 @@ function drawChart_3(input) {
 }
 
 function getData( type ) {
+  //從analyzeQuestionnaire呼叫getData，取得問卷詳細資料，或是設定
   $.ajax({
     url: "/analyzeResponse/getData",
     type: "POST",
@@ -203,35 +208,38 @@ function showData_group(data) {
     // console.log(ele);
     $('#group').append('<tr><td>'+ele.ID+'</td>'
       + '<td class="modify-td">'+ele.group_name+'</td>'
-      + '<td class="workers"><input type="text" class="worker-autocomplete" /></td></tr>'
+      + '<td class="workers"><input type="text" class="worker-autocomplete" /></td></tr>' //該團的工人們，及輸入新工人的欄位
     );
     ele.workers.map(function(worker) {
+      //將該團的工人們加進剛剛的td裡
       $('.workers:last').prepend('<span class="worker-in-group"><p class="name">'+worker.worker_name+'</p>'
         + '<p class="delete">&times;</p></span>'
       );
     });
   });
 
+  $('.worker-autocomplete').autocomplete(autocomplete);     //將輸入工人的欄位，增加autocomplete事件
   let autocomplete = {
-    source: data.worker.map( function(ele) { return ele.worker_name; } ),
+    //輸入新工人的欄位，能偵測INPUT並顯示相關名單
+    source: data.worker   //取得全部WORKER的worker_name
     select: function(event, ui) {
-      console.log("selete!");
-      let name = ui.item.label;
-      $(event.target).parent().append('<span class="worker-in-group"><p class="name">'+name+'</p>'
+      //當點選一個worker後
+      console.log("selected!");
+      let name = ui.item.label;   //取得worker名字
+      $(event.target).parent().append('<span class="worker-in-group"><p class="name">'+name+'</p>'  //將worker加進名單裡
         + '<p class="delete">×</p></span>'
-        + '<input type="text" class="worker-autocomplete" />'
-      ).find('.worker-autocomplete').autocomplete(autocomplete).select();
-      $(event.target).remove();
+        + '<input type="text" class="worker-autocomplete" />'   //並重新做一個輸入欄位
+      ).find('.worker-autocomplete').autocomplete(autocomplete).select();   //需重新幫輸入欄位增加autocomplete事件
+      $(event.target).remove();     //將現有的輸入欄位remove
     },
     delay: 100
   };
-  $('.worker-autocomplete').autocomplete(autocomplete);
 
   $('#content').css('width', '95%').show();
 }
 
 
-var select_html = "";
+var select_html = "";   //選擇項目的下拉式選單
 function showData_worker(data) {
 
   select_html = '<select class="select-category">';
@@ -253,41 +261,44 @@ function showData_worker(data) {
       + '<td>'+ele.vote_count+'</td>'
       + '<td>'+ele.score+'</td></tr>'
     );
-    $('.select-category:last').val(ele.category_id);
+    $('.select-category:last').val(ele.category_id);    //指定下拉式選單的VALUE至此工人目前的項目
   });
 
   $('#content').css('width', '95%').show();
 }
 
 $(document).on('click', '.modify-td', function() {
+  //滑鼠點擊可更改的標籤時，將文字改為input
   if( $(this).find('input').length==0 ) {
     console.log(".modify-td click");
-    let val = $(this).text();
-    $(this).html('<input type="text" value="' +val + '"></input>');
-    $(this).find('input').select();
+    let val = $(this).text();   //取得原本的文字
+    $(this).html('<input type="text" value="' +val + '"></input>'); //指定input的初始value為原本文字
+    $(this).find('input').select();   //自動選取該input讓USER可直接打字
   }
 });
 
 $(document).on('keypress', '.modify-td input', function(e) {
   let code = (e.keyCode ? e.keyCode : e.which);
-  if (code == 13) {
+  if (code == 13) {     //如果使用者按了ENTER
     console.log(".modify-td-input ENTER keypress");
-    $(this).blur();
+    $(this).blur();     //就跳脫此input，並觸發跳脫event
   }
 });
 $(document).on('blur', '.modify-td input', function() {
-  console.log(".modify-td-input blur");
-  let val = $(this).val();
+  console.log(".modify-td-input blur"); //跳脫event
+  let val = $(this).val();      //取得input的新value
   if( !val ) val = "";
-  $(this).parent().html(val);
+  $(this).parent().html(val);     //將input轉回文字
 });
 
 $(document).on('click', '.worker-in-group .delete', function() {
+  //當點選了group_worker旁的X時
   console.log('clicked delete');
-  $(this).parent().remove();
+  $(this).parent().remove();  //就刪除此worker
 });
 
 $(document).on('click', '.btn-new-row', function() {
+  //設定新的一筆資料
   let table = $(this).siblings('table');
   if( table.attr('id')=="category" ) table.find('tbody').append('<tr><td></td><td class="modify-td"></td></tr>');
   else if( table.attr('id')=="group" ) table.find('tbody').append('<tr><td></td><td class="modify-td"></td></tr>');
@@ -297,21 +308,23 @@ $(document).on('click', '.btn-new-row', function() {
     + '<td>0</td><td>0</td></tr>'
   );
   else console.log("table id = "+table.attr('id')+", not found!");
-  $('.modify-td:last').click();
-  table.scrollTop(table[0].scrollHeight);
+  $('.modify-td:last').click();   //自動選取new row，USER可直接輸入
+  table.scrollTop(table[0].scrollHeight);   //自動下拉至最下方
 });
 
 $(document).on('click', '.btn-update-db', function() {
-  let DBtable = $(this).siblings('table').attr('id');
-  let trs = $(this).siblings('table').find('tr');
+  if( ! confirm('confirm to update?') ) return;
+  //點選confirm按鈕後，更新DB
+  let DBtable = $(this).siblings('table').attr('id');   //取得目前是在哪個頁面
+  let trs = $(this).siblings('table').find('tr');   //取得每一列的資料
   let updateData;
-  let url = "/analyzeResponse/";
+  let url = "/analyzeResponse/";        //POST至後端的URL
 
   if( DBtable=="category" ) {
     updateData = [];
     url += "setCategory";
     for( let i=1; i<trs.length; i++ ) {
-      let tds = trs.eq(i).find('td');
+      let tds = trs.eq(i).find('td');   //取得一筆資料中的各個欄位
       updateData.push({
         ID: tds.eq(0).text(),
         category_name: tds.eq(1).text()
@@ -319,22 +332,24 @@ $(document).on('click', '.btn-update-db', function() {
     }
   }
   else if( DBtable=="group" ) {
-    updateData = {};
+    updateData = {};    //不只要更新group，也要更新group_worker
     url += "setGroup";
     updateData.group = [];
     updateData.group_worker = [];
     for( let i=1; i<trs.length; i++ ) {
-      let tds = trs.eq(i).find('td');
+      let tds = trs.eq(i).find('td');  //取得一筆資料中的各個欄位
       updateData.group.push({
         ID: tds.eq(0).text(),
         group_name: tds.eq(1).text()
       });
 
-      let seen = {};
+      let seen = {};      //避免USER輸入重複的worker
       tds.eq(2).find('.worker-in-group .name').each( function()  {
+        //取得每個在該group裡的worker name
         let name = $(this).text();
         if( ! seen.hasOwnProperty(name) ) {
-          seen[name] = true;
+          //如果該group還沒出現過此worker
+          seen[name] = true;  //就丟進名單內，下次若出現重複worker，就不會進此if
           updateData.group_worker.push({
             group_id: tds.eq(0).text(),
             worker_name: name
@@ -347,22 +362,22 @@ $(document).on('click', '.btn-update-db', function() {
     updateData = [];
     url += "setWorker";
     for( let i=1; i<trs.length; i++ ) {
-      let tds = trs.eq(i).find('td');
+      let tds = trs.eq(i).find('td');  //取得一筆資料中的各個欄位
       updateData.push({
         ID: tds.eq(0).text(),
         worker_name: tds.eq(1).text(),
-        category_id: tds.eq(2).find('select').val()
+        category_id: tds.eq(2).find('select').val()  //取得<td>裡的下拉式選單的value
       });
     }
   }
   console.log(updateData);
 
   $.ajax({
-    url: url,
-    type: "POST",
+    url: url,       //前面已指定好url
+    type: "POST",   //POST request
     dateType: 'html',
     data: {
-      data: JSON.stringify(updateData)
+      data: JSON.stringify(updateData)    //要先將JSON轉換為String處理
     },
 
     success: function(data) {
@@ -385,6 +400,7 @@ function getRandomColor() {
 }
 
 Chart.plugins.register({
+  //Chart擴充，可在長條圖上顯示數值
   afterDraw: function(chartInstance) {
     if (chartInstance.config.options.showDatapoints) {
       var helpers = Chart.helpers;
