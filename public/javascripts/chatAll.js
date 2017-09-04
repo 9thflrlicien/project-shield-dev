@@ -345,7 +345,12 @@ $(document).ready(function() {
       let modify = TagsData[i].modify;
       let tdHtml = "";
       if(name == 'userId') continue ;
-      if( type=='text' || type=='single_select' ){
+      if(name == 'email') {
+        for(let i in profile[name]){
+          tdHtml += '<p id="td-inner">'+profile[name][i]+'</p>'
+        }
+      }
+      else if( type=='text' || type=='single_select' ){
         if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) tdHtml = '<p id="td-inner">'+profile[name]+'</p>';
         else tdHtml = '<p id="td-inner">尚未輸入</p>';
       }

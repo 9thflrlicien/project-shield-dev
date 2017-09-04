@@ -178,14 +178,14 @@ p {
   float: left;
   margin-right: 40px;
 }
-.infoPanel{
+#infoPanel{
   border: 1px solid lightgray ;
   border-radius: 5px;
   display: inline-flex;
   height: 500px;
   width: 23%;
 }
-.infoPanel td{
+#infoPanel td{
   word-wrap: break-word;
 }
 #infoCanvas{
@@ -210,7 +210,7 @@ p {
   border: .75px solid black ;
   border-radius: 5px ;
 }
-.nav-link{
+/*.nav-link{
   padding-top: 10px ;
   transition: .2s ease-in-out;
 }
@@ -226,7 +226,7 @@ p {
   background-color: rgb(185, 233, 249);
   border: none ;
   border-bottom: 2px solid rgb(20, 79, 149) ;
-}
+}*/
 .ticket-card{
   border: 1px solid black;
   border-radius: 5px;
