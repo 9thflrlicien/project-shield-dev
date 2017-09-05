@@ -1,6 +1,10 @@
 換Fongyu website
 https://yenkun.github.io/index.html
 
+1. 聊天人名
+2.hover agent name still no show on line 1044 .js
+3. onclick search for filters
+
 if unread = false || 0 , problem: this.unread_msg on line 222 chatAll.js
 
 把聊天軟體欄收起來

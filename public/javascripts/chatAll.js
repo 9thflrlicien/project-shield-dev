@@ -42,6 +42,8 @@ $(document).ready(function() {
     FIND: "#A52A2A",
     CLICKED: "#ccc",
   }
+  let n =0;
+
 
 
   $(document).on('click', '#signout-btn', logout); //登出
@@ -176,6 +178,7 @@ $(document).ready(function() {
     let historyMsg = data.Messages;
     let profile = data.Profile;
 
+
     let historyMsgStr = "";
     if( data.position!=0 ) {    //if there's still history messages unloaded
       historyMsgStr += LOADING_MSG_AND_ICON;    //history message string head
@@ -206,7 +209,6 @@ $(document).ready(function() {
     let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '; font-size:12px; margin-left:12px">' + lastMsg.message + "</span>";
     let msgTime = '<span style="float:right;font-size:12px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) +'</span>'
     // display last message at tablinks
-
     clients.append("<b><button style='text-align:left' rel=\""+profile.userId+"\" class=\"tablinks\""
       + "data-avgTime=\""+ profile.avgChat +"\" "
       + "data-totalTime=\"" + profile.totalChat +"\" "
@@ -216,14 +218,17 @@ $(document).ready(function() {
       // + "<img src=\"\" alt=\"無法顯示相片\" class=\"userPhoto\" style=\"width:128px;height:128px;\"/>"
       + '<span style="text-align:left; float:left; margin-left:12px" id="nick">' + profile.nickname + '</span>'
       + msgTime
-      + lastMsgStr+'<div class="unread_msg">'+profile.unRead+'</div>'
+      + lastMsgStr+'<div class="unread_msg" id="unread_'+n+'">'+profile.unRead+'</div>'
       + "</button></b>"
     );    //new a tablinks
-    var unread_target = $(this).attr('.unread_msg');
-    if(profile.unRead == 0 || false){ $('.'+unread_target).hide();}else{ $('.'+unread_target).show();}
+
+    if(profile.unRead == 0 || false){$("#unread_"+n+"").hide();}else{ $("#unread_"+n+"").show();}
+    n++;
 
     name_list.push(profile.userId); //make a name list of all chated user
     userProfiles[profile.userId] = profile;
+
+
   }
 
   function detecetScrollTop( ele ) {
@@ -556,8 +561,9 @@ $(document).ready(function() {
 
   $('#selectBy').on('change',function() {
     let selected = [];
+
     if( $(this).find('input:checked').length>5 ) {
-      $(this).find('#warning').text('at most 5 filter way');
+      $(this).find('#warning').text('最多五個選項');
       return;
     }
     else {
@@ -567,7 +573,7 @@ $(document).ready(function() {
       });
       $('.filterBar').each(function() {
         let filter_way = $(this).attr('id');
-        if( selected.indexOf(filter_way)!=-1 ) $(this).show();
+        if( selected.indexOf(filter_way)!=-1 ) {$(this).show();$('#filter_VIP等級').show();}
         else $(this).hide();
       });
     }
@@ -859,12 +865,16 @@ $(document).ready(function() {
         + '<td class="edit-button no" name="no">no</td>'
         + '</tr>'
       );
+      // prof_userName.append(prof_name);
     }
   }
 
   function showTargetProfile(profile) {
     buffer = JSON.parse(JSON.stringify(profile));   //clone object
     $('.userPhoto').attr('src', buffer.photo? buffer.photo: "" );
+
+    var nick = buffer.nickname
+    $('#prof_nick').text(nick);
 
     $('.info_input_table .userInfo-td').each(function() {
       let data = buffer[ $(this).attr('id') ];
@@ -1035,16 +1045,16 @@ $(document).ready(function() {
 
   function toAgentStr(msg, name, time) {
     if (msg.startsWith("<img")){ 
-      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span class="content">  ' + msg + '</span><strong> : <span class="sender">' + name + '</span><span  class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
+      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">' + name + '</span></strong><br/></p>';
     }else{
-      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong> : <span class="sender">' + name + '</span><span  class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
+      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong><span class="sender">' + name + '</span></strong><br/></p>';
     }    
   }
   function toUserStr(msg, name, time) {
     if (msg.startsWith("<img")){ 
-      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span class="content">  ' + msg + '</span><br/></p>';
+      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
     }else{
-      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><br/></p>';
+      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
     }
   }
 

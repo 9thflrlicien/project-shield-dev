@@ -1,3 +1,51 @@
+@media (max-width: 770px) {
+  #聊天軟體,#聊天用戶,#聊天室, #用戶檔案, #內部聊天室  {
+    width: 99% !important;
+    float:left;
+  }
+  #navHead{
+    margin-left: 10%!important;
+  }
+
+}
+@media (max-width: 450px) {
+ .navMenu  {
+    width:60%;
+
+  }
+}
+.sendTime{
+  color:grey;
+  font-size: 10px
+}
+#prof_nick{
+  color:lightgrey;
+  font-size: 100%;
+  float:bottom;
+  margin:0;
+  padding-top: 7%
+}
+
+.chat_prof_head{
+  height:5%;
+  width:100%;
+  background-color: #454140;
+}
+.chat_prof{
+  width:100%;
+  height:12%;
+  float:top;
+  padding-bottom: 1%;
+  background-color: grey;
+}
+.navMenu_group{
+   margin-left: 20%;
+   width:100%;
+   height:50px;
+}
+.multiselect-selected-text{
+  font-size: 80%
+}
 .unread_msg{
   border:1px solid limegreen; 
   border-radius:50px; 
@@ -25,13 +73,14 @@
 }
 .navMenu{
   float:left;
-  margin:1% 3%; 
+  margin:1% 2%; 
   list-style-type: none;
 }
 #headBar {
   margin-bottom: 5px;
   margin-left:25%;
-  margin-right:10% 
+  margin-right:10%;
+  margin-top: 2%
 }
 #filter_option .multiselect-container {
   padding-top: 0px;
@@ -123,6 +172,14 @@ div.tab button.active {
   background-color: #ccc;
 }
 /* Style the tab content */
+.sender{
+  display:block;
+}
+.content:hover~.sender
+{
+ color:red;
+}
+
 .contentPanel {
   /*margin-left: 100px;*/
   height: 600px;
@@ -145,7 +202,7 @@ div.tab button.active {
   /*width: 25%;*/
 }
 #canvas{
-  height: 64%;
+  height: 58.5%;
   width: 100%;
 }
 #內部聊天室{
@@ -203,7 +260,7 @@ p {
   /*margin: 10px;*/
 }
 #send-message {
-  margin-top: 20px;
+  margin-top: 0px;
   float: right;
 }
 .tablinks{
