@@ -77,32 +77,6 @@ $(document).ready(function() {
     });
   } //end loadMsg func
 
-
-  // function loadMsg(){
-  //   console.log("Start loading history message...");
-  //   database.ref('chats/users2').once('value', snap => {
-  //     console.log("Loading user history msg...");
-  //     let testVal = snap.val();
-  //     let myIds = Object.keys(testVal);
-  //     for (var i = 0; i < myIds.length; i++) {
-  //       historyMsg_users.push(snap.child(myIds[i]).val());
-  //     }
-  //     console.log("User history msg load complete");
-  //
-  //     database.ref('chats/agents2').once('value', snap => {
-  //       console.log("Loading agent history msg...");
-  //       let testVal = snap.val();
-  //       let myIds = Object.keys(testVal);
-  //       for (var i = 0; i < myIds.length; i++) {
-  //         historyMsg_agents.push(snap.child(myIds[i]).val());
-  //       }
-  //       console.log("Agent history msg load complete");
-  //       divide_Msg_by_diff_user();
-  //     });
-  //   });
-  // } //end loadMsg func
-
-
   var MsgList = function(id, messages, cutIndex) {
     this.id = id;
     this.messages = messages;
@@ -121,12 +95,12 @@ $(document).ready(function() {
         }
         else i++;
       }
-      //console.log("finish, now msgList = "+msgList.length+", user = "+nowId+", remain length = "+historyMsg_agents.length);
+      console.log("finish, now msgList = "+msgList.length+", user = "+nowId+", remain length = "+historyMsg_agents.length);
       historyMsgList.push(new MsgList(nowId, msgList, msgList.length));
 
     }
-    // console.log("agentList : ");
-    // console.log(historyMsgList);
+    console.log("agentList : ");
+    console.log(historyMsgList);
 
     while( historyMsg_users.length>0 ) {
       var msgList = [];
@@ -139,7 +113,7 @@ $(document).ready(function() {
         }
         else i++;
       }
-      //console.log("finish, now msgList = "+msgList.length+", user = "+nowId+", remain length = "+historyMsg_users.length);
+      console.log("finish, now msgList = "+msgList.length+", user = "+nowId+", remain length = "+historyMsg_users.length);
 
       for( i=0; i<historyMsgList.length; i++ ) {
         if( nowId == historyMsgList[i].id ) {
@@ -152,16 +126,21 @@ $(document).ready(function() {
       }
 
     }
-    // console.log("Final History Messages List : ");
-    // console.log(historyMsgList);
+      console.log(100);
+    console.log("Final History Messages List : ");
+      console.log(120);
+    console.log(historyMsgList);
+      console.log(130);
 
     clients.html("");
     for( i in historyMsgList ) combine_and_push_Msgs(historyMsgList[i]);
   }
 
   function combine_and_push_Msgs( msgList ) {
+    console.log(140);
     let agents_pastMsg = msgList.messages.slice( 0, msgList.cutIndex );
     let users_pastMsg = msgList.messages.slice( msgList.cutIndex, msgList.length );
+    console.log(144);
     let userName = users_pastMsg[0].userName;
     //THIS PART SORT USER & AGENT HISTORY MSG INTO TIME CONTINUOUS
     let historyMsg = [];
@@ -170,6 +149,7 @@ $(document).ready(function() {
     let j=0;
     let iFlag = (users_pastMsg.length==0);
     let jFlag = (agents_pastMsg.length==0);
+    console.log(150);
     while( !iFlag || !jFlag ) {
       while( ( !iFlag ) && (jFlag || users_pastMsg[i].messageTime < agents_pastMsg[j].messageTime ) ) {
         //↑ while ( still exist unloaded user msg )

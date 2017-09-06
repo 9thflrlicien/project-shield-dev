@@ -19,16 +19,10 @@ router.get('/chatAll', function(req, res, next) {
   res.render('chatAll', { title: 'SHIELD chat ver2' });
 });
 
-router.get('/tag', function(req, res, next) {
-  res.render('tag', { title: 'SHIELD tag' });
-});
 router.get('/history', function(req, res, next) {
   res.render('history', { title: 'SHIELD history' });
 });
 
-router.get('/agentChat', function(req, res, next) {
-  res.render('agentChat', { title: 'SHEILD agent chat'});
-});
 //authentication
 router.get('/login', function(req, res, next) {
   res.render('login', { title: 'Login' });
@@ -45,9 +39,10 @@ router.get('/tform', function(req, res, next) {
   res.render('ticketForm', { title: 'SHIELD Form' });
 });
 
-router.get('/message_overview', function(req, res, next) {
-  res.render('message_overview', { title: 'SHIELD message' });
+router.get('/tag', function(req, res, next) {
+  res.render('tag', { title: 'SHIELD Form' });
 });
+
 router.get('/profile', function(req, res, next) {
   res.render('profile', { title: 'Profile' });
 });

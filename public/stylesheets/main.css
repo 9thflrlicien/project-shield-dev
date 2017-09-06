@@ -186,7 +186,7 @@ input {
   left: 300px;
   width: 73%;
 }
-#calendar-wrap, #profile-wrap, #ticket-wrap, #tag-wrap{
+#calendar-wrap, #profile-wrap, #ticket-wrap {
   position: relative;
   left: 250px;
   width: 78%;
@@ -221,7 +221,7 @@ input {
 /*Chat*/
 #chat {
   height: 500px;
-  background-color: lightblue;
+  background-color: transparent;
   display:block;
 }
 #contentWrap {

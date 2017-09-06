@@ -11,37 +11,25 @@ $(document).ready(function() {
 
   socket.emit("get tags from tags");
   socket.on("push tags to tags", data=> {
+    console.log("data:");
+    console.log(data);
     for( let i in data ) {
       append_new_tag();
       let name = data[i].name;
       let type = data[i].type;
       let modify = data[i].modify;
-      let tag_name = tagTableBody.find(".tag-name:last");
-      let tag_option = tagTableBody.find(".tag-option:last");
-      let tag_set = tagTableBody.find('.tag-set-td:last');
-      let tag_modify = tagTableBody.find(".tag-modify:last");
-      let tag_delete = tagTableBody.find(".tag-delete:last");
-      tag_name.text(name);
-      tag_option.val(type);
-      tag_modify.text(modify);
+      tagTableBody.find(".tag-name:last").text(name);
+      tagTableBody.find(".tag-option:last").val(type);
+      tagTableBody.find(".tag-modify:last").text(modify);
 
       type = toTypeValue(type);
       let set = data[i].set;
       if( type==3 ) set = set.join('\n');   //if type is single_select || multi_select
-      tag_set.find('#set'+type).val(set).show().siblings().hide();
+      tagTableBody.find('.tag-set-td:last').find('#set'+type).val(set)
+        .show().siblings().hide();
 
-      if( modify ) {
-        console.log("modify true");
-        tag_name.attr("modify","true");
-        tag_delete.html('<button class="tag-delete-btn">delete</button>');
-      }
-      else {
-        console.log("modify false");
-        tag_name.attr("modify","false");
-        tag_option.prop("disabled","disabled");
-        tag_set.find('.tag-set').prop("disabled","disabled");
-        tag_delete.html('cant delete');
-      }
+      if( modify ) tagTableBody.find(".tag-delete:last").html('<button class="tag-delete-btn">delete</button>');
+      else tagTableBody.find(".tag-delete:last").html('cant delete');
     }
   });
 
@@ -50,8 +38,8 @@ $(document).ready(function() {
     tagTableBody.find(".tag-name:last").click();
   });
 
-  $(document).on('click', '.tag-name[modify="true"]', function() {
-    if( $(this).find('input').length==0 ) {
+  $(document).on('click', '.tag-name', function() {
+    if( $(this).find('input').length==0 && $(this).parent().find('.tag-modify').text()=="true" ) {
       console.log(".tag-name click");
       let val = $(this).text();
       $(this).html('<input type="text" value="' +val + '"></input>');
@@ -69,7 +57,6 @@ $(document).ready(function() {
   $(document).on('blur', '.tag-name input', function() {
     console.log(".tag-name-input blur");
     let val = $(this).val();
-    if( !val ) val="new tag";
     $(this).parent().html(val);
   });
 
@@ -132,7 +119,7 @@ $(document).ready(function() {
   function append_new_tag(from) {
     tagTableBody.append(
       '<tr class="tag-content" id="tag-index-'+(rowsCount++)+'">'
-        + '<td class="tag-name" modify="true">new tag</td>'
+        + '<td class="tag-name"></td>'
         + '<td>'
           + '<select class="tag-option">'
             + '<option value="text">文字數字</option>'

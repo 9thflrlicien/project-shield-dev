@@ -1,8 +1,4 @@
- select[disabled] {
-   -webkit-appearance:none;
-   border: none;
-   background-color: transparent;
- }
+
 #edit-subt, #view-subt {
   list-style: none;
   position: relative;

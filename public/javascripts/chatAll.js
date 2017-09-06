@@ -15,6 +15,8 @@ $(document).ready(function() {
 
   var canvas = $("#canvas");          //panel of message canvas
   var person = "agentColman";         //agent name
+  var infoCanvas = $("#infoCanvas") ;
+
 
   const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>"
     + "Loading History Messages..."
@@ -25,7 +27,10 @@ $(document).ready(function() {
 
   var searchBox = $('.searchBox');    //input of search box
   var sortRecentBool = true;          //bool for sort recent time up or down
-
+  var sortTotalBool = true;           //bool for sort total time up or down
+  var sortFirstBool = true;           //bool for sort first time up or down
+  var sortRecentBool = true;          //bool for sort recent time up or down
+  
   var userProfiles = [];              //array which store all user's profile
   var buffer;                         //buffer which store now user's profile
   var infoTable = $('.info_input_table'); //user info table
@@ -61,6 +66,11 @@ $(document).ready(function() {
   $(document).on('click','.dropdown-menu', function(event){
     event.stopPropagation();
   });
+  $(document).on('click','.nav-link',toggleInfoPanel);
+  $(document).on('click','.filterArea h4',function () {
+    $(this).siblings().toggle(200,'easeInOutCubic');
+    $(this).children('i').toggle();
+  });
 
     // $('#nav_subMenu').on('click', function(){
     //   console.log('nav_subMenu clicked on line 64');
@@ -73,6 +83,39 @@ $(document).ready(function() {
     //         $('#check_mark').show()
     //       }
     //   });
+
+      $("#chatApp").hover(
+    function () {
+      $(this).css('width','250px').find('h4').delay(200).fadeIn() ;
+    },
+    function () {
+      $(this).css('width','70px').find('h4').hide() ;
+  });
+  $('.chatApp_item').click(function () {
+    let id = $(this).attr('id');
+    $(this).addClass('select')
+           .siblings().removeClass('select');
+    $("#user").children('#'+id).toggle('fast').siblings('.tablinks_area').hide();
+    $(".filter_head").children("#title").html($(this).children('h4').text());
+  });
+  $(".filter_head #search").click(function () {
+    if(!$(".tablinks_head").children('.search').is(':visible')){
+      $(".tablinks_head").css('height','120px').children('.search').show();
+    }
+    else{
+      $(".tablinks_head").css('height','80px').children('.search').delay(100).fadeOut();
+    }
+  });
+  $(".filter_head #filter").click(function () {
+    if(!$(".tablinks_head").children('.filterArea').is(':visible')){
+      $(".tablinks_head").css('height','360px').children('.filterArea').css('display','flex');
+
+    }
+    else{
+      $(".tablinks_head").css('height','80px').children('.filterArea').delay(100).fadeOut();
+    }
+  });
+
 
     var content = $('.content');
     var sender = $('.sender');
@@ -181,10 +224,151 @@ $(document).ready(function() {
     //www emit data of history msg
     console.log("push json to front");
     for( i in data ) pushMsg(data[i]);    //one user do function one time
+    setTimeout(function () {
+      for( i in data) pushInfo(data[i]) ;
+    },500);
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );   //sort users by recent time
     closeIdleRoomTry();
     $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
+  socket.on('push user ticket',(data) => {
+    console.log(data);
+    let id = data.id ;
+    let ticket = data.ticket ;
+    let content = '' ;
+    for(let i in ticket){
+      content +=
+      "<div class='card text-center ticket-card'>"+
+      "<div class='ticket-card-header' "+
+      "style='color:white;background-color:"+priorityColor(ticket[i].priority)+"'>"+
+      "ticket No."+ticket[i].id+
+      "</div>"+
+      "<div class='card-body'>"+
+      "<h4 class='card-title'>"+ticket[i].subject+"</h4>"+
+      "<p class='card-text'>"+ticket[i].description+"</p>"+
+      "</div>"+
+      "<div class='card-footer text-muted'>"+
+      "Create at "+CreateDate(ticket[i].created_at)+" ago"+
+      "</div>"+
+      "</div>"
+    }
+    $("#"+id+"-info").children("#ticket").append(content);
+  });
+  function pushInfo(data) {
+    let profile = data.Profile;
+    infoCanvas.append(
+        '<div class="card-group" id="'+profile.userId+'-info" style="display:none">'+
+          '<div class="card-body" id="profile">'+
+            "<div class='photoContainer'>"+
+              '<img src="'+profile.photo+'" alt="無法顯示相片" style="width:128px;height:128px;">'+
+            "</div>"+
+              loadPanelProfile(profile)+
+          '</div>'+
+          '<div class="card-body" id="ticket" hidden="true"></div>'+
+          '<div class="card-body" id="todo" hidden="true">ToDo</div>'+
+        '</div>'+
+      '</div>'
+    );
+  }
+  function loadPanelProfile(profile) {
+    for(let i in profile.email){
+      socket.emit('get ticket',{
+        email: profile.email[i],
+        id: profile.userId
+      });
+    }
+    let html ="<table class='panelTable'>" ;
+    for( let i in TagsData ) {
+      let name = TagsData[i].name;
+      let type = TagsData[i].type;
+      let set = TagsData[i].set;
+      let modify = TagsData[i].modify;
+      let tdHtml = "";
+      if(name == 'userId') continue ;
+      if(name == 'email') {
+        for(let i in profile[name]){
+          tdHtml += '<p id="td-inner">'+profile[name][i]+'</p>'
+        }
+      }
+      else if( type=='text' || type=='single_select' ){
+        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) tdHtml = '<p id="td-inner">'+profile[name]+'</p>';
+        else tdHtml = '<p id="td-inner">尚未輸入</p>';
+      }
+      else if( type=="time" ){
+        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) {
+          let d = new Date(profile[name]) ;
+          tdHtml = '<p id="td-inner">'+d.getFullYear()+'/'+addZero(d.getMonth()+1)+'/'+addZero(d.getDate())+' '+addZero(d.getHours())+':'+addZero(d.getMinutes())+'<p>';
+        }
+        else tdHtml = '<p id="td-inner">尚未輸入<p>';
+      }
+      else if( type=='multi_select' ) {
+        if(profile[name] == undefined || profile[name] == null || profile[name] == "" ) tdHtml = '<p id="td-inner">尚未輸入</p>';
+        else {
+          let arr = profile[name].split(",") ;
+          for(let i in arr) tdHtml += '<span id="td-inner" class="tagSpan">'+arr[i]+'</span></br>';
+        }
+      }
+      html +=
+      '<tr>'
+        + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
+        + '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="false">' + tdHtml + '</td>' ;
+    }
+    html += "</table>" ;
+    return html ;
+  }
+  function priorityColor(priority) {
+    switch(priority) {
+      case 4:
+          return 'rgb(230, 100, 100)';
+          break;
+      case 3:
+          return 'rgb(233, 198, 13)';
+          break;
+      case 2:
+          return 'rgb(113, 180, 209)';
+          break;
+      case 1:
+          return 'rgb(126, 215, 170)';
+          break;
+      default:
+          return 'N/A';
+    }
+  }
+  function CreateDate(day) {
+    let html = '' ;
+    let nowTime = new Date().getTime() ;
+    let dueday = Date.parse(displayDate(day)) ;
+    let sec = (nowTime - dueday)/1000  ;
+
+    if(sec<60) return Math.round(sec)+" second(s)";
+    else{
+      let min = sec/60 ;
+      if(min<60) return Math.round(min)+" minute(s)" ;
+      else{
+        let hr = min/60 ;
+        if(hr<48) return Math.round(hr)+" hours(s)";
+        else{
+          let day = Math.floor(hr/24) ;
+          hr %= 24 ;
+          return day+" day(s) "+Math.round(hr)+" hour(s) " ;
+        }
+      }
+    }
+  }
+  function displayDate(date) {
+    let origin = new Date(date) ;
+    origin = origin.getTime();
+    let gmt8 = new Date(origin );
+
+    let yy = gmt8.getFullYear(),
+        mm = gmt8.getMonth()+1,
+        dd = gmt8.getDate(),
+        hr = gmt8.getHours(),
+        min= gmt8.getMinutes(),
+        sec= gmt8.getSeconds();
+
+    return yy+"/"+mm+"/"+dd+" "+hr+":"+min+":"+sec ;
+  }
   function pushMsg(data){
     //one user do function one time; data structure see file's end
     let historyMsg = data.Messages;
@@ -228,9 +412,13 @@ $(document).ready(function() {
       + "data-firstTime=\"" + profile.firstChat +"\" "
       + "data-recentTime=\"" + lastMsg.time +"\" id=\"userInfoBtn\"> "
       // + "<img src=\"\" alt=\"無法顯示相片\" class=\"userPhoto\" style=\"width:128px;height:128px;\"/>"
-      + '<span style="text-align:left; float:left; margin-left:12px" id="nick">' + profile.nickname + '</span>'
-      + msgTime
-      + lastMsgStr+'<div class="unread_msg" id="unread_'+n+'">'+profile.unRead+'</div>'
+      + "<div class='img_holder'>"
+      + "<img src='"+profile.photo+"' alt='無法顯示相片'>"
+      + "</div>"
+      + "<div class='msg_holder'>"
+      + profile.nickname
+      + lastMsgStr
+      + "</div>"
       + "</button></b>"
     );    //new a tablinks
 
@@ -317,8 +505,15 @@ $(document).ready(function() {
     $("#"+target).show().siblings().hide();   //show it, and close others
     $('#user-rooms').val(target);             //change value in select bar
     $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
-
+    $("#"+target+"-info").show().siblings().hide();
+    toggleInfoPanel() ;
     console.log('click tablink executed');
+  }
+
+    function toggleInfoPanel() {
+    $(this).attr("active",'true').parent().siblings().children().attr("active",'false') ;
+    let panel = $('.nav-link[active=true]').text().trim().toLowerCase() ;
+    $('.card-group:visible').find('#'+panel).show().siblings().hide();
   }
 
   function clickSpan() {
