@@ -100,7 +100,7 @@ $(document).ready(function() {
   });
   $(".filter_head #search").click(function () {
     if(!$(".tablinks_head").children('.search').is(':visible')){
-      $(".tablinks_head").css('height','120px').children('.search').show();
+      $(".tablinks_head").css('height','120px').children('.search').show().siblings('.search').hide();
     }
     else{
       $(".tablinks_head").css('height','80px').children('.search').delay(100).fadeOut();
@@ -108,7 +108,7 @@ $(document).ready(function() {
   });
   $(".filter_head #filter").click(function () {
     if(!$(".tablinks_head").children('.filterArea').is(':visible')){
-      $(".tablinks_head").css('height','360px').children('.filterArea').css('display','flex');
+      $(".tablinks_head").css('height','400px').children('.filterArea').css('display','flex').siblings('.filter').hide();
 
     }
     else{
@@ -229,7 +229,7 @@ $(document).ready(function() {
     },500);
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );   //sort users by recent time
     closeIdleRoomTry();
-    $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
+    // $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
   socket.on('push user ticket',(data) => {
     console.log(data);
