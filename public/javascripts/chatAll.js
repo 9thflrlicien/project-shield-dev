@@ -29,8 +29,8 @@ $(document).ready(function() {
 
   var filterData = {
     age:['0', '20', '30', '40', '50', '60', '60 up'],
-    recent:['< 10 min', '10 min', '30 min', '60 min', '2 hr', '12 hr', '1 day', '1 week', '1 month up'],
-    first:['< 1 day', '1 day', '1 week', '2 week', '1 month', '3 month', '6 month', '1 year up']
+    recent:['< 10 min', '10 min', '30 min', '60 min', '2 hr', '12 hr', '1天', '1個禮拜', '1個月以上'],
+    first:['< 1天', '1天', '1個禮拜', '2個禮拜', '1個月', '3個月', '6個月', '1年以上']
   };
   var filterDataCustomer = {};
   const COLOR = {
@@ -93,12 +93,15 @@ $(document).ready(function() {
   });
   $(".filter_head #filter").click(function () {
     if(!$(".tablinks_head").children('.filterArea').is(':visible')){
-      $(".tablinks_head").css('height','360px').children('.filterArea').css('display','flex');
+      $(".tablinks_head").css('height','400px').children('.filterArea').css('display','flex');
 
     }
     else{
       $(".tablinks_head").css('height','80px').children('.filterArea').delay(100).fadeOut();
     }
+  });
+  $("#chat").children().resizable({
+    ghost: true
   });
 
   function agentName() {
@@ -385,6 +388,7 @@ $(document).ready(function() {
     $("#"+id+"-info").children("#ticket").append(content);
   });
   function pushInfo(data) {
+    console.log('push pannel data') ;
     let profile = data.Profile;
     infoCanvas.append(
         '<div class="card-group" id="'+profile.userId+'-info" style="display:none">'+
