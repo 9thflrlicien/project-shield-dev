@@ -16,7 +16,7 @@ $(document).ready(function() {
   var person = "agentColman";         //agent name
   var infoCanvas = $("#infoCanvas") ;
 
-  var searchBox = $('.searchBox');    //input of search box
+  var searchBox = $('#searchBox');    //input of search box
   var sortAvgBool = true;             //bool for sort average time up or down
   var sortTotalBool = true;           //bool for sort total time up or down
   var sortFirstBool = true;           //bool for sort first time up or down
@@ -32,7 +32,7 @@ $(document).ready(function() {
     recent:['< 10 min', '10 min', '30 min', '60 min', '2 hr', '12 hr', '1 day', '1 week', '1 month up'],
     first:['< 1 day', '1 day', '1 week', '2 week', '1 month', '3 month', '6 month', '1 year up']
   };
-
+  var filterDataCustomer = {};
   const COLOR = {
     FIND: "#A52A2A",
     CLICKED: "#ccc",
@@ -61,11 +61,45 @@ $(document).ready(function() {
     event.stopPropagation();
   });
   $(document).on('click','.nav-link',toggleInfoPanel);
+  $(document).on('click','.filterArea h4',function () {
+    $(this).siblings().toggle(200,'easeInOutCubic');
+    $(this).children('i').toggle();
+  });
   setInterval(() => {
     closeIdleRoomTry();
   }, 20000);
 
+  $("#chatApp").hover(
+    function () {
+      $(this).css('width','250px').find('h4').delay(200).fadeIn() ;
+    },
+    function () {
+      $(this).css('width','70px').find('h4').hide() ;
+  });
+  $('.chatApp_item').click(function () {
+    let id = $(this).attr('id');
+    $(this).addClass('select')
+           .siblings().removeClass('select');
+    $("#user").children('#'+id).toggle('fast').siblings('.tablinks_area').hide();
+    $(".filter_head").children("#title").html($(this).children('h4').text());
+  });
+  $(".filter_head #search").click(function () {
+    if(!$(".tablinks_head").children('.search').is(':visible')){
+      $(".tablinks_head").css('height','120px').children('.search').show();
+    }
+    else{
+      $(".tablinks_head").css('height','80px').children('.search').delay(100).fadeOut();
+    }
+  });
+  $(".filter_head #filter").click(function () {
+    if(!$(".tablinks_head").children('.filterArea').is(':visible')){
+      $(".tablinks_head").css('height','360px').children('.filterArea').css('display','flex');
 
+    }
+    else{
+      $(".tablinks_head").css('height','80px').children('.filterArea').delay(100).fadeOut();
+    }
+  });
 
   function agentName() {
     var userId = auth.currentUser.uid;
@@ -183,91 +217,126 @@ $(document).ready(function() {
       $('.filterSelect#tag').append('<li><input type="checkbox" value="'+_data[i]+'" checked>'+_data[i]+'</li>');
     }
   }
-
+  // $('#selectBy').on('change',function() {
+  //   let selected = [];
+  //   if( $(this).find('input:checked').length>5 ) {
+  //     $(this).find('#warning').text('at most 5 filter way');
+  //     return;
+  //   }
+  //   else {
+  //     $(this).find('#warning').html('&nbsp;');
+  //     $(this).find('input:checked').each(function() {
+  //       selected.push($(this).attr('value'));
+  //     });
+  //     $('.filterBar').each(function() {
+  //       let filter_way = $(this).attr('id');
+  //       if( selected.indexOf(filter_way)!=-1 ) $(this).show();
+  //       else $(this).hide();
+  //     });
+  //   }
+  // });
   $('#filterBtn').on('click', function() {
     $('.tablinks').each(function() {
       $(this).show();
       let userId = $(this).attr('rel');
       let profile = userProfiles[userId];
+      console.log("now filter user "+userId+", profile:");
       console.log(profile);
-      console.log($('#filter_sex .multiselect-selected-text').text());
 
-      let user_option = profile['年齡'];
-      if( user_option ) {
-        let user_age = parseInt(user_option);
-        let min = $('#filter_age .multiselect-selected-text').attr('min');
-        let max = $('#filter_age .multiselect-selected-text').attr('max');
-        console.log("user_age = "+user_age + "min="+min+",max="+max);
-        if( user_age < min || user_age > max ) {
+      if( $('#filter_age').is(':visible') ) {
+        let user_option = profile['年齡'];
+        if( user_option != undefined ) {
+          let user_age = parseInt(user_option);
+          let min = $('#filter_age .multiselect-selected-text').attr('min');
+          let max = $('#filter_age .multiselect-selected-text').attr('max');
+          console.log("user_age = "+user_age + ", min="+min+",max="+max);
+          if( user_age < min || user_age > max ) {
+            $(this).hide();
+            return;
+          }
+        }
+        else{
           $(this).hide();
           return;
         }
       }
-
-      user_option = profile['性別'];
-      let select_option = $('#filter_sex .multiselect-selected-text').text();
-      if( user_option && select_option!="全選") {
-        console.log(userId+" gender = "+user_option + "select_option = "+select_option);
-        if( user_option!=select_option ) {
-          $(this).hide();
-          return;
+      if( $('#filter_place').is(':visible') ) {
+        user_option = profile['地區'];
+        select_option = $('#filter_place .multiselect-selected-text').text();
+        if( user_option && select_option!="全選") {
+          console.log(userId+" place = "+user_option + "select_option = "+select_option);
+          if( select_option.indexOf(user_option)==-1 ) {
+            $(this).hide();
+            return;
+          }
         }
       }
 
-      user_option = profile['地區'];
-      select_option = $('#filter_place .multiselect-selected-text').text();
-      if( user_option && select_option!="全選") {
-        console.log(userId+" place = "+user_option + "select_option = "+select_option);
-        if( select_option.indexOf(user_option)==-1 ) {
-          $(this).hide();
-          return;
+      if( $('#filter_recent').is(':visible') ) {
+        user_option = profile['上次聊天時間'];
+        if( user_option ) {
+          let min = $('#filter_recent .multiselect-selected-text').attr('min');
+          let max = $('#filter_recent .multiselect-selected-text').attr('max');
+          let user_time_gap = Date.now()-user_option;
+          console.log("user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
+          if( user_time_gap < min || user_time_gap > max ) {
+            $(this).hide();
+            return;
+          }
         }
       }
+      if( $('#filter_first').is(':visible') ) {
+        user_option = profile['firstChat'];
+        if( user_option ) {
+          let min = $('#filter_first .multiselect-selected-text').attr('min');
+          let max = $('#filter_first .multiselect-selected-text').attr('max');
+          let user_time_gap = Date.now() - user_option;
+          console.log(" user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
+          if( user_time_gap < min || user_time_gap > max ) {
+            $(this).hide();
+            return;
+          }
+        }
+      }//end if
+      if ($('#filter_VIP等級').is(':visible')){
+        user_option = profile['VIP等級'];
+        select_option = $('#filter_VIP等級 .multiselect-selected-text').text();
+        console.log('this is select_option on line 627');
+        console.log(select_option);
+        if( select_option!="全選" ){
+          if( !user_option){
+            $(this).hide();
+            return;
+          }
 
-      user_option = profile['TAG'];
-      select_option = $('#filter_tag .multiselect-selected-text').text();
-      if( select_option!="全選") {
-        if( !user_option ) {
-          $(this).hide();
-          return;
-        }
-        console.log(userId+" tag = "+user_option + "select_option = "+select_option);
-        user_option = user_option.split(',');
-        console.log(user_option);
-        let i;
-        for( i=0; i<user_option.length; i++ ) {
-          console.log("now user option = "+user_option[i]);
-          if( select_option.indexOf(user_option[i])!=-1 ) break;
-        }
-        if( i==user_option.length ) {
-          $(this).hide();
-          return;
         }
       }
+      for( let way in filterDataCustomer ) {
+        if( $('#filter_'+way).is(':visible') ) {
+          user_option = profile[way];
+          select_option = $('#filter_'+way+' .multiselect-selected-text').text();
 
-      user_option = profile['上次聊天時間'];
-      if( user_option ) {
-        let min = $('#filter_recent .multiselect-selected-text').attr('min');
-        let max = $('#filter_recent .multiselect-selected-text').attr('max');
-        let user_time_gap = Date.now() - user_option;
-        console.log("user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
-        if( user_time_gap < min || user_time_gap > max ) {
-          $(this).hide();
-          return;
-        }
-      }
+          if( select_option!="全選") {
 
-      user_option = profile['firstChat'];
-      if( user_option ) {
-        let min = $('#filter_first .multiselect-selected-text').attr('min');
-        let max = $('#filter_first .multiselect-selected-text').attr('max');
-        let user_time_gap = Date.now() - user_option;
-        console.log(" user_option = "+user_option + " user_time_gap = "+user_time_gap+" min="+min+",max="+max);
-        if( user_time_gap < min || user_time_gap > max ) {
-          $(this).hide();
-          return;
+
+            if( !user_option ) {
+              $(this).hide();
+              return;
+            }
+            console.log(userId+", "+way+"="+user_option + ", select_option="+select_option);
+            user_option = user_option.split(',');
+            console.log(user_option);
+            let i;
+            for( i=0; i<user_option.length; i++ ) {
+              if( select_option.indexOf(user_option[i])!=-1 ) break;
+            }//for
+            if( i==user_option.length ) {
+              $(this).hide();
+              return;
+            }//if
+          }//if全選
         }
-      }
+      }//end for
 
     });
   });
@@ -277,7 +346,9 @@ $(document).ready(function() {
     $('.filterSelect').find('input[type="checkbox"]').prop('checked',true);
     $('.filterSelect').parent().parent().find('.multiselect-selected-text').text('全選');
   })
-
+  $('.filter_btn').click(function (e) {
+    $(".dropdown-menu").css({top:e.pageY,left:e.pageX});
+  });
 
   socket.on('push json to front', (data) => {
     //www emit data of history msg
@@ -289,7 +360,6 @@ $(document).ready(function() {
     },500);
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
     closeIdleRoomTry();
-    $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
   socket.on('push user ticket',(data) => {
     console.log(data);
@@ -423,7 +493,7 @@ $(document).ready(function() {
     let lastMsg = historyMsg[historyMsg.length-1];    //this part code is temporary
     let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
     let lastMsgStr = "";
-    lastMsgStr = "<br><span style='font-weight: "+ font_weight + "'>" + toTimeStr(lastMsg.time) + remove_href_msg(lastMsg.message) + "</span>";
+    lastMsgStr = "<br><span style='font-weight: "+ font_weight + "'>" + remove_href_msg(lastMsg.message)+ toTimeStr(lastMsg.time)  + "</span>";
     //display last message at tablinks
 
     let avgChatTime;
@@ -481,8 +551,13 @@ $(document).ready(function() {
       + "data-chatTimeCount=\"" + chatTimeCount +"\" "
       + "data-firstTime=\"" + profile.firstChat +"\" "
       + "data-recentTime=\"" + lastMsg.time +"\"> "
+      + "<div class='img_holder'>"
+      + "<img src='"+profile.photo+"' alt='無法顯示相片'>"
+      + "</div>"
+      + "<div class='msg_holder'>"
       + profile.nickname
       + lastMsgStr
+      + "</div>"
       + "</button></b>"
     );    //new a tablinks
 
@@ -775,7 +850,7 @@ $(document).ready(function() {
   $('.datepicker').datepicker({
     dateFormat: 'yy-mm-dd'
   });
-  $('.filterClean').on('click', function() {
+  $('#filterClean').on('click', function() {
     $('#startdate').val('');
     $('#enddate').val('');
     $('.tablinks').show();
@@ -1059,10 +1134,6 @@ $(document).ready(function() {
     $('.card-group:visible').find('#'+panel).show().siblings().hide();
   }
 
-
-  $(document).on('click','#userInfo-cancel',function() {
-
-  });
 
   function toAgentStr(msg, name, time) {
     return '<p class="message" rel="' + time + '" style="text-align: right;" title="' + toDateStr(time) + '"><span class="content">' + msg + '</span><strong> : <span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';

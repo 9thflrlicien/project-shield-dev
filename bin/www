@@ -193,7 +193,8 @@ bot.on('message', event => {
         if (message_type === 'sticker') {
           let packageId = event.message.packageId;
           let stickerId = event.message.stickerId;
-          msgObj.message = 'Sticker packageId = ('+packageId+', '+stickerId+')';
+          msgObj.message = '<img src="https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/'+stickerId+'/android/sticker.png"' +
+          'width="20%" alt="sticker cant display!"/>';
           emitIO_and_pushDB(msgObj);
           type_sticker += 1;  ///what is this var QQ
 
