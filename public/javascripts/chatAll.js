@@ -1,5 +1,6 @@
 $(document).ready(function() {
   var socket = io.connect();    //socket
+  // var unreadCount = 0;
 
   var users = $('#users');      //what's this
   var printAgent = $('#printAgent');  //agent welcome text
@@ -16,38 +17,39 @@ $(document).ready(function() {
   var person = "agentColman";         //agent name
   var infoCanvas = $("#infoCanvas") ;
 
+
+  const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>"
+    + "Loading History Messages..."
+    + "</i></strong><span class='loadingIcon'></span></p>";
+  const NO_HISTORY_MSG = "<p class='message-day' style='text-align: center'><strong><i>"
+    + "-沒有更舊的歷史訊息-"
+    + "</i></strong></p>";
+
   var searchBox = $('#searchBox');    //input of search box
-  var sortAvgBool = true;             //bool for sort average time up or down
+  var sortRecentBool = true;          //bool for sort recent time up or down
   var sortTotalBool = true;           //bool for sort total time up or down
   var sortFirstBool = true;           //bool for sort first time up or down
   var sortRecentBool = true;          //bool for sort recent time up or down
 
-  var userProfiles = [];
+  var userProfiles = [];              //array which store all user's profile
   var buffer;                         //buffer which store now user's profile
   var infoTable = $('.info_input_table'); //user info table
   var TagsData;                       //data of user info tags
 
-  var filterData = {
+  var filterDataBasic = {             //option of filter age, recent_chat_time, first_chat_time
     age:['0', '20', '30', '40', '50', '60', '60 up'],
-    recent:['< 10 min', '10 min', '30 min', '60 min', '2 hr', '12 hr', '1天', '1個禮拜', '1個月以上'],
-    first:['< 1天', '1天', '1個禮拜', '2個禮拜', '1個月', '3個月', '6個月', '1年以上']
+    recent:['< 10 min', '10 min', '30 min', '60 min', '2 hr', '12 hr', '1 day', '1 week', '1 month', '1 month up'],
+    first:['< 1 day', '1 day', '1 week', '2 week', '1 month', '3 month', '6 month', '1 year', '1 year up']
   };
-  var filterDataCustomer = {};
+  var filterDataCustomer = {};        //option of filter customized tags
+
   const COLOR = {
     FIND: "#A52A2A",
     CLICKED: "#ccc",
   }
+  let n =0;
 
-  if (window.location.pathname === '/chatAll') {
-    console.log("Start loading history message...");
-    setTimeout(function() {
-      socket.emit('get json from back');
-    }, 10);  //load history msg
-    setTimeout(agentName, 1000); //enter agent name
-    setTimeout(function() {
-      socket.emit("get tags from chat");
-    }, 100);
-  }
+
 
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.tablinks', clickUserTablink);
@@ -57,6 +59,10 @@ $(document).ready(function() {
   $(document).on('click', '.edit-button', changeProfile);
   $(document).on('click','#userInfo-submit',submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
+  $(document).on('click', '#upImg', upImg);
+  $(document).on('click', '#upVid', upVid);
+  $(document).on('click', '#upAud', upAud);
+
   $(document).on('click','.dropdown-menu', function(event){
     event.stopPropagation();
   });
@@ -65,16 +71,25 @@ $(document).ready(function() {
     $(this).siblings().toggle(200,'easeInOutCubic');
     $(this).children('i').toggle();
   });
-  setInterval(() => {
-    closeIdleRoomTry();
-  }, 20000);
+
+    // $('#nav_subMenu').on('click', function(){
+    //   console.log('nav_subMenu clicked on line 64');
+    //     var target = $(this).attr('rel');
+    //     console.log('target on line 371.ejs')
+    //     console.log(target);
+    //     if ($("#"+target).is(":visible")){
+    //         $('#check_mark').hide();
+    //     }else{
+    //         $('#check_mark').show()
+    //       }
+    //   });
 
   $("#chatApp").hover(
     function () {
-      $(this).css('width','250px').find('h4').delay(200).fadeIn() ;
+      $(this).css('width','250px') ;
     },
     function () {
-      $(this).css('width','70px').find('h4').hide() ;
+      $(this).css('width','70px') ;
   });
   $('.chatApp_item').click(function () {
     let id = $(this).attr('id');
@@ -85,7 +100,7 @@ $(document).ready(function() {
   });
   $(".filter_head #search").click(function () {
     if(!$(".tablinks_head").children('.search').is(':visible')){
-      $(".tablinks_head").css('height','120px').children('.search').show();
+      $(".tablinks_head").css('height','120px').children('.search').show().siblings('.filterArea').hide();
     }
     else{
       $(".tablinks_head").css('height','80px').children('.search').delay(100).fadeOut();
@@ -93,49 +108,598 @@ $(document).ready(function() {
   });
   $(".filter_head #filter").click(function () {
     if(!$(".tablinks_head").children('.filterArea').is(':visible')){
-      $(".tablinks_head").css('height','400px').children('.filterArea').css('display','flex');
+      $(".tablinks_head").css('height','420px').children('.filterArea').css('display','flex').siblings('.search').hide();
 
     }
     else{
       $(".tablinks_head").css('height','80px').children('.filterArea').delay(100).fadeOut();
     }
   });
-  $("#chat").children().resizable({
-    ghost: true
+  $('.filter_btn').click(function (e) {
+    $(".dropdown-menu").css({top:e.pageY,left:e.pageX});
+  });
+  $('.dropdown-backdrop').click(filter);
+
+    var content = $('.content');
+    var sender = $('.sender');
+
+    function showTooltip() {
+      sender.addClass('show');
+    }
+
+    function hideTooltip() {
+      sender.removeClass('show');
+    }
+
+    content.hover(showTooltip, hideTooltip);
+
+    $('.onclick_show').on('click', function(){
+      console.log('onclick_show exe');
+        var target = $(this).attr('rel');
+
+        if ($("#"+target).is(":visible")){
+            $("#"+target).hide();
+        }else{
+            $("#"+target).show();
+      }
+      });//onclick_show
+
+  function upImg(){
+    var imgAtt = $('#attImgFill').val();
+    $('#message').val('<img src="'+imgAtt+'"/>');
+  }
+  function upVid(){
+    var vidAtt = $('#attVidFill').val();
+    $('#message').val('<video controls><source src="'+vidAtt+'" type="video/mp4"></video>');
+  }
+  function upAud(){
+    var audAtt = $('#attAudFill').val();
+    $('#message').val('<video controls><source src="'+audAtt+'" type="video/mp4"></video>');
+  }
+  setInterval(() => {
+    closeIdleRoomTry();
+  }, 20000);
+
+  if (window.location.pathname === '/chatAll') {
+    console.log("Start loading history message...");
+    setTimeout(function() {
+      socket.emit('get json from back');
+    }, 10);  //load history msg
+    setTimeout(agentName, 1500); //enter agent name
+    setTimeout(function() {
+      socket.emit("get tags from chat");
+    }, 10);
+  }
+
+  function closeIdleRoomTry() {
+    let early_time = Date.now() - 15*60*1000;        //15min before now
+    let last = clients.find('.tablinks:last');      //last user in online room
+    while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
+      let ele = last.parents('b');
+      ele.remove();
+      idles.prepend(ele);
+      last = clients.find('.tablinks:last');
+    }
+  }
+
+  function closeIdleRoom() {
+    // declare current datetime and parse into ms
+    // get the message sent time in ms
+    let new_date = new Date();
+    let over_fifteen_min = Date.parse(new_date);
+    let canvas_last_child_time_list = [];
+    //convert from htmlcollection to array
+    let convert_list;
+    // client list on the left needs to move down when idle more than a certain times
+    let item_move_down;
+    let item_move_up;
+    // 這邊需要依照canvas裡面的聊天室做處理
+    let canvas = document.getElementById('canvas');
+    // check how many users are chatting
+    let total_users = document.getElementById('canvas').children.length;
+    // children under canvas
+    let canvas_all_children = canvas.children;
+
+    for(let i=0;i<total_users;i++) {
+      user_list.push(canvas_all_children[i].getAttribute('id'));
+      convert_list = Array.prototype.slice.call( canvas_all_children[i].getElementsByClassName("messagePanel")[0].getElementsByClassName("message") );
+      canvas_last_child_time_list.push(convert_list.slice(-1)[0].getAttribute('rel'))
+      if(over_fifteen_min - canvas_last_child_time_list[i] >= 60000) {
+        // 更改display client的東西
+        console.log('id = '+user_list[i]+' passed idle time');
+        // item_move_down = $('[rel="'+user_list[i]+'"]').parent();
+        $('#idle-roomes').append($('[rel="'+user_list[i]+'"]').parent());
+        $('#clients').find('[rel="'+user_list[i]+'"]').remove();
+      }
+      else {
+        console.log('id = '+user_list[i]+' passed chat time');
+        // item_move_up = $('[rel="'+user_list[i]+'"]').parent();
+        $('#clients').append($('[rel="'+user_list[i]+'"]').parent());
+        $('#idle-roomes').find('[rel="'+user_list[i]+'"]').remove();
+      }
+    }
+    user_list = [];
+    convert_list = [];
+    canvas_last_child_time_list = [];
+  }
+
+  socket.on('push json to front', (data) => {
+    //www emit data of history msg
+    console.log("push json to front");
+    for( i in data ) pushMsg(data[i]);    //one user do function one time
+    setTimeout(function () {
+      for( i in data) pushInfo(data[i]) ;
+    },500);
+    sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );   //sort users by recent time
+    closeIdleRoomTry();
+    // $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
+  });
+  socket.on('push user ticket',(data) => {
+    console.log(data);
+    let id = data.id ;
+    let ticket = data.ticket ;
+    let content = '' ;
+    for(let i in ticket){
+      content +=
+      "<div class='card text-center ticket-card'>"+
+      "<div class='ticket-card-header' "+
+      "style='color:white;background-color:"+priorityColor(ticket[i].priority)+"'>"+
+      "ticket No."+ticket[i].id+
+      "</div>"+
+      "<div class='card-body'>"+
+      "<h4 class='card-title'>"+ticket[i].subject+"</h4>"+
+      "<p class='card-text'>"+ticket[i].description+"</p>"+
+      "</div>"+
+      "<div class='card-footer text-muted'>"+
+      "Create at "+CreateDate(ticket[i].created_at)+" ago"+
+      "</div>"+
+      "</div>"
+    }
+    $("#"+id+"-info").children("#ticket").append(content);
+  });
+  function pushInfo(data) {
+    let profile = data.Profile;
+    infoCanvas.append(
+        '<div class="card-group" id="'+profile.userId+'-info" style="display:none">'+
+          '<div class="card-body" id="profile">'+
+            "<div class='photoContainer'>"+
+              '<img src="'+profile.photo+'" alt="無法顯示相片" style="width:128px;height:128px;">'+
+            "</div>"+
+              loadPanelProfile(profile)+
+          '</div>'+
+          '<div class="card-body" id="ticket" hidden="true"></div>'+
+          '<div class="card-body" id="todo" hidden="true">ToDo</div>'+
+        '</div>'+
+      '</div>'
+    );
+  }
+  function loadPanelProfile(profile) {
+    for(let i in profile.email){
+      socket.emit('get ticket',{
+        email: profile.email[i],
+        id: profile.userId
+      });
+    }
+    let html ="<table class='panelTable'>" ;
+    for( let i in TagsData ) {
+      let name = TagsData[i].name;
+      let type = TagsData[i].type;
+      let set = TagsData[i].set;
+      let modify = TagsData[i].modify;
+      let tdHtml = "";
+      if(name == 'userId') continue ;
+      if(name == 'email') {
+        for(let i in profile[name]){
+          tdHtml += '<p id="td-inner">'+profile[name][i]+'</p>'
+        }
+      }
+      else if( type=='text' || type=='single_select' ){
+        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) tdHtml = '<p id="td-inner">'+profile[name]+'</p>';
+        else tdHtml = '<p id="td-inner">尚未輸入</p>';
+      }
+      else if( type=="time" ){
+        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) {
+          let d = new Date(profile[name]) ;
+          tdHtml = '<p id="td-inner">'+d.getFullYear()+'/'+addZero(d.getMonth()+1)+'/'+addZero(d.getDate())+' '+addZero(d.getHours())+':'+addZero(d.getMinutes())+'<p>';
+        }
+        else tdHtml = '<p id="td-inner">尚未輸入<p>';
+      }
+      else if( type=='multi_select' ) {
+        if(profile[name] == undefined || profile[name] == null || profile[name] == "" ) tdHtml = '<p id="td-inner">尚未輸入</p>';
+        else {
+          let arr = profile[name].split(",") ;
+          for(let i in arr) tdHtml += '<span id="td-inner" class="tagSpan">'+arr[i]+'</span></br>';
+        }
+      }
+      html +=
+      '<tr>'
+        + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
+        + '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="false">' + tdHtml + '</td>' ;
+    }
+    html += "</table>" ;
+    return html ;
+  }
+  function priorityColor(priority) {
+    switch(priority) {
+      case 4:
+          return 'rgb(230, 100, 100)';
+          break;
+      case 3:
+          return 'rgb(233, 198, 13)';
+          break;
+      case 2:
+          return 'rgb(113, 180, 209)';
+          break;
+      case 1:
+          return 'rgb(126, 215, 170)';
+          break;
+      default:
+          return 'N/A';
+    }
+  }
+  function CreateDate(day) {
+    let html = '' ;
+    let nowTime = new Date().getTime() ;
+    let dueday = Date.parse(displayDate(day)) ;
+    let sec = (nowTime - dueday)/1000  ;
+
+    if(sec<60) return Math.round(sec)+" second(s)";
+    else{
+      let min = sec/60 ;
+      if(min<60) return Math.round(min)+" minute(s)" ;
+      else{
+        let hr = min/60 ;
+        if(hr<48) return Math.round(hr)+" hours(s)";
+        else{
+          let day = Math.floor(hr/24) ;
+          hr %= 24 ;
+          return day+" day(s) "+Math.round(hr)+" hour(s) " ;
+        }
+      }
+    }
+  }
+  function displayDate(date) {
+    let origin = new Date(date) ;
+    origin = origin.getTime();
+    let gmt8 = new Date(origin );
+
+    let yy = gmt8.getFullYear(),
+        mm = gmt8.getMonth()+1,
+        dd = gmt8.getDate(),
+        hr = gmt8.getHours(),
+        min= gmt8.getMinutes(),
+        sec= gmt8.getSeconds();
+
+    return yy+"/"+mm+"/"+dd+" "+hr+":"+min+":"+sec ;
+  }
+  function pushMsg(data){
+    //one user do function one time; data structure see file's end
+    let historyMsg = data.Messages;
+    let profile = data.Profile;
+
+
+    let historyMsgStr = "";
+    if( data.position!=0 ) {    //if there's still history messages unloaded
+      historyMsgStr += LOADING_MSG_AND_ICON;    //history message string head
+    }
+    else {
+      historyMsgStr += NO_HISTORY_MSG   //history message string head
+    }
+
+    historyMsgStr += historyMsg_to_Str(historyMsg);
+    historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
+      + "-即時訊息-"
+      +" </italic></strong></p>";   //history message string tail
+
+    canvas.append(    //push string into canvas
+      '<div id="' + profile.userId + '" class="tabcontent"style="display: none;">'
+       + '<span class="topright">x&nbsp;&nbsp;&nbsp</span>'
+       + "<div id='" + profile.userId + "-content' class='messagePanel' data-position='"+data.position+"'>"
+        + historyMsgStr + "</div>"
+       + "</div>"
+    );// close append
+    if( data.position!=0 ) $('#'+profile.userId+'-content').on('scroll', function() {
+      detecetScrollTop( $(this) );
+    });
+
+    $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>');  //new a option in select bar
+    let lastMsg = historyMsg[historyMsg.length-1];
+    let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
+    let lastMsgStr = '<br><span id="msg" style="font-weight: '+ font_weight + '; font-size:12px; margin-left:12px">' + lastMsg.message + "</span>";
+    let msgTime = '<span style="float:right;font-size:12px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) +'</span>'
+    // display last message at tablinks
+    clients.append("<b><button style='text-align:left' rel=\""+profile.userId+"\" class=\"tablinks\""
+      + "data-avgTime=\""+ profile.avgChat +"\" "
+      + "data-totalTime=\"" + profile.totalChat +"\" "
+      + "data-chatTimeCount=\"" + profile.chatTimeCount +"\" "
+      + "data-firstTime=\"" + profile.firstChat +"\" "
+      + "data-recentTime=\"" + lastMsg.time +"\" id=\"userInfoBtn\"> "
+      // + "<img src=\"\" alt=\"無法顯示相片\" class=\"userPhoto\" style=\"width:128px;height:128px;\"/>"
+      + "<div class='img_holder'>"
+      + "<img src='"+profile.photo+"' alt='無法顯示相片'>"
+      + "</div>"
+      + "<div class='msg_holder'>"
+      + profile.nickname
+      + lastMsgStr
+      + "</div>"
+      + "</button></b>"
+    );    //new a tablinks
+
+    if(profile.unRead == 0 || false){$("#unread_"+n+"").hide();}else{ $("#unread_"+n+"").show();}
+    n++;
+
+    name_list.push(profile.userId); //make a name list of all chated user
+    userProfiles[profile.userId] = profile;
+
+
+  }
+
+  function detecetScrollTop( ele ) {
+    if( ele.scrollTop()==0 ) {
+      let tail = parseInt(ele.attr('data-position'));
+      let head = parseInt(ele.attr('data-position')) - 20;
+      if( head<0 ) head = 0;
+      let request = {
+        userId: ele.parent().attr('id'),
+        head: head,
+        tail: tail
+      };
+      if( head==0 ) ele.off('scroll');
+      ele.attr('data-position', head);
+      socket.emit('upload history msg from front', request);
+      console.log('upload! head = '+head+', tail = '+tail);
+    }
+  }
+  socket.on('upload history msg from back', data=>{
+    console.log('get uploaded history msg');
+    let msgContent = $('#'+data.userId+'-content');
+
+    let origin_height = msgContent[0].scrollHeight;
+    msgContent.find('.message:first').remove();
+    msgContent.find('.message-day:lt(3)').remove();
+
+    msgContent.prepend(historyMsg_to_Str(data.messages));
+    let now_height = msgContent[0].scrollHeight;
+    msgContent.animate({scrollTop: now_height - origin_height}, 0);
+
+    if( msgContent.attr('data-position')>0 ) msgContent.prepend(LOADING_MSG_AND_ICON);
+    else msgContent.prepend(NO_HISTORY_MSG);
   });
 
   function agentName() {
+    //enter agent name
     var userId = auth.currentUser.uid;
-
     database.ref('users/' + userId).on('value', snap => {
       let profInfo = snap.val();
       let profId = Object.keys(profInfo);
-      var person = snap.child(profId[0]).val().username;  //從DB獲取agent的nickname
+      let person = snap.child(profId[0]).val().nickname;  //從DB獲取agent的nickname
+
       if (person != '' && person != null) {
         socket.emit('new user', person, (data) => {
           if(data){}   //check whether username is already taken
           else {
             alert('username is already taken');
             person = prompt("Please enter your name");  //update new username
-            database.ref('users/' + userId + '/' + profId).update({username : person});
+            database.ref('users/' + userId + '/' + profId).update({nickname : person});
           }
         });
-        printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
       }
       else{
         person = prompt("Please enter your name");  //if username not exist,update username
-        database.ref('users/' + userId + '/' + profId).update({username : person});
+        database.ref('users/' + userId + '/' + profId).update({nickname : person});
       }
+      printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
     });
   }
 
-  socket.on("push tags to chat", data=> {
-    TagsData = data;
-    for(let i in data) if( data[i].name=="TAG" ) filterData.tag = data[i].set;
-    initialFilterBar();
+  function clickUserTablink(){
+    setTimeout(showProfile,100);
+    $("#selected").removeAttr('id').css("background-color", "");   //selected tablinks change, clean prev's color
+    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
+
+    if( $(this).find('#msg').css("font-weight")=="bold" ) {
+      $(this).find('#msg').css("font-weight", "normal");                //read msg, let msg dis-bold
+      socket.emit("read message", {id: $(this).attr('rel')} );          //tell socket that this user isnt unRead
+    }
+
+    $(this).find('.unread_msg').hide();
+
+    let target = $(this).attr('rel');         //find the message canvas
+    $("#"+target).show().siblings().hide();   //show it, and close others
+    $('#user-rooms').val(target);             //change value in select bar
+    $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
+    $("#"+target+"-info").show().siblings().hide();
+    toggleInfoPanel() ;
+    console.log('click tablink executed');
+  }
+
+  function toggleInfoPanel() {
+    $(this).attr("active",'true').parent().siblings().children().attr("active",'false') ;
+    let panel = $('.nav-link[active=true]').text().trim().toLowerCase() ;
+    $('.card-group:visible').children('#'+panel).show().siblings().hide();
+  }
+
+  function clickSpan() {
+    //close the message canvas
+    let userId = $(this).parent().hide().attr("id");
+    $(".tablinks[rel='" + userId +"'] ").removeAttr('id').css("background-color", "");   //clean tablinks color
+  }
+
+  socket.on('new message2', (data) => {
+     //if www push "new message2"
+    console.log("Message get! identity=" + data.owner + ", name=" + data.name);
+    //owner = "user", "agent" ; name = "Colman", "Ted", others...
+    displayMessage( data ); //update canvas
+    displayClient( data );  //update tablinks
+
+    if( data.owner=="user" ) change_document_title(data.name);    //not done yet
+    if( name_list.indexOf(data.id) == -1 ) {  //if its never chated user, push his name into name list
+      name_list.push(data.id);
+      console.log("new user!!! push into name_list!");
+    }
+  });
+  socket.on('new message3', (data) => {
+     //if www push "new message2"
+    console.log("Message get! identity=" + data.owner + ", name=" + data.name);
+    //owner = "user", "agent" ; name = "Colman", "Ted", others...
+    displayMessage( data ); //update canvas
+    displayClient( data );  //update tablinks
+
+    if( data.owner=="user" ) change_document_title(data.name);    //not done yet
+    if( name_list.indexOf(data.id) == -1 ) {  //if its never chated user, push his name into name list
+      name_list.push(data.id);
+      console.log("new user!!! push into name_list!");
+    }
   });
 
-  function initialFilterBar() {
+  function displayMessage( data ) {
+    //update canvas
+    if (name_list.indexOf(data.id) !== -1) {    //if its chated user
+      let str;
+
+      let designated_chat_room_msg_time = $("#" + data.id + "-content").find(".message:last").attr('rel');
+      if(data.time - designated_chat_room_msg_time >= 900000){    // 如果現在時間多上一筆聊天記錄15分鐘
+        $("#" + data.id + "-content").append('<p class="message-day" style="text-align: center"><strong>-新訊息-</strong></p>');
+      }
+      if( data.owner == "agent" ) str = toAgentStr(data.message, data.name, data.time);
+      else str = toUserStr(data.message, data.name, data.time);
+
+      $("#" + data.id + "-content").append(str);    //push message into right canvas
+      $('#'+data.id+'-content').scrollTop($('#'+data.id+'-content')[0].scrollHeight);  //scroll to down
+    } //close if
+    else {              //if its never chated user
+      let historyMsgStr = NO_HISTORY_MSG;
+
+      if( data.owner == "agent" ) historyMsgStr += toAgentStr(data.message, data.name, data.time);
+      else historyMsgStr += toUserStr(data.message, data.name, data.time);
+
+      canvas.append(      //new a canvas
+        '<div id="'+data.id+'" class="tabcontent" style="display: none;">'
+        + '<span class="topright">x&nbsp;</span>'
+        + '<div id="'+data.id+'-content" class="messagePanel">'
+         + historyMsgStr
+        + '</div></div>'
+      );// close append
+
+      $('#user-rooms').append('<option value="'+data.id+'">' +data.name+ '</option>');  //new a option in select bar
+    }
+  }//function
+
+  function displayClient( data ) {
+    //update tablinks
+    let font_weight = data.owner=="user" ? "bold" : "normal";   //if msg is by user, mark it unread
+
+    if (name_list.indexOf(data.id) !== -1 ) {
+      let target = $(".tablinks[rel='"+data.id+"']");
+      target.find("#msg").html( toTimeStr(data.time)+data.message ).css( "font-weight", font_weight );
+      target.find('.unread_msg').html(data.unRead).css("display", "block");
+      target.attr("data-recentTime", data.time);
+      //update tablnks's last msg
+      console.log('data.unRead on line 400');
+      console.log(data.unRead);
+      if(data.unRead == 0 || data.unRead == false || data.unRead == 'undefined'){
+        console.log('im here')
+        target.find('.unread_msg').html(data.unRead).css("display", "none");
+      }
+      n++;
+
+      let ele = target.parents('b'); //buttons to b
+      ele.remove();
+      clients.prepend(ele);
+    }
+    else{     //new user, make a tablinks
+      clients.prepend('<b><button id="userInfoBtn" data-toggle="modal" data-target="#userInfoModal"  rel="' + data.id + '" class="tablinks"><span id="nick">'+
+        + data.name
+        + "</span><br><span id='msg' style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
+        + data.message +  "</span><div class='unread_msg'>"+data.profile.unRead+"</div></button></b>"
+      );
+    }
+
+  } //close displayClient function
+  socket.on('new user profile', function(data){
+    console.log('new user come in from www!');
+    console.log(data);
+    userProfiles[data.userId] = data;
+  });
+
+  messageForm.submit((e) => {
+    e.preventDefault();
+    let sendObj = {
+      id: "",
+      msg: messageInput.val(),
+      msgtime: Date.now()
+    };
+
+    if( $("#user-rooms option:selected").val() == '全選' ) {
+      name_list.map( function(id) {
+        sendObj.id = id;
+        socket.emit('send message2', sendObj);
+      })
+    }
+    else if( $("#user-rooms option:selected").val() == '對可見用戶發送' ) {
+      $('.tablinks:visible').each(function() {
+        sendObj.id = $(this).attr('rel');
+        socket.emit('send message2', sendObj);
+      });
+    }
+    else {
+      sendObj.id = $("#user-rooms option:selected").val();
+      socket.emit('send message2', sendObj);//socket.emit
+    }//else
+    messageInput.val('');
+  });
+  //
+  // function selectAll(){
+  //   if ($( "#user-rooms option:selected" ).val()=='全選'){
+  //     designated_user_id = name_list;
+  //     select = 'true';
+  //   }
+  //   else{
+  //     designated_user_id = $( "#user-rooms option:selected" ).val();
+  //     select = 'false';
+  //   }
+  // }
+
+  /*  =================================  */
+
+  socket.on("push tags to chat", data=> {
+    TagsData = data;
+    initialFilterWay();
+    initialFilterSilder();
+  });
+
+  function initialFilterWay() {
+    if( !TagsData ) return;
+
+    TagsData.map( function(ele) {
+      if( ele.type.indexOf('select')!=-1 ) {
+        filterDataCustomer[ele.name] = ele.set;
+      }
+    });
+
+    console.log("filterDataCustomer: ");
+    console.log(filterDataCustomer);
+    for( let way in filterDataCustomer ) {
+      if (way != 'VIP等級'){
+      $('#selectBy').append('<li><input type="checkbox" value="filter_'+way+'">'+way+'</li>');
+      $('.filterPanel').append(
+        '<div class="filterUnit filterBar btn-group" id="filter_'+way+'" style="display:none;">'
+        + '<button class="filter_btn" data-toggle="dropdown" aria-expanded="false">'
+        + way + ':<span class="multiselect-selected-text">全選</span>'
+        + '<b class="caret"></b></button>'
+        + '<ul class="multiselect-container dropdown-menu">'
+        + '<div class="filterSelect" id="'+way+'">'
+        + '</div></ul></div>'
+      );
+
+      filterDataCustomer[way].map( function(option) {
+        $('.filterSelect#'+way).append('<li><input type="checkbox" value="'+option+'" checked>'+option+'</li>');
+      });
+    }
+  }
+  }
+
+  function initialFilterSilder() {
     $('.filterSlider').slider({
       orientation: "vertical",
       range: true,
@@ -144,37 +708,36 @@ $(document).ready(function() {
       values: [-100, 100]
     }).each(function() {
       let id = $(this).attr('id');
-      $(this).slider( "option", "max", filterData[id].length-1 );
+      $(this).slider( "option", "max", filterDataBasic[id].length-1 );
       let count = $(this).slider("option", "max") - $(this).slider("option", "min");
-      for (let i in filterData[id]) {
-        var el = $('<label>' + filterData[id][i] + '</label>').css('top', 100-(i/count*100) + '%');
+      for (let i in filterDataBasic[id]) {
+        var el = $('<label>' + filterDataBasic[id][i] + '</label>').css('top', 100-(i/count*100) + '%');
         $(this).append(el);
       }
     });
 
     $('.filterSlider#age').slider( "option", "change", function(event, ui){
+      let data = filterDataBasic["age"];
       let values = $(this).slider("values");
       let str = "";
       let min = 0;
       let max = 999;
-      if( values[1]-values[0] == filterData["age"].length-1 ) str="全選";
+      if( values[1]-values[0] == data.length-1 ) str="全選";
+      else if( values[1]==values[0] ) str="未篩選";
       else {
-        if( values[1]==values[0] ) str="未篩選";
-        else {
-          str = filterData["age"][ values[0] ] + "~" + filterData["age"][ values[1] ];
-          min = parseInt(filterData["age"][ values[0] ]);
-          if( filterData["age"][ values[1] ].indexOf('up')==-1 ) max = parseInt(filterData["age"][ values[1] ]);
-        }
+        str = data[values[0]] + "~" + data[values[1]];
+        min = parseInt( data[values[0]] );
+        if( data[values[1]].indexOf('up')==-1 ) max = parseInt( data[values[1]] );
       }
       $(this).parent().parent().find('.multiselect-selected-text').text(str).attr('min',min).attr('max',max);
     });
 
     function toTimeStamp(str) {
       if( str.indexOf('up')!=-1 ) return 9999999999999;
-      else if( str.indexOf('<')!=-1 ) return 0;
+      else if( str.indexOf('<')!=-1 ) return -99999;
+
       let num = parseInt(str);
       let unit = str.substr(str.indexOf(' ')+1);
-      console.log("num = "+num+", unit="+unit+".");
       if( unit=='min' ) return num*1000*60;
       else if( unit=='hr' ) return num*1000*60*60;
       else if( unit=='day' ) return num*1000*60*60*24;
@@ -183,62 +746,59 @@ $(document).ready(function() {
       else if( unit=='year' )  return num*1000*60*60*24*365;
     }
     $('.filterSlider#recent').slider( "option", "change", function(event, ui){
+      let data = filterDataBasic["recent"];
       let values = $(this).slider("values");
       let str = "";
-      let min = 0;
+      let min = -99999;
       let max = 9999999999999;
-      if( values[1]-values[0] == filterData["recent"].length-1 ) str="全選";
+      if( values[1]-values[0] == data.length-1 ) str="全選";
+      else if( values[1]==values[0] ) str="未篩選";
       else {
-        if( values[1]==values[0] ) str="未篩選";
-        else {
-          str = filterData["recent"][ values[0] ] + "~" + filterData["recent"][ values[1] ];
-          min = toTimeStamp(filterData["recent"][ values[0] ]);
-          max = toTimeStamp(filterData["recent"][ values[1] ]);
-        }
+        str = data[values[0]] + "~" + data[values[1]];
+        min = toTimeStamp( data[values[0]] );
+        max = toTimeStamp( data[values[1]] );
       }
       $(this).parent().parent().find('.multiselect-selected-text').text(str).attr('min',min).attr('max',max);
     });
     $('.filterSlider#first').slider( "option", "change", function(event, ui){
+      let data = filterDataBasic["first"];
       let values = $(this).slider("values");
       let str = "";
-      let min = 0;
+      let min = -99999;
       let max = 9999999999999;
-      if( values[1]-values[0] == filterData["first"].length-1 ) str="全選";
+      if( values[1]-values[0] == data.length-1 ) str="全選";
+      else if( values[1]==values[0] ) str="未篩選";
       else {
-        if( values[1]==values[0] ) str="未篩選";
-        else {
-          str = filterData["first"][ values[0] ] + "~" + filterData["first"][ values[1] ];
-          min = toTimeStamp(filterData["first"][ values[0] ]);
-          max = toTimeStamp(filterData["first"][ values[1] ]);
-        }
+        str = data[values[0]] + "~" + data[values[1]];
+        min = toTimeStamp( data[values[0]] );
+        max = toTimeStamp( data[values[1]] );
       }
       $(this).parent().parent().find('.multiselect-selected-text').text(str).attr('min',min).attr('max',max);
     });
-
-    let _data = filterData.tag;
-    for( let i in _data ) {
-      $('.filterSelect#tag').append('<li><input type="checkbox" value="'+_data[i]+'" checked>'+_data[i]+'</li>');
-    }
   }
-  // $('#selectBy').on('change',function() {
-  //   let selected = [];
-  //   if( $(this).find('input:checked').length>5 ) {
-  //     $(this).find('#warning').text('at most 5 filter way');
-  //     return;
-  //   }
-  //   else {
-  //     $(this).find('#warning').html('&nbsp;');
-  //     $(this).find('input:checked').each(function() {
-  //       selected.push($(this).attr('value'));
-  //     });
-  //     $('.filterBar').each(function() {
-  //       let filter_way = $(this).attr('id');
-  //       if( selected.indexOf(filter_way)!=-1 ) $(this).show();
-  //       else $(this).hide();
-  //     });
-  //   }
-  // });
-  $('#filterBtn').on('click', function() {
+
+  $('#selectBy').on('change',function() {
+    let selected = [];
+
+    if( $(this).find('input:checked').length>5 ) {
+      $(this).find('#warning').text('最多五個選項');
+      return;
+    }
+    else {
+      $(this).find('#warning').html('&nbsp;');
+      $(this).find('input:checked').each(function() {
+        selected.push($(this).attr('value'));
+      });
+      $('.filterBar').each(function() {
+        let filter_way = $(this).attr('id');
+        if( selected.indexOf(filter_way)!=-1 ) {$(this).show();$('#filter_VIP等級').show();}
+        else $(this).hide();
+      });
+    }
+  });
+
+  $('#filterBtn').on('click',filter);
+  function filter() {
     $('.tablinks').each(function() {
       $(this).show();
       let userId = $(this).attr('rel');
@@ -248,7 +808,7 @@ $(document).ready(function() {
 
       if( $('#filter_age').is(':visible') ) {
         let user_option = profile['年齡'];
-        if( user_option != undefined ) {
+        if( user_option ) {
           let user_age = parseInt(user_option);
           let min = $('#filter_age .multiselect-selected-text').attr('min');
           let max = $('#filter_age .multiselect-selected-text').attr('max');
@@ -257,10 +817,6 @@ $(document).ready(function() {
             $(this).hide();
             return;
           }
-        }
-        else{
-          $(this).hide();
-          return;
         }
       }
       if( $('#filter_place').is(':visible') ) {
@@ -342,424 +898,12 @@ $(document).ready(function() {
       }//end for
 
     });
-  });
+  }
   $('#filterBtn-clean').on('click', function() {
     $('.tablinks').show();
     $('.filterSlider').slider("values",[0,999]);
-    $('.filterSelect').find('input[type="checkbox"]').prop('checked',true);
+    $('.filterBar .filterSelect').find('input[type="checkbox"]').prop('checked',true);
     $('.filterSelect').parent().parent().find('.multiselect-selected-text').text('全選');
-  })
-  $('.filter_btn').click(function (e) {
-    $(".dropdown-menu").css({top:e.pageY,left:e.pageX});
-  });
-
-  socket.on('push json to front', (data) => {
-    //www emit data of history msg
-    console.log("push json to front");
-    console.log(data);
-    for( i in data ) pushMsg(data[i]);    //one user do function one time
-    setTimeout(function () {
-      for( i in data ) pushInfo(data[i]);
-    },500);
-    sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
-    closeIdleRoomTry();
-  });
-  socket.on('push user ticket',(data) => {
-    console.log(data);
-    let id = data.id ;
-    let ticket = data.ticket ;
-    let content = '' ;
-    for(let i in ticket){
-      content +=
-      "<div class='card text-center ticket-card'>"+
-      "<div class='ticket-card-header' "+
-      "style='color:white;background-color:"+priorityColor(ticket[i].priority)+"'>"+
-      "ticket No."+ticket[i].id+
-      "</div>"+
-      "<div class='card-body'>"+
-      "<h4 class='card-title'>"+ticket[i].subject+"</h4>"+
-      "<p class='card-text'>"+ticket[i].description+"</p>"+
-      "</div>"+
-      "<div class='card-footer text-muted'>"+
-      "Create at "+CreateDate(ticket[i].created_at)+" ago"+
-      "</div>"+
-      "</div>"
-    }
-    $("#"+id+"-info").children("#ticket").append(content);
-  });
-  function pushInfo(data) {
-    console.log('push pannel data') ;
-    let profile = data.Profile;
-    infoCanvas.append(
-        '<div class="card-group" id="'+profile.userId+'-info" style="display:none">'+
-          '<div class="card-body" id="profile">'+
-            "<div class='photoContainer'>"+
-              '<img src="'+profile.photo+'" alt="無法顯示相片" style="width:128px;height:128px;">'+
-            "</div>"+
-              loadPanelProfile(profile)+
-          '</div>'+
-          '<div class="card-body" id="ticket" hidden="true"></div>'+
-          '<div class="card-body" id="todo" hidden="true">ToDo</div>'+
-        '</div>'+
-      '</div>'
-    );
-  }
-  function loadPanelProfile(profile) {
-    for(let i in profile.email){
-      socket.emit('get ticket',{
-        email: profile.email[i],
-        id: profile.userId
-      });
-    }
-    let html ="<table class='panelTable'>" ;
-    for( let i in TagsData ) {
-      let name = TagsData[i].name;
-      let type = TagsData[i].type;
-      let set = TagsData[i].set;
-      let modify = TagsData[i].modify;
-      let tdHtml = "";
-      if(name == 'userId') continue ;
-      if(name == 'email') {
-        for(let i in profile[name]){
-          tdHtml += '<p id="td-inner">'+profile[name][i]+'</p>'
-        }
-      }
-      else if( type=='text' || type=='single_select' ){
-        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) tdHtml = '<p id="td-inner">'+profile[name]+'</p>';
-        else tdHtml = '<p id="td-inner">尚未輸入</p>';
-      }
-      else if( type=="time" ){
-        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) {
-          let d = new Date(profile[name]) ;
-          tdHtml = '<p id="td-inner">'+d.getFullYear()+'/'+addZero(d.getMonth()+1)+'/'+addZero(d.getDate())+' '+addZero(d.getHours())+':'+addZero(d.getMinutes())+'<p>';
-        }
-        else tdHtml = '<p id="td-inner">尚未輸入<p>';
-      }
-      else if( type=='multi_select' ) {
-        if(profile[name] == undefined || profile[name] == null || profile[name] == "" ) tdHtml = '<p id="td-inner">尚未輸入</p>';
-        else {
-          let arr = profile[name].split(",") ;
-          for(let i in arr) tdHtml += '<span id="td-inner" class="tagSpan">'+arr[i]+'</span></br>';
-        }
-      }
-      html +=
-      '<tr>'
-        + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
-        + '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="false">' + tdHtml + '</td>' ;
-    }
-    html += "</table>" ;
-    return html ;
-  }
-
-
-  function pushMsg(data){
-    //one user do function one time; data structure see file's end
-    let historyMsg = data.Messages;
-    let profile = data.Profile;
-
-    let historyMsgStr = "<p class='message-day' style='text-align: center'><strong><i>"
-      + "-------------------------------------------------------No More History Message-------------------------------------------------------"
-      + "</i></strong></p>";    //history message string head
-
-    let nowDateStr = "";
-    let prevTime = 0;
-    for( let i in historyMsg ) {    //this loop plus date info into history message, like "----Thu Aug 01 2017----"
-      let d = new Date( historyMsg[i].time ).toDateString();   //get msg's date
-      if( d != nowDateStr ) {  //if (now msg's date != previos msg's date), change day
-        nowDateStr = d;
-        historyMsgStr += "<p class='message-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";  //plus date info
-      }
-
-
-      if( historyMsg[i].time - prevTime > 15*60*1000 ) { //if out of 15min section, new a section
-        historyMsgStr += "<p class='message-day' style='text-align: center'><strong>" + toDateStr(historyMsg[i].time) + "</strong></p>";  //plus date info
-      }
-      prevTime = historyMsg[i].time;
-
-      if( historyMsg[i].owner == "agent" ) {    //plus every history msg into string
-        historyMsgStr += toAgentStr(historyMsg[i].message, historyMsg[i].name, historyMsg[i].time);
-      }
-      else historyMsgStr += toUserStr(historyMsg[i].message, historyMsg[i].name, historyMsg[i].time);
-    }
-
-    historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
-      + "-------------------------------------------------------Present Message-------------------------------------------------------"
-      +" </italic></strong></p>";   //history message string tail
-
-    canvas.append(    //push string into canvas
-      "<div id=\"" + profile.userId + "\" class=\"tabcontent\"style=\"display: none;\">"
-       + "<span onclick=\"this.parentElement.style.display=\'none\'\" class=\"topright\">x&nbsp;&nbsp;&nbsp;</span>"
-       + "<div id='" + profile.userId + "-content' class='messagePanel'>" + historyMsgStr + "</div>"
-       + "</div>"
-    );// close append
-    $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>');  //new a option in select bar
-
-    let lastMsg = historyMsg[historyMsg.length-1];    //this part code is temporary
-    let font_weight = profile.unRead ? "bold" : "normal";  //if last msg is by user, then assume the msg is unread by agent
-    let lastMsgStr = "";
-    lastMsgStr = "<br><span style='font-weight: "+ font_weight + "'>" + remove_href_msg(lastMsg.message)+ toTimeStr(lastMsg.time)  + "</span>";
-    //display last message at tablinks
-
-    let avgChatTime;
-    let totalChatTime;
-    let chatTimeCount;
-    if( profile.recentChat != lastMsg.time) {   //it means database should update chat time of this user
-      let timeArr = [];       //some calculate
-      for( let i in historyMsg ) timeArr.push(historyMsg[i].time);
-      let times = [];
-      let i=0;
-      const GAP = 1000*60*15; //15 min
-      let headTime;
-      let tailTime;
-      while( i<timeArr.length ) {
-        headTime = tailTime = timeArr[i];
-        while( timeArr[i]-tailTime < GAP ) {
-          tailTime = timeArr[i];
-          i++;
-          if( i==timeArr.length ) break;
-        }
-        let num = tailTime-headTime;
-        if( num<1000 ) num = 1000;
-        times.push(num);
-      }
-      let sum = 0;
-      for( let j in times ) sum += times[j];
-      sum /= 60000;
-      totalChatTime = sum;
-      avgChatTime = sum/times.length;
-      chatTimeCount = times.length;
-      if( isNaN(avgChatTime)||avgChatTime<1 ) avgChatTime = 1;
-      if( isNaN(totalChatTime)||totalChatTime<1 ) totalChatTime = 1;
-
-      socket.emit("update chat time", {   //tell www to update this user's chat time info
-        id: profile.userId,
-        avgTime: avgChatTime,
-        totalTime: totalChatTime,
-        chatTimeCount: chatTimeCount,
-        recentTime: lastMsg.time
-      });
-      profile.avgTime = avgChatTime;
-      profile.totalTime = totalChatTime;
-      profile.chatTimeCount = chatTimeCount;
-      profile.recentTime = lastMsg.time;
-    }
-    else {      //it means database dont need update, just get info from DB
-      avgChatTime = profile.avgChat;
-      totalChatTime = profile.totalChat;
-      chatTimeCount = profile.chatTimeCount;
-    }
-
-    clients.append("<b><button rel=\""+profile.userId+"\" class=\"tablinks\""
-      + "data-avgTime=\""+ avgChatTime +"\" "
-      + "data-totalTime=\"" + totalChatTime +"\" "
-      + "data-chatTimeCount=\"" + chatTimeCount +"\" "
-      + "data-firstTime=\"" + profile.firstChat +"\" "
-      + "data-recentTime=\"" + lastMsg.time +"\"> "
-      + "<div class='img_holder'>"
-      + "<img src='"+profile.photo+"' alt='無法顯示相片'>"
-      + "</div>"
-      + "<div class='msg_holder'>"
-      + profile.nickname
-      + lastMsgStr
-      + "</div>"
-      + "</button></b>"
-    );    //new a tablinks
-
-    name_list.push(profile.userId); //make a name list of all chated user
-    userProfiles[profile.userId] = profile;
-  }
-  function closeIdleRoomTry() {
-    let early_time = Date.now() - 15*60*1000;        //15min before now
-    let last = clients.find('.tablinks').last();      //last user in online room
-    while( last && last.attr('data-recentTime') < early_time ) {    //while last of online user should push into idle room
-      console.log("push " + last.attr('rel') + " to idle!");
-      let b = last.parents('b');
-      b.remove();
-      idles.prepend(b);
-      last = clients.find('.tablinks').last();
-    }
-  }
-  function closeIdleRoom() {
-    // declare current datetime and parse into ms
-    // get the message sent time in ms
-    let new_date = new Date();
-    let over_fifteen_min = Date.parse(new_date);
-    let canvas_last_child_time_list = [];
-    //convert from htmlcollection to array
-    let convert_list;
-    // client list on the left needs to move down when idle more than a certain times
-    let item_move_down;
-    let item_move_up;
-    // 這邊需要依照canvas裡面的聊天室做處理
-    let canvas = document.getElementById('canvas');
-    // check how many users are chatting
-    let total_users = document.getElementById('canvas').children.length;
-    // children under canvas
-    let canvas_all_children = canvas.children;
-
-    for(let i=0;i<total_users;i++) {
-      user_list.push(canvas_all_children[i].getAttribute('id'));
-      convert_list = Array.prototype.slice.call( canvas_all_children[i].getElementsByClassName("messagePanel")[0].getElementsByClassName("message") );
-      canvas_last_child_time_list.push(convert_list.slice(-1)[0].getAttribute('rel'))
-      if(over_fifteen_min - canvas_last_child_time_list[i] >= 60000) {
-        // 更改display client的東西
-        console.log('id = '+user_list[i]+' passed idle time');
-        // item_move_down = $('[rel="'+user_list[i]+'"]').parent();
-        $('#idle-roomes').append($('[rel="'+user_list[i]+'"]').parent());
-        $('#clients').find('[rel="'+user_list[i]+'"]').remove();
-      }
-      else {
-        console.log('id = '+user_list[i]+' passed chat time');
-        // item_move_up = $('[rel="'+user_list[i]+'"]').parent();
-        $('#clients').append($('[rel="'+user_list[i]+'"]').parent());
-        $('#idle-roomes').find('[rel="'+user_list[i]+'"]').remove();
-      }
-    }
-    user_list = [];
-    convert_list = [];
-    canvas_last_child_time_list = [];
-  }
-
-  function clickUserTablink(){
-    $("#selected").attr('id','').css("background-color", "");   //selected tablinks change, clean prev's color
-    $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
-
-    if( $(this).find('span').css("font-weight")=="bold" ) {
-      $(this).find('span').css("font-weight", "normal");                //read msg, let msg dis-bold
-      socket.emit("read message", {id: $(this).attr('rel')} );          //tell socket that this user isnt unRead
-    }
-
-    let target = $(this).attr('rel');         //find the message canvas
-    $("#"+target).show().siblings().hide();   //show it, and close others
-    $('#user-rooms').val(target);             //change value in select bar
-    $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
-    $("#"+target+"-info").show().siblings().hide();
-    toggleInfoPanel() ;
-    console.log('click tablink executed');
-  }
-  function clickSpan() {
-    //close the message canvas
-    let userId = $(this).parent().css("display", "none").attr("id");
-    $(".tablinks[rel='" + userId +"'] ").attr("id", "").css("background-color","");   //clean tablinks color
-    $("#"+userId+"-info").hide();
-  }
-
-  socket.on('new message2', (data) => {
-    //if www push "new message2"
-    console.log("Message get! identity = " + data.owner + ", name = " + data.name);
-    //owner = "user", "agent" ; name = "Colman", "Ted", others...
-    displayMessage( data ); //update canvas
-    displayClient( data );  //update tablinks
-
-    if( name_list.indexOf(data.id) == -1 ) {  //if its never chated user, push his name into name list
-      name_list.push(data.id);
-      console.log("push into name_list!");
-    }
-    else console.log("this msgOwner already exist");
-
-    // messageContent.append('<b>' + data.name + ': </b>' + data.msg + "<br/>");
-  });
-
-  function displayMessage( data ) {
-     //update canvas
-
-    if (name_list.indexOf(data.id) !== -1) {    //if its chated user
-      let str;
-
-      let rooms = $("#" + data.id + "-content p.message");
-      let designated_chat_room_msg_time = rooms[rooms.length-1].getAttribute('rel');
-      // console.log(designated_chat_room_length);
-      // console.log(designated_chat_room_msg_time);
-      // 如果現在時間多上一筆聊天記錄15分鐘
-      if(data.time - designated_chat_room_msg_time >= 900000){
-        $("#" + data.id + "-content").append('New Session starts-------------------');
-      }
-      if( data.owner == "agent" ) str = toAgentStr(data.message, data.name, data.time);
-      else str = toUserStr(data.message, data.name, data.time);
-
-
-      $("#" + data.id + "-content").append(str);    //push message into right canvas
-      $('#'+data.id+'-content').scrollTop($('#'+data.id+'-content')[0].scrollHeight);  //scroll to down
-    } //close if
-
-    else {              //if its never chated user
-      console.log('new user msg append to canvas');
-
-      let historyMsgStr = "<p class='message-day' style='text-align: center'><strong><italic>"
-        + "-------------------------------------------------------No More History Message-------------------------------------------------------"
-        + "</italic></strong></p>";
-
-      historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
-        + "-------------------------------------------------------Present Message-------------------------------------------------------"
-        +" </italic></strong></p>";
-
-      if( data.owner == "agent" ) historyMsgStr += toAgentStr(data.message, data.name, data.time);
-      else historyMsgStr += toUserStr(data.message, data.name, data.time);
-
-      canvas.append(      //new a canvas
-        "<div id=\"" + data.id + "\" class=\"tabcontent\"style=\"display: none;\">"
-        + "<span class=\"topright\">x&nbsp;</span>"
-        + "<div id='" + data.id + "-content' class='messagePanel'>"
-         + historyMsgStr
-        + "</div></div>"
-      );// close append
-
-      $('#user-rooms').append('<option value="' + data.id + '">' + data.name + '</option>');
-      //new a option in select bar
-    }
-  }//function
-
-  function displayClient( data ) {
-    //update tablinks
-    let font_weight = data.owner=="user" ? "bold" : "normal";   //if msg is by user, mark it unread
-
-    if (name_list.indexOf(data.id) !== -1 ) {
-      console.log('user existed');
-      let target = $(".tablinks[rel='"+data.id+"']");
-      target.find("span").html(toTimeStr(data.time)+remove_href_msg(data.message)).css("font-weight", font_weight);
-      target.attr("data-recentTime", data.time);
-      //update tablnks's last msg
-
-      let b = target.parents('b'); //buttons to b
-      b.remove();
-      clients.prepend(b);
-    }
-    else{     //new user, make a tablinks
-      clients.prepend("<b><button rel=\"" + data.id + "\" class=\"tablinks\" >" + data.name
-        + "<br><span style='font-weight: " + font_weight + "'>" + toTimeStr(data.time)
-        + remove_href_msg(data.message) +  "</span></button></b>"
-      );
-    }
-  } //close client function
-
-  messageForm.submit((e) => {
-    e.preventDefault();
-    // selectAll();
-    console.log(Date.now());
-    let sendObj = {
-      id: "",
-      msg: messageInput.val(),
-      msgtime: Date.now()
-    };
-
-    if ($( "#user-rooms option:selected" ).val()=='全選') {
-      for (let i=0; i < name_list.length;i++) {
-        sendObj.id = name_list[i];
-        socket.emit('send message2', sendObj , (data) => {
-          messageContent.append('<span class="error">' + data + "</span><br/>");
-          console.log('this is name_list[i]');
-          console.log(name_list[i]);
-        });//snap=
-      };//for
-    }
-    else {
-      sendObj.id = $("#user-rooms option:selected").val();
-      socket.emit('send message2', sendObj, (data) => {
-        messageContent.append('<span class="error">' + data + "</span><br/>");
-      });//socket.emit
-
-    }//else
-    messageInput.val('');
   });
 
   //extend jquery, let searching case insensitive
@@ -773,14 +917,12 @@ $(document).ready(function() {
   function displayAll() {
     $('.tablinks').each( function() {
       let id = $(this).attr('rel');
-      $("div #"+id+"-content"+" .message").css("display", "").off("click");
-
+      $("div #"+id+"-content"+" .message").show().off("click");
       $(this).css("color","");
     });
   }
 
   searchBox.on('keypress', function (e) {
-    //not clean code ><,  just some search function
     let code = (e.keyCode ? e.keyCode : e.which);
     if (code != 13) return;
 
@@ -790,16 +932,12 @@ $(document).ready(function() {
     }
     else {
       let way = $('.searchSelect').val();
-      if( way=="tag" || way=="remark" ) {
+      if( way=="remark" ) {
         displayAll();
-        let wayStr = "";
-        if( way=="tag" ) wayStr = "TAG";
-        else if( way=="remark" ) wayStr = "備註";
         for( let i in userProfiles ) {
-          let text = userProfiles[i][wayStr];
+          let text = userProfiles[i]["備註"];
           if( text && text.toLowerCase().indexOf(searchStr)!=-1 ) {
             let userId = userProfiles[i].userId;
-            console.log("482, userId = "+userId+", i = "+i);
             $('.tablinks[rel="'+userId+'"]').css("color", COLOR.FIND);
           }
         }
@@ -811,14 +949,17 @@ $(document).ready(function() {
           let panel = $("div #"+id+"-content");
 
           //display searched msg & push #link when onclick
+          let color = "";
           panel.find(".message").each(function() {
             let text = $(this).find('.'+way).text();
             if( text.toLowerCase().indexOf(searchStr)!=-1 ) {
-              $(this).css("display", "").on( "click", when_click_msg );
+              color = COLOR.FIND;
+              $(this).show().on( "click", when_click_msg );
             }
-            else $(this).css("display", "none");
+            else $(this).hide();
             // +':containsi('+searchStr+')') )
           });
+          $(this).css("color", color);
 
           //when onclick, get search_str msg # link
           function when_click_msg() {    //when clicing searched msg
@@ -826,25 +967,8 @@ $(document).ready(function() {
             searchBox.val("");    //then cancel searching mode,
             displayAll();         //display all msg
             window.location.replace("/chatAll#ref"); //then jump to the #link added
-            $(this).attr("id", "");   //last remove link
+            $(this).removeAttr("id");   //last remove link
           };
-
-          //if this customer already no msg...
-          let color = "";
-          panel.find(".message").each(function() {
-            if($(this).css("display")!="none") {
-              color = COLOR.FIND;
-              return false;
-            }
-          });
-          //then hide the customer's tablinks
-          $(this).css("color", color);
-
-
-          // panel.find(".message-day").each(function() {
-          //   console.log("index: "+ panel.find('p').index( $(this) ) );
-          // });
-
         });
       }
 
@@ -854,7 +978,7 @@ $(document).ready(function() {
   $('.datepicker').datepicker({
     dateFormat: 'yy-mm-dd'
   });
-  $('#filterClean').on('click', function() {
+  $('.filterClean').on('click', function() {
     $('#startdate').val('');
     $('#enddate').val('');
     $('.tablinks').show();
@@ -910,30 +1034,9 @@ $(document).ready(function() {
     $('#clients').append(arr);
 
   } //end sort func
-
-  function sortAvgChatTime() {
-    sortUsers("avgTime", sortAvgBool, function(a,b){ return a<b; } );
-    let tmp = !sortAvgBool;
-    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
-    sortAvgBool = tmp;
-  }
-  function sortTotalChatTime() {
-    sortUsers("totalTime", sortTotalBool, function(a,b){ return a<b; } );
-    let tmp = !sortTotalBool;
-    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
-    sortTotalBool = tmp;
-  }
-  function sortFirstChatTime() {
-    sortUsers("firstTime", sortFirstBool, function(a,b){ return a>b; } );
-    let tmp = !sortFirstBool;
-    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
-    sortFirstBool = tmp;
-  }
   function sortRecentChatTime() {
     sortUsers("recentTime", sortRecentBool, function(a,b){ return a<b; } );
-    let tmp = !sortRecentBool;
-    sortAvgBool = sortTotalBool = sortFirstBool = sortRecentBool = true;
-    sortRecentBool = tmp;
+    sortRecentBool = !sortRecentBool;
   }
 
 
@@ -945,13 +1048,8 @@ $(document).ready(function() {
     }
     console.log("show profile of userId " + target);
     reload_tags();
-    socket.emit('get profile', target );
+    showTargetProfile(userProfiles[target]);
   }
-  socket.on('show profile', data => {
-    userProfiles[data.userId] = data;
-    showTargetProfile(data);
-  });
-
   function reload_tags(){
     infoTable.empty();
     for( let i in TagsData ) {
@@ -982,33 +1080,38 @@ $(document).ready(function() {
       infoTable.append( '<tr>'
         + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
         + '<th class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="' + modify +'">' + tdHtml + '</th>'
-        + '<td class="edit-button yes " name="yes">yes</td>'
-        + '<td class="edit-button no " name="no">no</td> </tr>'
+        + '<td class="edit-button yes" name="yes">yes</td>'
+        + '<td class="edit-button no" name="no">no</td>'
+        + '</tr>'
       );
+      // prof_userName.append(prof_name);
     }
   }
+
   function showTargetProfile(profile) {
     buffer = JSON.parse(JSON.stringify(profile));   //clone object
     $('.userPhoto').attr('src', buffer.photo? buffer.photo: "" );
 
-    $('.info_input_table .userInfo-td').each( function() {
+    var nick = buffer.nickname
+    $('#prof_nick').text(nick);
+
+    $('.info_input_table .userInfo-td').each(function() {
       let data = buffer[ $(this).attr('id') ];
       let type = $(this).attr('type');
       let inner = $(this).find('#td-inner');
 
-      if( data!=undefined && data!=null && data!="" ) {
-        console.log("data of user's " + $(this).attr('id') + " found!");
+      if( data ) {
         if( type=='text' ) inner.text(data);
         else if( type=='single_select' ) inner.val(data);
         else if( type=="multi_select" ) {
           inner.attr('data',data);
           inner.find('.multiselect-selected-text').text(data);
-          let arr = data.split(',');
 
-          inner.find('input').prop('checked', false);
-          for( let j in arr ) {
-            inner.find('input[value="' + arr[j] + '"]').prop('checked', true);
-          }
+          let arr = data.split(',');
+          inner.find('input').each(function() {
+            if( arr.indexOf( $(this).val() ) != -1 ) $(this).prop('checked', true);
+            else $(this).prop('checked', false);
+          });
         }
         else if( type=='time' ) {
           let d = new Date(data);
@@ -1027,6 +1130,7 @@ $(document).ready(function() {
       }
     });
   }
+
   function editProfile() {
     if( $(this).parent().children('.edit-button').is(':visible') ) return;
     else $(this).parent().children('.edit-button').show(); //show yes/no button
@@ -1053,6 +1157,8 @@ $(document).ready(function() {
     $(this).find('#td-inner').select();
   }
 
+  // $(document).on('click', '#select-all', function(event) {multiselect_all(event.target);});
+  //
 
   function multiselect_change() {
     let boxes = $(this).find('input');
@@ -1064,7 +1170,6 @@ $(document).ready(function() {
     else arr = arr.join(',');
     $(this).parent().find($('.multiselect-selected-text')).text(arr);
   }
-
 
   function changeProfile(edit) {
     let td = $(this).parent().children('.userInfo-td');
@@ -1094,7 +1199,6 @@ $(document).ready(function() {
     else{  //deny edit, restore data before editing
       let origin = buffer[id];
       if( origin==undefined ) origin = "";
-      console.log("origin = "+origin);
 
       if( type=="text") {
         if( !origin ) origin = "尚未輸入";
@@ -1105,7 +1209,7 @@ $(document).ready(function() {
         inner.find('.multiselect-selected-text').text(origin);
 
         inner.find('input').prop('checked', false);
-        if( origin!=undefined && origin!="" && origin!=null ){
+        if( origin ){
           let arr = origin.split(',');
           for( let j in arr ) inner.find('input[value="' + arr[j] + '"]').prop('checked', true);
         }
@@ -1116,9 +1220,8 @@ $(document).ready(function() {
         inner.val(d.getFullYear()+'-'+addZero(d.getMonth()+1)+'-'+addZero(d.getDate())+'T'+addZero(d.getHours())+':'+addZero(d.getMinutes()));
       }
     }
-        // td.on('click',editProfile); //restore click of userInfo-td
-        // console.log("open click"); //on click, off click has some bug QQ
   }
+
   function submitProfile() {
     if( $('.edit-button:visible').length>0 ) {
       alert('please check all tags change');
@@ -1128,22 +1231,50 @@ $(document).ready(function() {
       socket.emit('update profile',buffer);
       $('.modal').modal('hide');
       userProfiles[buffer.userId] = JSON.parse(JSON.stringify(buffer));   //clone object
+      $('.tablinks[rel='+buffer.userId+']').find('#nick').text(buffer.nickname);
     }
-
   }
 
-  function toggleInfoPanel() {
-    $(this).attr("active",'true').parent().siblings().children().attr("active",'false') ;
-    let panel = $('.nav-link[active=true]').text().trim().toLowerCase() ;
-    $('.card-group:visible').find('#'+panel).show().siblings().hide();
-  }
+  $(document).on('click','#userInfo-cancel',function() {
+  });
 
+  function historyMsg_to_Str( messages ) {
+    let returnStr = "";
+    let nowDateStr = "";
+    let prevTime = 0;
+    for( let i in messages ) {    //this loop plus date info into history message, like "----Thu Aug 01 2017----"
+      let d = new Date( messages[i].time ).toDateString();   //get msg's date
+      if( d != nowDateStr ) {  //if (now msg's date != previos msg's date), change day
+        nowDateStr = d;
+        returnStr += "<p class='message-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>";  //plus date info
+      }
+
+      if( messages[i].time - prevTime > 15*60*1000 ) { //if out of 15min section, new a section
+        returnStr += "<p class='message-day' style='text-align: center'><strong>" + toDateStr(messages[i].time) + "</strong></p>";  //plus date info
+      }
+      prevTime = messages[i].time;
+
+      if( messages[i].owner == "agent" ) {    //plus every history msg into string
+        returnStr += toAgentStr(messages[i].message, messages[i].name, messages[i].time);
+      }
+      else returnStr += toUserStr(messages[i].message, messages[i].name, messages[i].time);
+    }
+    return returnStr;
+  }
 
   function toAgentStr(msg, name, time) {
-    return '<p class="message" rel="' + time + '" style="text-align: right;" title="' + toDateStr(time) + '"><span class="content">' + msg + '</span><strong> : <span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span></strong><br/></p>';
+    if (msg.startsWith("<img")){
+      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">' + name + '</span></strong><br/></p>';
+    }else{
+      return '<div class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content" style="background-color:#b5e7a0;float:right"><p>' + msg + '</p></span><strong><span class="sender">' + name + '</span></strong><br/></div>';
+    }
   }
   function toUserStr(msg, name, time) {
-    return '<p class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span><span class="sendTime">' + toTimeStr(time) + '</span>: </strong><span class="content">' + msg + '</span><br/></p>';
+    if (msg.startsWith("<img")){
+      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
+    }else{
+      return '<div style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span style="background-color:lightgrey" class="content"><p>' + msg + '</p></span><span class="sendTime">' + toTimeStr(time) + '</span><br/></div>';
+    }
   }
 
   function toDateStr( input ) {
@@ -1159,126 +1290,15 @@ $(document).ready(function() {
     let date = new Date(input);
     return " (" + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ") ";
   }
+  function toTimeStr_minusQuo( input ){
+    let date = new Date(input);
+    return  addZero(date.getHours()) + ':' + addZero(date.getMinutes());
 
+}
+  function change_document_title(name) {
+    // $(document).prop('title', 'SHEILD chat ver2');
+  }
   function addZero(val){
     return val<10 ? '0'+val : val;
   }
-
-  function remove_href_msg(msg) {
-     //if( msg.indexOf('target="_blank"')!=-1 && msg.indexOf('href')!=-1 ) {
-    //   let aPos = msg.indexOf('target="_blank"');
-    //   let bPos = msg.indexOf('href');
-    //   if( bPos>aPos ) { //image, video, audio, location
-    //     if( msg.indexOf('image')!=-1 ) return "send a image";
-    //     else if( msg.indexOf('audio')!=-1 ) return "send an audio";
-    //     else if( msg.indexOf('video')!=-1 ) return "send a video";
-    //     else if( msg.indexOf('https://www.google.com.tw/maps/') != -1) return "send a location";
-    //   }
-    //   else {  //url
-    //     let cPos = msg.lastIndexOf('target');
-    //     return msg.substring( bPos+6, cPos-2 ) ;
-    //   }
-    // }
-    // else return msg;
-    if(msg.indexOf('href') == -1){
-      if(msg.length>35){
-        msg = msg.substring(0,35)+'...' ;
-      }
-    }
-    return msg;
-  }
-  function priorityColor(priority) {
-    switch(priority) {
-      case 4:
-          return 'rgb(230, 100, 100)';
-          break;
-      case 3:
-          return 'rgb(233, 198, 13)';
-          break;
-      case 2:
-          return 'rgb(113, 180, 209)';
-          break;
-      case 1:
-          return 'rgb(126, 215, 170)';
-          break;
-      default:
-          return 'N/A';
-    }
-  }
-  function displayDate(date) {
-    let origin = new Date(date) ;
-    origin = origin.getTime();
-    let gmt8 = new Date(origin );
-
-    let yy = gmt8.getFullYear(),
-        mm = gmt8.getMonth()+1,
-        dd = gmt8.getDate(),
-        hr = gmt8.getHours(),
-        min= gmt8.getMinutes(),
-        sec= gmt8.getSeconds();
-
-    return yy+"/"+mm+"/"+dd+" "+hr+":"+min+":"+sec ;
-  }
-  function CreateDate(day) {
-    let html = '' ;
-    let nowTime = new Date().getTime() ;
-    let dueday = Date.parse(displayDate(day)) ;
-    let sec = (nowTime - dueday)/1000  ;
-
-    if(sec<60) return Math.round(sec)+" second(s)";
-    else{
-      let min = sec/60 ;
-      if(min<60) return Math.round(min)+" minute(s)" ;
-      else{
-        let hr = min/60 ;
-        if(hr<48) return Math.round(hr)+" hours(s)";
-        else{
-          let day = Math.floor(hr/24) ;
-          hr %= 24 ;
-          return day+" day(s) "+Math.round(hr)+" hour(s) " ;
-        }
-      }
-    }
-    // if(hr<0) html = '<span class="overdue">overdue</span>' ;
-    // else html = '<span class="non overdue">response due</span>' ;
-    // return html ;
-  }
-
 }); //document ready close tag
-
-
-
-// Data: [
-//   -KqMcXFiOawbOmg: {
-//     Profile: {
-//       nickname: "Nick",
-//       userId: "U123456782452345",
-//       unRead: true    //agent hasnt read user's newest msg yet
-//       address: "",
-//       age: 18,
-//       telephone: "0987654321",
-//       avgChat: 13,  //user chat for 13 min per times
-//       totalChat: 39,  //user chat for 39 min totally
-//       firstChat: 1501487574140,   //user's first chat time
-//       recentChat: 1501577478051,  //user's recent chat time
-//     },
-//     Messages: [
-//       0: {
-//         owner: "user",  //"user" or "agent"
-//         name: "Nick",   //"Nick", "AgentNick"
-//         time: 15345674568,
-//         message: "Hi there!"
-//       },
-//       1: {
-//         owner: "agent",  //"user" or "agent"
-//         name: "AgentNick",   //"Nick", "AgentNick"
-//         time: 15345677568,
-//         message: "Hi there!"
-//       },
-//     ]
-//
-//   },
-//   -KqwedgKsdfyBssweoP: {
-//
-//   }.
-// ]
