@@ -74,6 +74,18 @@ $(document).ready(function() {
     //       }
     //   });
 
+    var content = $('.content');
+    var sender = $('.sender');
+
+    function showTooltip() {
+      sender.addClass('show');
+    }
+
+    function hideTooltip() {
+      sender.removeClass('show');
+    }
+
+    content.hover(showTooltip, hideTooltip);
 
     $('.onclick_show').on('click', function(){
       console.log('onclick_show exe');
@@ -382,9 +394,16 @@ $(document).ready(function() {
     if (name_list.indexOf(data.id) !== -1 ) {
       let target = $(".tablinks[rel='"+data.id+"']");
       target.find("#msg").html( toTimeStr(data.time)+data.message ).css( "font-weight", font_weight );
-      target.find('.unread_msg').html(data.unRead);
+      target.find('.unread_msg').html(data.unRead).css("display", "block");
       target.attr("data-recentTime", data.time);
       //update tablnks's last msg
+      console.log('data.unRead on line 400');
+      console.log(data.unRead);
+      if(data.unRead == 0 || data.unRead == false || data.unRead == 'undefined'){
+        console.log('im here')
+        target.find('.unread_msg').html(data.unRead).css("display", "none");
+      }
+      n++;
 
       let ele = target.parents('b'); //buttons to b
       ele.remove();
@@ -397,6 +416,7 @@ $(document).ready(function() {
         + data.message +  "</span><div class='unread_msg'>"+data.profile.unRead+"</div></button></b>"
       );
     }
+
   } //close displayClient function
   socket.on('new user profile', function(data){
     console.log('new user come in from www!');

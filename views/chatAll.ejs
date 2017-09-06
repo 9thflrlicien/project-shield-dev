@@ -336,10 +336,31 @@
           <input type="submit"/>
         </form>
 
-        </div>
-
-
       </div><!--end contentPanel-->
+
+      <!--internal chat-->
+        <div style="float:left!important;height:600px;width: 30%;background-color: /*#b0aac0*/;border-left:solid 1px lightgrey;float:right;" 
+        id="內部聊天室">
+        <div class="chat_prof_head"></div>
+        <div class="chat_prof">             
+          <img src="https://marketplace.canva.com/MAB7k1IXVl4/1/thumbnail/canva-single-shield-icon-MAB7k1IXVl4.png" alt="無法顯示相片" style="width:60px;height:60px;border-radius:50px;margin:1.5%;float:left;margin-right: 5px;">
+          <h4 id="prof_nick">內部聊天室</h4>
+         </div>
+        <section id="canvas">
+
+
+        </section>
+        <form action="" id="send-message" disabled>
+          <select style="float:right" id="user-rooms">
+            <option id="selectAll" value="全選">全選</option>
+            <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
+          </select>
+          <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
+          <input type="submit"/>
+        </form>
+
+        </div>
+      <!--end internal chat-->
 
       <!--customer info -->
       <div id="用戶檔案" style="padding:1%;background-color: /*#c2d4dd*/;" class="tab">
@@ -355,13 +376,6 @@
       </div>
       <!-- end customer info-->
 
-      <!--internal chat-->
-        <div style="float:left!important;height:600px;width: 30%;background-color: /*#b0aac0*/;border:solid 1px lightgrey;float:right;" 
-        id="內部聊天室">
-        <h5 style="text-align:center"><b>內部聊天室</b></h5>
-
-        </div>
-      <!--end internal chat-->
 
 
       <!-- Modal -->

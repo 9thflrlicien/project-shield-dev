@@ -173,11 +173,10 @@ div.tab button.active {
 }
 /* Style the tab content */
 .sender{
-  display:block;
+  display:none;
 }
-.content:hover~.sender
-{
- color:red;
+.sender .show {
+  display: block;
 }
 
 .contentPanel {
@@ -212,8 +211,8 @@ div.tab button.active {
 }
 .tabcontent {
   float: left;
-  border: 1px solid #ccc;
-  /*width: 70%;*/
+/*  border: 1px solid #ccc;
+*/  /*width: 70%;*/
   height: 100%;
   border-left: none;
   display:block;

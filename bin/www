@@ -335,12 +335,13 @@ bot.on('message', event => {
           for( let prop in chatData ) {
             if(chatData[prop].Profile.userId == obj.receiverId) {
             var count_unread_toFront = chatData[prop].Profile.unRead;
-            count_unread_toFront++;
              }
       }//for let prop in chatData
           obj.id = receiverId;
           obj.unRead = count_unread_toFront;
           io.sockets.emit('new message2', obj);
+          count_unread_toFront++;
+
         }
         function sendToNewFb(obj){
           let flag = true;
