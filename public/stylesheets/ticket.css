@@ -1,4 +1,10 @@
 
+#form-wrap {
+  position: relative;
+  left: 270px;
+  width: 70%
+}
+
 #edit-subt, #view-subt {
   list-style: none;
   position: relative;
@@ -50,7 +56,8 @@
 
 .inner-add-complete {
   position: absolute;
-  right: 130px;
+  right: 20%;
+  margin: 1% 5% ;
 }
 
 
@@ -111,7 +118,7 @@ div.tab button.active {
   #form-wrap {
     position: relative;
     left: 270px;
-    width: 95%
+    width: 70%
   }
 }
 
@@ -174,7 +181,7 @@ h2{
   padding: 1% 5%;
 }
 
-input {
+.ticket_search_bar {
   right: 1%;
   margin: 1% 5% ;
   position: absolute;

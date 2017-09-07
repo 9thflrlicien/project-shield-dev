@@ -1,0 +1,9 @@
+[note]
+===========unRead msg=================
+when agent reply, unread_msg is not hide so it shows zero.
+the problem is I find no 'send message agentChat' in chat.js 
+so i can't insert a $('.unread_msg').hide() there
+
+===========modify group name==========
+on chat.js line 88
+problem --> input！

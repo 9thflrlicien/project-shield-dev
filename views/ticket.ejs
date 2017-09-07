@@ -10,7 +10,12 @@
     <h1><%= title %></h1>
     <h2>Welcome to <%= title %></h2>
     <!-- <button type="button" class="btn btn-success" id="btn_test">Button</button> -->
-    <input type="text" id="" value="" placeholder="Search">
+    <div class="add-btn">
+      <a href="/tform" class="btn btn-default inner-add-complete">
+        <span class="fa fa-plus fa-fw"></span> Add a Ticket
+      </a>
+    </div>
+    <input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="Search">
 
     <div class="main">
       <div class="navbar-default sidebar" role="navigation">
@@ -20,13 +25,10 @@
                  <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
               </li>
               <li>
-                 <a href="/chatAll" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                 <a href="/chat"><i class="fa fa-commenting fa-fw"></i> Chat</a>
               </li>
               <li>
-                <a href="/tag"><i class="fa fa-commenting fa-fw"></i> Tag</a>
-              </li>
-              <li>
-                 <a href="/history"><i class="fa fa-commenting fa-fw"></i> History</a>
+                <a href="/tag"><i class="fa fa-server fa-fw"></i> Tag</a>
               </li>
               <li>
                  <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
@@ -46,7 +48,6 @@
               <th> Status </th>
               <th> Priority </th>
               <th> Due </th>
-              <th></th>
             </tr>
           </thead>
           <tbody id="ticket-content">

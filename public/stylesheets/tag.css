@@ -1,4 +1,10 @@
 
+#tag-wrap {
+  position: relative;
+  left: 250px;
+  width: 75%;
+}
+
 #edit-subt, #view-subt {
   list-style: none;
   position: relative;

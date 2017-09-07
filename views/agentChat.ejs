@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
+    <!-- Morris Charts CSS -->
+    <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
+    <link rel="stylesheet" href="stylesheets/main.css" />
+    <link rel="stylesheet" href="stylesheets/agentChat.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <!-- Navigation -->
+      <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+          <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">SHIELD</a>
+        </div>
+        <!-- /.navbar-header -->
+        <ul class="nav navbar-top-links navbar-right">
+
+          <!-- /.dropdown -->
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+              <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
+              <li class="divider"></li>
+              <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+            </ul>
+            <!-- /.dropdown-user -->
+          </li>
+          <!-- /.dropdown -->
+        </ul>
+        <!-- /.navbar-top-links -->
+        <div class="navbar-default sidebar" role="navigation">
+          <div class="sidebar-nav navbar-collapse">
+            <ul class="nav" id="side-menu">
+              <li>
+                <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+              </li>
+              <li>
+                <a href="/chat" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+              </li>
+              <li>
+                <a href="/tag"><i class="fa fa-server fa-fw"></i> Tag</a>
+              </li>
+              <li>
+                <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
+              </li>
+              <li>
+                <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
+              </li>
+            </ul>
+          </div>
+          <!-- /.sidebar-collapse -->
+        </div>
+        <!-- /.navbar-static-side -->
+      </nav>
+    </div>
+    <div id="home">
+      <h4 style="text-align: center" id="printAgent"></h4>
+
+      <div class="tab">
+        <h4 class="tablinks_head">Network Loading...</h4>
+        <div class="tablinks_area">
+          <div id="chat-area">chat-area-------------</div>
+          <ol class="list-group" id="clients"></ol>
+          <div id="idle-area">idle-area-------------</div>
+          <ol class="list-group" id="idle-roomes"></ol>
+        </div>
+      </div>
+
+      <div class="contentPanel">
+        <input type="text" class="datepicker" id="startdate" placeholder="start date" readonly></input>
+        <input type="text" class="datepicker" id="enddate" placeholder="end date" readonly></input>
+        <button class="filterDate" id="firsttime">filter first chat time</button>
+        <button class="filterDate" id="recenttime">filter recent chat time</button>
+        <br>
+
+        <select id="filterTimeSelect">
+          <option value="0">0~5 min</option>
+          <option value="1">5~10 min</option>
+          <option value="2">10~30 min</option>
+          <option value="3">30~60 min</option>
+          <option value="4">60up min</option>
+        </select>
+        <button class="filterTime" id="avgtime">filter average time</button>
+        <button class="filterTime" id="totaltime">filter total time</button>
+        <br>
+
+
+        <select class="searchSelect">
+          <option value="content">content</option>
+          <option value="sender">sender</option>
+          <option value="sendTime">msg time</option>>
+          <option value="description">description</option>
+        </select>
+        <input type="text" class="searchBox" placeholder="Search for messages..">
+        <button class="filterClean" style="margin-left: 10px;">clean</button>
+
+
+        <section id="canvas">
+
+        </section>
+
+        <!-- Trigger the modal with a button -->
+        <form action="" id="send-message" disabled>
+          <select id="room-select">
+            <option id="selectAll" value="全選">全選</option>
+            <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
+          </select>
+          <input size="35" id="message" />
+          <input type="submit"/>
+        </form>
+        <button id="testBtn">testBtn</button>
+      </div>
+
+      <button id="roomInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#roomInfoModal">Open Room Info</button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="roomInfoModal" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Room Information</h4>
+            </div>
+            <div class="modal-body">
+              <table class="info_input_table"></table>
+            </div>
+            <div class="modal-footer">
+              <button id="roomInfo-submit" class="btn btn-default" style="background-color: greenyellow;">Confirm</button>
+              <button id="roomInfo-cancel" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end -->
+
+      <button id="newGroupBtn" class="btn btn-default" data-toggle="modal" data-target="#roomInfoModal">new a group</button>
+
+
+    </div>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    <!-- <script src="javascripts/bootstrap-slider.js"></script> -->
+    <script src="javascripts/firebaseConfig.js"></script>
+    <script src="javascripts/sb-admin-2.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src="javascripts/agentChat.js"></script>
+  </body>
+</html>

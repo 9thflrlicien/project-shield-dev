@@ -221,7 +221,7 @@ input {
 /*Chat*/
 #chat {
   height: 500px;
-  background-color: transparent;
+  background-color: lightblue;
   display:block;
 }
 #contentWrap {

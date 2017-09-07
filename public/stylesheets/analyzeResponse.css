@@ -1,0 +1,57 @@
+body {
+  /*display: inline-block;*/
+}
+#content {
+  display: none;
+  height: 450px;
+  width: 95%;
+  float: left;
+}
+table {
+  /*display: table;*/
+  /*display: inline-table;*/
+  display: block;
+  width: 100%;
+  height: 90%;
+  overflow-y: auto;
+  overflow-x: auto;
+  /*padding-right: 10px;*/
+}
+#details {
+  height: 100%;
+}
+
+tbody {
+  width: 100%;
+}
+th, td {
+  padding: 10px;
+  text-align: center;
+  /*font-family: Microsoft JhengHei;*/
+  /*font-size: 15px;*/
+}
+tr:nth-child(even) {
+  background-color: #e8e8e8;
+}
+#category th,#category td {
+  padding-left: 50px;
+  padding-right: 50px;
+}
+.worker-in-group {
+  margin: auto 10px;
+  display: inline-table;
+}
+.worker-in-group p {
+  margin: 2px;
+  display: inline-table;
+}
+.ui-menu-item {
+  padding-left: 5px;
+}
+.btn-update-db {
+  position: absolute;
+  z-index: -1;
+  right: 0;
+  display: inline;
+  float: right;
+}

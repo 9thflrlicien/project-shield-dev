@@ -47,29 +47,50 @@
               </li>
               <!-- /.dropdown -->
           </ul>
+
           <!-- /.navbar-top-links -->
-
           <div class="navbar-default sidebar" role="navigation">
-              <div class="sidebar-nav navbar-collapse">
-                  <ul class="nav" id="side-menu">
-                    <li>
-                        <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
-                    </li>
-                    <li>
-                        <a href="/chatAll"><i class="fa fa-commenting fa-fw"></i> Chat</a>
-                    </li>
-                    <li>
-                        <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
-                    </li>
+            <div class="sidebar-nav navbar-collapse">
+              <ul class="nav" id="side-menu">
+                <li>
+                  <a href="/" class="active"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                </li>
+                <li>
+                  <a href="/chat"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                </li>
+                <li>
+                  <a href="/tag"><i class="fa fa-commenting fa-fw"></i> Tag</a>
+                </li>
+                <li>
+                  <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
+                </li>
+                <li>
+                  <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
+                </li>
+                <li id="message">
+                  <a href="#"><i class="fa fa-indent" aria-hidden="true"></i> Message</a>
+                </li>
+                <li class="subTag" style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                  <a href="/message_overview"> Overview</a>
+                </li>
+                <!--                      <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                <a href="/message_newtopic"> New Topic</a>
+              </li> -->
+              <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                <a href="/message_autoreply"> Auto Reply</a>
+              </li>
+              <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                <a href="/message_keywordsreply"> Keywords Reply</a>
+              </li>
+              <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                <a href="/message_addfriendreply"> Add Friend Reply</a>
+              </li>
 
-                    <li>
-                        <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
-                    </li>
-                  </ul>
-              </div>
-              <!-- /.sidebar-collapse -->
+            </ul>
           </div>
-          <!-- /.navbar-static-side -->
+          <!-- /.sidebar-collapse -->
+        </div>
+        <!-- /.navbar-static-side -->
       </nav>
     </div>
 
@@ -90,6 +111,10 @@
                     <td>ID: </td>
                     <td id="prof-id"></td>
                   </tr>
+                  <tr hidden>
+                    <td>Nickname: </td>
+                    <td id="prof-nick"></td>
+                  </tr>
                   <tr>
                     <td>Date of Birth: </td>
                     <td id="prof-dob"></td>
@@ -105,6 +130,30 @@
                   <tr>
                     <td>Phone Number: </td>
                     <td id="prof-phone"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Id 1: </td>
+                    <td id="prof-channelId_1"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Secret 1: </td>
+                    <td id="prof-channelSecret_1"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Access Token 1: </td>
+                    <td id="prof-channelAccessToken_1"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Id 2: </td>
+                    <td id="prof-channelId_2"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Secret 2: </td>
+                    <td id="prof-channelSecret_2"></td>
+                  </tr>
+                  <tr>
+                    <td>Channel Access Token 2: </td>
+                    <td id="prof-channelAccessToken_2"></td>
                   </tr>
                 </tbody>
               </table>
@@ -132,7 +181,7 @@
           </div>
           <div class="modal-body">
 
-            <form>
+            <form method="POST" action="/foo-route">
               <!-- 編號 -->
               <div class="form-group" hidden>
                 <label for="edit-id" class="col-2 col-form-label">ID</label>
@@ -143,6 +192,13 @@
                 <label for="prof-edit-name" class="col-2 col-form-label">Name: </label>
                 <div class="col-4">
                   <input class="form-control" type="text" value="" id="prof-edit-name">
+                </div>
+              </div>
+              <!-- 姓名 -->
+              <div class="form-group">
+                <label for="prof-edit-name" class="col-2 col-form-label">Nickname: </label>
+                <div class="col-4">
+                  <input class="form-control" type="text" value="" id="prof-edit-nick">
                 </div>
               </div>
               <!-- 出生日期 -->
@@ -176,6 +232,49 @@
                 </div>
               </div>
 
+                            <!-- Channel Id -->
+              <div class="form-group">
+                <label for="prof-edit-channelId_1" class="col-2 col-form-label">Channel Id 1: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelId_1">
+                </div>
+              </div>
+                            <!-- Channel Secret -->
+              <div class="form-group">
+                <label for="prof-edit-channelSecret_1" class="col-2 col-form-label">Channel Secret 1: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelSecret_1">
+                </div>
+              </div>
+                            <!-- Channel Access Token -->
+              <div class="form-group">
+                <label for="prof-edit-channelAccessToken_1" class="col-2 col-form-label">Channel Access Token 1: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken_1">
+                </div>
+              </div>
+                            <!-- Channel Id -->
+              <div class="form-group">
+                <label for="prof-edit-channelId_2" class="col-2 col-form-label">Channel Id 2: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelId_2">
+                </div>
+              </div>
+                            <!-- Channel Secret -->
+              <div class="form-group">
+                <label for="prof-edit-channelSecret_2" class="col-2 col-form-label">Channel Secret 2: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelSecret_2">
+                </div>
+              </div>
+                            <!-- Channel Access Token -->
+              <div class="form-group">
+                <label for="prof-edit-channelAccessToken_2" class="col-2 col-form-label">Channel Access Token 2: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken_2">
+                </div>
+              </div>
+
             </form>
 
           </div>
@@ -191,6 +290,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
     <script src="javascripts/firebaseConfig.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/profile.js"></script>
   </body>
 </html>

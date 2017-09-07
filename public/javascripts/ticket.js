@@ -4,9 +4,16 @@ var contactInfo = {} ;
 var agentInfo = {} ;
 var socket = io.connect();
 
-$(document).ready(function() {
+var yourdomain = 'fongyu';
+var api_key = '4qydTzwnD7xRGaTt7Hqw';
+var ticket_content = $('#ticket-content');
 
-  var ticket_content = $('#ticket-content');
+$(document).ready(function() {
+  if(window.location.pathname === '/ticket'){
+    setTimeout(loadTable, 1000)
+  }
+
+  $(document).on('click', '#form-submit', submitAdd) //新增ticket
   $(document).on('click', '.ticket_content',moreInfo) ;
   $(document).on('click', "#ticketInfo-submit", updateStatus) ;
   $(document).on('click', '.edit', showInput) ;
@@ -18,45 +25,44 @@ $(document).ready(function() {
     if(e.which == 13) $(this).blur() ;
   });
 
-  socket.on('all tickets info', data => {
-    ticket_content.empty() ;
-    //$("#console").append('<b>Ticket</b></br>');
-    // for (i in data[0]) {$("#console").append(i+":"+data[0][i]+"</br>");}
-    // for (i in data[1]) {$("#console").append(i+":"+data[1][i]+"</br>");}
-    console.log('Ticket: ');
-    console.log(data[0]);
-    ticketInfo = data ;
-    for(let i in data){
-      ticket_content.append(
-        '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
-        '<td style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
-        '<td>' + data[i].subject + '</td>' +
-        '<td class="status">' + statusMark(data[i].status) + '</td>' +
-        '<td class="priority">' + priorityMark(data[i].priority) + '</td>' +
-        '<td>'+displayDate(data[i].due_by)+'</td>' +
-        '<td>'+ dueDate(data[i].due_by)+'</td>' +
-        '</tr>'
-
-      );
-      // console.log(data[i].subject);
-    }
-  });
-  socket.on('all agents info', data => {
-    //$("#console").append('<b>Agent</b></br>');
-    // for (i in data) {$("#console").append(data[i].id+":"+responderName(data[i].id)+"</br>");}
-    agentInfo = data ;
-    console.log('Agent: ');
-    console.log(data[1]);
-  });
-  socket.on('all contacts info', data => {
-    //$("#console").append('<b>Contact</b></br>');
-    //for (i in data[0]) {$("#console").append(i+":"+data[0][i]+"</br>");}
-    contactInfo = data ;
-    console.log('Contact: ');
-    console.log(data[0]);
-  });
+  $("#exampleInputAmount").keyup(searchBar);
 
 });
+
+function loadTable(){
+  $.ajax(
+    {
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets?include=requester",
+      type: 'GET',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+        "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      success: function(data, textStatus, jqXHR) {
+        // console.log(data);
+        for(let i=0;i < data.length;i++){
+          ticketInfo = data;
+          ticket_content.prepend(
+            '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
+            '<td style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
+            '<td>' + data[i].subject + '</td>' +
+            '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
+            '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
+            '<td>'+displayDate(data[i].due_by)+'</td>' +
+            '<td>'+ dueDate(data[i].due_by)+'</td>' +
+            '</tr>'
+          )
+        }
+      },
+      error: function(jqXHR, tranStatus) {
+        console.log('error');
+      }
+    }
+  );
+
+
+}
 
 
 function showInput() {
@@ -124,7 +130,13 @@ function updateStatus() {
   console.log(json) ;
   obj = JSON.parse(json) ;
 
-  if(confirm("Are you sure to change ticket?")) socket.emit('update ticket',obj);
+  if(confirm("Are you sure to change ticket?")) {
+    socket.emit('update ticket',obj);
+    setTimeout(() => {
+      location.reload();
+    }, 1000)
+  }
+
 
 }
 
@@ -133,19 +145,19 @@ function showSelect(prop,n) {
   // alert(prop) ;
   let html = "<select class='select'>" ;
   if(prop == 'priority'){
-    html += "<option value="+n+">"+priorityMark(n)+"</option>" ;
+    html += "<option value="+n+">"+priorityNumberToText(n)+"</option>" ;
     for(let i=1;i<5;i++){
       if(i == n) continue ;
-      html += "<option value="+i+">"+priorityMark(i)+"</option>" ;
+      html += "<option value="+i+">"+priorityNumberToText(i)+"</option>" ;
     }
 
   }
   else if(prop == 'status'){
 
-    html += "<option value="+n+">"+statusMark(n)+"</option>" ;
+    html += "<option value="+n+">"+statusNumberToText(n)+"</option>" ;
     for(let i=2;i<6;i++){
       if(i == n) continue ;
-      html += "<option value="+i+">"+statusMark(i)+"</option>" ;
+      html += "<option value="+i+">"+statusNumberToText(i)+"</option>" ;
     }
   }
   else if(prop == 'responder'){
@@ -238,42 +250,8 @@ function moreInfo() {
   $(".info_input_table").append(display);
 }
 
-function statusMark(status){
-  switch(status) {
-    case 5:
-        return 'Closed';
-        break;
-    case 4:
-        return 'Resolved';
-        break;
-    case 3:
-        return 'Pending';
-        break;
-    case 2:
-        return 'Open';
-        break;
-    default:
-        return 'N/A';
-  }
-}
-function priorityMark(priority){
-  switch(priority) {
-    case 4:
-        return 'Urgent';
-        break;
-    case 3:
-        return 'High';
-        break;
-    case 2:
-        return 'Medium';
-        break;
-    case 1:
-        return 'Low';
-        break;
-    default:
-        return 'N/A';
-  }
-}
+
+
 function displayDate(date) {
   let origin = new Date(date) ;
   origin = origin.getTime();
@@ -288,24 +266,7 @@ function displayDate(date) {
 
   return yy+"/"+mm+"/"+dd+" "+hr+":"+min+":"+sec ;
 }
-function priorityColor(priority) {
-  switch(priority) {
-    case 4:
-        return 'rgb(230, 100, 100)';
-        break;
-    case 3:
-        return 'rgb(233, 198, 13)';
-        break;
-    case 2:
-        return 'rgb(113, 180, 209)';
-        break;
-    case 1:
-        return 'rgb(126, 215, 170)';
-        break;
-    default:
-        return 'N/A';
-  }
-}
+
 function dueDate(day) {
   let html = '' ;
   let nowTime = new Date().getTime() ;
@@ -326,4 +287,172 @@ function responderName(id) {
 }
 function addZero(n) {
   n = Number()
+}
+
+
+function submitAdd(){
+  let subject = $('#form-subject').val();
+  let email = $('#form-email').val();
+  let phone = $('#form-phone').val();
+  let status = $('#form-status option:selected').text();
+  let priority = $('#form-priority option:selected').text();
+  let description = $('#form-description').val();
+  ticket_data = '{ "description": "'+description+'", "subject": "'+subject+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+' }';
+  // console.log(ticket_data)
+
+  // 驗證
+  let email_reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
+  let phone_reg = /\b[0-9]+\b/;
+  if(!email_reg.test(email)){
+    $('#error').append('請輸入正確的email格式');
+    $('#form-email').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-email').css('border', '1px solid #ccc');
+    }, 3000);
+  } else if(!phone_reg.test(phone)) {
+    $('#error').append('請輸入正確的電話格式');
+    $('#form-phone').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-phone').css('border', '1px solid #ccc');
+    }, 3000);
+  } else if($('#form-subject').val().trim() === '') {
+    $('#error').append('請輸入主題');
+    $('#form-subject').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-subject').css('border', '1px solid #ccc');
+    }, 3000);
+  } else if($('#form-description').val().trim() === '') {
+    $('#error').append('請輸入內容');
+    $('#form-description').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-description').css('border', '1px solid #ccc');
+    }, 3000);
+  } else {
+    $.ajax(
+      {
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets",
+        type: 'POST',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+        },
+        data: ticket_data,
+        success: function(data, textStatus, jqXHR) {
+          // console.log('works');
+        },
+        error: function(jqXHR, tranStatus) {
+          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
+          response_text = jqXHR.responseText;
+        }
+      }
+    );
+
+    $('#form-subject').val('');
+    $('#form-email').val('');
+    $('#form-phone').val('');
+    $('#form-description').val('');
+
+    setTimeout(() => {
+      location.href = '/ticket';
+    }, 1000)
+  }
+
+}
+
+function priorityTextToMark(priority){
+  switch(priority) {
+    case 'Urgent':
+        return 4;
+        break;
+    case 'High':
+        return 3;
+        break;
+    case 'Medium':
+        return 2;
+        break;
+    default:
+        return 1;
+  }
+}
+
+function statusTextToMark(status){
+  switch(status) {
+    case 'Closed':
+        return 5;
+        break;
+    case 'Resolved':
+        return 4;
+        break;
+    case 'Pending':
+        return 3;
+        break;
+    default:
+        return 2;
+  }
+}
+
+function priorityColor(priority) {
+  switch(priority) {
+    case 4:
+        return 'rgb(230, 100, 100)';
+        break;
+    case 3:
+        return 'rgb(233, 198, 13)';
+        break;
+    case 2:
+        return 'rgb(113, 180, 209)';
+        break;
+    case 1:
+        return 'rgb(126, 215, 170)';
+        break;
+    default:
+        return 'N/A';
+  }
+}
+
+function statusNumberToText(status){
+  switch(status) {
+    case 5:
+        return 'Closed';
+        break;
+    case 4:
+        return 'Resolved';
+        break;
+    case 3:
+        return 'Pending';
+        break;
+    default:
+        return 'Open';
+  }
+}
+
+function priorityNumberToText(priority){
+  switch(priority) {
+    case 4:
+        return 'Urgent';
+        break;
+    case 3:
+        return 'High';
+        break;
+    case 2:
+        return 'Medium';
+        break;
+    default:
+        return 'Low';
+  }
+}
+
+function searchBar(){
+  let content = $('#ticket-content tr');
+  let val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+  content.show().filter(function() {
+    var text1 = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+    return !~text1.indexOf(val);
+  }).hide();
 }
