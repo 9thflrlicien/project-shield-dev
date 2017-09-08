@@ -8,6 +8,7 @@ $(document).ready(function() {
     var messageInput = $('#message'); //input for agent to send message
     var messageContent = $('#chat'); //what's this
 
+
     var clients = $('#clients'); //online rooms of tablinks
     var idles = $('#idle-roomes'); //idle rooms of tablinks
     var name_list = []; //list of all users
@@ -62,6 +63,9 @@ $(document).ready(function() {
     $(document).on('click', '#upImg', upImg);
     $(document).on('click', '#upVid', upVid);
     $(document).on('click', '#upAud', upAud);
+    $(document).on('click', '#save-group-btn', groupSubmit); 
+    $(document).on('click', '#groupModalBtn', loadGroup);
+
 
     $(document).on('click', '.dropdown-menu', function(event) {
         event.stopPropagation();
@@ -85,41 +89,56 @@ $(document).ready(function() {
     //   });
 
 
-$(".myText").dblclick(function(event) {
-    var group1 = $('.myText').text();
-    $('.myText').html("<input type='text' id='test' value='"+group1+"'/>");
-    $('#test').focus();
-    event.stopPropagation();
-    group1 = $('#test').text();
+function groupSubmit() {
+  let userId = auth.currentUser.uid;
+  let group1 = $('.groupInput').val();
+    if (confirm('確認更改群組名稱為「'+group1+'」？')){
 
-    $('#Line_1').dblclick(function(event) {
-    let userId = auth.currentUser.uid;
 
-    // confirm if change
-    if (confirm('確認更改群組名稱為「'+group1+'」？')) {
-        // Save to firebase
-        database.ref('users/' + userId).set({
-        group1: group1,
-        });
-        console.log('groupname saved to firebase');
-        alert('群組名稱已修改為'+group1);
-        $('.myText').html(group1);
-    } else {
-        database.ref('users/' + userId).on('value', snap => {
-        let profInfo = snap.val();
-        if(profInfo === null) {
-          $('#error-message').show();
-        }
-        else {
-          let profInfo = snap.val();
-          $('.myText').text(profInfo.group1);
-        }
-
-  });
+    database.ref('group/' + userId).update({
+      group1: group1
+    });
+  groupClear();
+  loadGroup();
+  $('#groupModal').modal('hide');
+    $('#save-group-btn').hide();
+    $('#cls-cal-btn').hide();
+  console.log('groupname saved to firebase');
+  alert('群組名稱已修改為'+group1);
 }
-});
+}//end groupSubmit
+function groupClear() {
+  $('#group1').val('');
+}//end groupClear
+function loadGroup() {
+  let userId = auth.currentUser.uid;
+  // let id = $('#keyId').val();
+  database.ref('group/' + userId).on('value', snap => {
+  let groupInfo = snap.val();
 
-});
+    if(groupInfo === null) {
+      $('#error-message').show();//還沒寫
+    } else {
+          $('#group1').text(groupInfo.group1);
+          $('.myText').text(groupInfo.group1);
+
+    }
+    $("#group1").dblclick(function(event) {
+    $('#save-group-btn').show();
+    $('#cls-cal-btn').show();
+    // group1 = $('.myText').text();
+    $('#group1').html("<input class=\"groupInput\" type=\"text\" value=\""+groupInfo.group1+"\" id=\"group1\" required=\"true\" style=\"width:80px;height:30px;border-radius:5px\" />");
+
+});//group1 dblclick
+    $('#cls-cal-btn').click(function(){
+        $('.myText').text(groupInfo.group1);
+        $('#save-group-btn').hide();
+        $('#cls-cal-btn').hide();
+
+    })
+
+    });//database.ref
+  };//end loadGroup
 
 
     $("#chatApp").hover(
@@ -204,6 +223,7 @@ $(".myText").dblclick(function(event) {
         setTimeout(function() {
             socket.emit("get tags from chat");
         }, 10);
+        setTimeout(loadGroup,1000);
     }
 
     function loadChatRoom(){
@@ -672,10 +692,9 @@ $(".myText").dblclick(function(event) {
             target.find('.unread_msg').html(data.unRead).css("display", "block");
             target.attr("data-recentTime", data.time);
             //update tablnks's last msg
+
             if (data.unRead == 0 || data.unRead == false || data.unRead == 'undefined') {
-                console.log('im here')
-                target.find('.unread_msg').html(data.unRead).css("display", "none");
-            }
+                target.find('.unread_msg').html(data.unRead).css("display", "none");            }
             n++;
 
             let ele = target.parents('b'); //buttons to b
@@ -685,7 +704,7 @@ $(".myText").dblclick(function(event) {
             clients.prepend('<b><button id="userInfoBtn" data-toggle="modal" data-target="#userInfoModal"  rel="' + data.id + '" class="tablinks"><span id="nick">' +
                 +data.name +
                 "</span><br><span id='msg' style='font-weight: " + font_weight + "'>" + toTimeStr(data.time) +
-                data.message + "</span><div class='unread_msg'>" + data.profile.unRead + "</div></button></b>"
+                data.message + "</span><div class='unread_msg'>" + data.unRead + "</div></button></b>"
             );
         }
 
@@ -719,6 +738,9 @@ $(".myText").dblclick(function(event) {
             socket.emit('send message2', sendObj); //socket.emit
         } //else
         messageInput.val('');
+
+
+
     });
     //
     // function selectAll(){
@@ -736,8 +758,6 @@ $(".myText").dblclick(function(event) {
 
     socket.on("push tags to chat", data => {
         TagsData = data;
-        console.log('tagsdata on line 702');
-        console.log(TagsData);
         initialFilterWay();
         initialFilterSilder();
     });

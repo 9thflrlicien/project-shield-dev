@@ -124,7 +124,7 @@ function bot_on_message(event) {
           console.log("All sent!");
         }
         function sendToFrontSocket(obj) {
-          for( let prop in chatData ) {y
+          for( let prop in chatData ) {
             if(chatData[prop].Profile.userId == obj.receiverId) {
               var count_unread_toFront = chatData[prop].Profile.unRead;
             }
@@ -1008,10 +1008,18 @@ io.sockets.on('connection', (socket) => {
           console.log("agent_sendTo_receiver undefined!");
         }
 
+        for( let i in chatData ) {
+        if( chatData[i].Profile.userId == data.id ) {
+          var unRead_fromProfile = chatData[i].Profile.unRead;
+          break;
+        }
+      }
+
         var msgObj = {
           owner: "agent",
           name: agent_nickname,
           time: nowTime,
+          unRead: unRead_fromProfile
         };
 
         function emitIO_and_pushDB(obj) {

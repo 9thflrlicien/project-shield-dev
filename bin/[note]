@@ -1,8 +1,32 @@
 [note]
 ===========unRead msg=================
-when agent reply, unread_msg is not hide so it shows zero.
-the problem is I find no 'send message agentChat' in chat.js 
-so i can't insert a $('.unread_msg').hide() there
+function displayClient data.unRead is undefined
+send message2 --> new message2 somewhere there has a problem.
+(now add unRead: 0 on www line 1015-->new user tab can't attach fixing problem on line 681 displayCLient)
+unRead = 0 會不會有問題
+unRead 除了0是否可以設成別的東西-->仿照read message的寫法
+找出是否讀得到該用戶的profile on line 1013
+
+agent回覆訊息 unread tag有問題
+send message2 -> new message2
+
+『新進來的profile頭像顯示有點問題（刷新問題就可以解決）』
+
+測試enter_groupname database.set改成database.push看看profile會不會被洗掉-->『只有nickname被洗掉，之後再看看時麼問題！！！！！！』
+group1被push到奇怪的位置-->嘗試用profile.js的方式push-->還是依樣在奇怪的位置，多了一組疑問的id??
+
+再確認一次group1儲存的位置
+
+用push會一直新增資料組，可能要改回用set
+看一下colman之前怎麼寫modal那邊的
+
+考慮做一個modal, 開新的資料庫不然一直有問題
+開新資料庫:group，要參考ticket的寫法
+先跑去做modal
+連動groupname&modal
+又動到nickname profile???
+忘記更新firebase儲存方式，重新測試
+id is not defined? on line130
 
 ===========modify group name==========
 on chat.js line 88
