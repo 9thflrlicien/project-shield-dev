@@ -57,6 +57,9 @@ var config = {
 };
 firebase.initializeApp(config);
 const newDBRef = firebase.database().ref().child('chats/Data');
+// var newDBRef = [null, null];
+var channelIds = [-1, -1];
+
 const agentDBRef = firebase.database().ref().child('chats/AgentChatData');
 const tagsRef = firebase.database().ref().child('tags');
 newDBRef.on('value', snapshot=> {
@@ -97,6 +100,10 @@ server.on('listening', onListening);
 // 接收訊息
 // LINE bot implement
 function bot_on_message(event) {
+  let channelId = this.options.channelId;
+  // let firebaseDB = newDBRef[ channelIds.indexOf(channelId) ];
+  // console.log("INDEX = "+channelIds.indexOf(channelId));
+
   console.log(event);
   let message_type = event.message.type;
   let message_lineTochat = event.message.text;
@@ -120,102 +127,103 @@ function bot_on_message(event) {
 
     // from wenyen
     //  ===================  KINDS ====================
-    if (message_type === 'sticker') {
-      let packageId = event.message.packageId;
-      let stickerId = event.message.stickerId;
-      msgObj.message = '<img src="https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/'+stickerId+'/android/sticker.png"' +
-      'width="20%" alt="sticker cant display!"/>';
-      emitIO_and_pushDB(msgObj);
-    }
-    else if (message_type === 'location') {
-      msgObj.message = 'Location received: ';
-      emitIO_and_pushDB(msgObj);
-      msgObj.message = event.message.address;
-      emitIO_and_pushDB(msgObj);
-      event.message.content().then(function(content) {
-        /*'base64'是圖片的編碼*/
-        // console.log(content.toString('base64'));
-        /*把編碼轉換成圖片(image/png)做成連結的方式*/
-        let latitude = event.message.latitude;
-        let longitude = event.message.longitude;
-        msgObj.message = '<a target="_blank" href=" https://www.google.com.tw/maps/place/' + content.toString('base64')
-        + '/@' + latitude + ',' + longitude + ',15z/data=!4m5!3m4!1s0x0:0x496596e7748a5757!8m2!3d'
-        + latitude + '!4d' + longitude + '">LOCATION LINK</a>';
+    {
+      if (message_type === 'sticker') {
+        let packageId = event.message.packageId;
+        let stickerId = event.message.stickerId;
+        msgObj.message = '<img src="https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/'+stickerId+'/android/sticker.png"' +
+        'width="20%" alt="sticker cant display!"/>';
         emitIO_and_pushDB(msgObj);
-      }).catch(function(error) {
-        // error
-      });
-
-    }
-    else if (message_type === 'image') {
-      msgObj.message = 'Image received. Please wait for the link below';
-      emitIO_and_pushDB(msgObj);
-      event.message.content().then(function(content) {
-        /*'base64'是圖片的編碼*/
-        // console.log(content.toString('base64'));
-        /*把編碼轉換成圖片(image/png)做成連結的方式*/
-        msgObj.message = '<a href="data:image/png;base64,' + content.toString('base64') + '" ' +
-        ' target="_blank" ><img src="data:image/png;base64,' + content.toString('base64') + '" ' +
-        'width="20%" alt="image embedded using base64 encoding!"/></a>';
-        emitIO_and_pushDB(msgObj);
-
-      }).catch(function(error) {
-        // error
-        console.log(error);
-      });
-
-    }
-    else if (message_type === 'audio') {
-      msgObj.message = 'Audio received. Please wait for the link below.';
-      emitIO_and_pushDB(msgObj);
-      event.message.content().then(function(content) {
-        // console.log(content.toString('base64'));
-        msgObj.message = '<audio controls><source src="data:audio/mp4;base64,' + content.toString('base64') + '" ' +
-        '" type="audio/mp4"></audio>';
-        emitIO_and_pushDB(msgObj);
-
-      }).catch(function(error) {
-        // error
-        console.log(error);
-      });
-    }
-    else if (message_type === 'video') {
-      msgObj.message = 'Video received. Please wait for the link below.';
-      emitIO_and_pushDB(msgObj);
-
-      event.message.content().then(function(content) {
-        // console.log(content.toString('base64'));
-        msgObj.message = '<video width="20%" controls><source src="data:video/mp4;base64,' + content.toString('base64') + '" ' +
-        '" type="video/mp4"></video>';
-        emitIO_and_pushDB(msgObj);
-
-      }).catch(function(error) {
-        // error
-        console.log(error);
-      });
-    }
-    else if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
-      let urlStr = '<a href=';
-      if (message_lineTochat.indexOf('https') === -1 || message_lineTochat.indexOf('http') === -1) {
-        urlStr += '"https://';
       }
-      msgObj.message = urlStr + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>';
-      emitIO_and_pushDB(msgObj);
-    }
-    else {
-      msgObj.message = message_lineTochat;
-      emitIO_and_pushDB(msgObj);
-      apiai(msgObj);
-      if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
+      else if (message_type === 'location') {
+        msgObj.message = 'Location received: ';
+        emitIO_and_pushDB(msgObj);
+        msgObj.message = event.message.address;
+        emitIO_and_pushDB(msgObj);
+        event.message.content().then(function(content) {
+          /*'base64'是圖片的編碼*/
+          // console.log(content.toString('base64'));
+          /*把編碼轉換成圖片(image/png)做成連結的方式*/
+          let latitude = event.message.latitude;
+          let longitude = event.message.longitude;
+          msgObj.message = '<a target="_blank" href=" https://www.google.com.tw/maps/place/' + content.toString('base64')
+          + '/@' + latitude + ',' + longitude + ',15z/data=!4m5!3m4!1s0x0:0x496596e7748a5757!8m2!3d'
+          + latitude + '!4d' + longitude + '">LOCATION LINK</a>';
+          emitIO_and_pushDB(msgObj);
+        }).catch(function(error) {
+          // error
+        });
+
+      }
+      else if (message_type === 'image') {
+        msgObj.message = 'Image received. Please wait for the link below';
+        emitIO_and_pushDB(msgObj);
+        event.message.content().then(function(content) {
+          /*'base64'是圖片的編碼*/
+          // console.log(content.toString('base64'));
+          /*把編碼轉換成圖片(image/png)做成連結的方式*/
+          msgObj.message = '<a href="data:image/png;base64,' + content.toString('base64') + '" ' +
+          ' target="_blank" ><img src="data:image/png;base64,' + content.toString('base64') + '" ' +
+          'width="20%" alt="image embedded using base64 encoding!"/></a>';
+          emitIO_and_pushDB(msgObj);
+
+        }).catch(function(error) {
+          // error
+          console.log(error);
+        });
+
+      }
+      else if (message_type === 'audio') {
+        msgObj.message = 'Audio received. Please wait for the link below.';
+        emitIO_and_pushDB(msgObj);
+        event.message.content().then(function(content) {
+          // console.log(content.toString('base64'));
+          msgObj.message = '<audio controls><source src="data:audio/mp4;base64,' + content.toString('base64') + '" ' +
+          '" type="audio/mp4"></audio>';
+          emitIO_and_pushDB(msgObj);
+
+        }).catch(function(error) {
+          // error
+          console.log(error);
+        });
+      }
+      else if (message_type === 'video') {
+        msgObj.message = 'Video received. Please wait for the link below.';
+        emitIO_and_pushDB(msgObj);
+
+        event.message.content().then(function(content) {
+          // console.log(content.toString('base64'));
+          msgObj.message = '<video width="20%" controls><source src="data:video/mp4;base64,' + content.toString('base64') + '" ' +
+          '" type="video/mp4"></video>';
+          emitIO_and_pushDB(msgObj);
+
+        }).catch(function(error) {
+          // error
+          console.log(error);
+        });
+      }
+      else if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
         let urlStr = '<a href=';
         if (message_lineTochat.indexOf('https') === -1 || message_lineTochat.indexOf('http') === -1) {
           urlStr += '"https://';
         }
-        msgObj.message = urlStr + message_lineTochat + '/ target="_blank">' + message_lineTochat + '</a>';
+        msgObj.message = urlStr + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>';
         emitIO_and_pushDB(msgObj);
       }
+      else {
+        msgObj.message = message_lineTochat;
+        emitIO_and_pushDB(msgObj);
+        apiai(msgObj);
+        if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
+          let urlStr = '<a href=';
+          if (message_lineTochat.indexOf('https') === -1 || message_lineTochat.indexOf('http') === -1) {
+            urlStr += '"https://';
+          }
+          msgObj.message = urlStr + message_lineTochat + '/ target="_blank">' + message_lineTochat + '</a>';
+          emitIO_and_pushDB(msgObj);
+        }
+      }
     }
-
     // function
     function emitIO_and_pushDB(obj) {
       console.log("sending object user: ");
@@ -278,6 +286,7 @@ function bot_on_message(event) {
       }
     }
     function sendToFrontSocket(obj) {
+      obj = JSON.parse(JSON.stringify(obj));
       for( let prop in chatData ) {
         if(chatData[prop].Profile.userId == obj.receiverId) {
           var count_unread_toFront = chatData[prop].Profile.unRead;
@@ -288,7 +297,7 @@ function bot_on_message(event) {
       obj.pictureUrl = profile.pictureUrl;
       console.log('insert unRead: ');
       console.log(obj);
-      io.sockets.emit('new message2', obj);
+      io.sockets.emit('new message2', {data: obj, channelId: channelId});
       count_unread_toFront++;
     }
 
@@ -768,6 +777,7 @@ function bot_on_message(event) {
 }
 
 function bot_on_postback(event){
+  console.log("postback");
   let data = event.postback.data ;
   let receiverId = event.source.userId;
   let receiver_name;
@@ -1159,41 +1169,49 @@ io.sockets.on('connection', (socket) => {
     socket.emit('push inside chat', thisAgentData);
   });
 
-
-
   // 更新群組
   socket.on('update bot', (data) => {
+    update_line_bot(data);
+  });
+  socket.on('request line channel', (userId)=> {
+    console.log("userId = "+userId);
+    firebase.database().ref('users/' + userId).once('value', snap => {
+      let chatInfo = snap.val();
+      let chanId_1 = chatInfo.chanId_1;
+      let chanId_2 = chatInfo.chanId_2;
+      console.log("response line channel, channelId = "+chanId_1+', '+chanId_2);
+      socket.emit('response line channel', {
+        chanId_1: chanId_1,
+        chanId_2: chanId_2
+      });
+    });
+  });
+  function update_line_bot( chanInfo ) {
+    console.log("update_line_bot");
+    console.log("chanInfo: ");
+    console.log(chanInfo);
     if( bot[0] ) bot[0]._events = {};
     if( bot[1] ) bot[1]._events = {};
-    for( let i=0; i<data.length; i++ ) {
+    for( let i=0; i<chanInfo.length; i++ ) {
       console.log("update Line channel_"+i+" information.");
-      // console.log(data[i]);
-      bot[i] = linebot(data[i]);
-      console.log(bot[i]);
+      bot[i] = linebot(chanInfo[i]);
       linebotParser[i] = bot[i].parser();
-      console.log(linebotParser[i]);
       bot[i].on('message', bot_on_message);
       bot[i].on('postback', bot_on_postback);
-      console.log('update done');
-    }
-  });
 
-  // 打開群組
-  socket.on('chat to server', data => {
-    console.log(data[0]);
-    console.log(data[1]);
-    for( let i=0; i<data.length; i++ ) {
-      console.log("update Line channel_"+i+" information.");
-      console.log(data[i]);
-      bot[i] = linebot(data[i]);
-      console.log(bot[i]);
-      linebotParser[i] = bot[i].parser();
-      console.log(linebotParser[i]);
-      bot[i].on('message', bot_on_message);
-      bot[i].on('postback', bot_on_postback);
+      channelIds[i] = chanInfo[i].channelId;
+      //
+      // newDBRef[i] = firebase.database().ref().child('chats/' + channelIds[i]);
+      // newDBRef[i].push({abc:"abc"});
+      // newDBRef[i].on('value', snapshot=> {
+      //   chatData[i] = snapshot.val();
+      //   console.log("chat data_"+i+" loaded");
+      // });
+
       console.log('update done');
     }
-  });
+  }
+
 
   // 新使用者
   socket.on('new user', (data, callback) => {
@@ -1342,47 +1360,48 @@ io.sockets.on('connection', (socket) => {
     var message;
     let nowTime = Date.now();
 
-    if(msg.includes('/image')){
-      let link = msg.substr(7);
-      // console.log(link);
-      message = {
-        type: "image",
-        originalContentUrl: link,
-        previewImageUrl: link
-      };
+    {
+      if(msg.includes('/image')){
+        let link = msg.substr(7);
+        // console.log(link);
+        message = {
+          type: "image",
+          originalContentUrl: link,
+          previewImageUrl: link
+        };
+      }
+      else if(msg.includes('/audio')){
+        let link = msg.substr(7);
+        // console.log(link);
+        message = {
+          type: "audio",
+          originalContentUrl: link,
+          duration: 6000
+        };
+      }
+      else if(msg.includes('/video')){
+        let link = msg.substr(7);
+        // console.log(link);
+        message = {
+          type: "video",
+          originalContentUrl: link,
+          previewImageUrl: "https://www.movienewsguide.com/wp-content/uploads/2016/03/Phoenix-Suns.jpg"
+        };
+      }
+      else if (msg.includes('/sticker')) {
+        message = {
+          type: "sticker",
+          packageId: parseInt(msg.substr(msg.indexOf(' '))),
+          stickerId: parseInt(msg.substr(msg.lastIndexOf(' ')))
+        };
+      }
+      else {
+        message = {
+          type: "text",
+          text: msg
+        };
+      }
     }
-    else if(msg.includes('/audio')){
-      let link = msg.substr(7);
-      // console.log(link);
-      message = {
-        type: "audio",
-        originalContentUrl: link,
-        duration: 6000
-      };
-    }
-    else if(msg.includes('/video')){
-      let link = msg.substr(7);
-      // console.log(link);
-      message = {
-        type: "video",
-        originalContentUrl: link,
-        previewImageUrl: "https://www.movienewsguide.com/wp-content/uploads/2016/03/Phoenix-Suns.jpg"
-      };
-    }
-    else if (msg.includes('/sticker')) {
-      message = {
-        type: "sticker",
-        packageId: parseInt(msg.substr(msg.indexOf(' '))),
-        stickerId: parseInt(msg.substr(msg.lastIndexOf(' ')))
-      };
-    }
-    else {
-      message = {
-        type: "text",
-        text: msg
-      };
-    }
-
     // 訊息傳到LINE
     if (agent_sendTo_receiver !== undefined ) { // 需要新增一個判斷式來分別出要傳訊息給哪一間聊天室
       bot[0].push(agent_sendTo_receiver, message);

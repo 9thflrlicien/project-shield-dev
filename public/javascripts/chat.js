@@ -2,11 +2,9 @@ $(document).ready(function() {
   var socket = io.connect(); //socket
   // var unreadCount = 0;
 
-  var users = $('#users'); //what's this
   var printAgent = $('#printAgent'); //agent welcome text
   var messageForm = $('#send-message'); //button for agent to send message
   var messageInput = $('#message'); //input for agent to send message
-  var messageContent = $('#chat'); //what's this
 
   var clients = $('#clients'); //online rooms of tablinks
   var idles = $('#idle-roomes'); //idle rooms of tablinks
@@ -14,6 +12,8 @@ $(document).ready(function() {
   var user_list = []; // user list for checking on idle chat rooms
 
   var canvas = $("#canvas"); //panel of message canvas
+
+  var userId = "";
   var person = "agentColman"; //agent name
   var infoCanvas = $("#infoCanvas");
 
@@ -54,10 +54,10 @@ $(document).ready(function() {
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.tablinks', clickUserTablink);
   $(document).on('click', '.topright', clickSpan);
-  $(document).on('click', '#userInfoBtn', showProfile);
+  // $(document).on('click', '#userInfoBtn', showProfile);
   $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
-  $(document).on('click', '.edit-button', changeProfile);
-  $(document).on('click', '#userInfo-submit', submitProfile);
+  // $(document).on('click', '.edit-button', changeProfile);
+  // $(document).on('click', '#userInfo-submit', submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
   $(document).on('click', '#upImg', upImg);
   $(document).on('click', '#upVid', upVid);
@@ -87,62 +87,59 @@ $(document).ready(function() {
 
   $("#chatApp").hover(
     function() {
-      $(this).css('width', '250px').find('h4').delay(200).fadeIn();
+      $(this).css('width', '250px').find('h4').delay(50).fadeIn();
     },
     function() {
       $(this).css('width', '70px').find('h4').hide();
     }
   );
-  $('.chatApp_item').click(function() {
+  $('.chatApp_item[open="true"]').click(function() {
+    $(this).addClass('select').siblings().removeClass('select');
+
     let id = $(this).attr('id');
-    $(this).addClass('select')
-    .siblings().removeClass('select');
-    $("#user").children('#' + id).toggle('fast').siblings('.tablinks_area').hide();
-    $(".filter_head").children("#title").html($(this).children('h4').text());
+    $("#user").children('#' + id).show('fast').siblings('.tablinks_area').hide();
+
+    let title = $(this).children('h4').text();
+    $(".filter_head #title").html(title);
   });
+
   $(".filter_head #search").click(function() {
-    if (!$(".tablinks_head").children('.search').is(':visible')) {
-      $(".tablinks_head").css('height', '120px').children('.search').show().siblings('.search').hide();
-    } else {
-      $(".tablinks_head").css('height', '80px').children('.search').delay(100).fadeOut();
+    if( !$(".tablinks_head").children('.search').is(':visible') ) {
+      $(".tablinks_head").css('height', '+=40px').children('.search').fadeIn('fast');
+    }
+    else {
+      $(".tablinks_head").css('height', '-=40px').children('.search').delay(100).fadeOut('fast');
     }
   });
   $(".filter_head #filter").click(function() {
-    if (!$(".tablinks_head").children('.filterArea').is(':visible')) {
-      $(".tablinks_head").css('height', '400px').children('.filterArea').css('display', 'flex').siblings('.filter').hide();
-
+    if( !$(".tablinks_head").children('.filterArea').is(':visible') ) {
+      $(".tablinks_head").css('height', '+=320px').children('.filterArea').css('display', 'flex');
     }
     else {
-      $(".tablinks_head").css('height', '80px').children('.filterArea').delay(100).fadeOut();
+      $(".tablinks_head").css('height', '-=320px').children('.filterArea').delay(100).fadeOut('fast');
     }
   });
 
-  $('.onclick_show').on('click', function() {
-    console.log('onclick_show exe');
-    var target = $(this).attr('rel');
-
-    if ($("#" + target).is(":visible")) {
-      $("#" + target).hide();
-    } else {
-      $("#" + target).show();
-    }
-  }); //onclick_show
-
-
-  var content = $('.content');
-  var sender = $('.sender');
-
-  function showTooltip() {
-    sender.addClass('show');
-  }
-
-  function hideTooltip() {
-    sender.removeClass('show');
-  }
-
-  content.hover(showTooltip, hideTooltip);
+  // $('.onclick_show').on('click', function() {
+  //   console.log('onclick_show exe');
+  //   var target = $(this).attr('rel');
+  //
+  //   if ($("#" + target).is(":visible")) {
+  //     $("#" + target).hide();
+  //   } else {
+  //     $("#" + target).show();
+  //   }
+  // }); //onclick_show
 
 
+  $(document).on("mouseenter", ".message", function() {
+    console.log("HAA");
+    $(this).find('.sender').show();
+  });
+  $(document).on("mouseleave", ".message", function() {
+    console.log("888");
+    $(this).find('.sender').hide();
+  });
 
   function groupSubmit() {
     let userId = auth.currentUser.uid;
@@ -180,7 +177,10 @@ $(document).ready(function() {
       $("#group1").dblclick(function(event) {
         $('#save-group-btn').show();
         $('#cls-cal-btn').show();
-        $('#group1').html("<input class=\"groupInput\" type=\"text\" value=\""+groupInfo.group1+"\" id=\"group1\" required=\"true\" style=\"width:80px;height:30px;border-radius:5px\" />");
+        $('#group1').html(
+          "<input class='groupInput' type'text' value'"+groupInfo.group1+
+          "' id='group1' required='true' style='width:80px;height:30px;border-radius:5px' />"
+        );
 
       });//group1 dblclick
       $('#cls-cal-btn').click(function(){
@@ -213,19 +213,33 @@ $(document).ready(function() {
   }, 20000);
 
   if (window.location.pathname === '/chat') {
-    console.log("Start loading history message...");
-    setTimeout(function() {
-      socket.emit('get json from back');
-    }, 10); //load history msg
-    setTimeout(agentName, 1500); //enter agent name
-    setTimeout(loadChatRoom, 2000);
-    setTimeout(function() {
-      socket.emit("get tags from chat");
+    socket.emit("get tags from chat");
+    let timer_1 = setInterval( function() {
+      if( !auth.currentUser ) {
+        console.log("currentUser not loaded yet!");
+        return;
+      }
+      else {
+        clearInterval(timer_1);
+        userId = auth.currentUser.uid;
+        console.log("userId = "+userId);
+        agentName();
+        // loadChatRoom();
+        console.log("Start loading Line channel...");
+        socket.emit('request line channel', userId);
+      }
     }, 10);
   }
+  socket.on('response line channel', (data) => {
+    $('.tablinks_area#Line_1').attr('rel', data.chanId_1);
+    $('.tablinks_area#Line_2').attr('rel', data.chanId_2);
+    console.log("Line channel loading complete!");
+
+    console.log("Start loading history message...");
+    socket.emit('get json from back');
+  })
 
   function loadChatRoom(){
-    var userId = auth.currentUser.uid;
     console.log(userId);
     var chatObj;
     database.ref('users/' + userId).on('value', snap => {
@@ -242,9 +256,10 @@ $(document).ready(function() {
           channelSecret: chatInfo.chanSecret_2,
           channelAccessToken: chatInfo.chanAT_2
         }
-      ]
-    })
-    socket.emit('chat to server', chatObj)
+      ];
+      socket.emit('chat to server', chatObj);
+    });
+
   }
 
   function closeIdleRoomTry() {
@@ -345,8 +360,8 @@ $(document).ready(function() {
       "</div>" +
       loadPanelProfile(profile) +
       '</div>' +
-      '<div class="card-body" id="ticket" hidden="true"></div>' +
-      '<div class="card-body" id="todo" hidden="true">ToDo</div>' +
+      '<div class="card-body" id="ticket" style="display:none; "></div>' +
+      '<div class="card-body" id="todo" style="display:none; ">ToDo</div>' +
       '</div>' +
       '</div>'
     );
@@ -489,15 +504,15 @@ $(document).ready(function() {
     let msgTime = '<span style="float:right;font-size:12px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</span>'
     // display last message at tablinks
     clients.append(
-      "<b><button style='text-align:left' rel=\"" + profile.userId + "\" class=\"tablinks\"" +
-      "data-avgTime=\"" + profile.avgChat + "\" " +
-      "data-totalTime=\"" + profile.totalChat + "\" " +
-      "data-chatTimeCount=\"" + profile.chatTimeCount + "\" " +
-      "data-firstTime=\"" + profile.firstChat + "\" " +
-      "data-recentTime=\"" + lastMsg.time + "\" id=\"userInfoBtn\"> "
-      // + "<img src=\"\" alt=\"無法顯示相片\" class=\"userPhoto\" style=\"width:128px;height:128px;\"/>"
-      +
-      "<div class='img_holder'>" +
+      "<b><button style='text-align:left' rel='" + profile.userId + "' class='tablinks'" +
+      "data-avgTime='" + profile.avgChat + "' " +
+      "data-totalTime='" + profile.totalChat + "' " +
+      "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+      "data-firstTime='" + profile.firstChat + "' " +
+      "data-recentTime='" + lastMsg.time + "' >"+
+      // "id='userInfoBtn'> "+
+      // + "<img src='' alt='無法顯示相片' class='userPhoto' style='width:128px;height:128px;'/>"
+      "<div class='unread_msg'>1</div><div class='img_holder'>" +
       "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
       "</div>" +
       "<div class='msg_holder'>" +
@@ -557,19 +572,15 @@ $(document).ready(function() {
 
   function agentName() {
     //enter agent name
-    var userId = auth.currentUser.uid;
-    // console.log(userId);
-    database.ref('users/' + userId).on('value', snap => {
+    database.ref('users/' + userId).once('value', snap => {
       let profInfo = snap.val();
-      // console.log(profInfo);
       let profId = Object.keys(profInfo);
-      let person = snap.val().nickname; //從DB獲取agent的nickname
+      person = profInfo.nickname; //從DB獲取agent的nickname
 
-      if (person != '' && person != null) {
+      if (person) {
         socket.emit('new user', person, (data) => {
           if (data) {} //check whether username is already taken
           else {
-            // console.log('name1');
             alert('username is already taken');
             person = prompt("Please enter your name"); //update new username
             database.ref('users/' + userId).update({
@@ -577,7 +588,8 @@ $(document).ready(function() {
             });
           }
         });
-      } else {
+      }
+      else {
         // console.log('name2');
         person = prompt("Please enter your name"); //if username not exist,update username
         database.ref('users/' + userId).update({
@@ -589,31 +601,38 @@ $(document).ready(function() {
   }
 
   function clickUserTablink() {
-    setTimeout(showProfile, 100);
-    $("#selected").removeAttr('id').css("background-color", ""); //selected tablinks change, clean prev's color
+    console.log('click tablink executed');
+    // setTimeout(showProfile, 100);
+
+    $(".tablinks#selected").removeAttr('id').css("background-color", ""); //selected tablinks change, clean prev's color
     $(this).attr('id', 'selected').css("background-color", COLOR.CLICKED); //clicked tablinks color
 
+    $(this).find('.unread_msg').hide();
     if ($(this).find('#msg').css("font-weight") == "bold") {
       $(this).find('#msg').css("font-weight", "normal"); //read msg, let msg dis-bold
+      let channelId = $(this).parents('.tablinks_area').attr('rel');
       socket.emit("read message", {
+        channelId: channelId,
         id: $(this).attr('rel')
       }); //tell socket that this user isnt unRead
     }
 
-    $(this).find('.unread_msg').hide();
-
     let target = $(this).attr('rel'); //find the message canvas
-    $("#" + target).show().siblings().hide(); //show it, and close others
     $('#user-rooms').val(target); //change value in select bar
-    $('#' + target + '-content').scrollTop($('#' + target + '-content')[0].scrollHeight); //scroll to down
     $("#" + target + "-info").show().siblings().hide();
-    toggleInfoPanel();
-    console.log('click tablink executed');
+
+    $("#" + target).show().siblings().hide(); //show it, and close others
+    $('#' + target + '-content').scrollTop($('#' + target + '-content')[0].scrollHeight); //scroll to down
+
+    let profile = userProfiles[target];
+    $('.userPhoto').attr('src', profile.photo ? profile.photo : "");
+    $('#prof_nick').text(profile.nickname);
   }
 
   function toggleInfoPanel() {
     $(this).attr("active", 'true').parent().siblings().children().attr("active", 'false');
-    let panel = $('.nav-link[active=true]').text().trim().toLowerCase();
+
+    let panel = $(this).text().trim().toLowerCase();
     $('.card-group:visible').find('#' + panel).show().siblings().hide();
   }
 
@@ -624,11 +643,12 @@ $(document).ready(function() {
   }
 
   socket.on('new message2', (data) => {
+    console.log(data);
     //if www push "new message2"
     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
     //owner = "user", "agent" ; name = "Colman", "Ted", others...
-    displayMessage(data); //update canvas
-    displayClient(data); //update tablinks
+    displayMessage(data.data); //update canvas
+    displayClient(data.data, data.channelId); //update tablinks
 
     if (data.owner == "user") change_document_title(data.name); //not done yet
     if (name_list.indexOf(data.id) == -1) { //if its never chated user, push his name into name list
@@ -683,7 +703,8 @@ $(document).ready(function() {
     }
   } //function
 
-  function displayClient(data) {
+  function displayClient(data, channelId) {
+    console.log("clients.length = "+clients.length);
     console.log(data);
     //update tablinks
     let font_weight = data.owner == "user" ? "bold" : "normal"; //if msg is by user, mark it unread
@@ -704,14 +725,14 @@ $(document).ready(function() {
 
       let ele = target.parents('b'); //buttons to b
       ele.remove();
-      clients.prepend(ele);
-    } else { //new user, make a tablinks
+      $('.tablinks_area[rel="'+channelId+'"]').prepend(ele);
+    }
+    else { //new user, make a tablinks
       // pictureUrl
       console.log('new user');
 
-      clients.prepend(
-        "<b><button style='text-align:left' rel=\"" + data.id + "\" class=\"tablinks\"" +
-        "id=\"userInfoBtn\"> " +
+      $('.tablinks_area[rel="'+channelId+'"]').prepend(
+        "<b><button style='text-align:left' rel='" + data.id + "' class='tablinks'" +
         "<div class='img_holder'>" +
         "<img src='" + data.pictureUrl + "' alt='無法顯示相片'>" +
         "</div>" +
@@ -840,8 +861,8 @@ $(document).ready(function() {
         "</tbody>" +
         "</table>" +
         '</div>' +
-        '<div class="card-body" id="ticket" hidden="true"></div>' +
-        '<div class="card-body" id="todo" hidden="true">ToDo</div>' +
+        '<div class="card-body" id="ticket" style="display:none; "></div>' +
+        '<div class="card-body" id="todo" style="display:none; ">ToDo</div>' +
         '</div>' +
         '</div>'
       );
@@ -1312,7 +1333,8 @@ $(document).ready(function() {
 
 
   function showProfile() {
-    let target = $('#selected').attr('rel'); //get useridd of current selected user
+    console.log("show profile");
+    let target = $('.tablinks#selected').attr('rel'); //get useridd of current selected user
     if (target == undefined) {
       infoTable.html("please choose an user");
       return;
@@ -1364,7 +1386,7 @@ $(document).ready(function() {
     buffer = JSON.parse(JSON.stringify(profile)); //clone object
     $('.userPhoto').attr('src', buffer.photo ? buffer.photo : "");
 
-    var nick = buffer.nickname
+    var nick = buffer.nickname;
     $('#prof_nick').text(nick);
 
     $('.info_input_table .userInfo-td').each(function() {
@@ -1601,17 +1623,17 @@ $(document).ready(function() {
 
   function toAgentStr(msg, name, time) {
     if (msg.startsWith("<img")) {
-      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">' + name + '</span></strong><br/></p>';
+      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
     } else {
-      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong><span class="sender">' + name + '</span></strong><br/></p>';
+      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
     }
   }
 
   function toUserStr(msg, name, time) {
     if (msg.startsWith("<img")) {
-      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
+      return '<p style="line-height:250%" class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + ': </span></strong><span class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
     } else {
-      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
+      return '<p style="line-height:250%" class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + ': </span></strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
     }
   }
 
