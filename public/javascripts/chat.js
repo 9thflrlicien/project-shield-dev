@@ -50,8 +50,6 @@ $(document).ready(function() {
     }
     let n = 0;
 
-
-
     $(document).on('click', '#signout-btn', logout); //登出
     $(document).on('click', '.tablinks', clickUserTablink);
     $(document).on('click', '.topright', clickSpan);
@@ -64,7 +62,6 @@ $(document).ready(function() {
     $(document).on('click', '#upVid', upVid);
     $(document).on('click', '#upAud', upAud);
     $(document).on('click', '#save-group-btn', groupSubmit); 
-    $(document).on('click', '#groupModalBtn', loadGroup);
 
 
     $(document).on('click', '.dropdown-menu', function(event) {
@@ -90,53 +87,85 @@ $(document).ready(function() {
 
 
 function groupSubmit() {
+  var group_n = $(this).attr('rel');
   let userId = auth.currentUser.uid;
-  let group1 = $('.groupInput').val();
-    if (confirm('確認更改群組名稱為「'+group1+'」？')){
+  let groupInput = $('#'+group_n).find('.groupInput').val();
+
+  let i=1;
 
 
-    database.ref('group/' + userId).update({
-      group1: group1
-    });
-  groupClear();
-  loadGroup();
-  $('#groupModal').modal('hide');
-    $('#save-group-btn').hide();
-    $('#cls-cal-btn').hide();
+    if (confirm('確認更改群組名稱為「'+groupInput+'」？')){
+
+  database.ref('group/' + userId).on('value', snap => {
+  let grouplength = Object.keys(snap.val()).length;
+
+    for (i; i <= grouplength; i++){
+
+        if (group_n == 'group'+i){
+    database.ref('group/' + userId).child(i).update({
+    group : groupInput
+    });//update
+
+
+
+  // $('#groupModal').modal('hide');
+}//if
+}//for
+});//database
   console.log('groupname saved to firebase');
-  alert('群組名稱已修改為'+group1);
-}
+  alert('群組名稱已修改為'+groupInput);
+}//if
+  groupClear(i);
+  loadGroup();
+  $('.btn.btn-primary').hide();
+  $('.btn.btn-secondary').hide();
+
 }//end groupSubmit
-function groupClear() {
-  $('#group1').val('');
+
+
+function groupClear(i) {
+  $('#group'+i).val('');
 }//end groupClear
+
 function loadGroup() {
   let userId = auth.currentUser.uid;
-  // let id = $('#keyId').val();
+  let id = $('#keyId').val();
   database.ref('group/' + userId).on('value', snap => {
   let groupInfo = snap.val();
+  let grouplength = Object.keys(groupInfo).length;
+
+  for (let i=1; i <= grouplength+1; i++){
+    database.ref('group/' + userId).child(i).child("group").on('value', snap => {
+    let groupContent = snap.val();
+    
 
     if(groupInfo === null) {
       $('#error-message').show();//還沒寫
     } else {
-          $('#group1').text(groupInfo.group1);
-          $('.myText').text(groupInfo.group1);
 
-    }
-    $("#group1").dblclick(function(event) {
-    $('#save-group-btn').show();
-    $('#cls-cal-btn').show();
-    // group1 = $('.myText').text();
-    $('#group1').html("<input class=\"groupInput\" type=\"text\" value=\""+groupInfo.group1+"\" id=\"group1\" required=\"true\" style=\"width:80px;height:30px;border-radius:5px\" />");
+          $('#group'+i).text(groupContent);
+          $('.myText'+i).text(groupContent);
 
-});//group1 dblclick
-    $('#cls-cal-btn').click(function(){
-        $('.myText').text(groupInfo.group1);
-        $('#save-group-btn').hide();
-        $('#cls-cal-btn').hide();
+    
+    $("#group"+i).dblclick(function(event) {
 
+    $('#group'+i).html("<input class=\"groupInput\" type=\"text\" value=\""+groupContent+"\" id=\"group"+i+"\" required=\"true\" style=\"width:80px;height:30px;border-radius:5px\" />");
+
+    $(this).siblings('#save-group-btn').show();
+    $(this).siblings('#cls-cal-btn').show();
+
+    $('.btn.btn-secondary').click(function(){
+            $('.myText'+i).text(groupContent);
+            $('.btn.btn-primary').hide();
+            $('.btn.btn-secondary').hide();
     })
 
+
+});//group1 dblclick
+
+}//else
+});//child
+}//for
     });//database.ref
   };//end loadGroup
 

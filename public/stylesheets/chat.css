@@ -1,3 +1,15 @@
+#cls-cal-btn{
+  display:none;
+  width:40px;
+  font-size:12px;
+  padding:2px
+}
+#save-group-btn{
+  display:none;
+  width:40px;
+  font-size:12px;
+  padding:2px
+}
 .contentPanel {
   /*margin-left: 100px;*/
   height: 600px;
