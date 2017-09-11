@@ -8,7 +8,6 @@ $(document).ready(function() {
   var messageInput = $('#message'); //input for agent to send message
   var messageContent = $('#chat'); //what's this
 
-
   var clients = $('#clients'); //online rooms of tablinks
   var idles = $('#idle-roomes'); //idle rooms of tablinks
   var name_list = []; //list of all users
@@ -50,7 +49,7 @@ $(document).ready(function() {
   }
   let n = 0;
 
-  
+
 
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.tablinks', clickUserTablink);
@@ -64,8 +63,6 @@ $(document).ready(function() {
   $(document).on('click', '#upVid', upVid);
   $(document).on('click', '#upAud', upAud);
   $(document).on('click', '#save-group-btn', groupSubmit);
-  $(document).on('click', '#groupModalBtn', loadGroup);
-
 
   $(document).on('click', '.dropdown-menu', function(event) {
     event.stopPropagation();
@@ -75,6 +72,77 @@ $(document).ready(function() {
     $(this).siblings().toggle(200, 'easeInOutCubic');
     $(this).children('i').toggle();
   });
+
+  // $('#nav_subMenu').on('click', function(){
+  //   console.log('nav_subMenu clicked on line 64');
+  //     var target = $(this).attr('rel');
+  //     console.log('target on line 371.ejs')
+  //     console.log(target);
+  //     if ($("#"+target).is(":visible")){
+  //         $('#check_mark').hide();
+  //     }else{
+  //         $('#check_mark').show()
+  //       }
+  //   });
+
+  $("#chatApp").hover(
+    function() {
+      $(this).css('width', '250px').find('h4').delay(200).fadeIn();
+    },
+    function() {
+      $(this).css('width', '70px').find('h4').hide();
+    }
+  );
+  $('.chatApp_item').click(function() {
+    let id = $(this).attr('id');
+    $(this).addClass('select')
+    .siblings().removeClass('select');
+    $("#user").children('#' + id).toggle('fast').siblings('.tablinks_area').hide();
+    $(".filter_head").children("#title").html($(this).children('h4').text());
+  });
+  $(".filter_head #search").click(function() {
+    if (!$(".tablinks_head").children('.search').is(':visible')) {
+      $(".tablinks_head").css('height', '120px').children('.search').show().siblings('.search').hide();
+    } else {
+      $(".tablinks_head").css('height', '80px').children('.search').delay(100).fadeOut();
+    }
+  });
+  $(".filter_head #filter").click(function() {
+    if (!$(".tablinks_head").children('.filterArea').is(':visible')) {
+      $(".tablinks_head").css('height', '400px').children('.filterArea').css('display', 'flex').siblings('.filter').hide();
+
+    }
+    else {
+      $(".tablinks_head").css('height', '80px').children('.filterArea').delay(100).fadeOut();
+    }
+  });
+
+  $('.onclick_show').on('click', function() {
+    console.log('onclick_show exe');
+    var target = $(this).attr('rel');
+
+    if ($("#" + target).is(":visible")) {
+      $("#" + target).hide();
+    } else {
+      $("#" + target).show();
+    }
+  }); //onclick_show
+
+
+  var content = $('.content');
+  var sender = $('.sender');
+
+  function showTooltip() {
+    sender.addClass('show');
+  }
+
+  function hideTooltip() {
+    sender.removeClass('show');
+  }
+
+  content.hover(showTooltip, hideTooltip);
+
+
 
   function groupSubmit() {
     let userId = auth.currentUser.uid;
@@ -96,7 +164,6 @@ $(document).ready(function() {
   function groupClear() {
     $('#group1').val('');
   }//end groupClear
-
   function loadGroup() {
     let userId = auth.currentUser.uid;
     // let id = $('#keyId').val();
@@ -104,7 +171,7 @@ $(document).ready(function() {
       let groupInfo = snap.val();
 
       if(groupInfo === null) {
-        $('#error-message').show();//還沒寫
+        $('#error-message').show();
       } else {
         $('#group1').text(groupInfo.group1);
         $('.myText').text(groupInfo.group1);
@@ -113,7 +180,6 @@ $(document).ready(function() {
       $("#group1").dblclick(function(event) {
         $('#save-group-btn').show();
         $('#cls-cal-btn').show();
-        // group1 = $('.myText').text();
         $('#group1').html("<input class=\"groupInput\" type=\"text\" value=\""+groupInfo.group1+"\" id=\"group1\" required=\"true\" style=\"width:80px;height:30px;border-radius:5px\" />");
 
       });//group1 dblclick
@@ -127,59 +193,6 @@ $(document).ready(function() {
     });//database.ref
   };//end loadGroup
 
-  $("#chatApp").hover(
-    function() {
-      $(this).css('width', '250px').find('h4').delay(200).fadeIn();
-    },
-    function() {
-      $(this).css('width', '70px').find('h4').hide();
-    }
-  );
-  $('.chatApp_item').click(function() {
-    let id = $(this).attr('id');
-    $(this).addClass('select').siblings().removeClass('select');
-    $("#user").children('#' + id).toggle('fast').siblings('.tablinks_area').hide();
-    $(".filter_head").children("#title").html($(this).children('h4').text());
-  });
-  $(".filter_head #search").click(function() {
-    if (!$(".tablinks_head").children('.search').is(':visible')) {
-      $(".tablinks_head").css('height', '120px').children('.search').show().siblings('.search').hide();
-    } else {
-      $(".tablinks_head").css('height', '80px').children('.search').delay(100).fadeOut();
-    }
-  });
-  $(".filter_head #filter").click(function() {
-    if (!$(".tablinks_head").children('.filterArea').is(':visible')) {
-      $(".tablinks_head").css('height', '400px').children('.filterArea').css('display', 'flex').siblings('.filter').hide();
-
-    } else {
-      $(".tablinks_head").css('height', '80px').children('.filterArea').delay(100).fadeOut();
-    }
-  });
-
-  var content = $('.content');
-  var sender = $('.sender');
-
-  function showTooltip() {
-    sender.addClass('show');
-  }
-
-  function hideTooltip() {
-    sender.removeClass('show');
-  }
-
-  content.hover(showTooltip, hideTooltip);
-
-  $('.onclick_show').on('click', function() {
-    console.log('onclick_show exe');
-    var target = $(this).attr('rel');
-
-    if ($("#" + target).is(":visible")) {
-      $("#" + target).hide();
-    } else {
-      $("#" + target).show();
-    }
-  }); //onclick_show
 
   function upImg() {
     var imgAtt = $('#attImgFill').val();
@@ -207,12 +220,8 @@ $(document).ready(function() {
     setTimeout(agentName, 1500); //enter agent name
     setTimeout(loadChatRoom, 2000);
     setTimeout(function() {
-      socket.emit("get inside chat", {id: userId});
-    })
-    setTimeout(function() {
       socket.emit("get tags from chat");
     }, 10);
-    setTimeout(loadGroup,1000);
   }
 
   function loadChatRoom(){
@@ -485,8 +494,9 @@ $(document).ready(function() {
       "data-totalTime=\"" + profile.totalChat + "\" " +
       "data-chatTimeCount=\"" + profile.chatTimeCount + "\" " +
       "data-firstTime=\"" + profile.firstChat + "\" " +
-      "data-recentTime=\"" + lastMsg.time + "\" id=\"userInfoBtn\"> " +
+      "data-recentTime=\"" + lastMsg.time + "\" id=\"userInfoBtn\"> "
       // + "<img src=\"\" alt=\"無法顯示相片\" class=\"userPhoto\" style=\"width:128px;height:128px;\"/>"
+      +
       "<div class='img_holder'>" +
       "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
       "</div>" +
@@ -494,7 +504,6 @@ $(document).ready(function() {
       profile.nickname +
       lastMsgStr +
       "</div>" +
-      '<div class="unread_msg" id="unread_'+n+'">'+profile.unRead+'</div>'+
       "</button></b>"
     ); //new a tablinks
 
@@ -575,7 +584,7 @@ $(document).ready(function() {
           nickname: person
         });
       }
-      printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
+      // printAgent.html("Welcome <b>" + person + "</b>! You're now on board.");
     });
   }
 
@@ -605,7 +614,6 @@ $(document).ready(function() {
   function toggleInfoPanel() {
     $(this).attr("active", 'true').parent().siblings().children().attr("active", 'false');
     let panel = $('.nav-link[active=true]').text().trim().toLowerCase();
-    console.log("panel = "+panel);
     $('.card-group:visible').find('#' + panel).show().siblings().hide();
   }
 
@@ -628,19 +636,19 @@ $(document).ready(function() {
       console.log("new user!!! push into name_list!");
     }
   });
-  socket.on('new message3', (data) => {
-    //if www push "new message2"
-    // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
-    //owner = "user", "agent" ; name = "Colman", "Ted", others...
-    displayMessage(data); //update canvas
-    displayClient(data); //update tablinks
-
-    if (data.owner == "user") change_document_title(data.name); //not done yet
-    if (name_list.indexOf(data.id) == -1) { //if its never chated user, push his name into name list
-      name_list.push(data.id);
-      console.log("new user!!! push into name_list!");
-    }
-  });
+  // socket.on('new message3', (data) => {
+  //     //if www push "new message2"
+  //     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
+  //     //owner = "user", "agent" ; name = "Colman", "Ted", others...
+  //     displayMessage(data); //update canvas
+  //     displayClient(data); //update tablinks
+  //
+  //     if (data.owner == "user") change_document_title(data.name); //not done yet
+  //     if (name_list.indexOf(data.id) == -1) { //if its never chated user, push his name into name list
+  //         name_list.push(data.id);
+  //         console.log("new user!!! push into name_list!");
+  //     }
+  // });
 
   function displayMessage(data) {
     //update canvas
@@ -676,6 +684,7 @@ $(document).ready(function() {
   } //function
 
   function displayClient(data) {
+    console.log(data);
     //update tablinks
     let font_weight = data.owner == "user" ? "bold" : "normal"; //if msg is by user, mark it unread
 
@@ -685,20 +694,159 @@ $(document).ready(function() {
       target.find('.unread_msg').html(data.unRead).css("display", "block");
       target.attr("data-recentTime", data.time);
       //update tablnks's last msg
-
+      // console.log('data.unRead on line 400');
+      // console.log(data.unRead);
       if (data.unRead == 0 || data.unRead == false || data.unRead == 'undefined') {
-        target.find('.unread_msg').html(data.unRead).css("display", "none");            }
-        n++;
+        console.log('im here')
+        target.find('.unread_msg').html(data.unRead).css("display", "none");
+      }
+      n++;
 
-        let ele = target.parents('b'); //buttons to b
-        ele.remove();
-        clients.prepend(ele);
-      } else { //new user, make a tablinks
-        clients.prepend('<b><button id="userInfoBtn" data-toggle="modal" data-target="#userInfoModal"  rel="' + data.id + '" class="tablinks"><span id="nick">' +
-        +data.name +
-        "</span><br><span id='msg' style='font-weight: " + font_weight + "'>" + toTimeStr(data.time) +
-        data.message + "</span><div class='unread_msg'>" + data.unRead + "</div></button></b>"
+      let ele = target.parents('b'); //buttons to b
+      ele.remove();
+      clients.prepend(ele);
+    } else { //new user, make a tablinks
+      // pictureUrl
+      console.log('new user');
+
+      clients.prepend(
+        "<b><button style='text-align:left' rel=\"" + data.id + "\" class=\"tablinks\"" +
+        "id=\"userInfoBtn\"> " +
+        "<div class='img_holder'>" +
+        "<img src='" + data.pictureUrl + "' alt='無法顯示相片'>" +
+        "</div>" +
+        "<div class='msg_holder'>" +
+        data.name +
+        "<br />" +
+        data.message +
+        "</div>" +
+        "<div class='unread_msg'>" + data.unRead + "</div>" +
+        "</button></b>"
       );
+
+      infoCanvas.append(
+        '<div class="card-group" id="' + data.id + '-info" style="display:none">' +
+        '<div class="card-body" id="profile">' +
+        "<div class='photoContainer'>" +
+        '<img src="' + data.pictureUrl + '" alt="無法顯示相片" style="width:128px;height:128px;">' +
+        "</div>" +
+        "<table class='panelTable'>" +
+        "<tbody>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='nickname'>nickname</th>" +
+        "<td class='userInfo-td' id='nickname' type='text' set='single' modify='false'>" +
+        "<p id='td-inner'>" + data.name + "</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='年齡'>年齡</th>" +
+        "<td class='userInfo-td' id='年齡' type='text' set='single' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='性別'>性別</th>" +
+        "<td class='userInfo-td' id='性別' type='single_select' set='男,女' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='地區'>地區</th>" +
+        "<td class='userInfo-td' id='地區' type='text' set='single' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='address'>address</th>" +
+        "<td class='userInfo-td' id='address' type='text' set='single' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='telephone'>telephone</th>" +
+        "<td class='userInfo-td' id='telephone' type='text' set='single' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='備註'>備註</th>" +
+        "<td class='userInfo-td' id='備註' type='text' set='multi' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='TAG'>TAG</th>" +
+        "<td class='userInfo-td' id='TAG' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='VIP等級'>VIP等級</th>" +
+        "<td class='userInfo-td' id='VIP等級' type='single_select' set='鑽石會員,白金會員,普通銅牌,超級普通會員' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='下次聯絡客戶時間'>下次聯絡客戶時間</th>" +
+        "<td class='userInfo-td' id='下次聯絡客戶時間' type='time' set='' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "<p></p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='首次聊天時間'>首次聊天時間</th>" +
+        "<td class='userInfo-td' id='首次聊天時間' type='time' set='' modify='false'>" +
+        "<p id='td-inner'></p>" +
+        "<p></p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='上次聊天時間'>上次聊天時間</th>" +
+        "<td class='userInfo-td' id='上次聊天時間' type='time' set='' modify='false'>" +
+        "<p id='td-inner'></p>" +
+        "<p></p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='總共聊天時間'>總共聊天時間</th>" +
+        "<td class='userInfo-td' id='總共聊天時間' type='text' set='single' modify='false'>" +
+        "<p id='td-inner'></p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='聊天次數'>聊天次數</th>" +
+        "<td class='userInfo-td' id='聊天次數' type='text' set='single' modify='false'>" +
+        "<p id='td-inner'></p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='平均每次聊天時間'>平均每次聊天時間</th>" +
+        "<td class='userInfo-td' id='平均每次聊天時間' type='text' set='single' modify='false'>" +
+        "<p id='td-inner'></p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='客人的抱怨'>客人的抱怨</th>" +
+        "<td class='userInfo-td' id='客人的抱怨' type='text' set='multi' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='付費階段'>付費階段</th>" +
+        "<td class='userInfo-td' id='付費階段' type='single_select' set='等待報價,已完成報價，等待付費,已完成付費,要退錢' modify='false'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "</tbody>" +
+        "</table>" +
+        '</div>' +
+        '<div class="card-body" id="ticket" hidden="true"></div>' +
+        '<div class="card-body" id="todo" hidden="true">ToDo</div>' +
+        '</div>' +
+        '</div>'
+      );
+
+
     }
 
   } //close displayClient function
@@ -708,12 +856,12 @@ $(document).ready(function() {
     userProfiles[data.userId] = data;
   });
 
-  messageForm.submit((e) => {
-    e.preventDefault();
+  function submitMsg(){
     let sendObj = {
       id: "",
       msg: messageInput.val(),
-      msgtime: Date.now()
+      msgtime: Date.now(),
+      // room:
     };
 
     if ($("#user-rooms option:selected").val() == '全選') {
@@ -731,9 +879,33 @@ $(document).ready(function() {
       socket.emit('send message2', sendObj); //socket.emit
     } //else
     messageInput.val('');
+  }
 
+  messageForm.submit((e) => {
+    e.preventDefault();
+    console.log(e);
+    let sendObj = {
+      id: "",
+      msg: messageInput.val(),
+      msgtime: Date.now(),
+      // room:
+    };
 
-
+    if ($("#user-rooms option:selected").val() == '全選') {
+      name_list.map(function(id) {
+        sendObj.id = id;
+        socket.emit('send message2', sendObj);
+      })
+    } else if ($("#user-rooms option:selected").val() == '對可見用戶發送') {
+      $('.tablinks:visible').each(function() {
+        sendObj.id = $(this).attr('rel');
+        socket.emit('send message2', sendObj);
+      });
+    } else {
+      sendObj.id = $("#user-rooms option:selected").val();
+      socket.emit('send message2', sendObj); //socket.emit
+    } //else
+    messageInput.val('');
   });
   //
   // function selectAll(){
@@ -1166,8 +1338,7 @@ $(document).ready(function() {
         else tdHtml = '<select id="td-inner" disabled>';
         for (let j in set) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
         tdHtml += '</select>';
-      }
-      else if (type == 'multi_select') {
+      } else if (type == 'multi_select') {
         tdHtml = '<div class="btn-group" id="td-inner" data="">';
         if (modify == true) tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
         else tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false" disabled>';
@@ -1326,7 +1497,6 @@ $(document).ready(function() {
 
   $(document).on('click', '#userInfo-cancel', function() {});
 
-
   // =====================Colman=========================== //
 
   socket.on('push inside chat', (data) => {
@@ -1401,71 +1571,76 @@ $(document).ready(function() {
   // =====================Colman=========================== //
 
 
+
   function historyMsg_to_Str(messages) {
     let returnStr = "";
     let nowDateStr = "";
     let prevTime = 0;
-    for (let i in messages) { //this loop plus date info into history message, like "----Thu Aug 01 2017----"
-    let d = new Date(messages[i].time).toDateString(); //get msg's date
-    if (d != nowDateStr) { //if (now msg's date != previos msg's date), change day
-    nowDateStr = d;
-    returnStr += "<p class='message-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>"; //plus date info
+    for (let i in messages) {
+      //this loop plus date info into history message, like "----Thu Aug 01 2017----"
+      let d = new Date(messages[i].time).toDateString(); //get msg's date
+      if (d != nowDateStr) {
+        //if (now msg's date != previos msg's date), change day
+        nowDateStr = d;
+        returnStr += "<p class='message-day' style='text-align: center'><strong>" + nowDateStr + "</strong></p>"; //plus date info
+      }
+
+      if (messages[i].time - prevTime > 15 * 60 * 1000) {
+        //if out of 15min section, new a section
+        returnStr += "<p class='message-day' style='text-align: center'><strong>" + toDateStr(messages[i].time) + "</strong></p>"; //plus date info
+      }
+      prevTime = messages[i].time;
+
+      if (messages[i].owner == "agent") {
+        //plus every history msg into string
+        returnStr += toAgentStr(messages[i].message, messages[i].name, messages[i].time);
+      } else returnStr += toUserStr(messages[i].message, messages[i].name, messages[i].time);
+    }
+    return returnStr;
   }
 
-  if (messages[i].time - prevTime > 15 * 60 * 1000) { //if out of 15min section, new a section
-    returnStr += "<p class='message-day' style='text-align: center'><strong>" + toDateStr(messages[i].time) + "</strong></p>"; //plus date info
+  function toAgentStr(msg, name, time) {
+    if (msg.startsWith("<img")) {
+      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">' + name + '</span></strong><br/></p>';
+    } else {
+      return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong><span class="sender">' + name + '</span></strong><br/></p>';
+    }
   }
-  prevTime = messages[i].time;
 
-  if (messages[i].owner == "agent") { //plus every history msg into string
-    returnStr += toAgentStr(messages[i].message, messages[i].name, messages[i].time);
-  } else returnStr += toUserStr(messages[i].message, messages[i].name, messages[i].time);
-}
-return returnStr;
-}
-
-function toAgentStr(msg, name, time) {
-  if (msg.startsWith("<img")) {
-    return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">' + name + '</span></strong><br/></p>';
-  } else {
-    return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong><span class="sender">' + name + '</span></strong><br/></p>';
+  function toUserStr(msg, name, time) {
+    if (msg.startsWith("<img")) {
+      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
+    } else {
+      return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
+    }
   }
-}
 
-function toUserStr(msg, name, time) {
-  if (msg.startsWith("<img")) {
-    return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
-  } else {
-    return '<p style="line-height:250%" class="message" rel="' + time + ' title="' + toDateStr(time) + '"><strong><span class="sender">' + name + '</span></strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
+  function toDateStr(input) {
+    let str = " ";
+    let date = new Date(input);
+    str += date.getFullYear() + '/' + addZero(date.getMonth() + 1) + '/' + addZero(date.getDate()) + ' ';
+
+    let week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    str += week[date.getDay()] + ' ' + addZero(date.getHours()) + ':' + addZero(date.getMinutes());
+    return str;
   }
-}
 
-function toDateStr(input) {
-  let str = " ";
-  let date = new Date(input);
-  str += date.getFullYear() + '/' + addZero(date.getMonth() + 1) + '/' + addZero(date.getDate()) + ' ';
+  function toTimeStr(input) {
+    let date = new Date(input);
+    return " (" + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ") ";
+  }
 
-  let week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  str += week[date.getDay()] + ' ' + addZero(date.getHours()) + ':' + addZero(date.getMinutes());
-  return str;
-}
+  function toTimeStr_minusQuo(input) {
+    let date = new Date(input);
+    return addZero(date.getHours()) + ':' + addZero(date.getMinutes());
 
-function toTimeStr(input) {
-  let date = new Date(input);
-  return " (" + addZero(date.getHours()) + ':' + addZero(date.getMinutes()) + ") ";
-}
+  }
 
-function toTimeStr_minusQuo(input) {
-  let date = new Date(input);
-  return addZero(date.getHours()) + ':' + addZero(date.getMinutes());
+  function change_document_title(name) {
+    // $(document).prop('title', 'SHEILD chat ver2');
+  }
 
-}
-
-function change_document_title(name) {
-  // $(document).prop('title', 'SHEILD chat ver2');
-}
-
-function addZero(val) {
-  return val < 10 ? '0' + val : val;
-}
+  function addZero(val) {
+    return val < 10 ? '0' + val : val;
+  }
 }); //document ready close tag

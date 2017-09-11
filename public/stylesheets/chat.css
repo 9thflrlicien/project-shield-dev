@@ -452,3 +452,28 @@ p {
 .card-footer{
   background-color: lightgray ;
 }
+
+/*==========Colman==========*/
+#inside-group-container {
+  /*width: 900px;*/
+  /*height: 100px;*/
+  overflow-x: scroll;
+  display: flex;
+}
+.inside-tablinks-container {
+  /*width: 25%;*/
+  /*width: 100px;*/
+}
+.inside-tablinks {
+  /*display: table-cell;*/
+  /*padding-bottom: 5000px;*/
+  /*margin-bottom: -5000px;*/
+  width: 100px;
+  /*height: 100%;*/
+  /*float: right;*/
+  /*top: 0;*/
+}
+#inside-group-canvas {
+  height: 70%;
+}
+/*==========Colman==========*/
