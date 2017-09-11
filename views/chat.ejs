@@ -94,10 +94,13 @@
                -->
          <div class="chatArea">
             <div id="chatApp" class="colume" >
-               <div class="chatApp_item" id="Line_1">
-                  <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-                  <h4 id="group1" class="myText">跟著董事長遊台灣1</h4><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
-               </div>
+              <div id="error-message" hidden>
+                 請輸入群組名
+              </div>
+              <div class="chatApp_item" id="Line_1">
+                 <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
+                 <h4 id="group1" class="myText">跟著董事長遊台灣1</h4><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+              </div>
                <div class="chatApp_item" id="Line_2">
                   <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
                   <h4>跟著董事長遊台灣2</h4>
@@ -246,31 +249,14 @@
                      <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
                   </select>
                   <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
-                  <input type="submit"/>
+                  <!-- <input type="submit"/> -->
+                  <button id="sub-btn1">送出</button>
                </form>
             </div>
             <!--end contentPanel-->
             <!--internal chat-->
-            <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" id="內部聊天室">
-               <div class="chat_prof_head"></div>
-               <div class="chat_prof">
-                  <img src="https://marketplace.canva.com/MAB7k1IXVl4/1/thumbnail/canva-single-shield-icon-MAB7k1IXVl4.png" alt="無法顯示相片" style="width:60px;height:60px;border-radius:50px;margin:1.5%;float:left;margin-right: 5px;">
-                  <h4 id="prof_nick">內部聊天室</h4>
-               </div>
-               <section id="canvas">
-               </section>
-               <form action="" id="send-message" disabled>
-                  <select style="float:right" id="user-rooms">
-                     <option id="selectAll" value="全選">全選</option>
-                     <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
-                  </select>
-                  <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
-                  <input type="submit"/>
-               </form>
-            </div>
-
-            <!--internal chat-->
-            <!-- <div style="float:left!important;height:600px;width: 30%;background-color: /*#b0aac0*/;border:solid 1px lightgrey;float:right;"
+            <!-- ==========Colman========== -->
+            <div style="float:left!important;height:600px;width: 30%;background-color: /*#b0aac0*/;border:solid 1px lightgrey;float:right;"
             id="內部聊天室">
               <h5 style="text-align:center"><b>內部聊天室</b>
 
@@ -283,8 +269,8 @@
                 <input style="width:100%; height:60px" size="35" id="inside-message" />
                 <input type="submit"/>
               </form>
-            </div> -->
-            <!--end internal chat-->
+            </div>
+            <!-- ==========Colman========== -->
             <!--end internal chat-->
             <div id="infoPanel" class="colume">
                <div class="card text-center">
@@ -306,10 +292,9 @@
                </div>
             </div>
          </div>
-         <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Edit User Info</button>
-<!--          <button id="groupModalBtn" class="btn btn-default" data-toggle="modal" data-target="#groupModal">Edit Group Name</button> -->
+         <!-- <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Edit User Info</button> -->
          <!-- Modal -->
-         <div class="modal Btnfade" id="userInfoModal" role="dialog">
+         <div class="modal fade" id="userInfoModal" role="dialog">
             <div class="modal-dialog">
                <div class="modal-content">
                   <div class="modal-header">
@@ -329,36 +314,6 @@
             </div>
          </div>
          <!-- end -->
-   <!--MODAL FOR GROUP-->
-<!--    <div class="modal fade" id="groupModal">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"></h5>
-        </div>
-        <div class="modal-body">
-            <div id="error-message" hidden>
-               Please fill in group names.
-            </div>
-          <!-- 內容 -->
-         <!--  <form> -->
-<!--             <span id="keyId" hidden></span><br />
- -->            <!-- <input type="text" placeholder="輸入群組名1" id="group1" required="true" /> -->
-<!--                <div id="group1"></div>
- <br /><br />
-          </form>
-        </div>
-        <div class="modal-footer"> -->
-<!--           <button type="button" class="btn btn-primary" id="add-cal-btn">Add</button>
- -->       <!--    <button type="button" class="btn btn-primary" id="save-group-btn">Save changes</button> -->
-<!--           <button type="button" class="btn btn-primary" id="del-cal-btn">Delete</button>
- -->         <!--  <button type="button" class="btn btn-secondary" id="cls-cal-btn" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>  -->
-  <!--END MODAL FOR GROUP-->
-
       </div>
       <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
