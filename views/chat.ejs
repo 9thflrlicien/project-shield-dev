@@ -243,7 +243,19 @@
                <section id="canvas">
                </section>
                <!-- Trigger the modal with a button -->
+                                 <!-- INSERT MEDIA BUTTONS-->
+<!--                 <div class="insert_media" style="position:absolute;display:block">
+                  <button style="background-color: transparent;float:bottom" rel="showAttImg" id="attImg" class="onclick_show"><i class="fa fa-file-image-o fa" aria-hidden="true"></i></button>
+                  <button style="background-color: transparent;float:bottom" rel="showAttVid" id="attVid" class="onclick_show"><i class="fa fa-file-video-o fa" aria-hidden="true"></i></button>
+                  <button style="background-color: transparent;float:bottom" rel="showAttAud" id="attAud" class="onclick_show"><i class="fa fa-file-audio-o fa" aria-hidden="true"></i></button>
+                <div style="float:bottom">
+                    <div style="display:none; float:left" id="showAttImg"><input size="35" id="attImgFill" placeholder="輸入圖片網址"/><button id="upImg">Upload</button></div>
+                    <div style="display:none; float:left" id="showAttVid"><input size="35" id="attVidFill" placeholder="輸入影片網址"/><button id="upVid">Upload</button></div>
+                    <div style="display:none; float:left" id="showAttAud"><input size="35" id="attAudFill" placeholder="輸入音訊網址"/><button id="upAud">Upload</button></div>
+                </div> -->
+        <!--end insert media buttons-->
                <form action="" id="send-message" disabled>
+               <i action="" class="fa fa-upload" aria-hidden="true" disabled></i>
                   <select style="float:right" id="user-rooms">
                      <option id="selectAll" value="全選">全選</option>
                      <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
@@ -251,6 +263,7 @@
                   <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
                   <input type="submit"/>
                </form>
+
             </div>
             <!--end contentPanel-->
             <!--internal chat-->
@@ -263,6 +276,7 @@
                <section id="canvas">
                </section>
                <form action="" id="send-message" disabled>
+
                   <select style="float:right" id="user-rooms">
                      <option id="selectAll" value="全選">全選</option>
                      <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
@@ -271,6 +285,7 @@
                   <input type="submit"/>
                </form>
             </div>
+
             <!--end internal chat-->
             <div id="infoPanel" class="colume">
                <div class="card text-center">

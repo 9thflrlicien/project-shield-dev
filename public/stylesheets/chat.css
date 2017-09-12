@@ -1,3 +1,11 @@
+.fa.fa-upload{
+  border:1px solid black; 
+  border-radius:10px;
+  padding:2px;
+}
+.fa.fa-upload:hover,.insert_media{
+  display:block;
+}
 #cls-cal-btn{
   display:none;
   width:40px;
