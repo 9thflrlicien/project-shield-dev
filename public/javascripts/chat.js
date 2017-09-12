@@ -133,6 +133,8 @@ function loadGroup() {
   database.ref('group/' + userId).on('value', snap => {
   let groupInfo = snap.val();
   let grouplength = Object.keys(groupInfo).length;
+  console.log('this is grouplength');
+  console.log(grouplength);
 
   for (let i=1; i <= grouplength+1; i++){
     database.ref('group/' + userId).child(i).child("group").on('value', snap => {
@@ -148,6 +150,7 @@ function loadGroup() {
 
     
     $("#group"+i).dblclick(function(event) {
+        console.log('here');
 
     $('#group'+i).html("<input class=\"groupInput\" type=\"text\" value=\""+groupContent+"\" id=\"group"+i+"\" required=\"true\" style=\"width:80px;height:30px;border-radius:5px\" />");
 
