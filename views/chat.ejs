@@ -94,32 +94,32 @@
                -->
          <div class="chatArea">
             <div id="chatApp" class="colume" >
-             <div id="error-message" hidden>
-               Please fill in group names.
-            </div>
-               <div class="chatApp_item" id="Line_1">
+              <div id="error-message" hidden>
+                 請輸入群組名
+              </div>
+              <div class="chatApp_item" id="Line_1" open="true">
+                 <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
+                 <h4 id="group1" class="myText">跟著董事長遊台灣1</h4><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+              </div>
+               <div class="chatApp_item" id="Line_2" open="true">
                   <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-                  <h4 id="group1" class="myText1">跟著董事長遊台灣1</h4><button rel="group1" type="button" class="btn btn-primary" id="save-group-btn">Save</button><button rel="group1" type="button" class="btn btn-secondary" id="cls-cal-btn">Close</button>
+                  <h4>跟著董事長遊台灣2</h4>
                </div>
-               <div class="chatApp_item" id="Line_2">
-                  <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-                  <h4 id="group2" class="myText2">跟著董事長遊台灣2</h4><button rel="group2" type="button" class="btn btn-primary" id="save-group-btn">Save</button><button type="button" class="btn btn-secondary" id="cls-cal-btn">Close</button>
-                  </div>
                <div class="chatApp_item" id="facebook">
                   <img class="software_icon" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png">
-                  <h4 id="group3" class="myText3">未開放</h4><button rel="group3" type="button" class="btn btn-primary" id="save-group-btn">Save</button><button rel="group3" type="button" class="btn btn-secondary" id="cls-cal-btn">Close</button>
+                  <h4>未開放</h4>
                </div>
                <div class="chatApp_item" id="wechat">
                   <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/wechat.svg">
-                  <h4 id="group4" class="myText4">未開放</h4><button rel="group4" type="button" class="btn btn-primary" id="save-group-btn">Save</button><button rel="group4" type="button" class="btn btn-secondary" id="cls-cal-btn">Close</button>
+                  <h4>未開放</h4>
                </div>
                <div class="chatApp_item" id="kakotalk">
                   <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/kakaotalk.svg">
-                  <h4 id="group5" class="myText5">未開放</h4><button rel="group5" type="button" class="btn btn-primary" id="save-group-btn">Save</button><button rel="group5" type="button" class="btn btn-secondary" id="cls-cal-btn">Close</button>
+                  <h4>未開放</h4>
                </div>
                <div class="chatApp_item" id="whatsapp">
                   <img class="software_icon" src="https://cdn0.iconfinder.com/data/icons/social-flat-rounded-rects/512/whatsapp-256.png">
-                  <h4 id="group6" class="myText6">未開放</h4><button rel="group6" type="button" class="btn btn-primary" id="save-group-btn">Save</button><button rel="group6" type="button" class="btn btn-secondary" id="cls-cal-btn">Close</button>
+                  <h4>未開放</h4>
                </div>
             </div>
             <div id="user" class="colume">
@@ -223,13 +223,13 @@
                </div>
                <div class="tablinks_area" id="Line_1">
                   <div id="chat-area">聊天中-------------</div>
-                  <ol class="list-group" id="clients"></ol>
+                  <ol class="list-group clients" id="clients"></ol>
                   <div id="idle-area">閒置中-------------</div>
                   <ol class="list-group" id="idle-roomes"></ol>
                </div>
                <div class="tablinks_area" id="Line_2">
                   <div id="chat-area">chat-area-------------</div>
-                  <ol class="list-group" id="clients"></ol>
+                  <ol class="list-group clients" id="clients"></ol>
                   <div id="idle-area">idle-area-------------</div>
                   <ol class="list-group" id="idle-roomes"></ol>
                </div>
@@ -243,6 +243,16 @@
                <section id="canvas">
                </section>
                <!-- Trigger the modal with a button -->
+               <form action="" id="send-message" disabled>
+                  <select style="float:right" id="user-rooms">
+                     <option id="selectAll" value="全選">全選</option>
+                     <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
+                  </select>
+                  <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
+                  <!-- <input type="submit"/> -->
+                  <button id="sub-btn1">送出</button>
+               </form>
+                              <!-- Trigger the modal with a button -->
                                  <!-- INSERT MEDIA BUTTONS-->
 <!--                 <div class="insert_media" style="position:absolute;display:block">
                   <button style="background-color: transparent;float:bottom" rel="showAttImg" id="attImg" class="onclick_show"><i class="fa fa-file-image-o fa" aria-hidden="true"></i></button>
@@ -254,45 +264,32 @@
                     <div style="display:none; float:left" id="showAttAud"><input size="35" id="attAudFill" placeholder="輸入音訊網址"/><button id="upAud">Upload</button></div>
                 </div> -->
         <!--end insert media buttons-->
-               <form action="" id="send-message" disabled>
-               <i action="" class="fa fa-upload" aria-hidden="true" disabled></i>
-                  <select style="float:right" id="user-rooms">
-                     <option id="selectAll" value="全選">全選</option>
-                     <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
-                  </select>
-                  <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
-                  <input type="submit"/>
-               </form>
-
             </div>
             <!--end contentPanel-->
             <!--internal chat-->
-            <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" id="內部聊天室">
-               <div class="chat_prof_head"></div>
-               <div class="chat_prof">
-                  <img src="https://marketplace.canva.com/MAB7k1IXVl4/1/thumbnail/canva-single-shield-icon-MAB7k1IXVl4.png" alt="無法顯示相片" style="width:60px;height:60px;border-radius:50px;margin:1.5%;float:left;margin-right: 5px;">
-                  <h4 id="prof_nick">內部聊天室</h4>
-               </div>
-               <section id="canvas">
-               </section>
-               <form action="" id="send-message" disabled>
+            <!-- ==========Colman========== -->
+            <div style="float:left!important;height:600px;width: 30%;background-color: /*#b0aac0*/;border:solid 1px lightgrey;float:right;"
+            id="內部聊天室">
+              <h5 style="text-align:center"><b>內部聊天室</b>
 
-                  <select style="float:right" id="user-rooms">
-                     <option id="selectAll" value="全選">全選</option>
-                     <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
-                  </select>
-                  <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
-                  <input type="submit"/>
-               </form>
+              </h5>
+              <div id="inside-group-container">
+              </div>
+              <section id="inside-group-canvas">
+              </section>
+              <form action="" id="inside-send-message" disabled>
+                <input style="width:100%; height:60px" size="35" id="inside-message" />
+                <input type="submit"/>
+              </form>
             </div>
-
+            <!-- ==========Colman========== -->
             <!--end internal chat-->
             <div id="infoPanel" class="colume">
                <div class="card text-center">
                   <div class="card-header">
                      <ul class="nav nav-tabs card-header-tabs">
                         <li class="nav-item">
-                           <a class="nav-link" href='#profile'>Profile</a>
+                           <a class="nav-link" href='#profile' active='true'>Profile</a>
                         </li>
                         <li class="nav-item">
                            <a class="nav-link" href='#ticket' >Ticket</a>
@@ -307,10 +304,9 @@
                </div>
             </div>
          </div>
-         <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Edit User Info</button>
-<!--          <button id="groupModalBtn" class="btn btn-default" data-toggle="modal" data-target="#groupModal">Edit Group Name</button> -->
+         <!-- <button id="userInfoBtn" class="btn btn-default" data-toggle="modal" data-target="#userInfoModal">Edit User Info</button> -->
          <!-- Modal -->
-         <div class="modal Btnfade" id="userInfoModal" role="dialog">
+         <div class="modal fade" id="userInfoModal" role="dialog">
             <div class="modal-dialog">
                <div class="modal-content">
                   <div class="modal-header">
@@ -330,36 +326,6 @@
             </div>
          </div>
          <!-- end -->
-   <!--MODAL FOR GROUP-->
-<!--    <div class="modal fade" id="groupModal">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"></h5>
-        </div>
-        <div class="modal-body">
-            <div id="error-message" hidden>
-               Please fill in group names.
-            </div>
-          <!-- 內容 -->
-         <!--  <form> -->
-<!--             <span id="keyId" hidden></span><br />
- -->            <!-- <input type="text" placeholder="輸入群組名1" id="group1" required="true" /> -->
-<!--                <div id="group1"></div>
- <br /><br />
-          </form>
-        </div>
-        <div class="modal-footer"> -->
-<!--           <button type="button" class="btn btn-primary" id="add-cal-btn">Add</button>
- -->       <!--    <button type="button" class="btn btn-primary" id="save-group-btn">Save changes</button> -->
-<!--           <button type="button" class="btn btn-primary" id="del-cal-btn">Delete</button>
- -->         <!--  <button type="button" class="btn btn-secondary" id="cls-cal-btn" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>  -->
-  <!--END MODAL FOR GROUP-->
-
       </div>
       <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>

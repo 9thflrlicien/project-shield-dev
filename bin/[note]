@@ -1,9 +1,0 @@
-[change]
-css save-group-btn
-css cls-cal-btn
------------------------
-this.rel的方法存到對應的名字
-問題在group submit
-group_n 存到firebase的方法
-
-save, close按鈕弄不好

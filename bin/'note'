@@ -1,0 +1,41 @@
+'note'
+
+應該是在display client/message的地方，when new user come, 重新設定判別方式
+
+namelist.push怎麼不見了？？
+
+先測一下displayClient部份成不成功,再回來用displayMessage
+
+目前狀況:無法append
+1. data.id = undefined ##SOLVED
+2. tablink append的code有動到  
+
+1.的問題是在www？-> NOPE
+1.的問題是在chat.js
+'''new message進來後data.id要改成data.data.id'''
+
+問題：
+1.tablink append的msg沒有及時更新？？
+
+PushMsg沒有更正!!-->覺得是這裡的問題
+以為是get json from back的問題，但是那個data根本沒有被用？！
+原本儲存msg到database的時候，沒有設定channelId，所以後來訊息讀下來，就沒有channelId辨別，所以都亂append= .. =
+改好pushMsg append的部分，去firebase刪掉自己的資料，然後再傳訊息，然後重新整理，看append有沒有對，再傳訊息
+
+'''在sendToNewFb的地方，新增channelId'''
+'''pushMsg, canvas.append, 改成profile.channelId+profile.userId'''
+'''pushMsg,user-rooms,profile.userId改成profile.channelId+profile.userId'''
+'''pushMsg clients.append 改成 target'''
+canvas和client都要分別寫
+
+canvas是點了才出現，崩潰
+
+pushMsg讀不出來！哭
+
+回覆訊息的部分，還有
+user-rooms append的部分要分成兩個，UI的問題
+先處理回覆訊息的部分
+
+
+=====
+現在剩下agent回覆訊息時，append到canvas上有問題，但訊息已可順利回覆到對的人與群組

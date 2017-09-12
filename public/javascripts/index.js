@@ -1,25 +1,5 @@
 // jQuery
 $(document).ready(function() {
-  var socket = io.connect();    //socket
-
-  let id;
-  setTimeout(() => {
-    id = getAuthId();
-    console.log(id);
-    database.ref('users/' + id).on('value', snap => {
-      let userVal = snap.val();
-      let chatObj = {
-        channelId: userVal.channelId,
-        channelSecret: userVal.channelSecret,
-        channelAccessToken: userVal.channelAccessToken
-      }
-      // console.log(chatObj);
-      socket.emit('channel', chatObj);
-
-    })
-  }, 1000);
-
-
   $("#a").hide();//隱藏選單
 
   $(document).on('click', '#signout-btn', logout); //登出
