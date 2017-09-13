@@ -35,16 +35,16 @@
             <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
           </li>
           <li>
-            <a href="/chatAll" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+            <a href="/chatAll" class="active">| <i class="fa fa-commenting fa-fw"></i> Chat</a>
           </li>
           <li>
-            <a href="/tag"><i class="fa fa-commenting fa-fw"></i> Tag</a>
+            <a href="/tag">| <i class="fa fa-commenting fa-fw"></i> Tag</a>
           </li>
           <li>
-            <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
+            <a href="/calendar">| <i class="fa fa-table fa-fw"></i> Calendar</a>
           </li>
           <li>
-            <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
+            <a href="/ticket">| <i class="fa fa-ticket fa-fw"></i> Support</a>
           </li>
 
           <!-- /.dropdown -->
@@ -247,49 +247,44 @@
 
         <div id="chat" class="contentPanel" style="background-color: /*#c2d4dd*/;width:30%;">
 
-        <div class="chat_prof_head"></div>
-        <div class="chat_prof">
-          <img src="" alt="無法顯示相片" class="userPhoto" style="width:60px;height:60px;border-radius:50px;margin:1.5%">
-          <h4 id="prof_nick"></h4>
-         </div>
+          <div class="chat_prof_head"></div>
+          <div class="chat_prof">
+            <img src="" alt="無法顯示相片" class="userPhoto" style="width:60px;height:60px;border-radius:50px;margin:1.5%">
+            <h4 id="prof_nick"></h4>
+          </div>
 
 
           <section id="canvas">
           </section>
 
-          <!-- Trigger the modal with a button -->
-        <form action="" id="send-message" disabled>
-          <select style="float:right" id="user-rooms">
-            <option id="selectAll" value="全選">全選</option>
-            <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
-          </select>
-          <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
-          <input type="submit"/>
-        </form>
-
-        </div><!--end contentPanel-->
-              <!--internal chat-->
-        <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" id="內部聊天室">
-        <div class="chat_prof_head"></div>
-        <div class="chat_prof">
-          <img src="https://marketplace.canva.com/MAB7k1IXVl4/1/thumbnail/canva-single-shield-icon-MAB7k1IXVl4.png" alt="無法顯示相片" style="width:60px;height:60px;border-radius:50px;margin:1.5%;float:left;margin-right: 5px;">
-          <h4 id="prof_nick">內部聊天室</h4>
-         </div>
-        <section id="canvas">
-
-
-        </section>
-        <form action="" id="send-message" disabled>
-          <select style="float:right" id="user-rooms">
-            <option id="selectAll" value="全選">全選</option>
-            <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
-          </select>
-          <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
-          <input type="submit"/>
-        </form>
+          <form action="" id="send-message" disabled>
+            <select style="float:right" id="user-rooms">
+              <option id="selectAll" value="全選">全選</option>
+              <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
+            </select>
+            <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
+            <input type="submit"/>
+          </form>
 
         </div>
-      <!--end internal chat-->
+        <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" id="內部聊天室">
+          <div class="chat_prof_head"></div>
+          <div class="chat_prof">
+            <img src="https://marketplace.canva.com/MAB7k1IXVl4/1/thumbnail/canva-single-shield-icon-MAB7k1IXVl4.png" alt="無法顯示相片" style="width:60px;height:60px;border-radius:50px;margin:1.5%;float:left;margin-right: 5px;">
+            <h4 id="prof_nick">內部聊天室</h4>
+           </div>
+          <section id="canvas">
+          </section>
+          <form action="" id="send-message" disabled>
+            <select style="float:right" id="user-rooms">
+              <option id="selectAll" value="全選">全選</option>
+              <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
+            </select>
+            <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
+            <input type="submit"/>
+          </form>
+
+        </div>
 
         <div id="infoPanel" class="colume">
           <div class="card text-center">

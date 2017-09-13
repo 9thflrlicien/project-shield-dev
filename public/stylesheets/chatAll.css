@@ -21,6 +21,27 @@
   font-size:14px;
   font-weight:bold;
 }
+.confirmProfileArea{
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  height: 0;
+  width: 19%;
+  background-color: rgba(255,255,255,.9);
+  position: absolute;
+  transition: .3s ease-in-out;
+  overflow: hidden;
+  box-shadow: 3px 8px 10px 0 rgba(0,0,0,.5);
+}
+#userInfo-submit,
+#userInfo-cancel
+{
+  height: 30px;
+  padding: 0 13px;
+  background-color: rgb(228, 100, 100);
+  color: white;
+}
+#userInfo-submit{background-color: rgb(98, 198, 105)}
 @media (max-width: 770px) {
   #聊天軟體,#聊天用戶,#聊天室, #用戶檔案, #內部聊天室  {
     width: 99% !important;
@@ -239,20 +260,23 @@ html,body{
   z-index: 2;
 }
 .tablinks_area::-webkit-scrollbar-track,
-.messagePanel::-webkit-scrollbar-track
+.messagePanel::-webkit-scrollbar-track,
+#infoCanvas::-webkit-scrollbar-track
 {
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 	border-radius: 5px;
 	background-color: transparent;
 }
 .tablinks_area::-webkit-scrollbar,
-.messagePanel::-webkit-scrollbar
+.messagePanel::-webkit-scrollbar,
+#infoCanvas::-webkit-scrollbar
 {
 	width: 4px;
 	background-color: transparent;
 }
 .tablinks_area::-webkit-scrollbar-thumb,
-.messagePanel::-webkit-scrollbar-thumb
+.messagePanel::-webkit-scrollbar-thumb,
+#infoCanvas::-webkit-scrollbar-thumb
 {
 	border-radius: 3px;
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);

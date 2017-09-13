@@ -54,9 +54,18 @@ $(document).ready(function() {
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.tablinks', clickUserTablink);
   $(document).on('click', '.topright', clickSpan);
-  $(document).on('click', '#userInfoBtn', showProfile);
+  // $(document).on('click', '#userInfoBtn', showProfile);
   $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
-  $(document).on('click', '.edit-button', changeProfile);
+  $(document).on('click', 'input,textarea', function (e) {
+    e.stopPropagation();
+  });
+  $(document).on('keypress', '.userInfo-td[modify="true"] input', function (e) {
+    let code = (e.keyCode ? e.keyCode : e.which);
+    if (code == 13) {
+      $(this).blur();
+    }
+  });
+  $(document).on('blur', '#td-inner', changeProfile );
   $(document).on('click','#userInfo-submit',submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
   $(document).on('click', '#upImg', upImg);
@@ -226,6 +235,7 @@ $(document).ready(function() {
   socket.on('push json to front', (data) => {
     //www emit data of history msg
     console.log("push json to front");
+    console.log(data);
     for( i in data ) pushMsg(data[i]);    //one user do function one time
     setTimeout(function () {
       for( i in data) pushInfo(data[i]) ;
@@ -262,10 +272,17 @@ $(document).ready(function() {
     infoCanvas.append(
         '<div class="card-group" id="'+profile.userId+'-info" style="display:none">'+
           '<div class="card-body" id="profile">'+
+            "<div class='confirmProfileArea'>"+
+            "<button id='userInfo-submit'>confirm</button>"+
+            "<button id='userInfo-cancel'>cancel</button>"+
+            "</div>"+
             "<div class='photoContainer'>"+
               '<img src="'+profile.photo+'" alt="無法顯示相片" style="width:128px;height:128px;">'+
             "</div>"+
               loadPanelProfile(profile)+
+            "<p id='backup' hidden>"+
+              JSON.stringify(profile)+
+            "</p>"+
           '</div>'+
           '<div class="card-body" id="ticket" hidden="true"></div>'+
           '<div class="card-body" id="todo" hidden="true">ToDo</div>'+
@@ -290,31 +307,60 @@ $(document).ready(function() {
       if(name == 'userId') continue ;
       if(name == 'email') {
         for(let i in profile[name]){
-          tdHtml += '<p id="td-inner">'+profile[name][i]+'</p>'
+          tdHtml += profile[name][i] + (i != profile[name].length-1 ? ',</br>' : '' ) ;
         }
       }
-      else if( type=='text' || type=='single_select' ){
-        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) tdHtml = '<p id="td-inner">'+profile[name]+'</p>';
-        else tdHtml = '<p id="td-inner">尚未輸入</p>';
+      else if( type=='text'){
+        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) tdHtml = '<div id="td-inner">'+(Number(profile[name])?Number(profile[name]).toFixed(0):profile[name])+'</div>';
+        else tdHtml = '<div id="td-inner">尚未輸入</div>';
+      }
+      else if(type=='single_select'){
+        tdHtml = '<div id="td-inner"><select style="display:none">' ;
+        if(modify){
+          if(profile[name]) tdHtml += '<option value="' + profile[name] + '">' + profile[name] + '</option>' ;
+          for( let j in set ) {
+            if(profile[name] == set[j]) continue ;
+            tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
+          }
+          tdHtml += '</select>';
+        }
+        if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) tdHtml += "<p>"+profile[name]+"</p>" ;
+        else tdHtml += "<p>"+'尚未輸入'+"</p>";
+        tdHtml += '</div>' ;
       }
       else if( type=="time" ){
         if(profile[name] != undefined && profile[name] != null && profile[name] != "" ) {
           let d = new Date(profile[name]) ;
-          tdHtml = '<p id="td-inner">'+d.getFullYear()+'/'+addZero(d.getMonth()+1)+'/'+addZero(d.getDate())+' '+addZero(d.getHours())+':'+addZero(d.getMinutes())+'<p>';
+          tdHtml = '<div id="td-inner">'+d.getFullYear()+'/'+addZero(d.getMonth()+1)+'/'+addZero(d.getDate())+' '+addZero(d.getHours())+':'+addZero(d.getMinutes())+'<div>';
         }
-        else tdHtml = '<p id="td-inner">尚未輸入<p>';
+        else tdHtml = '<div id="td-inner">尚未輸入<div>';
       }
       else if( type=='multi_select' ) {
-        if(profile[name] == undefined || profile[name] == null || profile[name] == "" ) tdHtml = '<p id="td-inner">尚未輸入</p>';
-        else {
-          let arr = profile[name].split(",") ;
-          for(let i in arr) tdHtml += '<span id="td-inner" class="tagSpan">'+arr[i]+'</span></br>';
+        let arr = profile[name] ? profile[name].split(",") : [] ;
+
+        tdHtml = '<div class="btn-group" id="td-inner" style="display:none">';
+        if( modify==true) {
+          tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
+          tdHtml += '<span class="multiselect-selected-text">請選擇</span><b class="caret"></b></button>'
+                  + '<ul class="multiselect-container dropdown-menu">';
+          for( let j in set ) {
+            tdHtml += '<li><input type="checkbox" value="'+set[j]+'" '+
+            (arr.indexOf(set[j]) != -1 ? 'checked' : '')
+            +' >' + set[j] + '</li>';
+          }
+          tdHtml += '</ul></div>';
         }
+        tdHtml += "<div id='display-Tag'>" ;
+        if(profile[name] == undefined || profile[name] == null || profile[name] == "" ) tdHtml += '<div id="td-inner">尚未輸入</div>';
+        else {
+          for(let i in arr) tdHtml += '<span class="tagSpan">'+arr[i]+'</span></br>';
+        }
+        tdHtml += "</div>" ;
       }
       html +=
       '<tr>'
         + '<th class="userInfo-th" id="' + name + '">' + name + '</th>'
-        + '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="false">' + tdHtml + '</td>' ;
+        + '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set +'" modify="'+modify+'">' + tdHtml + '</td>' ;
     }
     html += "</table>" ;
     return html ;
@@ -493,7 +539,7 @@ $(document).ready(function() {
   }
 
   function clickUserTablink(){
-    setTimeout(showProfile,100);
+    // setTimeout(showProfile,100);
     $("#selected").removeAttr('id').css("background-color", "");   //selected tablinks change, clean prev's color
     $(this).attr('id','selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
 
@@ -516,7 +562,7 @@ $(document).ready(function() {
   function toggleInfoPanel() {
     $(this).attr("active",'true').parent().siblings().children().attr("active",'false') ;
     let panel = $('.nav-link[active=true]').text().trim().toLowerCase() ;
-    $('.card-group:visible').children('#'+panel).show().siblings().hide();
+    $('.card-group:visible').children('#'+panel).fadeIn('fast').siblings().fadeOut('fast');
   }
 
   function clickSpan() {
@@ -695,8 +741,8 @@ $(document).ready(function() {
       filterDataCustomer[way].map( function(option) {
         $('.filterSelect#'+way).append('<li><input type="checkbox" value="'+option+'" checked>'+option+'</li>');
       });
+      }
     }
-  }
   }
 
   function initialFilterSilder() {
@@ -978,7 +1024,7 @@ $(document).ready(function() {
   $('.datepicker').datepicker({
     dateFormat: 'yy-mm-dd'
   });
-  $('.filterClean').on('click', function() {
+  $('#filterClean').on('click', function() {
     $('#startdate').val('');
     $('#enddate').val('');
     $('.tablinks').show();
@@ -1039,17 +1085,6 @@ $(document).ready(function() {
     sortRecentBool = !sortRecentBool;
   }
 
-
-  function showProfile() {
-    let target = $('#selected').attr('rel'); //get useridd of current selected user
-    if( target==undefined ) {
-      infoTable.html("please choose an user");
-      return;
-    }
-    console.log("show profile of userId " + target);
-    reload_tags();
-    showTargetProfile(userProfiles[target]);
-  }
   function reload_tags(){
     infoTable.empty();
     for( let i in TagsData ) {
@@ -1088,154 +1123,109 @@ $(document).ready(function() {
     }
   }
 
-  function showTargetProfile(profile) {
-    buffer = JSON.parse(JSON.stringify(profile));   //clone object
-    $('.userPhoto').attr('src', buffer.photo? buffer.photo: "" );
-
-    var nick = buffer.nickname
-    $('#prof_nick').text(nick);
-
-    $('.info_input_table .userInfo-td').each(function() {
-      let data = buffer[ $(this).attr('id') ];
-      let type = $(this).attr('type');
-      let inner = $(this).find('#td-inner');
-
-      if( data ) {
-        if( type=='text' ) inner.text(data);
-        else if( type=='single_select' ) inner.val(data);
-        else if( type=="multi_select" ) {
-          inner.attr('data',data);
-          inner.find('.multiselect-selected-text').text(data);
-
-          let arr = data.split(',');
-          inner.find('input').each(function() {
-            if( arr.indexOf( $(this).val() ) != -1 ) $(this).prop('checked', true);
-            else $(this).prop('checked', false);
-          });
-        }
-        else if( type=='time' ) {
-          let d = new Date(data);
-          inner.val(d.getFullYear()+'-'+addZero(d.getMonth()+1)+'-'+addZero(d.getDate())+'T'+addZero(d.getHours())+':'+addZero(d.getMinutes()));
-        }
-      }
-      else {    ///if undefined, load default string, not prev string
-        if( type=='text' ) inner.text("尚未輸入");
-        else if( type=='single_select' ) inner.val("");
-        else if( type=="multi_select" ) {
-          inner.attr('data',"");
-          inner.find('.multiselect-selected-text').text("");
-          inner.find('input').attr('checked', false);
-        }
-        else if( type=='time' ) inner.val("");
-      }
-    });
-  }
-
+  var first_edit = true ;
   function editProfile() {
-    if( $(this).parent().children('.edit-button').is(':visible') ) return;
-    else $(this).parent().children('.edit-button').show(); //show yes/no button
-    ///on click, off click has some strange bug, so change way ><
-
+    if(first_edit) {
+      buffer = JSON.parse($(this).parents('.panelTable').siblings("#backup").text());
+      first_edit = false ;
+    }
+    $(this).parents('.panelTable').siblings('.confirmProfileArea').css("height",50);
+    let name = $(this).attr('id');
     let type = $(this).attr('type');
     let set = $(this).attr('set');
-    let text = $(this).find('#td-inner').text();
+    let text = $(this).text();
 
+    if(name == 'email'){
+      let arr = text.split(",") ;
+      text = '' ;
+      console.log(arr)
+      for(let i in arr) text += arr[i] + (i != arr.length-1 ? ',\n' : '' ) ;
+    }
     if( type=='text' ) {
       if( set=='single' ) $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
       else if( set=='multi' ) $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >'+text+'</textarea>');
       else console.log("error 646");
     }
     else if( type=='single_select' ) {
-      //do nothing
+      $(this).find('select').show().focus().siblings().hide();
     }
     else if( type=='time' ) {
-      //do nothing
+      let day = new Date(text);
+      day = new Date(day.getTime() + 8*60*60*1000) ;
+      if(day != 'Invalid Date') text = day.toJSON().substring(0,16) ;
+      else text = '' ;
+      $(this).empty().html('<input type="datetime-local" class="textarea" id="td-inner" value="'+text+'" />');
     }
     else if( type=='multi_select' ) {
-      // $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
+      $(this).children("#display-Tag").hide().siblings().show().children('button');
     }
     $(this).find('#td-inner').select();
   }
-
-  // $(document).on('click', '#select-all', function(event) {multiselect_all(event.target);});
-  //
-
   function multiselect_change() {
     let boxes = $(this).find('input');
     let arr = [];
+    let tdHtml = '' ;
+    let name = $(this).parent().parent().attr('id');
     boxes.each(function() {
       if( $(this).is(':checked') ) arr.push( $(this).val() );
     });
-    if( arr.length==boxes.length ) arr="全選";
-    else arr = arr.join(',');
-    $(this).parent().find($('.multiselect-selected-text')).text(arr);
+    // if( arr.length==boxes.length ) arr="全選";
+    // else arr = arr.join(',');
+    for(let i in arr) tdHtml += '<span class="tagSpan">'+arr[i]+'</span></br>';
+    $(this).parent().siblings().html(tdHtml);
+    buffer[name] = arr.join() ;
   }
-
-  function changeProfile(edit) {
-    let td = $(this).parent().children('.userInfo-td');
+  function changeProfile() {
+    let td = $(this).parent() ;
     let id = td.attr('id');
     let type = td.attr('type');
-    let inner = td.find('#td-inner');
+    let val = '' ;
+    let name = td.attr('id');
 
-    $(this).parent().children('.edit-button').hide();  //hide yes/no button
-
-    if( $(this).attr('name')=='yes' ){  //confirm edit, change data in buffer instead of DB
-      let content;
-      if( type=="text") {
-        content = inner.val();
-        if( !content ) content = "尚未輸入";
-        td.html('<p id="td-inner">'+content+'</p>');
-      }
-      else if( type=='single_select' ) content = inner.val();
-      else if( type=="multi_select" ) {
-        content = inner.find('.multiselect-selected-text').text();
-      }
-      else if( type=="time" ) {
-        content = new Date(inner.val()).getTime();
-      }
-      buffer[id] = content;
-      console.log("content = "+content);
+    if(name == 'email'){
+      let arr = $(this).val().split(",\n"),
+          tdHtml = '';
+      for(let i in arr) tdHtml += arr[i] + (i != arr.length-1 ? ',</br>' : '' ) ;
+      $(this).parent().html(tdHtml);
+      buffer[name] = arr ;
     }
-    else{  //deny edit, restore data before editing
-      let origin = buffer[id];
-      if( origin==undefined ) origin = "";
-
-      if( type=="text") {
-        if( !origin ) origin = "尚未輸入";
-        td.html('<p id="td-inner">'+origin+'</p>');
-      }
-      else if( type=='single_select' ) inner.val(origin);
-      else if( type=="multi_select" ) {
-        inner.find('.multiselect-selected-text').text(origin);
-
-        inner.find('input').prop('checked', false);
-        if( origin ){
-          let arr = origin.split(',');
-          for( let j in arr ) inner.find('input[value="' + arr[j] + '"]').prop('checked', true);
-        }
-      }
-      else if( type=="time" ) {
-        let d = new Date(origin);
-        console.log("date = "+d.toString());
-        inner.val(d.getFullYear()+'-'+addZero(d.getMonth()+1)+'-'+addZero(d.getDate())+'T'+addZero(d.getHours())+':'+addZero(d.getMinutes()));
-      }
+    else if(type == 'text'){
+      val = $(this).val();
+      if( !val ) val = "尚未輸入";
+      $(this).parent().html(val);
+      buffer[name] = val ;
     }
+    else if(type == 'single_select'){
+      val =  $(this).children('select').val() ;
+      $(this).children('select').hide()
+              .siblings().html(val).show();
+      buffer[name] = val ;
+    }
+    else if(type == 'time'){
+      val = new Date($(this).val());
+      if(val == 'Invalid Date') $(this).parent().html("尚未輸入");
+      else $(this).parent().html(val.getFullYear()+'/'+addZero(val.getMonth()+1)+'/'+addZero(val.getDate())+' '+addZero(val.getHours())+':'+addZero(val.getMinutes())) ;
+      buffer[name] = val.getTime() ;
+    }
+    else if(type == 'multi_select'){
+      //do nothing
+    }
+
+
   }
-
   function submitProfile() {
-    if( $('.edit-button:visible').length>0 ) {
-      alert('please check all tags change');
-    }
-    else if( confirm("Are you sure to change profile?") ){
-      console.log(buffer);
+    if( confirm("Are you sure to change profile?") ){
+      first_edit = true ;
+      $(this).parent().css("height",0);
+      $(this).parent().siblings(".panelTable").html(loadPanelProfile(buffer));
       socket.emit('update profile',buffer);
-      $('.modal').modal('hide');
-      userProfiles[buffer.userId] = JSON.parse(JSON.stringify(buffer));   //clone object
-      $('.tablinks[rel='+buffer.userId+']').find('#nick').text(buffer.nickname);
     }
   }
-
   $(document).on('click','#userInfo-cancel',function() {
+    let backup = JSON.parse($(this).parent().siblings("#backup").text());
+    $(this).parent().siblings(".panelTable").html(loadPanelProfile(backup));
+    $(this).parent().css("height",0);
+    first_edit = true ;
   });
 
   function historyMsg_to_Str( messages ) {
@@ -1294,7 +1284,7 @@ $(document).ready(function() {
     let date = new Date(input);
     return  addZero(date.getHours()) + ':' + addZero(date.getMinutes());
 
-}
+  }
   function change_document_title(name) {
     // $(document).prop('title', 'SHEILD chat ver2');
   }
