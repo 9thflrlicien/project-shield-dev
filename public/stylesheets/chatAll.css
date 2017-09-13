@@ -306,13 +306,8 @@ html,body{
   height: 100%;
   width: 55%;
   float: left;
-}
-.content{
-  width: 75%;
-  display: block;
-  border-radius: 20px;
-  padding: 0 10px;
-  margin: 5px 0;
+  display: flex;
+  flex-direction: column;
 }
 .messagePanel {
   height: 95%;
@@ -321,6 +316,81 @@ html,body{
   display: flex;
   flex-direction: column;
 }
+#send-message {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-top: 1px solid lightgray;
+  background-color: white
+}
+#canvas{
+  height: 60%;
+  width: 100%;
+  flex:1;
+}
+.formUpper{
+  height: 50px;
+  background-color: white;
+  position: absolute;
+  width: 100%;
+  top: 0;
+  z-index: 1;
+}
+.formLower{
+  padding: 0 10px;
+  background-color: white;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  z-index: 1;
+}
+#submitMsg{
+  width: 30px;
+  height: 30px;
+  background-image: url("https://image.flaticon.com/icons/svg/60/60525.svg");
+  background-size: cover;
+  color: transparent;
+  background-color: rgba(255,255,255,.7);
+  background-blend-mode: color;
+  border: 0;
+}
+#submitMsg:hover{background-color: rgba(255,255,255,.5);}
+.uploadArea{
+  padding: 0 10px;
+  top: 0px;
+  overflow: hidden;
+  position: absolute;
+  height: 60px;
+  transition: .3s ease-in-out;
+  background-color: rgba(255,255,255,.8);
+  width: 100%
+}
+.uploadArea div{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.uploadArea button{
+  width: 40px;
+  height: 40px;
+  font-size: 20px
+}
+#showAttImg,
+#showAttVid,
+#showAttAud{display: none;}
+.formUpper button{
+  height: 40px;
+  font-size: 24px;
+  width: 40px;
+  border-radius: 50%;
+  background-color: transparent
+}
+.formUpper button:hover,
+.formUpper button[active~='true']
+{background-color: #ccc}
 
 #infoPanel{
   border: 1px solid lightgray ;
@@ -393,10 +463,7 @@ button{
 .datepicker, .filterDate{
   /*width: 25%;*/
 }
-#canvas{
-  height: 58.5%;
-  width: 100%;
-}
+
 .tabcontent {
   float: left;
   border: 1px solid #ccc;
@@ -438,11 +505,7 @@ p {
   padding-top: 10px;
   /*margin: 10px;*/
 }
-#send-message {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  float: right;
-}
+
 #clients {
   list-style: none;
 }
