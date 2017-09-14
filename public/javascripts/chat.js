@@ -471,7 +471,7 @@ $(document).ready(function() {
     let historyMsg = data.Messages;
     let profile = data.Profile;
 
-
+    if (profile.channelId == undefined) profile.channelId = 'FB';
 
     let historyMsgStr = "";
     if (data.position != 0) {
@@ -683,6 +683,8 @@ $(document).ready(function() {
 
   function displayMessage(data, channelId) {
     console.log(data);
+
+
     //update canvas
     if (name_list.indexOf(channelId+data.id) !== -1) { //if its chated user
       let str;
@@ -692,17 +694,35 @@ $(document).ready(function() {
       if (data.time - designated_chat_room_msg_time >= 900000) { // 如果現在時間多上一筆聊天記錄15分鐘
         $("#" + data.id + "-content").append('<p class="message-day" style="text-align: center"><strong>-新訊息-</strong></p>');
       }
+
       if (data.owner == "agent") str = toAgentStr(data.message, data.name, data.time);
       else str = toUserStr(data.message, data.name, data.time);
 
       $("#" + data.id + "-content").append(str); //push message into right canvas
       $('#' + data.id + '-content').scrollTop($('#' + data.id + '-content')[0].scrollHeight); //scroll to down
     } //close if
+    else if (data.owner == 'agent'){
+            let str;
+
+      let designated_chat_room_msg_time = $("#" + data.id + "-content").find(".message:last").attr('rel');
+      console.log(designated_chat_room_msg_time);
+      if (data.time - designated_chat_room_msg_time >= 900000) { // 如果現在時間多上一筆聊天記錄15分鐘
+        $("#" + data.id + "-content").append('<p class="message-day" style="text-align: center"><strong>-新訊息-</strong></p>');
+      }
+
+      if (data.owner == "agent") str = toAgentStr(data.message, data.name, data.time);
+      else str = toUserStr(data.message, data.name, data.time);
+
+      $("#" + data.id + "-content").append(str); //push message into right canvas
+      $('#' + data.id + '-content').scrollTop($('#' + data.id + '-content')[0].scrollHeight); //scroll to down
+
+    }
     else { //if its never chated user
       let historyMsgStr = NO_HISTORY_MSG;
-
+      console.log(data.id)
       if (data.owner == "agent") historyMsgStr += toAgentStr(data.message, data.name, data.time);
       else historyMsgStr += toUserStr(data.message, data.name, data.time);
+
 
       canvas.append( //new a canvas
         '<div id="' + data.id + '" class="tabcontent" style="display: none;">' +
@@ -721,11 +741,26 @@ $(document).ready(function() {
     console.log(data);
     //update tablinks
     let font_weight = data.owner == "user" ? "bold" : "normal"; //if msg is by user, mark it unread
+    if (channelId == undefined) channelId = 'FB';
 
     console.log(name_list);
     if (name_list.indexOf(channelId+data.id) !== -1) {
-      console.log('here here hereeeeee');
       let target = $(".tablinks_area[rel='" + channelId + "']").find(".tablinks[rel='"+data.id+"']");
+      target.find("#msg").html(toTimeStr(data.time) + data.message).css("font-weight", font_weight);
+      target.find('.unread_msg').html(data.unRead).css("display", "block");
+      target.attr("data-recentTime", data.time);
+      //update tablnks's last msg
+      if (data.unRead == 0 || data.unRead == false || data.unRead == 'undefined') {
+        target.find('.unread_msg').html(data.unRead).css("display", "none");
+      }
+      n++;
+
+      // let ele = target.parents('b'); //buttons to b
+      // ele.remove();
+      // $('.tablinks_area[rel="'+channelId+'"]>#clients').prepend(ele);
+    }else if (data.owner == 'agent'){
+
+      let target = $(".tablinks_area[rel='" + data.channelId + "']").find(".tablinks[rel='"+data.id+"']");
       target.find("#msg").html(toTimeStr(data.time) + data.message).css("font-weight", font_weight);
       target.find('.unread_msg').html(data.unRead).css("display", "block");
       target.attr("data-recentTime", data.time);
@@ -738,9 +773,6 @@ $(document).ready(function() {
       }
       n++;
 
-      // let ele = target.parents('b'); //buttons to b
-      // ele.remove();
-      // $('.tablinks_area[rel="'+channelId+'"]>#clients').prepend(ele);
     }
     else { //new user, make a tablinks
       // pictureUrl
@@ -928,6 +960,7 @@ $(document).ready(function() {
       id: "",
       msg: messageInput.val(),
       msgtime: Date.now(),
+      channelId: "",
       }
       // room:
     };
@@ -941,13 +974,12 @@ $(document).ready(function() {
     } else if ($("#user-rooms option:selected").val() == '對可見用戶發送') {
       $('.tablinks:visible').each(function() {
         sendObj.data.id = $(this).attr('rel');
-        console.log('what is sendObj.id, need to know its rel!!!!');
-        console.log(sendObj.id);
         socket.emit('send message2', sendObj);
 
       });
     } else {
       sendObj.data.id = $("#user-rooms option:selected").val();
+      sendObj.data.channelId = $('.tablinks[rel="'+sendObj.data.id+'"]').parents('.tablinks_area').attr('rel');
       socket.emit('send message2', sendObj); //socket.emit
 
     } //else

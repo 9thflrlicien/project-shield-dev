@@ -1,3 +1,9 @@
+.fa.fa-upload{
+  margin:2px;
+}
+.fa.fa-upload:hover,.insert_media{
+  display:block;
+}
 .contentPanel {
   /*margin-left: 100px;*/
   height: 600px;

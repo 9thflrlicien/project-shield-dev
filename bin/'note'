@@ -37,5 +37,31 @@ user-rooms append的部分要分成兩個，UI的問題
 先處理回覆訊息的部分
 
 
+FB訊息連得上偉倫的版本，問題是訊息沒有display，暫時關掉ticket unirest的部分，因為會打架
+shield_170828的版本也是訊息沒有display
+
 =====
 現在剩下agent回覆訊息時，append到canvas上有問題，但訊息已可順利回覆到對的人與群組
+
+
+
+client append沒有append上去(用channelId辨識存上去)，displayMessage部分，資料沒有儲存到。
+
+暫時在data沒有看到可以用來辨識channelId的東西，往上游去找找看有沒有可以設定的
+
+透過new message2傳送進displayClient之後，找到相對的channelId append上去
+
+
+
+
+問題？？！！訊息display不出來？！
+
+if send from line: data = > data.data
+if send from shield: data => data
+
+從上游改，把兩個改成一樣的
+
+sendObj到www裡變什麼，發現agent reply的id怪怪的
+
+
+
