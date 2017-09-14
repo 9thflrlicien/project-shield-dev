@@ -3,10 +3,12 @@
 /**
 * Module dependencies.
 */
+
 // express var
 var app = require('../app');
 var debug = require('debug')('project-shield:server');
 var http = require('http');
+
 // npm plugins var
 var firebase = require('firebase');
 var linebot = require('linebot');
@@ -14,19 +16,67 @@ var apiai = require('apiai');
 var fs = require('fs');
 var ticket = {} ;
 var unirest = require('unirest');
+var MessengerPlatform = require('facebook-bot-messenger');
 var API_KEY = "VAxM08x35ThAOEqIgvOF";
 var FD_ENDPOINT = "fongyu";
-var MessengerPlatform = require('facebook-bot-messenger');
 
-// custom global var
-var chatData; // firebase chat data
-var agentChatData; // firebase agent data
-var tagsData; // firebase tag data
+// Get port from environment and store in Express.
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+//Create HTTP server.
+var server = http.createServer(app);
+const io = require('socket.io').listen(server);
+// Listen on provided port, on all network interfaces.
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+//config
+var apiai_app = apiai('a84ed63ae3914a1fb4601f2824d4cabd');
+var fb_bot = MessengerPlatform.create({
+  pageID: '1505268191222395',
+  appID: '472206313149798',
+  appSecret: '64f066580f1118cce5277483865680f9',
+  validationToken: '8d651e7bf52b3f923d099302268b8893',
+  pageToken: 'EAAGteBmOVWYBAJShzsZADFojyn9RzSkZC085RXHG4XZCe1ZAYXQ89HcHgUQR7z2ZAfvJ2MJT0nXqGOmeQDooK0FMNk7K1BLJHJ8KUlyI33dcUg221mLr5Ft6GYDQBQ6d5C8pvqy27flm7VNYShR8PAW4mF4bo09Vn90zdNY53tYLT9LeiesXG'
+});
+var config = {
+  apiKey: "AIzaSyCKIPCKJpN1PCqK1EUygD6erNpo2lGmrpA",
+  authDomain: "shield-production.firebaseapp.com",
+  databaseURL: "https://shield-production.firebaseio.com",
+  projectId: "shield-production",
+  storageBucket: "shield-production.appspot.com",
+  messagingSenderId: "524065152880"
+};
+firebase.initializeApp(config);
+
+//firebase var
+const agentDBRef = firebase.database().ref().child('chats/AgentChatData');
+var agentChatData;
+agentDBRef.on('value', snapshot=> {
+  agentChatData = snapshot.val();
+  console.log("agent chat loaded");
+});
+
+const newDBRef = firebase.database().ref().child('chats/Data');
+var chatData;
+newDBRef.on('value', snapshot=> {
+  chatData = snapshot.val();
+  console.log("chat data loading complete!");
+});
+
+const tagsRef = firebase.database().ref().child('tags');
+var tagsData;
+tagsRef.on('value', snapshot=> {
+  tagsData = snapshot.val().Data;
+  console.log("tags data loading complete!");
+  // ...
+});
+
+
 var users = {};
 var agent_nickname = 'agent';
-//webhook event
-var receiverId = '';
-var agent_sendTo_receiver;
+
 // LINE bot設定
 var bot = [];
 var linebotParser = [
@@ -37,65 +87,285 @@ var linebotParser = [
     console.log("Enter channel_2 information first");
   }
 ];
-
-// configuration
-var fb_bot = MessengerPlatform.create({
-  pageID: '1198280690226258',
-  appID: '472206313149798',
-  appSecret: '64f066580f1118cce5277483865680f9',
-  validationToken: '8d651e7bf52b3f923d099302268b8893',
-  pageToken: 'EAAGteBmOVWYBAOpsz0pMcEzVKbIh0pBi1uc7SrFhmEYGpxxk3n5MRIpeXCsceKa2f2WQCHkhCVoemeHYwGK5fsXAYicRMOX6FsTCnaRXWTKsqqNtcm7hh8Jw5IS7ypXnhKtP9tjAg0SZCtfoJMzFR0sWzuGBpCXicItwa0IzFZArTcz5p6'
-});
-
-var config = {
-  apiKey: "AIzaSyAr1ic8lr_asYZTwwIjBNp3uiqFdu1QJKI",
-  authDomain: "shield-dev-91210.firebaseapp.com",
-  databaseURL: "https://shield-dev-91210.firebaseio.com",
-  projectId: "shield-dev-91210",
-  storageBucket: "",
-  messagingSenderId: "514816655617"
-};
-firebase.initializeApp(config);
-const newDBRef = firebase.database().ref().child('chats/Data');
 // var newDBRef = [null, null];
 var channelIds = [-1, -1];
 
-const agentDBRef = firebase.database().ref().child('chats/AgentChatData');
-const tagsRef = firebase.database().ref().child('tags');
-newDBRef.on('value', snapshot=> {
-  chatData = snapshot.val();
-  console.log("chat data loaded");
-});
-agentDBRef.on('value', snapshot=> {
-  agentChatData = snapshot.val();
-  console.log("agent chat loaded");
-})
-tagsRef.on('value', snapshot=> {
-  tagsData = snapshot.val().Data;
-  console.log("tags data loaded");
-});
 
-/**
-* Get port from environment and store in Express.
-*/
+//==============FACEBOOK MESSAGE==============
+app.post('/webhook', function (req, res) {
+  var data = req.body;
+  console.log('data on line 91');
+  console.log(data);
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+  // Make sure this is a page subscription
+  if (data.object === 'page') {
 
-/**
-* Create HTTP server.
-*/
+    // Iterate over each entry - there may be multiple if batched
+    data.entry.forEach(function(entry) {
+      var pageID = entry.id;
+      var timeOfEvent = entry.time;
 
-var server = http.createServer(app);
-const io = require('socket.io').listen(server);
+      // Iterate over each messaging event
+      entry.messaging.forEach(function(event) {
+        console.log('this is event');
+        console.log(event);
+        if (event.message) {
+          loadFbProfile(event, event.sender.id);
+        }
+        else {
+          console.log("Webhook received unknown event: ", event);
+        }
+      });
+    });
 
-/**
-* Listen on provided port, on all network interfaces.
-*/
+    // Assume all went well.
+    //
+    // You must send back a 200, within 20 seconds, to let us know
+    // you've successfully received the callback. Otherwise, the request
+    // will time out and we will keep trying to resend.
+    // res.sendStatus(200);
+  }
+  else{
+    console.log('on line 124');
+  }
+});//app.post
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+function loadFbProfile(obj, psid){
+  console.log("FB obj");
+  console.log(obj);
+  // fb_bot.webhook('/webhook');
+  fb_bot.getProfile(psid).then(function(data) {
+    console.log("profile data");
+    console.log(data);
+    var fb_user_name = data.first_name +' '+ data.last_name;
+    var fb_user_profilePic = data.profile_pic;
+    var fb_user_locale = data.locale;
+    var fb_user_gender = data.gender;
+    if (obj.message.attachments) {
+      //Checking if there are any image attachments
+      if(obj.message.attachments[0].type === "image"){
+        var imageURL = obj.message.attachments[0].payload.url;
+        obj.message = '<img src="'+imageURL+'"/>';
+      }//if image
+      else if (obj.message.attachments[0].type === "video"){
+        var videoURL = obj.message.attachments[0].payload.url;
+        obj.message = '<video controls><source src="'+videoURL+'" type="video/mp4"></video>';
+
+      }//if video
+      else if (obj.message.attachments[0].type === "audio"){
+        var audioURL = obj.message.attachments[0].payload.url;
+        obj.message = '<audio controls><source src="'+audioURL+'" type="audio/mpeg"/></audio>';
+
+      }//if audio
+      else if (obj.message.attachments[0].type === "file"){
+        var fileURL = obj.message.attachments[0].payload.url;
+        obj.message = 'The user sent a file, click <a target="blank" href="'+fileURL+'">HERE</a> for download.';
+
+      }//if audio
+      else if (obj.message.attachments[0].type === "location"){
+        var locateURL = obj.message.attachments[0].url;
+        obj.message = 'The user sent a location, click <a target="blank" href="'+locateURL+'">HERE</a> for map link.';
+
+      }//if location
+    }
+    else {
+      obj.message = obj.message.text;
+    }
+
+    for( let prop in chatData ) {
+      if(chatData[prop].Profile.userId == obj.sender.id) {
+        var count_unread_toFront = chatData[prop].Profile.unRead;
+        count_unread_toFront++;
+      }
+    }//for let prop in chatData
+
+    obj.id = obj.sender.id;
+    obj.owner = obj.recipient.id;
+    obj.name =  fb_user_name;
+    obj.time = obj.timestamp;
+    obj.unRead = count_unread_toFront;
+    io.sockets.emit('new message', obj);
+
+
+    //======receive message==========
+
+    var senderID = obj.sender.id;
+    var recipientID = obj.recipient.id;
+    var timeOfMessage = obj.timestamp;
+    var message_text = obj.message;
+
+    console.log("Received message for user %d and page %d at %d with message:",
+    senderID, recipientID, timeOfMessage);
+    console.log(JSON.stringify(obj.message));
+
+    //===========================================
+
+    //=============saving to database============
+    let message_lineTochat = message_text;
+    let receiverId = senderID;
+    let receiver_name = fb_user_name;
+    let nowTime = Date.now();
+
+    var msgObj = {
+      owner: "user",
+      name: receiver_name,
+      time: nowTime,
+      message: message_lineTochat,
+      id: receiverId,
+      prof_pic: fb_user_profilePic,
+      locale: fb_user_locale,
+      gend: fb_user_gender
+    };
+
+    function emitIO_and_pushDB(obj) {
+
+      console.log("sending object user: ");
+      console.log(obj);
+
+      console.log("sending to new firebase database");
+      sendToNewFb(obj);
+      console.log("sending to new io sockets...");
+      console.log("All sent!");
+    }
+    function sendToNewFb(obj){
+      let flag = true;
+      for( let prop in chatData ) {
+        if(chatData[prop].Profile.userId == receiverId) {
+          console.log("find user " + receiverId + " in database");
+          var count_unread = chatData[prop].Profile.unRead;
+          count_unread++;
+          let length = chatData[prop].Messages.length;
+          let updateObj = {};
+          updateObj['/'+prop+'/Messages/'+length] = obj;
+          newDBRef.update(updateObj);
+          newDBRef.child(prop).child("Profile").update({
+            unRead: count_unread,
+            photo: obj.prof_pic
+          });
+
+          flag = false;
+          console.log(247);
+          break;
+        }
+      }
+      if( flag ) {
+        console.log("new user come in");
+
+        let newData = {
+          Profile: {
+            nickname: obj.name,
+            userId: obj.id,
+            age: -1,
+            地區: obj.locale,
+            性別: obj.gend,
+            telephone: "",
+            address: "",
+            firstChat: nowTime,
+            首次聊天時間: nowTime,
+            recentChat: nowTime,
+            上次聊天時間: nowTime,
+            totalChat: 1,
+            總共聊天時間: 1,
+            avgChat: 1,
+            平均每次聊天時間: 1,
+            聊天次數: 1,
+            unRead: 1,
+            photo: obj.prof_pic
+          },
+          Messages: [obj]
+        };
+        newDBRef.push(newData);
+        io.sockets.emit('new user profile', newData.Profile);
+      }
+    }//sendTONewFb
+    console.log(281)
+    emitIO_and_pushDB(msgObj);
+    console.log(283);
+  }).catch(function(error) {
+    console.log('on line 295 error');
+  });//fb_bot
+
+}//loadFbProfile
+//============================================
+
+function emitIO_and_pushDB(obj, pictureUrl, channelId, receiverId, unRead) {
+  console.log("CCOORRECT EMIT");
+  console.log("");
+  console.log("sending object: ");
+  console.log(obj);
+  console.log("(channelId, receiverId) = (" + channelId + ", " + receiverId + ")");
+
+  console.log("sending to firebase database...");
+  send_to_firebase(obj, pictureUrl, channelId, receiverId, unRead);
+}
+function send_to_firebase(obj, pictureUrl, channelId, receiverId, unRead){
+  let flag = true;
+  let count_unread = unRead;    //0 or 1
+  for( let prop in chatData ) {
+    let data = chatData[prop];
+    if( data.Profile.channelId==channelId && data.Profile.userId==receiverId) {
+      console.log("find user in database");
+      let length = data.Messages.length;
+      count_unread += data.Profile.unRead;
+      let updateObj = {};
+      updateObj['/'+prop+'/Messages/'+length] = obj;
+      updateObj['/'+prop+'/Profile/unRead'] = count_unread;
+      if( pictureUrl ) updateObj['/'+prop+'/Profile/pictureUrl'] = pictureUrl;
+      newDBRef.update(updateObj);
+
+      console.log('finish update db. chatData[prop] = ');
+      console.log(data);
+
+      flag = false;
+      break;
+    }
+  }
+  if( flag ) {
+    console.log("new user come in");
+    let newData = {
+      Profile: {
+        nickname: obj.name,
+        userId: receiverId,
+        channelId: channelId,
+        age: -1,
+        telephone: "",
+        address: "",
+        firstChat: Date.now(),
+        首次聊天時間: Date.now(),
+        recentChat: Date.now(),
+        上次聊天時間: Date.now(),
+        totalChat: 1,
+        總共聊天時間: 1,
+        avgChat: 1,
+        平均每次聊天時間: 1,
+        聊天次數: 1,
+        unRead: 1,
+        photo: pictureUrl? pictureUrl :""
+      },
+      Messages: [obj]
+    };
+    newDBRef.push(newData);
+    io.sockets.emit('new user profile', newData.Profile);
+  }
+
+  console.log("sending to io sockets...");
+  send_to_frontSocket(obj, pictureUrl, channelId, receiverId, count_unread);
+
+}
+function send_to_frontSocket(obj, pictureUrl, channelId, receiverId, unRead) {
+  let data = JSON.parse(JSON.stringify(obj));
+  data.unRead = unRead;
+  data.channelId = channelId;
+  data.id = receiverId;
+  data.pictureUrl = pictureUrl;
+  console.log('push to front object: ');
+  console.log(data);
+  io.sockets.emit('new message', data);
+
+  console.log("All sent!");
+}
+
+
 
 // 接收訊息
 // LINE bot implement
@@ -104,28 +374,30 @@ function bot_on_message(event) {
   // let firebaseDB = newDBRef[ channelIds.indexOf(channelId) ];
   // console.log("INDEX = "+channelIds.indexOf(channelId));
 
-  console.log(event);
+  // console.log(event);
   let message_type = event.message.type;
   let message_lineTochat = event.message.text;
   let receiverId = event.source.userId;
-  let receiver_name;
   let nowTime = Date.now();
 
-  console.log('current ID is: '+receiverId);
+  console.log('Line message in!');
 
   event.source.profile().then(function(profile) {
     // console.log(profile.pictureUrl);
-    receiver_name = profile.displayName;
+    let receiver_name = profile.displayName;
+    let pictureUrl = profile.pictureUrl;
     if( receiver_name==undefined ) receiver_name = "userName_undefined";
+    console.log('current ID is: '+receiverId);
+    console.log('current nickname is: '+receiver_name);
 
     var msgObj = {
       owner: "user",
       name: receiver_name,
       time: nowTime,
-      receiverId: receiverId
+      message: "undefined_message"
     };
 
-    // from wenyen
+
     //  ===================  KINDS ====================
     {
       if (message_type === 'sticker') {
@@ -133,13 +405,16 @@ function bot_on_message(event) {
         let stickerId = event.message.stickerId;
         msgObj.message = '<img src="https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/'+stickerId+'/android/sticker.png"' +
         'width="20%" alt="sticker cant display!"/>';
-        emitIO_and_pushDB(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
       }
       else if (message_type === 'location') {
+        console.log("location");
         msgObj.message = 'Location received: ';
-        emitIO_and_pushDB(msgObj);
+        console.log(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         msgObj.message = event.message.address;
-        emitIO_and_pushDB(msgObj);
+        console.log(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         event.message.content().then(function(content) {
           /*'base64'是圖片的編碼*/
           // console.log(content.toString('base64'));
@@ -149,7 +424,8 @@ function bot_on_message(event) {
           msgObj.message = '<a target="_blank" href=" https://www.google.com.tw/maps/place/' + content.toString('base64')
           + '/@' + latitude + ',' + longitude + ',15z/data=!4m5!3m4!1s0x0:0x496596e7748a5757!8m2!3d'
           + latitude + '!4d' + longitude + '">LOCATION LINK</a>';
-          emitIO_and_pushDB(msgObj);
+          console.log(msgObj);
+          emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         }).catch(function(error) {
           // error
         });
@@ -157,7 +433,7 @@ function bot_on_message(event) {
       }
       else if (message_type === 'image') {
         msgObj.message = 'Image received. Please wait for the link below';
-        emitIO_and_pushDB(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         event.message.content().then(function(content) {
           /*'base64'是圖片的編碼*/
           // console.log(content.toString('base64'));
@@ -165,7 +441,7 @@ function bot_on_message(event) {
           msgObj.message = '<a href="data:image/png;base64,' + content.toString('base64') + '" ' +
           ' target="_blank" ><img src="data:image/png;base64,' + content.toString('base64') + '" ' +
           'width="20%" alt="image embedded using base64 encoding!"/></a>';
-          emitIO_and_pushDB(msgObj);
+          emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
 
         }).catch(function(error) {
           // error
@@ -175,7 +451,7 @@ function bot_on_message(event) {
       }
       else if (message_type === 'audio') {
         msgObj.message = 'Audio received. Please wait for the link below.';
-        emitIO_and_pushDB(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         event.message.content().then(function(content) {
           // console.log(content.toString('base64'));
           msgObj.message = '<audio controls><source src="data:audio/mp4;base64,' + content.toString('base64') + '" ' +
@@ -189,122 +465,37 @@ function bot_on_message(event) {
       }
       else if (message_type === 'video') {
         msgObj.message = 'Video received. Please wait for the link below.';
-        emitIO_and_pushDB(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
 
         event.message.content().then(function(content) {
           // console.log(content.toString('base64'));
           msgObj.message = '<video width="20%" controls><source src="data:video/mp4;base64,' + content.toString('base64') + '" ' +
           '" type="video/mp4"></video>';
-          emitIO_and_pushDB(msgObj);
+          emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
 
         }).catch(function(error) {
           // error
           console.log(error);
         });
       }
-      else if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
+      else if (message_type === 'text' && isUrl(message_lineTochat) ) {
         let urlStr = '<a href=';
         if (message_lineTochat.indexOf('https') === -1 || message_lineTochat.indexOf('http') === -1) {
           urlStr += '"https://';
         }
         msgObj.message = urlStr + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>';
-        emitIO_and_pushDB(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
       }
       else {
         msgObj.message = message_lineTochat;
-        emitIO_and_pushDB(msgObj);
-        apiai(msgObj);
-        if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
-          let urlStr = '<a href=';
-          if (message_lineTochat.indexOf('https') === -1 || message_lineTochat.indexOf('http') === -1) {
-            urlStr += '"https://';
-          }
-          msgObj.message = urlStr + message_lineTochat + '/ target="_blank">' + message_lineTochat + '</a>';
-          emitIO_and_pushDB(msgObj);
-        }
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        // apiai(msgObj);
       }
     }
     // function
-    function emitIO_and_pushDB(obj) {
-      console.log("sending object user: ");
-      console.log(obj);
-      console.log("sending to new firebase database");
-      sendToNewFb(obj);
-      console.log("sending to new io sockets...");
-      sendToFrontSocket(obj);
-      console.log("All sent!");
-    }
-    function sendToNewFb(obj){
-      let flag = true;
-      for( let prop in chatData ) {
-        if(chatData[prop].Profile.userId == receiverId) {
-          console.log("find user " + receiverId + " in database1");
-          var count_unread = chatData[prop].Profile.unRead;
-          count_unread++;
-          // console.log(count_unread);
-          let length = chatData[prop].Messages.length;
-          let updateObj = {};
-          updateObj['/'+prop+'/Messages/'+length] = obj;
-          console.log(updateObj);
-          newDBRef.update(updateObj);
-          // console.log('update obj');
-          // console.log(count_unread);
-          newDBRef.child(prop).child("Profile").update({
-            unRead: count_unread,
-            photo: profile.pictureUrl? profile.pictureUrl :""
-          });
-          flag = false;
-          console.log('finish update db');
-          break;
-        }
-      }
-      if( flag ) {
-        console.log("new user come in");
-        let newData = {
-          Profile: {
-            nickname: receiver_name,
-            userId: receiverId,
-            age: -1,
-            telephone: "",
-            address: "",
-            firstChat: nowTime,
-            首次聊天時間: nowTime,
-            recentChat: nowTime,
-            上次聊天時間: nowTime,
-            totalChat: 1,
-            總共聊天時間: 1,
-            avgChat: 1,
-            平均每次聊天時間: 1,
-            聊天次數: 1,
-            unRead: 1,
-            photo: profile.pictureUrl? profile.pictureUrl :""
-          },
-          Messages: [obj]
-        };
-        newDBRef.push(newData);
-        io.sockets.emit('new user profile', newData.Profile);
-      }
-    }
-    function sendToFrontSocket(obj) {
-      obj = JSON.parse(JSON.stringify(obj));
-      for( let prop in chatData ) {
-        if(chatData[prop].Profile.userId == obj.receiverId) {
-          var count_unread_toFront = chatData[prop].Profile.unRead;
-        }
-      }//for let prop in chatData
-      obj.id = receiverId;
-      obj.unRead = count_unread_toFront;
-      obj.pictureUrl = profile.pictureUrl;
-      console.log('insert unRead: ');
-      console.log(obj);
-      io.sockets.emit('new message2', {data: obj, channelId: channelId});
-      count_unread_toFront++;
-    }
 
     function apiai(obj) {
-      var apiai = require('apiai');
-      var app = apiai('a84ed63ae3914a1fb4601f2824d4cabd');
-      var request = app.textRequest(obj.message, {
+      var request = apiai_app.textRequest(obj.message, {
         sessionId: '0896c04e-218b-4951-b75d-2d09e1ce7d4b'
       });
       request.on('response', function(response) {
@@ -318,12 +509,9 @@ function bot_on_message(event) {
           console.log(response.result) ;
           msgObj.owner = 'agent';
           msgObj.name = 'api.ai';
-          msgObj.unRead = 1;
-          response.result.unRead = 1;
-          console.log(response.result) ;
           if(action == 'input.welcome'||action == 'timeGreeting'){
             obj.message = '已接收選項'+"購買方案, "+"服務時段, "+'問卷調查';
-            emitIO_and_pushDB(msgObj);
+            emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 0);
             event.reply({
               "type": "template",
               "altText": "this is a buttons template",
@@ -354,12 +542,10 @@ function bot_on_message(event) {
             console.log(type) ;
             if(incomplete){
               msgObj.message = speech;
-              emitIO_and_pushDB(msgObj);
               event.reply({ type: 'text', text: speech });
             }
             else if(type == 'principal'){
-              // msgObj.message = "關於負責人";
-              // emitIO_and_pushDB(msgObj);
+              msgObj.message = "關於負責人";
               event.reply({
                 "type": "template",
                 "altText": "關於負責人",
@@ -374,11 +560,9 @@ function bot_on_message(event) {
                   }]
                 }
               });
-
             }
             else if(type == 'money'){
-              // msgObj.message = '關於資本額';
-              // emitIO_and_pushDB(msgObj);
+              msgObj.message = '關於資本額';
               event.reply({
                 "type": "template",
                 "altText": "關於資本額",
@@ -407,8 +591,7 @@ function bot_on_message(event) {
               });
             }
             else if(type == 'servies'){
-              // msgObj.message = '關於附加服務';
-              // emitIO_and_pushDB(msgObj);
+              msgObj.message = '關於附加服務';
               event.reply({
                 "type": "template",
                 "altText": "關於附加服務",
@@ -437,8 +620,7 @@ function bot_on_message(event) {
               });
             }
             else if(type == 'bank'){
-              // msgObj.message = '關於銀行帳戶';
-              // emitIO_and_pushDB(msgObj);
+              msgObj.message = '關於銀行帳戶';
               event.reply({
                 "type": "template",
                 "altText": "關於銀行帳戶",
@@ -463,7 +645,7 @@ function bot_on_message(event) {
               });
             }
             else if(type == 'starting'){
-              // msgObj.message = '關於公司設立';
+              msgObj.message = '關於公司設立';
               event.reply({
                 "type": "template",
                 "altText": "關於公司設立",
@@ -550,11 +732,9 @@ function bot_on_message(event) {
                   ]
                 }
               });
-              emitIO_and_pushDB(msgObj);
             }
             else if(type == 'business'){
-              // msgObj.message = '關於營業項目';
-              // emitIO_and_pushDB(msgObj);
+              msgObj.message = '關於營業項目';
               event.reply({
                 "type": "template",
                 "altText": "關於營業項目",
@@ -575,8 +755,7 @@ function bot_on_message(event) {
               });
             }
             else if(type == 'price'){
-              // msgObj.message = '關於價格方案';
-              // emitIO_and_pushDB(msgObj);
+              msgObj.message = '關於價格方案';
               event.reply({
                 "type": "template",
                 "altText": "關於價格方案",
@@ -597,8 +776,7 @@ function bot_on_message(event) {
               });
             }
             else if(type == 'insurance'){
-              // msgObj.message = '關於勞健保';
-              // emitIO_and_pushDB(msgObj);
+              msgObj.message = '關於勞健保';
               event.reply({
                 "type": "template",
                 "altText": "關於勞健保",
@@ -627,8 +805,7 @@ function bot_on_message(event) {
               });
             }
             else if(type == 'other'){
-              // msgObj.message = '常見問題';
-              // emitIO_and_pushDB(msgObj);
+              msgObj.message = '常見問題';
               event.reply({
                 "type": "template",
                 "altText": "常見問題",
@@ -678,6 +855,8 @@ function bot_on_message(event) {
                 }
               });
             }
+            else console.log("api.ai type error");
+            emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 0);
             return ;
           }
           else if(action == 'ticket' ){
@@ -692,8 +871,8 @@ function bot_on_message(event) {
             ticket.priority = parameter.priority ;
             if(complete) createTicket(ticket);
           }
-          obj.message = speech;
-          emitIO_and_pushDB(obj) ;
+          obj.message = speech ;
+          emitIO_and_pushDB(obj, pictureUrl, channelId, receiverId, 0);
           event.reply({ type: 'text', text: msgObj.message });
         }
         else{console.log(action);}
@@ -771,8 +950,6 @@ function bot_on_message(event) {
       });
     }
 
-
-
   });
 }
 
@@ -793,93 +970,6 @@ function bot_on_postback(event){
       name: 'api.ai',
       time: nowTime
     };
-
-    function emitIO_and_pushDB(obj) {
-      console.log("sending object user: ");
-      console.log(obj);
-      console.log("sending to new firebase database");
-      sendToNewFb(obj);
-      console.log("sending to new io sockets...");
-      sendToFrontSocket(obj);
-      console.log("All sent!");
-    }
-    function sendToFrontSocket(obj) {
-      obj.id = receiverId;
-      io.sockets.emit('new message2', obj);
-    }
-    function sendToNewFb(obj){
-      let flag = true;
-      for( let prop in chatData ) {
-        if(chatData[prop].Profile.userId == receiverId) {
-          console.log("find user " + receiverId + " in database");
-          let length = chatData[prop].Messages.length;
-          let updateObj = {};
-          updateObj['/'+prop+'/Messages/'+length] = obj;
-          newDBRef.update(updateObj);
-          newDBRef.child(prop).child("Profile").update({
-            unRead: true,
-            photo: profile.pictureUrl
-          });
-          flag = false;
-          break;
-        }
-      }
-      if( flag ) {
-        console.log("new user come in");
-        let newData = {
-          Profile: {
-            nickname: receiver_name,
-            userId: receiverId,
-            age: -1,
-            telephone: "",
-            address: "",
-            firstChat: nowTime,
-            首次聊天時間: nowTime,
-            recentChat: nowTime,
-            上次聊天時間: nowTime,
-            totalChat: 1,
-            總共聊天時間: 1,
-            avgChat: 1,
-            平均每次聊天時間: 1,
-            聊天次數: 1,
-            unRead: true,
-            photo: profile.pictureUrl
-          },
-          Messages: [obj]
-        };
-        newDBRef.push(newData);
-      }
-    }
-    function sendToLocalDB(obj) {
-      let DATA = JSON.parse(fs.readFileSync('chatMsg.json'));
-      let i=0;
-      for( i=0; i<DATA.length; i++ ) {
-        if( DATA[i].Profile.userId == receiverId ) {
-          DATA[i].Messages.push(obj);
-          break;
-        }
-      }
-      if( i==DATA.length ) {
-        console.log("new user come in");
-        let newData = {
-          Profile: {
-            nickname: receiver_name,
-            userId: receiverId,
-            age: -1,
-            telephone: "",
-            address: "",
-            firstChat: nowTime,
-            recentChat: nowTime,
-            totalChat: 1,
-            avgChat: 1
-          },
-          Messages: [obj]
-        };
-        DATA.push(newData);
-      }
-      fs.writeFileSync('chatMsg.json', JSON.stringify(DATA, null, 2));
-      console.log("send to local DB success");
-    }
 
     if(data.indexOf('purchasePlan') != -1){
       let hr = data.substring(13);
@@ -921,7 +1011,7 @@ function bot_on_postback(event){
         break;
 
       }
-      emitIO_and_pushDB(msgObj);
+      emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
       event.reply({"type":"text","text":msgObj.message}) ;
     }
     else if(data == 'serviesHour'){
@@ -937,7 +1027,7 @@ function bot_on_postback(event){
       "「1500~1900」及「1900~2300」。" ;
 
       console.log(msgObj.message) ;
-      emitIO_and_pushDB(msgObj);
+      emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
       event.reply({"type":"text","text":msgObj.message}) ;
     }
     else if(data.indexOf('Questionnaire') != -1){
@@ -957,7 +1047,7 @@ function bot_on_postback(event){
 
       if(para == '性別'){
         msgObj.message = '詢問客戶資料(居住地)';
-        emitIO_and_pushDB(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         event.reply({
           "type": "template",
           "altText": "問券調查",
@@ -992,7 +1082,7 @@ function bot_on_postback(event){
       }
       else if(para == '地區'){
         msgObj.message = '詢問客戶資料(年齡層)';
-        emitIO_and_pushDB(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         event.reply({
           "type": "template",
           "altText": "問券調查part2",
@@ -1051,7 +1141,7 @@ function bot_on_postback(event){
       }
       else if(para == '年齡'){
         msgObj.message = '感謝您填寫問卷!' ;
-        emitIO_and_pushDB(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         //bot.push(obj.id,msgObj.message);
         event.reply({ type: 'text', text: msgObj.message });
       }
@@ -1077,7 +1167,7 @@ function bot_on_postback(event){
           }
         });
         msgObj.message = '詢問客戶資料(性別)';
-        emitIO_and_pushDB(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
       }
 
 
@@ -1107,7 +1197,7 @@ function bot_on_postback(event){
         msgObj.time = nowTime;
         msgObj.id = receiverId;
         msgObj.message = msg ;
-        emitIO_and_pushDB(msgObj) ;
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         event.reply({ type: 'text', text: msg });
       })
       .catch(function(err) {
@@ -1145,20 +1235,82 @@ function bot_on_postback(event){
 
 // 群組webhook
 app.post('/webhook1/', function() {
-  console.log("webhook arguments length = "+arguments.length);
+  console.log("webhook1 arguments length = "+arguments.length);
   linebotParser[0](arguments[0], arguments[1], arguments[2]);
 });
 app.post('/webhook2/', function() {
-  console.log("webhook arguments length = "+arguments.length);
+  console.log("webhook2 arguments length = "+arguments.length);
   linebotParser[1](arguments[0], arguments[1], arguments[2]);
 });
+
+
+//==================ticket=======================
+var viewContact;
+var viewAgent;
+var viewTicket;
+
+function getTicketfromFD() {
+
+  var URL_ticket =  "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/tickets";
+  var URL_agent = "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/agents"
+  var URL_contact = "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/contacts"
+
+  var viewRequest_contact = unirest.get(URL_contact);
+
+  viewRequest_contact.auth({
+    user: API_KEY,
+    pass: "X",
+    sendImmediately: true
+  })
+  .end(function(response){
+    viewContact = response.body;
+    console.log("Contact Response Status : " + response.status)
+    if(response.status != 200){
+      console.log("X-Request-Id :" + response.headers['x-request-id']);
+    }
+  });
+
+
+  var viewRequest_agent = unirest.get(URL_agent);
+
+  viewRequest_agent.auth({
+    user: API_KEY,
+    pass: "X",
+    sendImmediately: true
+  })
+  .end(function(response){
+    viewAgent = response.body;
+    console.log("Agent Response Status : " + response.status)
+    if(response.status != 200){
+      console.log("X-Request-Id :" + response.headers['x-request-id']);
+    }
+  });
+
+
+  var viewRequest_ticket = unirest.get(URL_ticket);
+
+  viewRequest_ticket.auth({
+    user: API_KEY,
+    pass: "X",
+    sendImmediately: true
+  })
+  .end(function(response){
+    viewTicket = response.body;
+    console.log("Ticket Response Status : " + response.status)
+    if(response.status != 200){
+      console.log("X-Request-Id :" + response.headers['x-request-id']);
+    }
+  });
+}
+//-----------------------ticket---------------------*/
+
+
 
 /**
 * Socket.io 傳訊息
 */
 
 io.sockets.on('connection', (socket) => {
-
 
   socket.on('get inside chat', (data) => {
     let thisAgentData = [];
@@ -1246,6 +1398,7 @@ io.sockets.on('connection', (socket) => {
     console.log("chat data socket");
     let sendData = [];
     for( let i in chatData ) {
+      console.log("i="+i);
       let profile = chatData[i].Profile;
       let _lastMsg = chatData[i].Messages[ chatData[i].Messages.length-1 ];
       if( profile.recentChat != _lastMsg.time ) {
@@ -1261,6 +1414,7 @@ io.sockets.on('connection', (socket) => {
         let headTime;
         let tailTime;
         while( j<timeArr.length ) {
+          // console.log("j = "+j);
           headTime = tailTime = timeArr[j];
           while( timeArr[j]-tailTime < GAP ) {
             tailTime = timeArr[j];
@@ -1292,6 +1446,8 @@ io.sockets.on('connection', (socket) => {
           "上次聊天時間": profile.recentChat
         });
       }
+
+      console.log("update done or no need up");
       let msgs = chatData[i].Messages;
       let position = 0;
       if( msgs.length>20 ) {
@@ -1303,9 +1459,12 @@ io.sockets.on('connection', (socket) => {
         position: position,
         Profile: profile
       });
+      console.log("push done");
     }
     // console.log(sendData);
     socket.emit('push json to front', sendData);
+    console.log('push json to front');
+    console.log(sendData);
   });
 
   socket.on('upload history msg from front', data => {
@@ -1345,12 +1504,13 @@ io.sockets.on('connection', (socket) => {
   });
 
   // 從SHIELD chat傳送訊息
-  socket.on('send message2', (data, callback) => {
+  socket.on('send message', (data, callback) => {
     // console.log(data);
     let msg = data.msg.trim();
-    agent_sendTo_receiver = data.id.trim();
+    let agent_sendTo_receiver = data.id.trim();
     let msg_time = data.msgtime;
     console.log(agent_sendTo_receiver);
+
     if(socket.nickname !== undefined){
       agent_nickname = socket.nickname;
     } else {
@@ -1422,85 +1582,43 @@ io.sockets.on('connection', (socket) => {
       owner: "agent",
       name: agent_nickname,
       time: nowTime,
-      unRead: unRead_fromProfile
+      message: "undefined_message"
     };
-
-    function emitIO_and_pushDB(obj) {
-      console.log("sending object agent2: ");
-      console.log(obj);
-      console.log("sending to new firebase database");
-      sendToNewFb(obj);
-      console.log("sending to new io sockets...");
-      sendToFrontSocket(obj);
-      console.log("All sent!");
-    }
-
-    function sendToNewFb(obj){
-      let flag = true;
-      for( let prop in chatData ) {
-        console.log("find next user data");
-        if(chatData[prop].Profile.userId == agent_sendTo_receiver) {
-          console.log("find the same user");
-          let length = chatData[prop].Messages.length - 1;
-          let updateObj = {};
-          updateObj['/'+prop+'/Messages/'+length] = obj;
-          newDBRef.update(updateObj);
-          flag = false;
-          break;
-        }
-      }
-      if( flag ) {
-        console.log("new user come in, impossible!!!");
-        let newData = {
-          Profile: {
-            nickname: "undefined name at www.line.669",
-            userId: agent_sendTo_receiver,
-            age: -1,
-            telephone: "",
-            address: "",
-            firstChat: nowTime,
-            recentChat: nowTime,
-            totalChat: 1,
-            avgChat: 1
-          },
-          Messages: [obj]
-        };
-        newDBRef.push(newData);
-      }
-    }
-
-    function sendToFrontSocket(obj) {
-      obj.id = agent_sendTo_receiver;
-      io.sockets.emit('new message2', obj);
-    }
 
     if (msg.includes('/image')) {
       msgObj.message = 'Send image to user';
-      emitIO_and_pushDB(msgObj);
-
-    } else if (msg.includes('/audio')) {
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+    }
+    else if (msg.includes('/audio')) {
       msgObj.message = 'Send audio to user';
-      emitIO_and_pushDB(msgObj);
-
-    } else if (msg.includes('/video')) {
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+    }
+    else if (msg.includes('/video')) {
       msgObj.message = 'Send video to user';
-      emitIO_and_pushDB(msgObj);
-
-    } else if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+    }
+    else if ( isUrl(msg) ) {
       let urlStr = '<a href=';
       if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
         urlStr += '"https://';
       }
       msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
-      emitIO_and_pushDB(msgObj);
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
 
-    } else if (msg.includes('/sticker')) {
+    }
+    else if (msg.includes('/sticker')) {
       msgObj.message = 'Send sticker to user';
-      emitIO_and_pushDB(msgObj);
-
-    } else {
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+    }
+    else {
       msgObj.message = msg;
-      emitIO_and_pushDB(msgObj);
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
     }
   });//sent message
 
@@ -1693,11 +1811,20 @@ io.sockets.on('connection', (socket) => {
     });
   });
 
+  getTicketfromFD();
+  socket.emit('all tickets info', viewTicket);
+  socket.emit('all agents info', viewAgent);
+  socket.emit('all contacts info', viewContact);
+
+  socket.on('update ticket', (data, callback) => {
+    console.log(data) ;
+    updateTicket(data) ;
+  });
   socket.on('get ticket', (data ,callback) => {
     console.log(data) ;
     getUserTicket(data);
-  });
 
+  });
   function getUserTicket(data) {
     var email = data.email ;
     var id = data.id ;
@@ -1727,6 +1854,17 @@ io.sockets.on('connection', (socket) => {
     delete users[socket.nickname];
   });
 });
+
+function isUrl(str) {
+  if(str.indexOf('.com') !== -1 ) return true;
+  else if(str.indexOf('.edu') !== -1 ) return true;
+  else if(str.indexOf('.net') !== -1 ) return true;
+  else if(str.indexOf('.io') !== -1 ) return true;
+  else if(str.indexOf('.org') !== -1 ) return true;
+  return false;
+}
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
