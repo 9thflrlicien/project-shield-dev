@@ -203,6 +203,7 @@ $(document).ready(function() {
   }
   function sendMedia(media) {
     media_buffer = "" ;
+    $("input[type='file']").val("");
     let sendObj = {
       id: "",
       msg: media,
