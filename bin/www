@@ -1558,12 +1558,14 @@ io.sockets.on('connection', (socket) => {
 
   // 從SHIELD chat傳送訊息
   socket.on('send message2', (data, callback) => {
-    console.log(data.data);
+      console.log('data on 1561 send message2:')
+        console.log(data)
+        fb_bot.sendTextMessage(data.id, data.msg);
 
 
-    let msg = data.data.msg.trim();
-    agent_sendTo_receiver = data.data.id.trim();
-    let msg_time = data.data.msgtime;
+    let msg = data.msg.trim();
+    agent_sendTo_receiver = data.id.trim();
+    let msg_time = data.msgtime;
     console.log(agent_sendTo_receiver);
     if(socket.nickname !== undefined){
       agent_nickname = socket.nickname;
@@ -1626,20 +1628,18 @@ io.sockets.on('connection', (socket) => {
     }
 
     for( let i in chatData ) {
-      if( chatData[i].Profile.userId == data.data.id ) {
+      if( chatData[i].Profile.userId == data.id ) {
         var unRead_fromProfile = chatData[i].Profile.unRead;
         break;
       }
     }
 
     var msgObj = {
-      data:{
       owner: "agent",
       name: agent_nickname,
       time: nowTime,
       unRead: unRead_fromProfile,
-      channelId: data.data.channelId
-    }
+      channelId: data.channelId
     };
 
     function emitIO_and_pushDB(obj) {
@@ -1691,20 +1691,20 @@ io.sockets.on('connection', (socket) => {
     }
 
     function sendToFrontSocket(obj) {
-      obj.data.id = agent_sendTo_receiver;
+      obj.id = agent_sendTo_receiver;
       io.sockets.emit('new message2', obj);
     }
 
     if (msg.includes('/image')) {
-      msgObj.data.message = 'Send image to user';
+      msgObj.message = 'Send image to user';
       emitIO_and_pushDB(msgObj);
 
     } else if (msg.includes('/audio')) {
-      msgObj.data.message = 'Send audio to user';
+      msgObj.message = 'Send audio to user';
       emitIO_and_pushDB(msgObj);
 
     } else if (msg.includes('/video')) {
-      msgObj.data.message = 'Send video to user';
+      msgObj.message = 'Send video to user';
       emitIO_and_pushDB(msgObj);
 
     } else if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
@@ -1712,15 +1712,15 @@ io.sockets.on('connection', (socket) => {
       if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
         urlStr += '"https://';
       }
-      msgObj.data.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
+      msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
       emitIO_and_pushDB(msgObj);
 
     } else if (msg.includes('/sticker')) {
-      msgObj.data.message = 'Send sticker to user';
+      msgObj.message = 'Send sticker to user';
       emitIO_and_pushDB(msgObj);
 
     } else {
-      msgObj.data.message = msg;
+      msgObj.message = msg;
       emitIO_and_pushDB(msgObj);
     }
   });//sent message

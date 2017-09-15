@@ -517,7 +517,7 @@ $(document).ready(function() {
       "data-recentTime='" + lastMsg.time + "' >"+
       // "id='userInfoBtn'> "+
       // + "<img src='' alt='無法顯示相片' class='userPhoto' style='width:128px;height:128px;'/>"
-      "<div class='unread_msg'>1</div><div class='img_holder'>" +
+      '<div class="unread_msg" id="unread_'+n+'">'+profile.unRead+'</div><div class="img_holder">' +
       "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
       "</div>" +
       "<div class='msg_holder'>" +
@@ -955,31 +955,28 @@ $(document).ready(function() {
     e.preventDefault();
     console.log(e);
     let sendObj = {
-      data:
-      {
+
       id: "",
       msg: messageInput.val(),
       msgtime: Date.now(),
       channelId: "",
-      }
-      // room:
     };
 
     if ($("#user-rooms option:selected").val() == '全選') {
       name_list.map(function(id) {
-        sendObj.data.id = id;
+        sendObj.id = id;
         socket.emit('send message2', sendObj);
 
       })
     } else if ($("#user-rooms option:selected").val() == '對可見用戶發送') {
       $('.tablinks:visible').each(function() {
-        sendObj.data.id = $(this).attr('rel');
+        sendObj.id = $(this).attr('rel');
         socket.emit('send message2', sendObj);
 
       });
     } else {
-      sendObj.data.id = $("#user-rooms option:selected").val();
-      sendObj.data.channelId = $('.tablinks[rel="'+sendObj.data.id+'"]').parents('.tablinks_area').attr('rel');
+      sendObj.id = $("#user-rooms option:selected").val();
+      sendObj.channelId = $('.tablinks[rel="'+sendObj.id+'"]').parents('.tablinks_area').attr('rel');
       socket.emit('send message2', sendObj); //socket.emit
 
     } //else
@@ -1671,6 +1668,10 @@ $(document).ready(function() {
       prevTime = messages[i].time;
 
       if (messages[i].owner == "agent") {
+        console.log('this is message[i]');
+        console.log(messages[i]);
+        console.log('this is message[i].message');
+        console.log(messages[i].message);
         //plus every history msg into string
         returnStr += toAgentStr(messages[i].message, messages[i].name, messages[i].time);
       } else returnStr += toUserStr(messages[i].message, messages[i].name, messages[i].time);

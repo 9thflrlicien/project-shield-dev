@@ -64,4 +64,8 @@ if send from shield: data => data
 sendObj到www裡變什麼，發現agent reply的id怪怪的
 
 
-
+先回覆fb那邊人的訊息再說
+找userId 填入bot.sendTextMessage
+解決startWith的問題
+還是有data.data的問題，想先解決那裡
+Linda's id: 1643163992423907
