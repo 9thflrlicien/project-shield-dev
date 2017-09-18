@@ -709,10 +709,13 @@ $(document).ready(function() {
   }
 
   socket.on('new message', (data) => {
+    console.log("receive socket! data = ");
+    console.log(data);
     // console.log(data);
     // if www push "new message"
     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
     // owner = "user", "agent" ; name = "Colman", "Ted", others...
+    if( !data.channelId ) data.channelId = "FB";
     displayMessage(data); //update canvas
     displayClient(data, data.channelId); //update tablinks
 
@@ -764,7 +767,7 @@ $(document).ready(function() {
 
     console.log(name_list.indexOf(data.id) !== -1);
     if (name_list.indexOf(data.id) !== -1) {
-      let target = $(".tablinks[rel='" + data.id + "']");
+      let target = $('.tablinks_area[rel="'+channelId+'"]').find(".tablinks[rel='" + data.id + "']");
       target.find("#msg").html(toTimeStr(data.time) + data.message).css("font-weight", font_weight);
       target.find('.unread_msg').html(data.unRead).css("display", "block");
       target.attr("data-recentTime", data.time);
