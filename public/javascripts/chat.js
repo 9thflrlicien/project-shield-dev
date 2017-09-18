@@ -58,6 +58,8 @@ $(document).ready(function() {
   $(document).on('click', '#upVid', upVid);
   $(document).on('click', '#upAud', upAud);
   $(document).on('click', '#save-group-btn', groupSubmit);
+  $(document).on('click', '#submitMsg', submitMsg);
+
 
   $(document).on('click', '.dropdown-menu', function(event) {
     event.stopPropagation();
@@ -558,17 +560,29 @@ $(document).ready(function() {
       ); //new a tablinks
     } else {
       console.log('not found');
-      console.log("profile.channelId");
-      console.log(profile.channelId);
+      console.log("profile.channelId: " + profile.channelId);
+
     }
 
-    canvas.append( //push string into canvas
-      '<div id="' + profile.userId + '" class="tabcontent"style="display: none;">' +
-      '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
-      "<div id='" + profile.userId + "-content' class='messagePanel' data-position='" + data.position + "'>" +
-      historyMsgStr + "</div>" +
-      "</div>"
-    ); // close append
+    if(profile.channelId === undefined || profile.channelId == "FB"){
+      canvas.append( //push string into canvas
+        '<div id="' + profile.userId + '" rel="FB" class="tabcontent"style="display: none;">' +
+        '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
+        "<div id='" + profile.userId + "-content' class='messagePanel' data-position='" + data.position + "'>" +
+        historyMsgStr + "</div>" +
+        "</div>"
+      ); // close append
+    } else {
+      canvas.append( //push string into canvas
+        '<div id="' + profile.userId + '" rel="'+profile.channelId+'" class="tabcontent"style="display: none;">' +
+        '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
+        "<div id='" + profile.userId + "-content' class='messagePanel' data-position='" + data.position + "'>" +
+        historyMsgStr + "</div>" +
+        "</div>"
+      ); // close append
+    }
+
+
 
 
     if (data.position != 0) $('#' + profile.userId + '-content').on('scroll', function() {
@@ -744,7 +758,7 @@ $(document).ready(function() {
   } //function
 
   function displayClient(data, channelId) {
-    console.log(data);
+    // console.log(data);
     //update tablinks
     let font_weight = data.owner == "user" ? "bold" : "normal"; //if msg is by user, mark it unread
 
@@ -918,57 +932,65 @@ $(document).ready(function() {
     userProfiles[data.userId] = data;
   });
 
-  function submitMsg(){
+  function submitMsg(event){
+    event.preventDefault();
+
+    // console.log($(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel'));
+    console.log($(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'));
+
     let sendObj = {
       id: "",
       msg: messageInput.val(),
       msgtime: Date.now(),
-      // room:
+      room: $(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id')
     };
 
     if ($("#user-rooms option:selected").val() == '全選') {
       name_list.map(function(id) {
         sendObj.id = id;
-        socket.emit('send message2', sendObj);
+        socket.emit('send message', sendObj);
       })
     } else if ($("#user-rooms option:selected").val() == '對可見用戶發送') {
       $('.tablinks:visible').each(function() {
         sendObj.id = $(this).attr('rel');
-        socket.emit('send message2', sendObj);
+        socket.emit('send message', sendObj);
       });
     } else {
+      console.log(sendObj);
       sendObj.id = $("#user-rooms option:selected").val();
-      socket.emit('send message2', sendObj); //socket.emit
+      socket.emit('send message', sendObj); //socket.emit
     } //else
     messageInput.val('');
+
   }
 
-  messageForm.submit((e) => {
-    e.preventDefault();
-    console.log(e);
-    let sendObj = {
-      id: "",
-      msg: messageInput.val(),
-      msgtime: Date.now(),
-      // room:
-    };
-
-    if ($("#user-rooms option:selected").val() == '全選') {
-      name_list.map(function(id) {
-        sendObj.id = id;
-        socket.emit('send message2', sendObj);
-      })
-    } else if ($("#user-rooms option:selected").val() == '對可見用戶發送') {
-      $('.tablinks:visible').each(function() {
-        sendObj.id = $(this).attr('rel');
-        socket.emit('send message2', sendObj);
-      });
-    } else {
-      sendObj.id = $("#user-rooms option:selected").val();
-      socket.emit('send message2', sendObj); //socket.emit
-    } //else
-    messageInput.val('');
-  });
+  // messageForm.submit((e) => {
+  //   e.preventDefault();
+  //   console.log(e.currentTarget);
+  //   let sendObj = {
+  //     id: "",
+  //     msg: messageInput.val(),
+  //     msgtime: Date.now(),
+  //     // room:
+  //   };
+  //
+  //   if ($("#user-rooms option:selected").val() == '全選') {
+  //     name_list.map(function(id) {
+  //       sendObj.id = id;
+  //       socket.emit('send message2', sendObj);
+  //     })
+  //   } else if ($("#user-rooms option:selected").val() == '對可見用戶發送') {
+  //     $('.tablinks:visible').each(function() {
+  //       sendObj.id = $(this).attr('rel');
+  //       socket.emit('send message2', sendObj);
+  //     });
+  //   } else {
+  //     console.log(sendObj);
+  //     sendObj.id = $("#user-rooms option:selected").val();
+  //     socket.emit('send message', sendObj); //socket.emit
+  //   } //else
+  //   messageInput.val('');
+  // });
   //
   // function selectAll(){
   //   if ($( "#user-rooms option:selected" ).val()=='全選'){

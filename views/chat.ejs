@@ -1,148 +1,148 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="" />
-  <title><%= title %></title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
-  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
-  <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <!-- Morris Charts CSS -->
-  <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
-  <link rel="stylesheet" href="stylesheets/main.css" />
-  <link rel="stylesheet" href="stylesheets/chat.css" />
-</head>
-<body>
-  <div id="wrapper">
-    <!-- Navigation -->
-    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="/">SHIELD</a>
-      </div>
-      <!-- /.navbar-header -->
-      <ul class="nav navbar-top-links navbar-left">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- Morris Charts CSS -->
+    <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
+    <link rel="stylesheet" href="stylesheets/main.css" />
+    <link rel="stylesheet" href="stylesheets/chat.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <!-- Navigation -->
+      <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+          <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                  <span class="sr-only">Toggle navigation</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="/">SHIELD</a>
+          </div>
+          <!-- /.navbar-header -->
+          <ul class="nav navbar-top-links navbar-left">
 
-        <li>
-          <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
-        </li>
-        <li>
-          <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> Chat</a>
-        </li>
-        <li>
-          <a href="/tag">| <i class="fa fa-commenting fa-fw"></i> Tag</a>
-        </li>
-        <li>
-          <a href="/calendar">| <i class="fa fa-table fa-fw"></i> Calendar</a>
-        </li>
-        <li>
-          <a href="/ticket">| <i class="fa fa-ticket fa-fw"></i> Support</a>
-        </li>
+            <li>
+              <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+            </li>
+            <li>
+              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> Chat</a>
+            </li>
+            <li>
+              <a href="/tag">| <i class="fa fa-commenting fa-fw"></i> Tag</a>
+            </li>
+            <li>
+              <a href="/calendar">| <i class="fa fa-table fa-fw"></i> Calendar</a>
+            </li>
+            <li>
+              <a href="/ticket">| <i class="fa fa-ticket fa-fw"></i> Support</a>
+            </li>
 
-      </ul>
-      <ul class="nav navbar-top-links navbar-right">
-        <!-- /.dropdown -->
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-            <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
-          </a>
-          <ul class="dropdown-menu dropdown-user">
-            <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
-            <li class="divider"></li>
-            <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
           </ul>
-          <!-- /.dropdown-user -->
-        </li>
-        <!-- /.dropdown -->
-      </ul>
-      <!-- /.navbar-top-links -->
+          <ul class="nav navbar-top-links navbar-right">
+            <!-- /.dropdown -->
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-user">
+                <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
+                <li class="divider"></li>
+                <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+              </ul>
+              <!-- /.dropdown-user -->
+            </li>
+            <!-- /.dropdown -->
+          </ul>
+          <!-- /.navbar-top-links -->
 
-    </nav>
-  </div>
-  <div id="chatHome">
-    <div class="chatArea">
-      <div id="chatApp" class="colume" >
-        <div class="chatApp_item" id="Line_1" open="true">
-          <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-          <h4>跟著董事長遊台灣1</h4>
-        </div>
-        <div class="chatApp_item" id="Line_2" open="true">
-          <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-          <h4>跟著董事長遊台灣2</h4>
-        </div>
-        <div class="chatApp_item" id="FB" open="true">
-          <img class="software_icon" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png">
-          <h4>Facebook</h4>
-        </div>
-        <div class="chatApp_item" id="wechat">
-          <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/wechat.svg">
-          <h4>未開放</h4>
-        </div>
-        <div class="chatApp_item" id="kakotalk">
-          <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/kakaotalk.svg">
-          <h4>未開放</h4>
-        </div>
-        <div class="chatApp_item" id="whatsapp">
-          <img class="software_icon" src="https://cdn0.iconfinder.com/data/icons/social-flat-rounded-rects/512/whatsapp-256.png">
-          <h4>未開放</h4>
-        </div>
-      </div>
-
-      <div id="user" class="colume">
-        <p style="width:18%;position:absolute;top:40%;margin:10px;z-index:0">
-          choose a chat app to continue
-        </p>
-        <div class="tablinks_head">
-          <div class="filter_head">
-            <h4 id="title">Chat</h4>
-            <i class="fa fa-filter" id="filter" aria-hidden="true"></i>
-            <select class="searchSelect">
-              <option value="content">content</option>
-              <option value="sender">sender</option>
-              <option value="sendTime">msg time</option>>
-              <option value="remark">remark</option>
-            </select>
-            <i class="fa fa-search" id="search" aria-hidden="true"></i>
+      </nav>
+    </div>
+    <div id="chatHome">
+      <div class="chatArea">
+        <div id="chatApp" class="colume" >
+          <div class="chatApp_item" id="Line_1" open="true">
+            <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
+            <h4>跟著董事長遊台灣1</h4>
           </div>
-
-          <div class="search" hidden>
-            <input type="text" id="searchBox" placeholder="Search for messages..">
-            <button id="filterClean"><i class="fa fa-times" aria-hidden="true"></i></button>
+          <div class="chatApp_item" id="Line_2" open="true">
+            <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
+            <h4>跟著董事長遊台灣2</h4>
           </div>
+          <div class="chatApp_item" id="FB" open="true">
+            <img class="software_icon" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png">
+            <h4>Facebook</h4>
+          </div>
+          <div class="chatApp_item" id="wechat">
+            <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/wechat.svg">
+            <h4>未開放</h4>
+          </div>
+          <div class="chatApp_item" id="kakotalk">
+            <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/kakaotalk.svg">
+            <h4>未開放</h4>
+          </div>
+          <div class="chatApp_item" id="whatsapp">
+            <img class="software_icon" src="https://cdn0.iconfinder.com/data/icons/social-flat-rounded-rects/512/whatsapp-256.png">
+            <h4>未開放</h4>
+          </div>
+        </div>
 
-          <div class="filterArea" style="display:none">
+        <div id="user" class="colume">
+          <p style="width:18%;position:absolute;top:40%;margin:10px;z-index:0">
+            choose a chat app to continue
+          </p>
+          <div class="tablinks_head">
+            <div class="filter_head">
+              <h4 id="title">Chat</h4>
+              <i class="fa fa-filter" id="filter" aria-hidden="true"></i>
+              <select class="searchSelect">
+                <option value="content">content</option>
+                <option value="sender">sender</option>
+                <option value="sendTime">msg time</option>>
+                <option value="remark">remark</option>
+              </select>
+              <i class="fa fa-search" id="search" aria-hidden="true"></i>
+            </div>
+
+            <div class="search" hidden>
+              <input type="text" id="searchBox" placeholder="Search for messages..">
+              <button id="filterClean"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+
+            <div class="filterArea" style="display:none">
 
 
-            <div class="filterPanel">
+              <div class="filterPanel">
 
-              <div class="filterUnit filterBar btn-group" id="filter_age">
-                <button class="filter_btn" data-toggle="dropdown" aria-expanded="true">
-                  年齡:<span class="multiselect-selected-text" min="0" max="999">全選</span>
-                  <b class="caret"></b>
-                </button>
-                <ul class="multiselect-container dropdown-menu">
-                  <div class="filterSlider" id="age">
-                  </div>
-                </ul>
-              </div>
+                <div class="filterUnit filterBar btn-group" id="filter_age">
+                  <button class="filter_btn" data-toggle="dropdown" aria-expanded="true">
+                    年齡:<span class="multiselect-selected-text" min="0" max="999">全選</span>
+                    <b class="caret"></b>
+                  </button>
+                  <ul class="multiselect-container dropdown-menu">
+                    <div class="filterSlider" id="age">
+                    </div>
+                  </ul>
+                </div>
 
-              <div class="filterUnit filterBar btn-group" id="filter_place">
-                <button class="filter_btn" data-toggle="dropdown" aria-expanded="true">
-                  地區:<span class="multiselect-selected-text">全選</span>
-                  <b class="caret"></b>
-                </button>
-                <ul class="multiselect-container dropdown-menu">
-                  <div class="filterSelect" id="place">
-                    <li><button value="全選" checked id="select-all">全選</li>
+                <div class="filterUnit filterBar btn-group" id="filter_place">
+                  <button class="filter_btn" data-toggle="dropdown" aria-expanded="true">
+                    地區:<span class="multiselect-selected-text">全選</span>
+                    <b class="caret"></b>
+                  </button>
+                  <ul class="multiselect-container dropdown-menu">
+                    <div class="filterSelect" id="place">
+                      <li><button value="全選" checked id="select-all">全選</li>
                       <li><input type="checkbox" value="北部" checked>北部</li>
                       <li><input type="checkbox" value="中部" checked>中部</li>
                       <li><input type="checkbox" value="東部" checked>東部</li>
@@ -235,7 +235,8 @@
           <section id="canvas">
           </section>
 
-          <form action="" id="send-message" disabled>
+          <!-- <form action="" id="send-message" disabled> -->
+          <form id="send-message">
             <div class="uploadArea" style="float:bottom">
               <div  id="showAttImg" >
                 <div style="flex-direction:column;padding:5px 0">
@@ -283,18 +284,18 @@
             </div>
             <div class="formLower">
               <input placeholder="輸入訊息..." style="width:85%; height:50px;border:0" size="35" id="message" />
-              <input type="submit" id="submitMsg"/>
+              <input type="button" id="submitMsg"/>
             </div>
           </form>
         </div>
 
 
-        <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" id="內部聊天室">
+        <!-- <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" id="內部聊天室">
           <div class="chat_prof_head"></div>
           <div class="chat_prof">
             <img src="https://marketplace.canva.com/MAB7k1IXVl4/1/thumbnail/canva-single-shield-icon-MAB7k1IXVl4.png" alt="無法顯示相片" style="width:60px;height:60px;border-radius:50px;margin:1.5%;float:left;margin-right: 5px;">
             <h4 id="prof_nick">內部聊天室</h4>
-          </div>
+           </div>
           <section id="canvas">
           </section>
           <form action="" id="send-message" disabled>
@@ -306,7 +307,7 @@
             <input type="submit"/>
           </form>
 
-        </div>
+        </div> -->
 
         <div id="infoPanel" class="colume">
           <div class="card text-center">
@@ -368,4 +369,4 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/chat.js"></script>
   </body>
-  </html>
+</html>

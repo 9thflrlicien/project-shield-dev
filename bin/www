@@ -1299,10 +1299,11 @@ io.sockets.on('connection', (socket) => {
 
   // 從SHIELD chat傳送訊息
   socket.on('send message', (data, callback) => {
-    // console.log(data);
+    console.log(data);
     let msg = data.msg.trim();
     let agent_sendTo_receiver = data.id.trim();
     let msg_time = data.msgtime;
+    let chanId = data.room;
     console.log(agent_sendTo_receiver);
 
     if(socket.nickname !== undefined){
@@ -1358,8 +1359,13 @@ io.sockets.on('connection', (socket) => {
     }
     // 訊息傳到LINE
     if (agent_sendTo_receiver !== undefined ) { // 需要新增一個判斷式來分別出要傳訊息給哪一間聊天室
-      bot[0].push(agent_sendTo_receiver, message);
-      bot[1].push(agent_sendTo_receiver, message);
+      if(chanId === 'Line_1_room'){
+        bot[0].push(agent_sendTo_receiver, message);
+      } else if(chanId === 'Line_2_room') {
+        bot[1].push(agent_sendTo_receiver, message);
+      } else {
+        console.log('push to fb');
+      }
     }
     else {
       console.log("agent_sendTo_receiver undefined!");
@@ -1411,8 +1417,13 @@ io.sockets.on('connection', (socket) => {
     }
     else {
       msgObj.message = msg;
-      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      if(chanId === 'Line_1_room'){
+        emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      } else if(chanId === 'Line_2_room') {
+        emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      } else {
+        console.log('push to fb')
+      }
     }
   });//sent message
 
