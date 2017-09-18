@@ -501,7 +501,7 @@ $(document).ready(function() {
     let msgTime = '<span style="float:right;font-size:12px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</span>'
     // display last message at tablinks
 
-    if(profile.channelId === undefined){
+    if(profile.channelId === undefined || profile.channelId === "FB"){
       // console.log('to fb');
       $('#fb-clients').append(
         "<b><button style='text-align:left' rel='" + profile.userId + "' class='tablinks'" +
@@ -558,6 +558,8 @@ $(document).ready(function() {
       ); //new a tablinks
     } else {
       console.log('not found');
+      console.log("profile.channelId");
+      console.log(profile.channelId);
     }
 
     canvas.append( //push string into canvas
