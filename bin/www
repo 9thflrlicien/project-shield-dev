@@ -147,7 +147,8 @@ var fb_user_profilePic = data.profile_pic;
 var fb_user_locale = data.locale; 
 var fb_user_gender = data.gender;
 
-
+    console.log('need to know whats objjjjjj');
+    console.log(obj);
 
     if (obj.message.attachments) {
     //Checking if there are any image attachments 
@@ -369,7 +370,7 @@ function bot_on_message(event) {
           // console.log(content.toString('base64'));
           /*把編碼轉換成圖片(image/png)做成連結的方式*/
           msgObj.message = '<a href="data:image/png;base64,' + content.toString('base64') + '" ' +
-          ' target="_blank" ><img src="data:image/png;base64,' + content.toString('base64') + '" ' +
+          '><img src="data:image/png;base64,' + content.toString('base64') + '" ' +
           'width="20%" alt="image embedded using base64 encoding!"/></a>';
           emitIO_and_pushDB(msgObj);
 
@@ -409,11 +410,10 @@ function bot_on_message(event) {
         });
       }
       else if (message_type === 'text' && (message_lineTochat.indexOf('.com') !== -1 || message_lineTochat.indexOf('.edu') !== -1 || message_lineTochat.indexOf('.net') !== -1 || message_lineTochat.indexOf('.io') !== -1 || message_lineTochat.indexOf('.org') !== -1)) {
-        let urlStr = '<a href=';
+        // let urlStr = '<a href=';
         if (message_lineTochat.indexOf('https') === -1 || message_lineTochat.indexOf('http') === -1) {
-          urlStr += '"https://';
         }
-        msgObj.message = urlStr + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>';
+        msgObj.message = message_lineTochat + '/">';
         emitIO_and_pushDB(msgObj);
       }
       else {
@@ -1560,7 +1560,6 @@ io.sockets.on('connection', (socket) => {
   socket.on('send message2', (data, callback) => {
       console.log('data on 1561 send message2:')
         console.log(data)
-        fb_bot.sendTextMessage(data.id, data.msg);
 
 
     let msg = data.msg.trim();
@@ -1577,7 +1576,30 @@ io.sockets.on('connection', (socket) => {
     let nowTime = Date.now();
 
     {
-      if(msg.includes('/image')){
+      //------FACEBOOK----
+        if(data.msg.startsWith('<img')){
+        let link = data.msg.substr(10);
+        console.log('this is link');
+        console.log(link);
+
+        fb_bot.sendImageMessage(data.id, link, true);
+        }
+        else if (data.msg.startsWith('<video')){
+        let link = data.msg.substr(29);
+        console.log('this is link');
+        console.log(link);
+
+        fb_bot.sendVideoMessage(data.id, link, true);
+        }
+        else if (data.msg.startsWith('<audio')){
+        let link = data.msg.substr(29);
+        console.log('this is link');
+        console.log(link);
+
+        fb_bot.sendAudioMessage(data.id, link, true);
+        }
+      //------LINE--------
+      else if(msg.includes('/image')){
         let link = msg.substr(7);
         // console.log(link);
         message = {
@@ -1616,6 +1638,8 @@ io.sockets.on('connection', (socket) => {
           type: "text",
           text: msg
         };
+        fb_bot.sendTextMessage(data.id, data.msg);
+
       }
     }
     // 訊息傳到LINE
@@ -1694,8 +1718,23 @@ io.sockets.on('connection', (socket) => {
       obj.id = agent_sendTo_receiver;
       io.sockets.emit('new message2', obj);
     }
+    //------FACEBOOK-------
+    if (msg.startsWith('<img')){
+        msgObj.message = data.msg+'"/>';
+        emitIO_and_pushDB(msgObj);
+    }
+    else if (msg.startsWith('<video')){
+        msgObj.message = data.msg+ '" type="video/mp4"></video>';
+        emitIO_and_pushDB(msgObj);
+    }
+    else if (msg.startsWith('<audio')){
+        msgObj.message = data.msg+ '" type="audio/mpeg"></audio>';
+        emitIO_and_pushDB(msgObj);
+    }
 
-    if (msg.includes('/image')) {
+    //--------LINE--------
+
+    else if (msg.includes('/image')) {
       msgObj.message = 'Send image to user';
       emitIO_and_pushDB(msgObj);
 
@@ -1709,7 +1748,7 @@ io.sockets.on('connection', (socket) => {
 
     } else if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
       let urlStr = '<a href=';
-      if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
+      if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {        
         urlStr += '"https://';
       }
       msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';

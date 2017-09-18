@@ -250,28 +250,56 @@
                </section>
                <!-- Trigger the modal with a button -->
                <form action="" id="send-message" disabled>
-               <i class="fa fa-upload fa-lg" aria-hidden="true"></i>
-
-                  <select style="float:right" id="user-rooms">
-                     <option id="selectAll" value="全選">全選</option>
-                     <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
-                  </select>
-                  <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
-                  <!-- <input type="submit"/> -->
-                  <button id="sub-btn1">送出</button>
+              <div class="uploadArea" style="float:bottom">
+              <div  id="showAttImg" >
+                <div style="flex-direction:column;padding:5px 0">
+                  <input size="35" id="attImgFill" placeholder="輸入圖片網址"/>
+                  <input type='file' accept='image/*' id="imageUPload"/>
+                </div>
+                <button id="upImg">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                  <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
+                </button>
+              </div>
+              <div  id="showAttVid" >
+                <div style="flex-direction:column;padding:5px 0">
+                  <input size="35" id="attVidFill" placeholder="輸入影片網址"/>
+                  <input type='file' accept='video/*' id="videoUPload"/>
+                </div>
+                <button id="upVid">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                  <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
+                </button>
+              </div>
+              <div  id="showAttAud" >
+                <div style="flex-direction:column;padding:5px 0">
+                  <input size="35" id="attAudFill" placeholder="輸入音訊網址"/>
+                  <input type='file' accept='audio/*' id="audioUPload"/>
+                </div>
+                <button id="upAud">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                  <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
+                </button>
+              </div>
+            </div>
+           <div class="formUpper">
+              <div style="float:right;display:flex;padding:10px">
+                <select  id="user-rooms">
+                  <option id="selectAll" value="全選">全選</option>
+                  <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
+                </select>
+              </div>
+              <div class="insert_media" style="position:absolute;display:block">
+                <button  rel="showAttImg" id="attImg" class="onclick_show"><i class="fa fa-file-image-o fa" aria-hidden="true"></i></button>
+                <button  rel="showAttVid" id="attVid" class="onclick_show"><i class="fa fa-file-video-o fa" aria-hidden="true"></i></button>
+                <button  rel="showAttAud" id="attAud" class="onclick_show"><i class="fa fa-file-audio-o fa" aria-hidden="true"></i></button>
+              </div>
+            </div>
+            <div class="formLower">
+              <input placeholder="輸入訊息..." style="width:85%; height:50px;border:0" size="35" id="message" />
+              <input type="submit" id="submitMsg"/>
+            </div>
                </form>
-                              <!-- Trigger the modal with a button -->
-                                 <!-- INSERT MEDIA BUTTONS-->
-<!--                 <div class="insert_media" style="display:none;position:absolute;background-color: white; margin-left: 20px">
-                  <button style="background-color: transparent;float:bottom" rel="showAttImg" id="attImg" class="onclick_show"><i class="fa fa-file-image-o fa" aria-hidden="true"></i></button>
-                  <button style="background-color: transparent;float:bottom" rel="showAttVid" id="attVid" class="onclick_show"><i class="fa fa-file-video-o fa" aria-hidden="true"></i></button>
-                  <button style="background-color: transparent;float:bottom" rel="showAttAud" id="attAud" class="onclick_show"><i class="fa fa-file-audio-o fa" aria-hidden="true"></i></button>
-                <div style="float:bottom">
-                    <div style="display:none; float:left" id="showAttImg"><input size="35" id="attImgFill" placeholder="輸入圖片網址"/><button id="upImg">Upload</button></div>
-                    <div style="display:none; float:left" id="showAttVid"><input size="35" id="attVidFill" placeholder="輸入影片網址"/><button id="upVid">Upload</button></div>
-                    <div style="display:none; float:left" id="showAttAud"><input size="35" id="attAudFill" placeholder="輸入音訊網址"/><button id="upAud">Upload</button></div>
-                </div> -->
-        <!--end insert media buttons-->
             </div>
             <!--end contentPanel-->
             <!--internal chat-->

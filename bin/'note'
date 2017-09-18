@@ -69,3 +69,8 @@ sendObj到www裡變什麼，發現agent reply的id怪怪的
 解決startWith的問題
 還是有data.data的問題，想先解決那裡
 Linda's id: 1643163992423907
+
+
+傳送照片檔時會有問題，1、append要加<img> 2、fb_bot的要求是link
+
+先解決fb_bot的部分

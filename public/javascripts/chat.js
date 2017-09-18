@@ -85,6 +85,94 @@ $(document).ready(function() {
   //         $('#check_mark').show()
   //       }
   //   });
+    $('.onclick_show').on('click', function(e){
+      // console.log('onclick_show exe');
+        var target = $(this).attr('rel');
+        e.preventDefault();
+        if ($("#"+target).is(":visible")){
+            $("#"+target).fadeOut();
+            $(".uploadArea").css('top',0);
+            $(this).attr('active','false');
+        }else{
+            $("#"+target).css('display','flex').siblings().hide();
+            $(".uploadArea").css('top',-60);
+            $(this).attr('active','true')
+                    .siblings().attr('active','false');;
+      }
+      });//onclick_show
+
+    function upImg(e){
+      e.preventDefault();
+      // var imgAtt = $("#imageUPload").val()?$("#imageUPload").val():$('#attImgFill').val();
+      // $('#message').val('<img src="'+imgAtt+'"/>');
+      let media = media_buffer ? media_buffer : $('#attImgFill').val() ;
+      sendMedia(media);
+
+    }
+    function upVid(){
+      e.preventDefault();
+      let media = media_buffer ? media_buffer : $('#attVidFill').val();
+      // $('#message').val('<video controls><source src="'+vidAtt+'" type="video/mp4"></video>');
+      sendMedia(media);
+    }
+    function upAud(){
+      e.preventDefault();
+      let media = media_buffer ? media_buffer : $('#attAudFill').val();
+      // $('#message').val('<video controls><source src="'+audAtt+'" type="video/mp4"></video>');
+      sendMedia(media);
+    }
+      var media_buffer = "" ;
+  $(document).on('change',"#imageUPload",readFile);
+  $(document).on('change',"#videoUPload",readFile);
+  $(document).on('change',"#audioUPload",readFile);
+  function readFile() {
+    let upload_but = $(this).parent().siblings();
+    upload_but.prop("disabled",true);
+    upload_but.children().eq(0).hide().siblings().show();
+    if (this.files && this.files[0]) {
+      var FR= new FileReader();
+      // console.log('readfile');
+      FR.addEventListener("load", function(e) {
+        console.log('reading file....');
+        media_buffer = e.target.result ;
+        console.log('reading file finish!');
+        upload_but.prop("disabled",false);
+        upload_but.children().eq(1).hide().siblings().show();
+        // console.log(e.target);
+      });
+
+      FR.readAsDataURL( this.files[0] );
+    }
+
+  }
+  function sendMedia(media) {
+    media_buffer = "" ;
+    $("input[type='file']").val("");
+    let sendObj = {
+      id: "",
+      msg: media,
+      msgtime: Date.now()
+    };
+
+        if( $("#user-rooms option:selected").val() == '全選' ) {
+      name_list.map( function(id) {
+        sendObj.id = id;
+        socket.emit('send message2', sendObj);
+      })
+    }
+    else if( $("#user-rooms option:selected").val() == '對可見用戶發送' ) {
+      $('.tablinks:visible').each(function() {
+        sendObj.id = $(this).attr('rel');
+        socket.emit('send message2', sendObj);
+      });
+    }
+    else {
+      sendObj.id = $("#user-rooms option:selected").val();
+      socket.emit('send message2', sendObj);//socket.emit
+    }//else
+  }
+
+
 
   $("#chatApp").hover(
     function() {
@@ -197,17 +285,17 @@ $(document).ready(function() {
 
   function upImg() {
     var imgAtt = $('#attImgFill').val();
-    $('#message').val('<img src="' + imgAtt + '"/>');
+    $('#message').val('<img src="' + imgAtt);
   }
 
   function upVid() {
     var vidAtt = $('#attVidFill').val();
-    $('#message').val('<video controls><source src="' + vidAtt + '" type="video/mp4"></video>');
+    $('#message').val('<video controls><source src="' + vidAtt);
   }
 
   function upAud() {
     var audAtt = $('#attAudFill').val();
-    $('#message').val('<video controls><source src="' + audAtt + '" type="video/mp4"></video>');
+    $('#message').val('<audio controls><source src="' + audAtt);
   }
   setInterval(() => {
     closeIdleRoomTry();
@@ -327,7 +415,6 @@ $(document).ready(function() {
     // $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
   socket.on('push user ticket', (data) => {
-    console.log(data);
     let id = data.id;
     let ticket = data.ticket;
     let content = '';
@@ -953,7 +1040,6 @@ $(document).ready(function() {
 
   messageForm.submit((e) => {
     e.preventDefault();
-    console.log(e);
     let sendObj = {
 
       id: "",
@@ -1668,10 +1754,6 @@ $(document).ready(function() {
       prevTime = messages[i].time;
 
       if (messages[i].owner == "agent") {
-        console.log('this is message[i]');
-        console.log(messages[i]);
-        console.log('this is message[i].message');
-        console.log(messages[i].message);
         //plus every history msg into string
         returnStr += toAgentStr(messages[i].message, messages[i].name, messages[i].time);
       } else returnStr += toUserStr(messages[i].message, messages[i].name, messages[i].time);
