@@ -6,8 +6,6 @@ $(document).ready(function() {
   var messageForm = $('#send-message'); //button for agent to send message
   var messageInput = $('#message'); //input for agent to send message
 
-  var clients = $('#clients'); //online rooms of tablinks
-  var idles = $('#idle-roomes'); //idle rooms of tablinks
   var name_list = []; //list of all users
   var user_list = []; // user list for checking on idle chat rooms
 
@@ -16,7 +14,6 @@ $(document).ready(function() {
   var userId = "";
   var person = "agentColman"; //agent name
   var infoCanvas = $("#infoCanvas");
-
 
   const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>" +
   "Loading History Messages..." +
@@ -48,8 +45,6 @@ $(document).ready(function() {
     CLICKED: "#ccc",
   }
   let n = 0;
-
-
 
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '.tablinks', clickUserTablink);
@@ -94,10 +89,10 @@ $(document).ready(function() {
     }
   );
   $('.chatApp_item[open="true"]').click(function() {
-    $(this).addClass('select').siblings().removeClass('select');
+    $(this).addClass('select').siblings().removeClass('select'); // 對點選以外的選項都隱藏
 
     let id = $(this).attr('id');
-    $("#user").children('#' + id).show('fast').siblings('.tablinks_area').hide();
+    $("#user").children('#' + id + '_room').show('fast').siblings('.tablinks_area').hide(); // 對應的id以外的選項都隱藏
 
     let title = $(this).children('h4').text();
     $(".filter_head #title").html(title);
@@ -133,11 +128,11 @@ $(document).ready(function() {
 
 
   $(document).on("mouseenter", ".message", function() {
-    console.log("HAA");
+    // console.log("HAA");
     $(this).find('.sender').show();
   });
   $(document).on("mouseleave", ".message", function() {
-    console.log("888");
+    // console.log("888");
     $(this).find('.sender').hide();
   });
 
@@ -231,8 +226,8 @@ $(document).ready(function() {
     }, 10);
   }
   socket.on('response line channel', (data) => {
-    $('.tablinks_area#Line_1').attr('rel', data.chanId_1);
-    $('.tablinks_area#Line_2').attr('rel', data.chanId_2);
+    $('.tablinks_area#Line_1_room').attr('rel', data.chanId_1);
+    $('.tablinks_area#Line_2_room').attr('rel', data.chanId_2);
     console.log("Line channel loading complete!");
 
     console.log("Start loading history message...");
@@ -264,12 +259,23 @@ $(document).ready(function() {
 
   function closeIdleRoomTry() {
     let early_time = Date.now() - 15 * 60 * 1000; //15min before now
-    let last = clients.find('.tablinks:last'); //last user in online room
-    while (last && last.attr('data-recentTime') < early_time) { //while last of online user should push into idle room
-      let ele = last.parents('b');
-      ele.remove();
-      idles.prepend(ele);
-      last = clients.find('.tablinks:last');
+    let lastForFb = $('#fb-clients').find('.tablinks:last'); //last user in online room
+    let lastForLine1 = $('#line1-clients').find('.tablinks:last'); //last user in online room
+    let lastforLine2 = $('#line2-clients').find('.tablinks:last'); //last user in online room
+    while (lastForFb && lastForFb.attr('data-recentTime') < early_time) { //while last of online user should push into idle room
+      lastForFb.parents('b').remove();
+      $('#fb-idle-roomes').prepend(lastForFb.parents('b'));
+      lastForFb = $('#fb-clients').find('.tablinks:last');
+    }
+    while ( lastForLine1 && lastForLine1.attr('data-recentTime') < early_time ) { //while last of online user should push into idle room
+      lastForLine1.parents('b').remove();
+      $('#line1-idle-roomes').prepend(lastForLine1.parents('b'))
+      lastForLine1 = $('#line1-clients').find('.tablinks:last');
+    }
+    while ( lastforLine2 && lastforLine2.attr('data-recentTime') < early_time ) { //while last of online user should push into idle room
+      lastforLine2.parents('b').remove();
+      $('#line2-idle-roomes').prepend(lastforLine2.parents('b'));
+      lastforLine2 = $('#line2-clients').find('.tablinks:last');
     }
   }
 
@@ -327,7 +333,7 @@ $(document).ready(function() {
     // $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
   socket.on('push user ticket', (data) => {
-    console.log(data);
+    // console.log(data);
     let id = data.id;
     let ticket = data.ticket;
     let content = '';
@@ -467,10 +473,11 @@ $(document).ready(function() {
   }
 
   function pushMsg(data) {
-    //one user do function one time; data structure see file's end
+    // console.log(data);
+    // one user do function one time; data structure see file's end
     let historyMsg = data.Messages;
     let profile = data.Profile;
-
+    // console.log(profile);
 
     let historyMsgStr = "";
     if (data.position != 0) {
@@ -485,6 +492,73 @@ $(document).ready(function() {
     historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>" +
     "-即時訊息-" +
     " </italic></strong></p>"; //history message string tail
+    // end of history message
+
+    $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>'); //new a option in select bar
+    let lastMsg = historyMsg[historyMsg.length - 1];
+    let font_weight = profile.unRead ? "bold" : "normal"; //if last msg is by user, then assume the msg is unread by agent
+    let lastMsgStr = '<br><span id="msg" style="font-weight: ' + font_weight + '; font-size:12px; margin-left:12px">' + lastMsg.message + "</span>";
+    let msgTime = '<span style="float:right;font-size:12px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</span>'
+    // display last message at tablinks
+
+    if(profile.channelId === undefined){
+      // console.log('to fb');
+      $('#fb-clients').append(
+        "<b><button style='text-align:left' rel='" + profile.userId + "' class='tablinks'" +
+        "data-avgTime='" + profile.avgChat + "' " +
+        "data-totalTime='" + profile.totalChat + "' " +
+        "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+        "data-firstTime='" + profile.firstChat + "' " +
+        "data-recentTime='" + lastMsg.time + "' >"+
+        "<div class='img_holder'>" +
+        "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+        "</div>" +
+        "<div class='msg_holder'>" +
+        profile.nickname +
+        lastMsgStr +
+        "</div>" +
+        "</button></b>"
+      ); //new a tablinks
+    } else if(profile.channelId === $('#Line_1_room').attr('rel')){
+      // console.log('to room 1');
+      $('#line1-clients').append(
+        "<b><button style='text-align:left' rel='" + profile.userId + "' class='tablinks'" +
+        "data-avgTime='" + profile.avgChat + "' " +
+        "data-totalTime='" + profile.totalChat + "' " +
+        "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+        "data-firstTime='" + profile.firstChat + "' " +
+        "data-recentTime='" + lastMsg.time + "' >"+
+        "<div class='img_holder'>" +
+        "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+        "</div>" +
+        "<div class='msg_holder'>" +
+        profile.nickname +
+        lastMsgStr +
+        "</div>" +
+        "</button></b>"
+      ); //new a tablinks
+    } else if(profile.channelId === $('#Line_2_room').attr('rel')){
+
+      // console.log('to room 2');
+      $('#line2-clients').append(
+        "<b><button style='text-align:left' rel='" + profile.userId + "' class='tablinks'" +
+        "data-avgTime='" + profile.avgChat + "' " +
+        "data-totalTime='" + profile.totalChat + "' " +
+        "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+        "data-firstTime='" + profile.firstChat + "' " +
+        "data-recentTime='" + lastMsg.time + "' >"+
+        "<div class='img_holder'>" +
+        "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+        "</div>" +
+        "<div class='msg_holder'>" +
+        profile.nickname +
+        lastMsgStr +
+        "</div>" +
+        "</button></b>"
+      ); //new a tablinks
+    } else {
+      console.log('not found');
+    }
 
     canvas.append( //push string into canvas
       '<div id="' + profile.userId + '" class="tabcontent"style="display: none;">' +
@@ -493,34 +567,11 @@ $(document).ready(function() {
       historyMsgStr + "</div>" +
       "</div>"
     ); // close append
+
+
     if (data.position != 0) $('#' + profile.userId + '-content').on('scroll', function() {
       detecetScrollTop($(this));
     });
-
-    $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>'); //new a option in select bar
-    let lastMsg = historyMsg[historyMsg.length - 1];
-    let font_weight = profile.unRead ? "bold" : "normal"; //if last msg is by user, then assume the msg is unread by agent
-    let lastMsgStr = '<br><span id="msg" style="font-weight: ' + font_weight + '; font-size:12px; margin-left:12px">' + lastMsg.message + "</span>";
-    let msgTime = '<span style="float:right;font-size:12px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</span>'
-    // display last message at tablinks
-    clients.append(
-      "<b><button style='text-align:left' rel='" + profile.userId + "' class='tablinks'" +
-      "data-avgTime='" + profile.avgChat + "' " +
-      "data-totalTime='" + profile.totalChat + "' " +
-      "data-chatTimeCount='" + profile.chatTimeCount + "' " +
-      "data-firstTime='" + profile.firstChat + "' " +
-      "data-recentTime='" + lastMsg.time + "' >"+
-      // "id='userInfoBtn'> "+
-      // + "<img src='' alt='無法顯示相片' class='userPhoto' style='width:128px;height:128px;'/>"
-      "<div class='unread_msg'>1</div><div class='img_holder'>" +
-      "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
-      "</div>" +
-      "<div class='msg_holder'>" +
-      profile.nickname +
-      lastMsgStr +
-      "</div>" +
-      "</button></b>"
-    ); //new a tablinks
 
     if (profile.unRead == 0 || false) {
       $("#unread_" + n + "").hide();
@@ -532,7 +583,6 @@ $(document).ready(function() {
 
     name_list.push(profile.userId); //make a name list of all chated user
     userProfiles[profile.userId] = profile;
-
 
   }
 
@@ -642,13 +692,13 @@ $(document).ready(function() {
     $(".tablinks[rel='" + userId + "'] ").removeAttr('id').css("background-color", ""); //clean tablinks color
   }
 
-  socket.on('new message2', (data) => {
-    console.log(data);
-    //if www push "new message2"
+  socket.on('new message', (data) => {
+    // console.log(data);
+    // if www push "new message"
     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
-    //owner = "user", "agent" ; name = "Colman", "Ted", others...
-    displayMessage(data.data); //update canvas
-    displayClient(data.data, data.channelId); //update tablinks
+    // owner = "user", "agent" ; name = "Colman", "Ted", others...
+    displayMessage(data); //update canvas
+    displayClient(data, data.channelId); //update tablinks
 
     if (data.owner == "user") change_document_title(data.name); //not done yet
     if (name_list.indexOf(data.id) == -1) { //if its never chated user, push his name into name list
@@ -656,22 +706,10 @@ $(document).ready(function() {
       console.log("new user!!! push into name_list!");
     }
   });
-  // socket.on('new message3', (data) => {
-  //     //if www push "new message2"
-  //     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
-  //     //owner = "user", "agent" ; name = "Colman", "Ted", others...
-  //     displayMessage(data); //update canvas
-  //     displayClient(data); //update tablinks
-  //
-  //     if (data.owner == "user") change_document_title(data.name); //not done yet
-  //     if (name_list.indexOf(data.id) == -1) { //if its never chated user, push his name into name list
-  //         name_list.push(data.id);
-  //         console.log("new user!!! push into name_list!");
-  //     }
-  // });
 
   function displayMessage(data) {
-    //update canvas
+    // update canvas
+    // console.log(data);
     if (name_list.indexOf(data.id) !== -1) { //if its chated user
       let str;
 
@@ -704,28 +742,28 @@ $(document).ready(function() {
   } //function
 
   function displayClient(data, channelId) {
-    console.log("clients.length = "+clients.length);
     console.log(data);
     //update tablinks
     let font_weight = data.owner == "user" ? "bold" : "normal"; //if msg is by user, mark it unread
 
+    console.log(name_list.indexOf(data.id) !== -1);
     if (name_list.indexOf(data.id) !== -1) {
       let target = $(".tablinks[rel='" + data.id + "']");
       target.find("#msg").html(toTimeStr(data.time) + data.message).css("font-weight", font_weight);
       target.find('.unread_msg').html(data.unRead).css("display", "block");
       target.attr("data-recentTime", data.time);
-      //update tablnks's last msg
+      // update tablnks's last msg
       // console.log('data.unRead on line 400');
       // console.log(data.unRead);
       if (data.unRead == 0 || data.unRead == false || data.unRead == 'undefined') {
-        console.log('im here')
+        console.log('im here');
         target.find('.unread_msg').html(data.unRead).css("display", "none");
       }
       n++;
 
       let ele = target.parents('b'); //buttons to b
       ele.remove();
-      $('.tablinks_area[rel="'+channelId+'"]').prepend(ele);
+      $('.tablinks_area[rel="'+channelId+'"]>.list-group:first').prepend(ele);
     }
     else { //new user, make a tablinks
       // pictureUrl
@@ -871,6 +909,7 @@ $(document).ready(function() {
     }
 
   } //close displayClient function
+
   socket.on('new user profile', function(data) {
     console.log('new user come in from www!');
     // console.log(data);
