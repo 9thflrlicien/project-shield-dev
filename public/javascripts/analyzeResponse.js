@@ -221,7 +221,7 @@ function showData_group(data) {
   $('.worker-autocomplete').autocomplete(autocomplete);     //將輸入工人的欄位，增加autocomplete事件
   let autocomplete = {
     //輸入新工人的欄位，能偵測INPUT並顯示相關名單
-    source: data.worker   //取得全部WORKER的worker_name
+    source: data.worker,   //取得全部WORKER的worker_name
     select: function(event, ui) {
       //當點選一個worker後
       console.log("selected!");

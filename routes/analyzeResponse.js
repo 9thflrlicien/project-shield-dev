@@ -16,17 +16,17 @@ router.post('/getChart', function(req, res, next) {
   if( chart=="某團對各工人評價" ) {
     let group_id = req.body.option;
     //取得所有該團的worker的ID及NAME
-    let sql = "SELECT shield.group_worker.worker_id, shield.worker.worker_name"
-      + " FROM shield.group_worker, shield.worker"
-      + " WHERE shield.group_worker.group_id = ? and shield.group_worker.worker_id = shield.worker.ID"
-      + " ORDER BY shield.group_worker.worker_id";
+    let sql = "SELECT questionnaire.group_worker.worker_id, questionnaire.worker.worker_name"
+      + " FROM questionnaire.group_worker, questionnaire.worker"
+      + " WHERE questionnaire.group_worker.group_id = ? and questionnaire.group_worker.worker_id = questionnaire.worker.ID"
+      + " ORDER BY questionnaire.group_worker.worker_id";
     con.query(sql, group_id, function(err, result, fields) {
       let length = result.length;
       let names = [];
       let scores = [];
       for( let i in result ) {
         names.push(result[i].worker_name);    //將worker名字push進names
-        let sql = "SELECT vote_score FROM shield.vote WHERE group_id = ? and worker_id = ?";
+        let sql = "SELECT vote_score FROM questionnaire.vote WHERE group_id = ? and worker_id = ?";
         con.query( sql, [ group_id, result[i].worker_id ], function(err, result, fields) {
           //從DB取得所有該團旅客投給該worker的分數
           let sum = 0;
@@ -52,7 +52,7 @@ router.post('/getChart', function(req, res, next) {
   else if( chart=="某項目各工人評價" ) {
     let category_id = req.body.option;
     //取得該項目的所有工人
-    let sql = 'SELECT worker_name, score FROM shield.worker WHERE category_id = ?';
+    let sql = 'SELECT worker_name, score FROM questionnaire.worker WHERE category_id = ?';
     con.query( sql, category_id, function(err, result, fields) {
       console.log(result);
       let worker_name = [];
@@ -73,14 +73,14 @@ router.post('/getChart', function(req, res, next) {
   else if( chart=="某團對各項目評價" ) {
     let group_id = req.body.option;
     //取得所有項目
-    con.query( "SELECT * FROM shield.category", function(err, result, fields) {
+    con.query( "SELECT * FROM questionnaire.category", function(err, result, fields) {
       let length = result.length;
       let category_names = [];
       let scores = [];
       for( let i in result ) {
         category_names.push( result[i].category_name );
         //取得所有投給該項目的分數
-        let sql = "SELECT vote_score FROM shield.vote WHERE group_id = ? and category_id = ?";
+        let sql = "SELECT vote_score FROM questionnaire.vote WHERE group_id = ? and category_id = ?";
         con.query( sql, [ group_id, result[i].ID ], function(err, result, fields) {
           let sum = 0;
           for( let i in result ) sum += result[i].vote_score;
@@ -110,16 +110,16 @@ router.post('/getData', function(req, res, next) {
   let type = req.body.type;
   console.log("get data! type = "+type);
   if( type=="details" ) {
-    sql = "SELECT shield.vote.*, shield.category.category_name"
-      + ", shield.worker.worker_name, shield.group.group_name "
-      + " FROM shield.category, shield.worker, shield.group, shield.vote "
-      + " WHERE shield.vote.category_id = shield.category.ID "
-      + " and shield.vote.worker_id = shield.worker.ID "
-      + " and shield.vote.group_id = shield.group.ID";
+    sql = "SELECT questionnaire.vote.*, questionnaire.category.category_name"
+      + ", questionnaire.worker.worker_name, questionnaire.group.group_name "
+      + " FROM questionnaire.category, questionnaire.worker, questionnaire.group, questionnaire.vote "
+      + " WHERE questionnaire.vote.category_id = questionnaire.category.ID "
+      + " and questionnaire.vote.worker_id = questionnaire.worker.ID "
+      + " and questionnaire.vote.group_id = questionnaire.group.ID";
     //取得所有vote資料，並搜尋其他table以將id轉為string
     con.query(sql, function(err, result, fields) {
       if( err ) {
-        console.log("ERROR when SELECT * FROM shield.vote");
+        console.log("ERROR when SELECT * FROM questionnaire.vote");
         console.log(err);
       }
       else {
@@ -134,18 +134,18 @@ router.post('/getData', function(req, res, next) {
     });
   }
   else if( type=="category" ) {
-    con.query("SELECT * FROM shield.category", function(err, result, fields) {
+    con.query("SELECT * FROM questionnaire.category", function(err, result, fields) {
       if( err ) console.log(err);
       else res.send(result);
     });
   }
   else if( type=="group" ) {
-    con.query("SELECT worker_name FROM shield.worker", function(err, result, fields ){
+    con.query("SELECT worker_name FROM questionnaire.worker", function(err, result, fields ){
       //前端要可幫GROUP加入新工人，因此需取得所有工人的名字
       let data = {
         worker: result.map( function(ele) { return ele.worker_name; } )
       };
-      con.query("SELECT * FROM shield.group", function(err, result, fields) {
+      con.query("SELECT * FROM questionnaire.group", function(err, result, fields) {
         //取得所有旅行團的資料
         if( err ) console.log(err);
         data.group = [];
@@ -153,9 +153,9 @@ router.post('/getData', function(req, res, next) {
         let count = 0;
         result.map( function(ele) {
           //對每個旅行團，都去group_worker尋找有參加該團的工人
-          let sql = "SELECT shield.worker.worker_name FROM shield.worker, shield.group_worker"
-            + " where shield.group_worker.group_id = ? and shield.group_worker.worker_id = shield.worker.ID"
-            + " ORDER BY shield.group_worker.worker_id";
+          let sql = "SELECT questionnaire.worker.worker_name FROM questionnaire.worker, questionnaire.group_worker"
+            + " where questionnaire.group_worker.group_id = ? and questionnaire.group_worker.worker_id = questionnaire.worker.ID"
+            + " ORDER BY questionnaire.group_worker.worker_id";
           con.query(sql, ele.ID, function(err, result, fields) {
             if( err ) console.log(err);
             else {
@@ -178,13 +178,13 @@ router.post('/getData', function(req, res, next) {
     });
   }
   else if( type=="worker" ) {
-    let sql = "SELECT shield.worker.ID, shield.worker.worker_name, shield.worker.category_id"
-      + ", shield.worker.vote_count, shield.worker.score FROM shield.worker";
+    let sql = "SELECT questionnaire.worker.ID, questionnaire.worker.worker_name, questionnaire.worker.category_id"
+      + ", questionnaire.worker.vote_count, questionnaire.worker.score FROM questionnaire.worker";
     con.query(sql, function(err, result, fields) {
       if( err ) console.log(err);
       else {
         let workerData = result;
-        con.query("SELECT * from shield.category", function(err, result, fields) {
+        con.query("SELECT * from questionnaire.category", function(err, result, fields) {
           res.send({
             worker: workerData,
             category: result
@@ -207,21 +207,21 @@ router.post('/setCategory', function(req, res, next) {
     console.log(ID+", "+category_name);
     if( ID && category_name ) {
       console.log("UPDATE");
-      let sql = "UPDATE shield.category SET category_name = ? WHERE ID = ? ";
+      let sql = "UPDATE questionnaire.category SET category_name = ? WHERE ID = ? ";
       con.query( sql, [ category_name, ID ], function(err, rows) {
         if(err) console.log(err);
       });
     }
     else if( ID && !category_name ) {
       console.log("DELETE");
-      let sql = "DELETE FROM shield.category WHERE ID = ? ";
+      let sql = "DELETE FROM questionnaire.category WHERE ID = ? ";
       con.query( sql, ID, function(err, rows) {
         if(err) console.log(err);
       });
     }
     else if( !ID && category_name ) {
       console.log("INSERT");
-      let sql = "INSERT INTO shield.category SET ? ";
+      let sql = "INSERT INTO questionnaire.category SET ? ";
       con.query( sql, { category_name: category_name }, function(err, rows) {
         if(err) console.log(err);
       });
@@ -238,38 +238,38 @@ router.post('/setGroup', function(req, res, next) {
     console.log(ID+", "+group_name);
     if( ID && group_name ) {
       console.log("UPDATE");
-      let sql = "UPDATE shield.group SET group_name = ? WHERE ID = ? ";
+      let sql = "UPDATE questionnaire.group SET group_name = ? WHERE ID = ? ";
       con.query( sql, [ group_name, ID ], function(err, rows) {
         if(err) console.log(err);
       });
     }
     else if( ID && !group_name ) {
       console.log("DELETE");
-      let sql = "DELETE FROM shield.group WHERE ID = ? ";
+      let sql = "DELETE FROM questionnaire.group WHERE ID = ? ";
       con.query( sql, ID, function(err, rows) {
         if(err) console.log(err);
       });
     }
     else if( !ID && group_name ) {
       console.log("INSERT");
-      let sql = "INSERT INTO shield.group SET ? ";
+      let sql = "INSERT INTO questionnaire.group SET ? ";
       con.query( sql, { group_name: group_name }, function(err, rows) {
         if(err) console.log(err);
       });
     }
   });
 
-  con.query("TRUNCATE shield.group_worker", function(err, rows) {
+  con.query("TRUNCATE questionnaire.group_worker", function(err, rows) {
     if(err) console.log(err);
   });
   updateData.group_worker.map( function(ele) {
-    con.query("SELECT ID FROM shield.worker WHERE worker_name = ?", ele.worker_name, function(err, result, fields) {
+    con.query("SELECT ID FROM questionnaire.worker WHERE worker_name = ?", ele.worker_name, function(err, result, fields) {
       let id = result[0].ID;
       let data = {
         group_id: ele.group_id,
         worker_id: id
       };
-      con.query("INSERT INTO shield.group_worker SET ? ", data , function(err, rows) {
+      con.query("INSERT INTO questionnaire.group_worker SET ? ", data , function(err, rows) {
         if(err) console.log(err);
       });
     });
@@ -288,21 +288,21 @@ router.post('/setWorker', function(req, res, next) {
     let category_id = data.category_id;
     if( ID && worker_name ) {
       console.log("UPDATE");
-      let sql = "UPDATE shield.worker SET worker_name = ?, category_id = ? WHERE ID = ? ";
+      let sql = "UPDATE questionnaire.worker SET worker_name = ?, category_id = ? WHERE ID = ? ";
       con.query( sql, [ worker_name, category_id, ID ], function(err, rows) {
         if(err) console.log(err);
       });
     }
     else if( ID && !worker_name ) {
       console.log("DELETE");
-      let sql = "DELETE FROM shield.worker WHERE ID = ? ";
+      let sql = "DELETE FROM questionnaire.worker WHERE ID = ? ";
       con.query( sql, ID, function(err, rows) {
         if(err) console.log(err);
       });
     }
     else if( !ID && worker_name ) {
       console.log("INSERT");
-      let sql = "INSERT INTO shield.worker SET ? ";
+      let sql = "INSERT INTO questionnaire.worker SET ? ";
       con.query( sql, { worker_name: worker_name, category_id: category_id }, function(err, rows) {
         if(err) console.log(err);
       });
@@ -315,10 +315,10 @@ router.post('/setWorker', function(req, res, next) {
 setInterval( function() {
   console.log("check worker update");
 
-  con.query('SELECT * FROM shield.update_info ORDER BY ID DESC LIMIT 1', function(err, result, fields) {
+  con.query('SELECT * FROM questionnaire.update_info ORDER BY ID DESC LIMIT 1', function(err, result, fields) {
     let update_to = result[0].update_to;      //取得上次更新VOTE資料庫到哪
 
-    let sql = 'SELECT * FROM shield.vote WHERE shield.vote.ID > ? ORDER BY worker_id';
+    let sql = 'SELECT * FROM questionnaire.vote WHERE questionnaire.vote.ID > ? ORDER BY worker_id';
     con.query( sql, update_to,  function(err, result, fields) {
       //取得上次更新VOTE資料庫之後，產生的新資料
       if( result.length==0 ) {
@@ -348,7 +348,7 @@ setInterval( function() {
         console.log(vote_data);
 
         vote_data.map( function(data) {
-          con.query('SELECT * FROM shield.worker WHERE shield.worker.ID = ? ', data.worker_id, function(err, result, fields) {
+          con.query('SELECT * FROM questionnaire.worker WHERE questionnaire.worker.ID = ? ', data.worker_id, function(err, result, fields) {
             let worker = result[0];   //獲得此WORKER之前在DB的資料
             for( let i in data.scores ) {   //將前面獲得的VOTE_DATA裡面的每個SCORE，加進去此WORKER的資料
               let n = data.scores[i];
@@ -361,7 +361,7 @@ setInterval( function() {
             }
             worker.score = sum/worker.vote_count; //計算出平均得分
             // console.log(worker);      //CONSOLE此WORKER更新後的資料
-            con.query('UPDATE shield.worker SET vote_count = ? '
+            con.query('UPDATE questionnaire.worker SET vote_count = ? '
             + ', score_5_count = ?, score_4_count = ?, score_3_count = ?, score_2_count = ?, score_1_count = ?'
             + ', score = ?'
             + ' WHERE ID = ?'
@@ -374,11 +374,11 @@ setInterval( function() {
         });
 
         //紀錄這次更新到哪
-        con.query('SELECT ID FROM shield.vote ORDER BY ID DESC LIMIT 1', function(err, result, fields) {
+        con.query('SELECT ID FROM questionnaire.vote ORDER BY ID DESC LIMIT 1', function(err, result, fields) {
           //取得VOTE的最後一筆資料的ID
           let new_update_to = result[0].ID;
           console.log("update_to = "+new_update_to);
-          con.query('INSERT INTO shield.update_info SET ?', {update_to: new_update_to}, function(err, rows) {
+          con.query('INSERT INTO questionnaire.update_info SET ?', {update_to: new_update_to}, function(err, rows) {
             if(err) throw err;  //將此資訊寫進DB，下次就知道要從這筆資料後更新
           });
         }); //end con.query

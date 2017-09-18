@@ -3,9 +3,10 @@ var router = express.Router();
 var mysql = require('mysql');
 
 var con = mysql.createConnection({
-  host: "192.168.0.135",
+  // host: "192.168.0.135",
+  host: "192.168.0.124",
   path: "%",
-  user: "newuser",
+  user: "Colman",
   password: "shield123"
 });
 
