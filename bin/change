@@ -1,0 +1,60 @@
+ pushMsg (data.channelId改profile.channelId)-->貌似已改
+    if(profile.channelId === undefined || profile.channelId === "FB"){
+      // console.log('to fb');
+      if( profile.channelId === undefined ) data.channelId = "FB";
+
+---------問題應該跟新進訊息有關，刪掉我的database重試看看----
+找到問題，新用戶進來，無法顯示頭貼&unread
+client有append上去，message沒有，頭貼沒顯示，unread已修復
+
+
+displayClient的data裡沒有pictureUrl
+在loadFBprofile新增  obj.pictureUrl = fb_user_profilePic;
+
+第一個unread地方undefined，接下來client不append
+
+如果是new user, unread message會到chat.js displayClient才設定，
+加一個
+在else   data.unRead = 1;
+
+firebase要接到messages
+想法：把add new topics頁面的send跟chat裡面的submit串連，text那一格跟chat input那一格串連，或是把整個搬過來
+要把在chat.js裡面可以用到的部分複製貼上到新的js裡面看看可以怎麼利用
+
+把pushMsg加到新的js裡，拿namelist當全選的tag，要看看sendMsg裡面適用什麼來傳送的
+下一階段再做預定時間發送
+在新的pushMsg裡只需要user-rooms name_list的功能，其他都不需要。
+目標是在displayClient/displayMessage的部分直接append到chat.ejs裡面
+channelId+userId的部分有點麻煩，決定先順利把全選msg append之後再處理
+
+為了要讓pushMsg work, 會需要一個漫長的過程
+request line channel (www) -> response line channel(get channelId) (js) -> get json from back(www)
+push json to front沒有收到來自後端的資料＠＠
+-------------------------------------
+//改chatroom拿掉profile pic
+chat_prof comment起來
+#prof_nick {style="margin-left: 10px"}
+
+//加入line@ pages
+router 更新
+js, ejs files 加入
+nav bar tags全部改成messages, 加入其他的sub pages
+chat.js加：
+  $(document).on('mouseover', '#message', subMessage);//Message 導覽標籤 subtags
+
+  function subMessage(){
+    if ($('.subTag').is(':visible')){
+      $('.subTag').fadeOut();
+    }else{
+    $('.subTag').fadeIn();
+  }
+  }
+
+// message-overview功能
+把pushMsg, socket, namelist加到新的js裡
+  
+
+
+
+// router更新
+一進來的頁面就是chat

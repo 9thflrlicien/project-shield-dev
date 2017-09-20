@@ -1,8 +1,7 @@
 
 #tag-wrap {
   position: relative;
-  left: 250px;
-  width: 75%;
+  padding: 0 50px;
 }
 
 #edit-subt, #view-subt {

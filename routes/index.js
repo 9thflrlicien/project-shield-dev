@@ -6,7 +6,6 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'SHIELD' });
 });
 
-/* GET calendar page. */
 router.get('/calendar', function(req, res, next) {
   res.render('calendar', { title: 'SHIELD calendar' });
 });
@@ -18,11 +17,6 @@ router.get('/chat', function(req, res, next) {
 router.get('/tag', function(req, res, next) {
   res.render('tag', { title: 'SHIELD tag' });
 });
-
-router.get('/agentChat', function(req, res, next) {
-  res.render('agentChat', { title: 'SHEILD agent chat'});
-});
-
 
 router.get('/ticket', function(req, res, next) {
   res.render('ticket', { title: 'SHIELD support' });
@@ -36,22 +30,27 @@ router.get('/profile', function(req, res, next) {
   res.render('profile', { title: 'Profile' });
 });
 
-// router.get('/analyzeQuestionnaire', function(req, res, next) {
-//   let con = require('./mysql');
-//
-//   con.query("SELECT * FROM shield.group", function(err, result, fields) {
-//     let group = result;
-//     con.query("SELECT * FROM shield.category", function(err, result, fields) {
-//       let category = result;
-//       res.render('analyzeQuestionnaire', {
-//         title: 'SHIELD Analyze Questionnaire',
-//         group: group,
-//         category: category
-//       });
-//     })
-//   });
-//
-// });
+//get message and subTags
+router.get('/message_overview', function(req, res, next) {
+  res.render('message_overview', { title: 'Message Overview' });
+});
+
+router.get('/message_newtopic', function(req, res, next) {
+  res.render('message_newtopic', { title: 'Message New Topic' });
+});
+
+router.get('/message_autoreply', function(req, res, next) {
+  res.render('message_autoreply', { title: 'Message Auto Reply' });
+});
+
+router.get('/message_keywordsreply', function(req, res, next) {
+  res.render('message_keywordsreply', { title: 'Message Keywords Reply' });
+});
+
+router.get('/message_addfriendreply', function(req, res, next) {
+  res.render('message_addfriendreply', { title: 'Message Add Friend Reply' });
+});
+
 
 //authentication
 router.get('/login', function(req, res, next) {

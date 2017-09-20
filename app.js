@@ -7,7 +7,6 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-var analyzeResponse = require('./routes/analyzeResponse');
 
 var app = express();
 
@@ -18,7 +17,7 @@ app.set('view engine', 'ejs');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-// app.use(bodyParser.json());
+app.use(bodyParser.json());
 // need raw buffer for signature validation
 app.use(bodyParser.json({
   verify (req, res, buf) {
@@ -31,7 +30,6 @@ app.use(express.static(path.join(__dirname, 'public')));// to import css and jav
 
 app.use('/', index);
 app.use('/users', users);
-app.use('/analyzeResponse', analyzeResponse);
 
 //facebook connection
 app.get('/webhook', function(req, res) {
@@ -41,7 +39,8 @@ app.get('/webhook', function(req, res) {
     res.status(200).send(req.query['hub.challenge']);
   } else {
     console.error("Failed validation. Make sure the validation tokens match.");
-    res.sendStatus(403);          
-  }  
+    res.sendStatus(403);
+  }
 });//app.get-->facebook webhook
+
 module.exports = app;

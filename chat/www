@@ -1,0 +1,2020 @@
+#!/usr/bin/env node
+
+/**
+* Module dependencies.
+*/
+
+// express var
+var app = require('../app');
+var debug = require('debug')('project-shield:server');
+var http = require('http');
+
+// npm plugins var
+var firebase = require('firebase');
+var linebot = require('linebot');
+var apiai = require('apiai');
+var fs = require('fs');
+var ticket = {} ;
+var unirest = require('unirest');
+var MessengerPlatform = require('facebook-bot-messenger');
+var API_KEY = "VAxM08x35ThAOEqIgvOF";
+var FD_ENDPOINT = "fongyu";
+
+// Get port from environment and store in Express.
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+//Create HTTP server.
+var server = http.createServer(app);
+const io = require('socket.io').listen(server);
+// Listen on provided port, on all network interfaces.
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+//config
+var apiai_app = apiai('a84ed63ae3914a1fb4601f2824d4cabd');
+var fb_bot = MessengerPlatform.create({
+  pageID: '1505268191222395',
+  appID: '472206313149798',
+  appSecret: '64f066580f1118cce5277483865680f9',
+  validationToken: '8d651e7bf52b3f923d099302268b8893',
+  pageToken: 'EAAGteBmOVWYBAJShzsZADFojyn9RzSkZC085RXHG4XZCe1ZAYXQ89HcHgUQR7z2ZAfvJ2MJT0nXqGOmeQDooK0FMNk7K1BLJHJ8KUlyI33dcUg221mLr5Ft6GYDQBQ6d5C8pvqy27flm7VNYShR8PAW4mF4bo09Vn90zdNY53tYLT9LeiesXG'
+});
+var config = {
+  apiKey: "AIzaSyCKIPCKJpN1PCqK1EUygD6erNpo2lGmrpA",
+  authDomain: "shield-production.firebaseapp.com",
+  databaseURL: "https://shield-production.firebaseio.com",
+  projectId: "shield-production",
+  storageBucket: "shield-production.appspot.com",
+  messagingSenderId: "524065152880"
+};
+firebase.initializeApp(config);
+
+//firebase var
+const agentDBRef = firebase.database().ref().child('chats/AgentChatData');
+var agentChatData;
+agentDBRef.on('value', snapshot=> {
+  agentChatData = snapshot.val();
+  console.log("agent chat loaded");
+});
+
+const newDBRef = firebase.database().ref().child('chats/Data');
+var chatData;
+newDBRef.on('value', snapshot=> {
+  chatData = snapshot.val();
+  console.log("chat data loading complete!");
+});
+
+const tagsRef = firebase.database().ref().child('tags');
+var tagsData;
+tagsRef.on('value', snapshot=> {
+  tagsData = snapshot.val().Data;
+  console.log("tags data loading complete!");
+  // ...
+});
+
+
+var users = {};
+var agent_nickname = 'agent';
+
+// LINE bot設定
+var bot = [];
+var linebotParser = [
+  function() {
+    console.log("Enter channel_1 information first");
+  },
+  function() {
+    console.log("Enter channel_2 information first");
+  }
+];
+// var newDBRef = [null, null];
+var channelIds = [-1, -1];
+
+//yelp-search
+const yelp = require('yelp-fusion');
+const yelp_id = 'myyIL1Ms5JszMcXodC-o_w';
+const yelp_secret = 'Zw94mu0DGLFSmjG2at4wqSpdxtUC9TrWn6yVYUNhpLEpj4C11tzAPblLXRhpsRLh';
+var yelp_token;
+const token = yelp.accessToken(yelp_id, yelp_secret).then(response => {
+    console.log(response.jsonBody.access_token);
+    yelp_token = response.jsonBody.access_token;
+}).catch(e => {
+    console.log(e);
+});
+var z;
+var z2;
+var z3;
+var x;
+var x2;
+var x3;
+var y;
+var w;
+var w1;
+var w2;
+var n;
+//yelp-search
+//抓日期
+var Today = new Date();
+var day_list = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+var day = Today.getDay();
+var YY = Today.getFullYear();
+var MM = (Today.getMonth() + 1);
+var DD = Today.getDate();
+var count = 0;
+
+// for ticketing
+var viewContact;
+var viewAgent;
+var viewTicket;
+
+///////////////// 接收訊息 /////////////////
+//==============FACEBOOK MESSAGE==============
+app.post('/webhook', function (req, res) {
+  var data = req.body;
+  console.log('facebook webhook entered with data: ');
+  console.log(data);
+
+  // Make sure this is a page subscription
+  if (data.object === 'page') {
+
+    // Iterate over each entry - there may be multiple if batched
+    data.entry.forEach(function(entry) {
+      var pageID = entry.id;
+      var timeOfEvent = entry.time;
+
+      // Iterate over each messaging event
+      entry.messaging.forEach(function(event) {
+        console.log('this is event');
+        console.log(event);
+        if (event.message) {
+          loadFbProfile(event, event.sender.id);
+        }
+        else {
+          console.log("Webhook received unknown event: ", event);
+        }
+      });
+    });
+  }
+  else{
+    console.log('no page shown');
+  }
+});//app.post
+//==============FACEBOOK MESSAGE END==============
+
+
+
+//==============LINE MESSAGE==============
+function bot_on_message(event) {
+  let channelId = this.options.channelId;
+  // let firebaseDB = newDBRef[ channelIds.indexOf(channelId) ];
+  // console.log("INDEX = "+channelIds.indexOf(channelId));
+
+  // console.log(event);
+  let message_type = event.message.type;
+  let message_lineTochat = event.message.text;
+  let receiverId = event.source.userId;
+  let nowTime = Date.now();
+
+  console.log('Line message in!');
+
+  event.source.profile().then(function(profile) {
+    // console.log(profile.pictureUrl);
+    let receiver_name = profile.displayName;
+    let pictureUrl = profile.pictureUrl;
+    if( receiver_name==undefined ) receiver_name = "userName_undefined";
+    console.log('current ID is: '+receiverId);
+    console.log('current nickname is: '+receiver_name);
+
+    var msgObj = {
+      owner: "user",
+      name: receiver_name,
+      time: nowTime,
+      message: "undefined_message"
+    };
+
+
+    //  ===================  KINDS ====================
+    {
+      if (message_type === 'sticker') {
+        let packageId = event.message.packageId;
+        let stickerId = event.message.stickerId;
+        msgObj.message = '<img src="https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/'+stickerId+'/android/sticker.png"' +
+        'width="20%" alt="sticker cant display!"/>';
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+      }
+      else if (message_type === 'location') {
+        console.log("location");
+        msgObj.message = 'Location received: ';
+        console.log(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        msgObj.message = event.message.address;
+        console.log(msgObj);
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        event.message.content().then(function(content) {
+          /*'base64'是圖片的編碼*/
+          // console.log(content.toString('base64'));
+          /*把編碼轉換成圖片(image/png)做成連結的方式*/
+          let latitude = event.message.latitude;
+          let longitude = event.message.longitude;
+          msgObj.message = '<a target="_blank" href=" https://www.google.com.tw/maps/place/' + content.toString('base64')
+          + '/@' + latitude + ',' + longitude + ',15z/data=!4m5!3m4!1s0x0:0x496596e7748a5757!8m2!3d'
+          + latitude + '!4d' + longitude + '">LOCATION LINK</a>';
+          console.log(msgObj);
+          emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        }).catch(function(error) {
+          // error
+        });
+
+        //yelp-search
+        setTimeout(() => {
+            const yelp_client = yelp.client(yelp_token);
+            yelp_client.search({
+                term: zxc, //餐廳種類
+                locale: 'zh_TW', //語系
+                location: address,
+            }).then(response => {
+                z = response.jsonBody.businesses[1].name;
+                z2 = response.jsonBody.businesses[2].name;
+                z3 = response.jsonBody.businesses[3].name;
+
+                x = response.jsonBody.businesses[1].image_url;
+                x2 = response.jsonBody.businesses[2].image_url;
+                x3 = response.jsonBody.businesses[3].image_url;
+
+                y = response.jsonBody.businesses[1].location.display_address;
+                y2 = response.jsonBody.businesses[2].location.display_address;
+                y3 = response.jsonBody.businesses[3].location.display_address;
+
+                w = response.jsonBody.businesses[1].url;
+                w2 = response.jsonBody.businesses[2].url;
+                w3 = response.jsonBody.businesses[3].url;
+
+                n = response.jsonBody.businesses[1].location;
+                event.reply({
+                    "type": "template",
+                    "altText": "Welcome Template",
+                    "template": {
+                        type: 'carousel',
+                        "columns": [{
+                            "thumbnailImageUrl": x,
+                            "title": z,
+                            "text": y[0] + y[1], //抓陣列中所需要的值作為字串(因為這裡陣列會無法顯示)
+                            "actions": [{
+                                "type": 'uri',
+                                "label": '觀看餐廳資訊',
+                                "uri": w
+                            }]
+                        }, {
+                            "thumbnailImageUrl": x2,
+                            "title": z2,
+                            "text": y2[0] + y2[1],
+                            "actions": [{
+                                "type": 'uri',
+                                "label": '觀看餐廳資訊',
+                                "uri": w2
+                            }]
+                        }, {
+                            "thumbnailImageUrl": x3,
+                            "title": z3,
+                            "text": y3[0] + y3[1],
+                            "actions": [{
+                                "type": 'uri',
+                                "label": '觀看餐廳資訊',
+                                "uri": w3
+                            }]
+                        }]
+                    }
+                })
+                console.log('z:' + z);
+                console.log('x:' + x);
+                console.log(n);
+            }).catch(e => {
+                console.log(e);
+            });
+        }, 2000);
+        //yelp-search
+      }
+      else if (message_type === 'image') {
+        msgObj.message = 'Image received. Please wait for the link below';
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        event.message.content().then(function(content) {
+          /*'base64'是圖片的編碼*/
+          // console.log(content.toString('base64'));
+          /*把編碼轉換成圖片(image/png)做成連結的方式*/
+          msgObj.message = '<a href="data:image/png;base64,' + content.toString('base64') + '" ' +
+          ' target="_blank" ><img src="data:image/png;base64,' + content.toString('base64') + '" ' +
+          'width="20%" alt="image embedded using base64 encoding!"/></a>';
+          emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+
+        }).catch(function(error) {
+          // error
+          console.log(error);
+        });
+
+      }
+      else if (message_type === 'audio') {
+        msgObj.message = 'Audio received. Please wait for the link below.';
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        event.message.content().then(function(content) {
+          // console.log(content.toString('base64'));
+          msgObj.message = '<audio controls><source src="data:audio/mp4;base64,' + content.toString('base64') + '" ' +
+          '" type="audio/mp4"></audio>';
+          emitIO_and_pushDB(msgObj);
+
+        }).catch(function(error) {
+          // error
+          console.log(error);
+        });
+      }
+      else if (message_type === 'video') {
+        msgObj.message = 'Video received. Please wait for the link below.';
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+
+        event.message.content().then(function(content) {
+          // console.log(content.toString('base64'));
+          msgObj.message = '<video width="20%" controls><source src="data:video/mp4;base64,' + content.toString('base64') + '" ' +
+          '" type="video/mp4"></video>';
+          emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+
+        }).catch(function(error) {
+          // error
+          console.log(error);
+        });
+      }
+      else if (message_type === 'text' && isUrl(message_lineTochat) ) { // 判斷連結
+        let urlStr = '<a href=';
+        if (message_lineTochat.indexOf('https') === -1 || message_lineTochat.indexOf('http') === -1) {
+          urlStr += '"https://';
+        }
+        msgObj.message = urlStr + message_lineTochat + '/" target="_blank">' + message_lineTochat + '</a>';
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+      }
+      else {
+        msgObj.message = message_lineTochat;
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        // 先測試line 部分
+        // apiai(msgObj);
+      }
+    }
+    // function
+    function apiai(obj) {
+      var request = apiai_app.textRequest(obj.message, {
+        sessionId: '0896c04e-218b-4951-b75d-2d09e1ce7d4b'
+      });
+      request.on('response', function(response) {
+        let action = response.result.action ;
+        let speech = response.result.fulfillment.messages[0].speech ;
+        let parameter = response.result.parameters ;
+        let complete = !response.result.actionIncomplete ;
+        let userSay = response.result.resolvedQuery ;
+
+        if(action != 'input.unknown'){
+          console.log(response.result) ;
+          msgObj.owner = 'agent';
+          msgObj.name = 'api.ai';
+          if(action == 'input.welcome'||action == 'timeGreeting'){
+            obj.message = '已接收選項'+"購買方案, "+"服務時段, "+'問卷調查';
+            emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 0);
+            event.reply({
+              "type": "template",
+              "altText": "this is a buttons template",
+              "template": {
+                "type": "buttons",
+                "title": "問題選項",
+                "text": "請選擇一個詢問主題",
+                "actions": [{
+                  "type": "postback",
+                  "label": "購買方案",
+                  "data": "purchasePlan"
+                },{
+                  "type": "postback",
+                  "label": "服務時段",
+                  "data": "serviesHour"
+                },{
+                  "type": "postback",
+                  "label": "問卷調查",
+                  "data":"Questionnaire_start"
+                }]
+              }
+            });
+          }
+          else if(action == 'tinistart.faq'){
+            let type = speech ;
+            //let content = '';
+            let incomplete = response.result.actionIncomplete ;
+            console.log(type) ;
+            if(incomplete){
+              msgObj.message = speech;
+              event.reply({ type: 'text', text: speech });
+            }
+            else if(type == 'principal'){
+              msgObj.message = "關於負責人";
+              event.reply({
+                "type": "template",
+                "altText": "關於負責人",
+                "template": {
+                  "type": "buttons",
+                  "title": "關於負責人",
+                  "text": "以下是有關負責人的常見問題",
+                  "actions": [{
+                    "type": "postback",
+                    "label": "請問什麼樣的人可以擔任負責人?",
+                    "data": "1-1"
+                  }]
+                }
+              });
+            }
+            else if(type == 'money'){
+              msgObj.message = '關於資本額';
+              event.reply({
+                "type": "template",
+                "altText": "關於資本額",
+                "template": {
+                  "type": "buttons",
+                  "title": "關於資本額",
+                  "text": "以下是有關資本額的常見問題",
+                  "actions": [{
+                    "type": "postback",
+                    "label": "公司的資本額有最低限制嗎",
+                    "data": "2-1",
+                  },{
+                    "type": "postback",
+                    "label": "資本額要在銀行放多久才能用",
+                    "data": "2-2",
+                  },{
+                    "type": "postback",
+                    "label": "資本額一定要經過會計師簽證查核嗎",
+                    "data": "2-3",
+                  },{
+                    "type": "postback",
+                    "label": "我能請人代做資本額嗎",
+                    "data": "2-4",
+                  }]
+                }
+              });
+            }
+            else if(type == 'servies'){
+              msgObj.message = '關於附加服務';
+              event.reply({
+                "type": "template",
+                "altText": "關於附加服務",
+                "template": {
+                  "type": "buttons",
+                  "title": "關於附加服務",
+                  "text": "以下是有關附加服務的常見問題",
+                  "actions": [{
+                    "type": "postback",
+                    "label": "什麼是商務中心",
+                    "data": "3-1",
+                  },{
+                    "type": "postback",
+                    "label": "商務中心可以提供什麼服務",
+                    "data": "3-2",
+                  },{
+                    "type": "postback",
+                    "label": "App製作是怎麼樣的服務",
+                    "data": "3-3",
+                  },{
+                    "type": "postback",
+                    "label": "什麼樣的人適合使用商務中心",
+                    "data": "3-4",
+                  }]
+                }
+              });
+            }
+            else if(type == 'bank'){
+              msgObj.message = '關於銀行帳戶';
+              event.reply({
+                "type": "template",
+                "altText": "關於銀行帳戶",
+                "template": {
+                  "type": "buttons",
+                  "title": "關於銀行帳戶",
+                  "text": "以下是有關銀行帳戶的常見問題",
+                  "actions": [{
+                    "type": "postback",
+                    "label": "如何挑選辦理的銀行",
+                    "data": "4-1",
+                  },{
+                    "type": "postback",
+                    "label": "如何將公司籌備處帳戶變成正式帳戶",
+                    "data": "4-2",
+                  },{
+                    "type": "postback",
+                    "label": "我可以在不同銀行開設公司銀行帳戶嗎",
+                    "data": "4-3",
+                  }]
+                }
+              });
+            }
+            else if(type == 'starting'){
+              msgObj.message = '關於公司設立';
+              event.reply({
+                "type": "template",
+                "altText": "關於公司設立",
+                "template": {
+                  "type": "carousel",
+                  "columns": [
+                    {
+                      "text": "以下是有關公司設立的常見問題",
+                      "actions": [
+                        {
+                          "type": "postback",
+                          "label": "印章不見時有什麼要注意的?",
+                          "data": "5-1",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "我可以不設立公司或行號就開始營業嗎?",
+                          "data": "5-2",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "想用的名稱已被使用，但處於解散狀態",
+                          "data": "5-3",
+                        }
+                      ]
+                    },{
+                      "text": "以下是有關公司設立的常見問題",
+                      "actions": [
+                        {
+                          "type": "postback",
+                          "label": "想開小吃店或小店面還需要設立公司嗎",
+                          "data": "5-4",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "請問我需要準備些什麼東西?",
+                          "data": "5-5",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "沒有建物所有權狀的話要怎麼辦?",
+                          "data": "5-6",
+                        }
+                      ]
+                    },{
+                      "text": "以下是有關公司設立的常見問題",
+                      "actions": [
+                        {
+                          "type": "postback",
+                          "label": "如果公司大小章不見的話要怎麼處理?",
+                          "data": "5-7",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "外國人在台灣設立公司時的步驟有什麼不同?",
+                          "data": "5-8",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "公司申請要用的文件和資料要怎樣交給你們?",
+                          "data": "5-9",
+                        }
+                      ]
+                    },{
+                      "text": "以下是有關公司設立的常見問題",
+                      "actions": [
+                        {
+                          "type": "postback",
+                          "label": "我該設立有限公司還是股份有限公司?",
+                          "data": "5-10",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "營業項目要設多少個?有限制嗎?",
+                          "data": "5-11",
+                        },
+                        {
+                          "type": "postback",
+                          "label": " ",
+                          "data": " ",
+                        }
+                      ]
+                    }
+                  ]
+                }
+              });
+            }
+            else if(type == 'business'){
+              msgObj.message = '關於營業項目';
+              event.reply({
+                "type": "template",
+                "altText": "關於營業項目",
+                "template": {
+                  "type": "buttons",
+                  "title": "關於營業項目",
+                  "text": "以下是有關營業項目的常見問題",
+                  "actions": [{
+                    "type": "postback",
+                    "label": "什麼是特許營業項目",
+                    "data": "6-1",
+                  },{
+                    "type": "postback",
+                    "label": "我能自行增加製造產品的項目嗎",
+                    "data": "6-2",
+                  }]
+                }
+              });
+            }
+            else if(type == 'price'){
+              msgObj.message = '關於價格方案';
+              event.reply({
+                "type": "template",
+                "altText": "關於價格方案",
+                "template": {
+                  "type": "buttons",
+                  "title": "關於價格方案",
+                  "text": "以下是有關價格方案的常見問題",
+                  "actions": [{
+                    "type": "postback",
+                    "label": "為什麼有特許營業項目時要另外計算費用?",
+                    "data": "7-1",
+                  },{
+                    "type": "postback",
+                    "label": "兩個方案差別在哪?",
+                    "data": "7-2",
+                  }]
+                }
+              });
+            }
+            else if(type == 'insurance'){
+              msgObj.message = '關於勞健保';
+              event.reply({
+                "type": "template",
+                "altText": "關於勞健保",
+                "template": {
+                  "type": "buttons",
+                  "title": "關於勞健保",
+                  "text": "以下是有關勞健保的常見問題",
+                  "actions": [{
+                    "type": "postback",
+                    "label": "我的員工很少，能不投保勞健保嗎?",
+                    "data": "10-1",
+                  },{
+                    "type": "postback",
+                    "label": "我是負責人，我要怎麼投勞保?",
+                    "data": "10-2",
+                  },{
+                    "type": "postback",
+                    "label": "我是負責人，我要怎麼投健保?",
+                    "data": "10-3",
+                  },{
+                    "type": "postback",
+                    "label": "現在加保勞健保會被追繳勞健保嗎?",
+                    "data": "10-4",
+                  }]
+                }
+              });
+            }
+            else if(type == 'other'){
+              msgObj.message = '常見問題';
+              event.reply({
+                "type": "template",
+                "altText": "常見問題",
+                "template": {
+                  "type": "carousel",
+                  "columns": [
+                    {
+                      "text": "以下是其他常見問題",
+                      "actions":[
+                        {
+                          "type": "postback",
+                          "label": "請問貴公司的提供服務的區域有哪些?",
+                          "data": "8-1",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "請問貴公司的服務時間?",
+                          "data": "8-2",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "你們怎麼幫我們進行客服代理的服務?",
+                          "data": "8-3",
+                        }
+                      ]
+                    },{
+                      "text": "以下是其他常見問題",
+                      "actions":[
+                        {
+                          "type": "postback",
+                          "label": "我要怎麼向你們付費並取得正式文件?",
+                          "data": "8-4",
+                        },
+                        {
+                          "type": "postback",
+                          "label": "我可以不用統一發票嗎?",
+                          "data": "9-1",
+                        },
+                        {
+                          "type": "postback",
+                          "label": " ",
+                          "data": " ",
+                        }
+                      ]
+                    }
+                  ]
+                }
+              });
+            }
+            else console.log("api.ai type error");
+            emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 0);
+            return ;
+          }
+          else if(action == 'ticket' ){
+            ticket.email = parameter.email ;
+            ticket.phone = parameter.phone ;
+            ticket.goods = parameter.goods ;
+            ticket.name = receiver_name ;
+            ticket.lineId = receiverId;
+          }
+          else if(action == 'ticket.description'){
+            ticket.description = userSay ;
+            ticket.priority = parameter.priority ;
+            if(complete) createTicket(ticket);
+          }
+          obj.message = speech ;
+          emitIO_and_pushDB(obj, pictureUrl, channelId, receiverId, 0);
+          event.reply({ type: 'text', text: msgObj.message });
+        }
+        else{console.log(action);}
+
+      });
+      request.on('error', function(error) {
+        console.log(error);
+      });
+      request.end();
+
+    }
+
+    function createTicket(obj) {
+
+      var PATH = "/api/v2/tickets";
+      var URL =  "https://" + FD_ENDPOINT + ".freshdesk.com"+ PATH;
+      console.log('ticket:');
+      console.log(obj);
+
+      let priority ;
+      if(obj.priority.indexOf('high') != -1) priority = 3 ;
+      else if(obj.priority.indexOf('medium') != -1)priority = 2 ;
+      else priority = 1;
+
+      var fields = {
+        'description': obj.description,
+        'email': obj.email,
+        'name': obj.name,
+        'phone': obj.phone,
+        'priority': priority,
+        'status': 2,
+        'subject': '收到_'+obj.goods+'_訂單'
+        // 'tags': [obj.lineId.substring(1)]
+      }
+      //console.log('fields:');
+      //console.log(fields);
+
+      for( let prop in chatData ) {
+        if(chatData[prop].Profile.userId == obj.lineId) {
+          console.log("Ticket find user " + obj.lineId + " in database");
+          let updateObj = {};
+          if(chatData[prop].Profile.email == undefined || chatData[prop].Profile.email == '' || chatData[prop].Profile.email == null){
+            updateObj['/'+prop+'/Profile/email/'+0] = obj.email;
+          }
+          else{
+            let length = chatData[prop].Profile.email.length ;
+            updateObj['/'+prop+'/Profile/email/'+length] = obj.email;
+          }
+          newDBRef.update(updateObj) ;
+          newDBRef.child(prop).child("Profile").update({phone: obj.phone});
+          console.log('firebase update ticket info complete') ;
+          break;
+        }
+      }
+
+      var Request = unirest.post(URL);
+      console.log('fields:');
+      console.log(fields);
+      Request.auth({
+        user: API_KEY,
+        pass: "X",
+        sendImmediately: true
+      })
+      .type('json')
+      .send(fields)
+      .end(function(response){
+        console.log(response.body)
+        console.log("Response Status : " + response.status)
+        if(response.status == 201){
+          console.log("Location Header : "+ response.headers['location'])
+        }
+        else{
+          console.log("X-Request-Id :" + response.headers['x-request-id']);
+        }
+      });
+    }
+    //function
+  });
+}
+
+function bot_on_postback(event){
+  console.log("postback");
+  let data = event.postback.data ;
+  let receiverId = event.source.userId;
+  let receiver_name;
+  let nowTime = Date.now();
+  console.log(event);
+
+  event.source.profile().then(function(profile){
+    receiver_name = profile.displayName;
+    if( receiver_name==undefined ) receiver_name = "userName_undefined";
+
+    var msgObj = {
+      owner: "agent",
+      name: 'api.ai',
+      time: nowTime
+    };
+
+    if(data.indexOf('purchasePlan') != -1){
+      let hr = data.substring(13);
+      console.log("hour:"+hr) ;
+      switch (hr) {
+        case '4':
+        msgObj.message = "4小時方案   15,888 元  \n 4小時方案/每天   $15,888每月" ;
+        break;
+        case '8':
+        msgObj.message = "8小時方案   21,888 元  \n 8小時方案/每天   $21,888每月" ;
+        break;
+        case '16':
+        msgObj.message = "16小時方案   39,888 元  \n 16小時方案/每天   $39,888每月" ;
+        break;
+        default:
+        msgObj.message = '已發送購買方案'+"4小時方案  "+"8小時方案  "+"16小時方案  ";
+        event.reply({
+          "type": "template",
+          "altText": "購買方案說明",    //text that customer see at chat list
+          "template": {
+            "type": "buttons",
+            "title": "購買方案說明",
+            "text": "請選擇一個方案",
+            "actions": [{
+              "type": "postback",
+              "label": "4小時方案",
+              "data": "purchasePlan-4"
+            },{
+              "type": "postback",
+              "label": "8小時方案",
+              "data": "purchasePlan-8"
+            },{
+              "type": "postback",
+              "label": "16小時方案",
+              "data": "purchasePlan-16"
+            }]
+          }
+        });
+        break;
+
+      }
+      emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+      event.reply({"type":"text","text":msgObj.message}) ;
+    }
+    else if(data == 'serviesHour'){
+      msgObj.message =
+      "我們的服務時如下:\n"+
+      "「0700~1100」\n "+
+      "「1100~1500」\n "+
+      "「1500~1900」\n "+
+      "「1900~2300」\n "+
+      " 兩個時段必須是「連續的」\n"+
+      "「0700~1100」及「1100~1500」\n"+
+      "「1100~1500」及「1500~1900」\n"+
+      "「1500~1900」及「1900~2300」。" ;
+
+      console.log(msgObj.message) ;
+      emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+      event.reply({"type":"text","text":msgObj.message}) ;
+    }
+    else if(data.indexOf('Questionnaire') != -1){
+      let pos = data.indexOf(':');
+      let para = data.substring(14,pos);
+      let value = data.substring(pos+1);
+      let id = event.source.userId ;
+      //console.log(pos+" "+id+":"+para+":"+value) ;
+      //console.log(event.message) ;
+      if(pos != -1){
+        let obj = {} ;
+        obj.id = id ;
+        obj.para = para ;
+        obj.value = value ;
+        updateProfile(obj) ;
+      }
+
+      if(para == '性別'){
+        msgObj.message = '詢問客戶資料(居住地)';
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        event.reply({
+          "type": "template",
+          "altText": "問券調查",
+          "template": {
+            "type": "buttons",
+            "title": "問券調查:地區",
+            "text": "請選擇您的性別",
+            "actions": [{
+              "type": "postback",
+              "label": "地區:北部",
+              "text": "地區:北部",
+              "data": "Questionnaire_地區:北部"
+            },{
+              "type": "postback",
+              "label": "地區:中部",
+              "text": "地區:中部",
+              "data": "Questionnaire_地區:中部"
+            },{
+              "type": "postback",
+              "label": "地區:南部",
+              "text": "地區:南部",
+              "data": "Questionnaire_地區:南部"
+            },{
+              "type": "postback",
+              "label": "地區:東部",
+              "text": "地區:東部",
+              "data": "Questionnaire_地區:東部"
+            }]
+          }
+        });
+
+      }
+      else if(para == '地區'){
+        msgObj.message = '詢問客戶資料(年齡層)';
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        event.reply({
+          "type": "template",
+          "altText": "問券調查part2",
+          "template": {
+            "type": "carousel",
+            "columns": [
+              {
+                "text": "您的年齡層。請左右滑動並選擇您的年齡層",
+                "actions": [
+                  {
+                    "type": "postback",
+                    "label": "年齡:20以下",
+                    "text": "年齡:20以下",
+                    "data": "Questionnaire_年齡:20以下"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "年齡:21-30",
+                    "text": "年齡:21-30",
+                    "data": "Questionnaire_年齡:21-30"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "年齡:31-40",
+                    "text": "年齡:31-40",
+                    "data": "Questionnaire_年齡:31-40"
+                  }
+                ]
+              },
+              {
+                "text": "您的年齡層。請左右滑動並選擇您的年齡層",
+                "actions": [
+                  {
+                    "type": "postback",
+                    "label": "年齡:41-50",
+                    "text": "年齡:41-50",
+                    "data": "Questionnaire_年齡:41-50"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "年齡:51-64",
+                    "text": "年齡:51-64",
+                    "data": "Questionnaire_年齡:51-64"
+                  },
+                  {
+                    "type": "postback",
+                    "label": "年齡:65以上",
+                    "text": "年齡:65以上",
+                    "data": "Questionnaire_年齡:65以上"
+                  }
+                ]
+              }
+            ]
+          }
+        });
+      }
+      else if(para == '年齡'){
+        msgObj.message = '感謝您填寫問卷!' ;
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        //bot.push(obj.id,msgObj.message);
+        event.reply({ type: 'text', text: msgObj.message });
+      }
+      else{
+        event.reply({
+          "type": "template",
+          "altText": "問券調查part1",
+          "template": {
+            "type": "buttons",
+            "title": "問券調查:性別",
+            "text": "請選擇您的性別",
+            "actions": [{
+              "type": "postback",
+              "label": "性別:男",
+              "text": "性別:男",
+              "data": "Questionnaire_性別:男"
+            },{
+              "type": "postback",
+              "label": "性別:女",
+              "text": "性別:女",
+              "data": "Questionnaire_性別:女"
+            }]
+          }
+        });
+        msgObj.message = '詢問客戶資料(性別)';
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+      }
+
+
+    }
+    else{
+      tinistartAns(event);
+    }
+
+    function tinistartAns(event) {
+      var gsjson = require('google-spreadsheet-to-json');
+
+      gsjson({
+        spreadsheetId: '1ZhR-f6BVHp4kIzBQL_VK9BDP4AS0KDTESYqq22RrtOA',
+        hash : 'id'
+        // other options...
+      })
+      .then(function(result) {
+        let ansId = event.postback.data;
+        console.log(ansId);
+        //console.log(result.length);
+        //console.log(result);
+        let ans = result[ansId].ans ;
+        let que = result[ansId].question ;
+        var msg = 'Q :\n'+que+'\n'+'A :\n'+ans ;
+        msgObj.owner = "agent";
+        msgObj.name ='apiai';
+        msgObj.time = nowTime;
+        msgObj.id = receiverId;
+        msgObj.message = msg ;
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        event.reply({ type: 'text', text: msg });
+      })
+      .catch(function(err) {
+        console.log(err.message);
+        console.log(err.stack);
+      });
+
+    }
+    function updateProfile(survey) {
+      /*
+      survey:{id ,para ,value }
+      //*//*
+      let survey = {id:'',para:'',value:''};
+      let pos = event.message.text.indexOf(':');
+      let para = event.message.text.substring(0,pos);
+      let value = event.message.text.substring(pos+1);
+      survey.id = event.source.userId;
+      survey.para = para;
+      survey.value = value ;
+      //*/
+      console.log(survey);
+      for( let i in chatData ) {
+        if( chatData[i].Profile.userId == survey.id ) {
+          console.log('match!updating profile...')
+          let obj = {};
+          obj['/'+survey.para] = survey.value;
+          newDBRef.child(i).child("Profile").update(obj);
+          break;
+        }
+      }
+    }
+
+  });
+}
+
+// 群組webhook
+app.post('/linehook1', function() {
+  console.log("linehook1 arguments length = "+arguments.length);
+  linebotParser[0](arguments[0], arguments[1], arguments[2]);
+});
+app.post('/linehook2', function() {
+  console.log("linehook2 arguments length = "+arguments.length);
+  linebotParser[1](arguments[0], arguments[1], arguments[2]);
+});
+
+/**
+* Socket.io 傳訊息
+*/
+
+io.sockets.on('connection', (socket) => {
+
+  socket.on('get inside chat', (data) => {
+    let thisAgentData = [];
+    for( let i in agentChatData ){
+      if( agentChatData[i].Profile.agent.indexOf(data.id) != -1 ) thisAgentData.push( agentChatData[i] );
+    }
+
+    socket.emit('push inside chat', thisAgentData);
+  });
+
+  // 更新群組
+  socket.on('update bot', (data) => {
+    update_line_bot(data);
+  });
+
+  socket.on('request line channel', (userId)=> {
+    console.log("userId = "+userId);
+    firebase.database().ref('users/' + userId).once('value', snap => {
+      let chatInfo = snap.val();
+      let chanId_1 = chatInfo.chanId_1;
+      let chanId_2 = chatInfo.chanId_2;
+      console.log("response line channel, channelId = "+chanId_1+', '+chanId_2);
+      socket.emit('response line channel', {
+        chanId_1: chanId_1,
+        chanId_2: chanId_2
+      });
+    });
+  });
+  function update_line_bot( chanInfo ) {
+    console.log("update_line_bot");
+    console.log("chanInfo: ");
+    console.log(chanInfo);
+    if( bot[0] ) bot[0]._events = {};
+    if( bot[1] ) bot[1]._events = {};
+    for( let i=0; i<chanInfo.length; i++ ) {
+      console.log("update Line channel_"+i+" information.");
+      bot[i] = linebot(chanInfo[i]);
+      linebotParser[i] = bot[i].parser();
+      bot[i].on('message', bot_on_message);
+      bot[i].on('postback', bot_on_postback);
+
+      channelIds[i] = chanInfo[i].channelId;
+
+      console.log('update done');
+    }
+  }
+
+
+  // 新使用者
+  socket.on('new user', (data, callback) => {
+    console.log(data);
+    if (data in users) {
+      callback(false);
+    }
+    else {
+      callback(true);
+      socket.nickname = data;
+      users[socket.nickname] = socket;
+    }
+  });
+
+  socket.on('get tags from chat', data => {
+    console.log("tags socket");
+    socket.emit('push tags to chat', tagsData);
+  });
+
+  socket.on('get tags from tags', data => {
+    socket.emit('push tags to tags', tagsData);
+  });
+
+  socket.on('update tags', data => {
+    console.log(data);
+    let updateObj = {};
+    updateObj['/Data'] = data;
+    tagsRef.update(updateObj);
+  });
+
+  socket.on('get json from back', (data, callback) => {
+    console.log("chat data socket");
+    let sendData = [];
+    for( let i in chatData ) {
+      console.log("i="+i);
+      let profile = chatData[i].Profile;
+      let _lastMsg = chatData[i].Messages[ chatData[i].Messages.length-1 ];
+      if( profile.recentChat != _lastMsg.time ) {
+        console.log( "ID = "+profile.userId+" update time!");
+        profile.recentChat = _lastMsg.time;
+
+        let timeArr = chatData[i].Messages.map( function(ele) {
+          return ele.time;
+        });
+        let times = [];
+        let j=0;
+        const GAP = 1000*60*15; //15 min
+        let headTime;
+        let tailTime;
+        while( j<timeArr.length ) {
+          // console.log("j = "+j);
+          headTime = tailTime = timeArr[j];
+          while( timeArr[j]-tailTime < GAP ) {
+            tailTime = timeArr[j];
+            j++;
+            if( j==timeArr.length ) break;
+          }
+          let num = tailTime-headTime;
+          if( num<1000 ) num = 1000;
+          times.push(num);
+        }
+        let sum = 0;
+        for( let j in times ) sum += times[j];
+        sum /= 60000;
+        profile.totalChat = sum;
+        profile.avgChat = sum/times.length;
+        profile.chatTimeCount = times.length;
+        if( isNaN(profile.avgChat) || profile.avgChat<1 ) profile.avgChat = 1;
+        if( isNaN(profile.totalChat) || profile.totalChat<1 ) profile.totalChat  = 1;
+
+        let updateObj = {};
+        newDBRef.child(i).child("Profile").update({
+          "avgChat": profile.avgChat,
+          "totalChat": profile.totalChat,
+          "chatTimeCount": profile.chatTimeCount,
+          "recentChat": profile.recentChat,
+          "平均每次聊天時間": profile.avgChat,
+          "總共聊天時間": profile.totalChat,
+          "聊天次數": profile.chatTimeCount,
+          "上次聊天時間": profile.recentChat
+        });
+      }
+
+      console.log("update done or no need up");
+      let msgs = chatData[i].Messages;
+      let position = 0;
+      if( msgs.length>20 ) {
+        position = msgs.length-20;
+        msgs = msgs.slice(position);
+      }
+      sendData.push({
+        Messages: msgs,
+        position: position,
+        Profile: profile
+      });
+      console.log("push done");
+    }
+    // console.log(sendData);
+    socket.emit('push json to front', sendData);
+    console.log('push json to front');
+    console.log(sendData);
+  });
+
+  socket.on('upload history msg from front', data => {
+    console.log('upload history msg of userId = '+data.userId+', head = '+data.head+', tail = '+data.tail);
+    let userId = data.userId;
+    let head = data.head;
+    let tail = data.tail;
+    let sendData = [];
+
+    for( let i in chatData ) {
+      if( chatData[i].Profile.userId==userId ) {
+        for( let j=head; j<tail+1; j++ ) {
+          // console.log(chatData[i].Messages[j]);
+          sendData.push( chatData[i].Messages[j] );
+        }
+        break;
+      }
+    }
+    console.log("sendData = ");
+    console.log(sendData);
+    socket.emit('upload history msg from back', {
+      userId: userId,
+      messages: sendData
+    });
+  });
+
+  socket.on('read message', (data) => {
+    console.log("agent read message of user "+data.id);
+    for( let i in chatData ) {
+      if( chatData[i].Profile.userId == data.id ) {
+        newDBRef.child(i).child("Profile").update({
+          "unRead": 0,
+        });
+        break;
+      }
+    }
+  });
+
+  // 從SHIELD chat傳送訊息
+  socket.on('send message', (data, callback) => {
+    console.log(data);
+    let msg = data.msg.trim();
+    let agent_sendTo_receiver = data.id.trim();
+    let msg_time = data.msgtime;
+    let chanId = data.room;
+    console.log(agent_sendTo_receiver);
+
+    if(socket.nickname !== undefined){
+      agent_nickname = socket.nickname;
+    } else {
+      agent_nickname = 'agent';
+    }
+
+    var message;
+    let nowTime = Date.now();
+
+    {
+      if(msg.includes('/image')){
+        let link = msg.substr(7);
+        // console.log(link);
+        message = {
+          type: "image",
+          originalContentUrl: link,
+          previewImageUrl: link
+        };
+      }
+      else if(msg.includes('/audio')){
+        let link = msg.substr(7);
+        // console.log(link);
+        message = {
+          type: "audio",
+          originalContentUrl: link,
+          duration: 6000
+        };
+      }
+      else if(msg.includes('/video')){
+        let link = msg.substr(7);
+        // console.log(link);
+        message = {
+          type: "video",
+          originalContentUrl: link,
+          previewImageUrl: "https://www.movienewsguide.com/wp-content/uploads/2016/03/Phoenix-Suns.jpg"
+        };
+      }
+      else if (msg.includes('/sticker')) {
+        message = {
+          type: "sticker",
+          packageId: parseInt(msg.substr(msg.indexOf(' '))),
+          stickerId: parseInt(msg.substr(msg.lastIndexOf(' ')))
+        };
+      }
+      else {
+        message = {
+          type: "text",
+          text: msg
+        };
+      }
+    }
+    // 訊息傳到LINE
+    if (agent_sendTo_receiver !== undefined ) { // 需要新增一個判斷式來分別出要傳訊息給哪一間聊天室
+      if(chanId === 'Line_1_room'){
+        bot[0].push(agent_sendTo_receiver, message);
+      } else if(chanId === 'Line_2_room') {
+        bot[1].push(agent_sendTo_receiver, message);
+      } else {
+        console.log('push to fb');
+      }
+    }
+    else {
+      console.log("agent_sendTo_receiver undefined!");
+    }
+
+    for( let i in chatData ) {
+      if( chatData[i].Profile.userId == data.id ) {
+        var unRead_fromProfile = chatData[i].Profile.unRead;
+        break;
+      }
+    }
+
+    var msgObj = {
+      owner: "agent",
+      name: agent_nickname,
+      time: nowTime,
+      message: "undefined_message"
+    };
+
+    if (msg.includes('/image')) {
+      msgObj.message = 'Send image to user';
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+    }
+    else if (msg.includes('/audio')) {
+      msgObj.message = 'Send audio to user';
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+    }
+    else if (msg.includes('/video')) {
+      msgObj.message = 'Send video to user';
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+    }
+    else if ( isUrl(msg) ) {
+      let urlStr = '<a href=';
+      if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
+        urlStr += '"https://';
+      }
+      msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+
+    }
+    else if (msg.includes('/sticker')) {
+      msgObj.message = 'Send sticker to user';
+      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+    }
+    else {
+      msgObj.message = msg;
+      if(chanId === 'Line_1_room'){
+        emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      } else if(chanId === 'Line_2_room') {
+        emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      } else {
+        console.log('push to fb')
+      }
+    }
+  });//sent message
+
+  socket.on('get profile', (id, callback) => {
+    console.log("get profile");
+    console.log(id);
+    for( let i in chatData ) {
+      if( chatData[i].Profile.userId == id ) {
+        console.log("match!");
+        socket.emit('show profile',chatData[i].Profile);
+      }
+    }
+  });
+
+  socket.on('update profile', (data, callback) => {
+    console.log("update profile");
+    for( let i in chatData ) {
+      if( chatData[i].Profile.userId == data.userId ) {
+        let updateObj = {};
+        for( let prop in data ) {
+          updateObj[prop] = data[prop];
+        }
+        console.log(updateObj);
+        newDBRef.child(i).child("Profile").update(updateObj);
+        break;
+      }
+    }
+  });
+
+  socket.on('get json from agentChat', (data) => {
+    let thisAgentData = [];
+    for( let i in agentChatData ){
+      if( agentChatData[i].Profile.agent.indexOf(data.id) != -1 ) thisAgentData.push( agentChatData[i] );
+    }
+
+    let sendData = [];
+    for( let i in thisAgentData ) {
+      let msgs = thisAgentData[i].Messages;
+      if( !msgs ) msgs = [];
+      let position = 0;
+      if( msgs.length>20 ) {
+        position = msgs.length-20;
+        msgs = msgs.slice(position);
+      }
+      sendData.push({
+        Messages: msgs,
+        position: position,
+        Profile: thisAgentData[i].Profile
+      });
+    }
+    socket.emit('push json to agentChat', sendData);
+  });
+
+  socket.on('upload history msg from front agentChat', data => {
+    console.log('upload history msg of roomId = '+data.roomId+', head = '+data.head+', tail = '+data.tail);
+    let roomId = data.roomId;
+    let head = data.head;
+    let tail = data.tail;
+    let sendData = [];
+
+    for( let i in agentChatData ) {
+      if( agentChatData[i].Profile.roomId==roomId ) {
+        for( let j=head; j<tail+1; j++ ) {
+          console.log("j = "+j);
+          sendData.push( agentChatData[i].Messages[j] );
+        }
+        break;
+      }
+    }
+    console.log("sendData = ");
+    console.log(sendData);
+    socket.emit('upload history msg from back agentChat', {
+      roomId: roomId,
+      messages: sendData
+    });
+
+  });
+
+  socket.on('read message agentChat', data => {
+    for( let prop in agentChatData ) {
+      if( agentChatData[prop].Profile.roomId == data.roomId ) {
+        let unRead = agentChatData[prop].Profile.unRead;
+        if( unRead ) {
+          let pos = unRead.indexOf(data.reader);
+          if( pos!=-1 ) unRead.splice(pos,1);
+        }
+        else unRead = [];
+        agentDBRef.child(prop).child("Profile/unRead").set(unRead);
+      }
+    };
+  });
+
+  socket.on('send message agentChat', (data, callback) => {
+    // console.log(data);
+    let msg = data.msg.trim();
+    let receive_room = data.roomId.trim();
+    let nowTime = Date.now();
+
+    console.log(receive_room);
+    if(socket.nickname !== undefined){
+      agent_nickname = socket.nickname;
+    } else {
+      agent_nickname = 'agent';
+    }
+
+    var msgObj = {
+      name: data.sender,
+      time: nowTime,
+    };
+    function emitIO_and_pushDB(obj) {
+      console.log("sending object agent2: ");
+      console.log(obj);
+
+      console.log("sending to new firebase database");
+      sendToNewFb(obj);
+      console.log("sending to new io sockets...");
+      sendToFrontSocket(obj);
+      console.log("All sent!");
+    }
+
+    function sendToNewFb(obj){
+      for( let prop in agentChatData ) {
+        console.log("find next room data");
+        if(agentChatData[prop].Profile.roomId == receive_room) {
+          console.log("find the same room");
+          let length = agentChatData[prop].Messages.length - 1;
+          let updateObj = {};
+          updateObj['/'+prop+'/Messages/'+length] = obj;
+
+          let unRead = agentChatData[prop].Profile.agent;
+          unRead.splice( unRead.indexOf( data.sender ), 1 );
+          updateObj['/'+prop+'/Profile/unRead'] = unRead;
+
+          agentDBRef.update(updateObj);
+          flag = false;
+          break;
+        }
+      }
+    }
+
+    function sendToFrontSocket(obj) {
+      obj.roomId = receive_room;
+      io.sockets.emit('new message agentChat', obj);
+    }
+
+    if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
+      let urlStr = '<a href=';
+      if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
+        urlStr += '"https://';
+      }
+      msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
+      emitIO_and_pushDB(msgObj);
+
+    } else if (msg.includes('/sticker')) {
+      stickerId = msg.substr( msg.indexOf(' ')+1 );
+      msgObj.message = '<img src="https://sdl-stickershop.line.naver.jp/stickershop/v1/sticker/'+stickerId+'/android/sticker.png"' +
+      emitIO_and_pushDB(msgObj);
+
+    } else {
+      msgObj.message = msg;
+      emitIO_and_pushDB(msgObj);
+    }
+  });//sent message
+
+  socket.on('update profile agentChat', (data, callback) => {
+    console.log("update profile");
+    for( let i in agentChatData ) {
+      if( agentChatData[i].Profile.roomId == data.roomId ) {
+        agentDBRef.child(i).child("Profile").update(data);
+        return;
+      }
+    }
+    console.log("new room come in!");
+
+    let nowTime = Date.now();
+    data.firstChat = nowTime;
+    data.recentChat = nowTime;
+    data.unRead = JSON.parse(JSON.stringify(data.agent));
+    data.unRead.splice(data.unRead.indexOf(data.owner),1);
+    console.log("data: ");
+    console.log(data);
+
+    agentDBRef.push({
+      Messages: [{
+        message: "group establish",
+        name: "System",
+        time: nowTime
+      }],
+      Profile: data
+    });
+  });
+
+  getTicketfromFD();
+  socket.emit('all tickets info', viewTicket);
+  socket.emit('all agents info', viewAgent);
+  socket.emit('all contacts info', viewContact);
+
+  socket.on('update ticket', (data, callback) => {
+    console.log(data) ;
+    updateTicket(data) ;
+  });
+  socket.on('get ticket', (data ,callback) => {
+    console.log(data) ;
+    getUserTicket(data);
+
+  });
+  function getUserTicket(data) {
+    var email = data.email ;
+    var id = data.id ;
+    var URL_ticket =  "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/tickets?email="+email;
+    var viewRequest_ticket = unirest.get(URL_ticket);
+
+    viewRequest_ticket.auth({
+      user: API_KEY,
+      pass: "X",
+      sendImmediately: true
+    })
+    .end(function(response){
+      console.log("Ticket Response Status : " + response.status)
+      if(response.status != 200){
+        console.log("X-Request-Id :" + response.headers['x-request-id']);
+        return ;
+      }
+      socket.emit('push user ticket',{
+        id: id,
+        ticket: response.body
+      });
+    });
+  }
+
+  socket.on('disconnect', (data) => {
+    if (!socket.nickname) return;
+    delete users[socket.nickname];
+  });
+});
+
+
+// FUNCTION //
+
+function emitIO_and_pushDB(obj, pictureUrl, channelId, receiverId, unRead) {
+  console.log("CCOORRECT EMIT");
+  console.log("");
+  console.log("sending object: ");
+  console.log(obj);
+  console.log("(channelId, receiverId) = (" + channelId + ", " + receiverId + ")");
+
+  console.log("sending to firebase database...");
+  send_to_firebase(obj, pictureUrl, channelId, receiverId, unRead);
+}
+
+function send_to_firebase(obj, pictureUrl, channelId, receiverId, unRead){
+  let flag = true;
+  let count_unread = unRead;    //0 or 1
+  for( let prop in chatData ) {
+    let data = chatData[prop];
+    if( data.Profile.channelId==channelId && data.Profile.userId==receiverId) {
+      console.log("find user in database");
+      let length = data.Messages.length;
+      count_unread += data.Profile.unRead;
+      let updateObj = {};
+      updateObj['/'+prop+'/Messages/'+length] = obj;
+      updateObj['/'+prop+'/Profile/unRead'] = count_unread;
+      if( pictureUrl ) updateObj['/'+prop+'/Profile/pictureUrl'] = pictureUrl;
+      newDBRef.update(updateObj);
+
+      console.log('finish update db. chatData[prop] = ');
+      console.log(data);
+
+      flag = false;
+      break;
+    }
+  }
+  if( flag ) {
+    console.log("new user come in");
+    let newData = {
+      Profile: {
+        nickname: obj.name,
+        userId: receiverId,
+        channelId: channelId,
+        age: -1,
+        telephone: "",
+        address: "",
+        firstChat: Date.now(),
+        首次聊天時間: Date.now(),
+        recentChat: Date.now(),
+        上次聊天時間: Date.now(),
+        totalChat: 1,
+        總共聊天時間: 1,
+        avgChat: 1,
+        平均每次聊天時間: 1,
+        聊天次數: 1,
+        unRead: 1,
+        photo: pictureUrl? pictureUrl :""
+      },
+      Messages: [obj]
+    };
+    newDBRef.push(newData);
+    io.sockets.emit('new user profile', newData.Profile);
+  }
+
+  console.log("sending to io sockets...");
+  send_to_frontSocket(obj, pictureUrl, channelId, receiverId, count_unread);
+
+}
+
+function send_to_frontSocket(obj, pictureUrl, channelId, receiverId, unRead) {
+  let data = JSON.parse(JSON.stringify(obj));
+  data.unRead = unRead;
+  data.channelId = channelId;
+  data.id = receiverId;
+  data.pictureUrl = pictureUrl;
+  console.log('push to front object: ');
+  console.log(data);
+  io.sockets.emit('new message', data);
+
+  console.log("All sent!");
+}
+
+function loadFbProfile(obj, psid){
+  console.log("FB obj: ");
+  console.log(obj);
+  // fb_bot.webhook('/webhook');
+  fb_bot.getProfile(psid).then(function(data) {
+    console.log("profile data: ");
+    console.log(data);
+    var fb_user_name = data.first_name +' '+ data.last_name;
+    var fb_user_profilePic = data.profile_pic;
+    var fb_user_locale = data.locale;
+    var fb_user_gender = data.gender;
+    if (obj.message.attachments) {
+      //Checking if there are any image attachments
+      if(obj.message.attachments[0].type === "image"){
+        var imageURL = obj.message.attachments[0].payload.url;
+        obj.message = '<img src="'+imageURL+'"/>';
+      }//if image
+      else if (obj.message.attachments[0].type === "video"){
+        var videoURL = obj.message.attachments[0].payload.url;
+        obj.message = '<video controls><source src="'+videoURL+'" type="video/mp4"></video>';
+
+      }//if video
+      else if (obj.message.attachments[0].type === "audio"){
+        var audioURL = obj.message.attachments[0].payload.url;
+        obj.message = '<audio controls><source src="'+audioURL+'" type="audio/mpeg"/></audio>';
+
+      }//if audio
+      else if (obj.message.attachments[0].type === "file"){
+        var fileURL = obj.message.attachments[0].payload.url;
+        obj.message = 'The user sent a file, click <a target="blank" href="'+fileURL+'">HERE</a> for download.';
+
+      }//if audio
+      else if (obj.message.attachments[0].type === "location"){
+        var locateURL = obj.message.attachments[0].url;
+        obj.message = 'The user sent a location, click <a target="blank" href="'+locateURL+'">HERE</a> for map link.';
+
+      }//if location
+    }
+    else {
+      obj.message = obj.message.text;
+    }
+
+    for( let prop in chatData ) {
+      if(chatData[prop].Profile.userId == obj.sender.id) {
+        var count_unread_toFront = chatData[prop].Profile.unRead;
+        count_unread_toFront++;
+      }
+    }//for let prop in chatData
+
+    obj.id = obj.sender.id;
+    obj.owner = obj.recipient.id;
+    obj.name =  fb_user_name;
+    obj.time = obj.timestamp;
+    obj.unRead = count_unread_toFront;
+    io.sockets.emit('new message', obj);
+
+    //======receive message==========
+
+    var senderID = obj.sender.id;
+    var recipientID = obj.recipient.id;
+    var timeOfMessage = obj.timestamp;
+    var message_text = obj.message;
+
+    console.log("Received message for user %d and page %d at %d with message:",
+    senderID, recipientID, timeOfMessage);
+    console.log(JSON.stringify(obj.message));
+
+    //===========================================
+
+    //=============saving to database============
+    let message_lineTochat = message_text;
+    let receiverId = senderID;
+    let receiver_name = fb_user_name;
+    let nowTime = Date.now();
+
+    var msgObj = {
+      owner: "user",
+      name: receiver_name,
+      time: nowTime,
+      message: message_lineTochat,
+      id: receiverId,
+      prof_pic: fb_user_profilePic,
+      locale: fb_user_locale,
+      gend: fb_user_gender
+    };
+
+    emitIO_and_pushDB(msgObj, fb_user_profilePic, 'FB', receiverId, count_unread_toFront);
+  }).catch(function(error) {
+    console.log('facebook message error: ' + error);
+  });//fb_bot
+
+}//loadFbProfile
+
+
+//==================ticket=======================
+
+function getTicketfromFD() {
+
+  var URL_ticket =  "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/tickets";
+  var URL_agent = "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/agents"
+  var URL_contact = "https://" + FD_ENDPOINT + ".freshdesk.com/api/v2/contacts"
+
+  var viewRequest_contact = unirest.get(URL_contact);
+
+  viewRequest_contact.auth({
+    user: API_KEY,
+    pass: "X",
+    sendImmediately: true
+  })
+  .end(function(response){
+    viewContact = response.body;
+    console.log("Contact Response Status : " + response.status)
+    if(response.status != 200){
+      console.log("X-Request-Id :" + response.headers['x-request-id']);
+    }
+  });
+
+
+  var viewRequest_agent = unirest.get(URL_agent);
+
+  viewRequest_agent.auth({
+    user: API_KEY,
+    pass: "X",
+    sendImmediately: true
+  })
+  .end(function(response){
+    viewAgent = response.body;
+    console.log("Agent Response Status : " + response.status)
+    if(response.status != 200){
+      console.log("X-Request-Id :" + response.headers['x-request-id']);
+    }
+  });
+
+
+  var viewRequest_ticket = unirest.get(URL_ticket);
+
+  viewRequest_ticket.auth({
+    user: API_KEY,
+    pass: "X",
+    sendImmediately: true
+  })
+  .end(function(response){
+    viewTicket = response.body;
+    console.log("Ticket Response Status : " + response.status)
+    if(response.status != 200){
+      console.log("X-Request-Id :" + response.headers['x-request-id']);
+    }
+  });
+}
+//-----------------------ticket---------------------*/
+
+
+function isUrl(str) {
+  if(str.indexOf('.com') !== -1 ) return true;
+  else if(str.indexOf('.edu') !== -1 ) return true;
+  else if(str.indexOf('.net') !== -1 ) return true;
+  else if(str.indexOf('.io') !== -1 ) return true;
+  else if(str.indexOf('.org') !== -1 ) return true;
+  return false;
+}
+
+
+function vote(voter, time, categoryName, workerName, groupName, score) {
+    console.log(time);
+    let categoryId;
+    let workerId;
+    let groupId;
+
+    let timer = setInterval(insert_vote, 10);
+    //因前面幾個資料庫操作是異步操作 可能會發生還沒抓完資料就繼續執行的情況
+    //所以用setInterval包起來，確認值都有收到後，再寫進資料庫並停止setInterval
+    function insert_vote() {
+        if (!categoryId || !workerId || !groupId) return;
+        clearInterval(timer);
+        let obj = {
+            vote_voter: voter,
+            vote_time: time,
+            category_id: categoryId,
+            worker_id: workerId,
+            group_id: groupId,
+            vote_score: score
+        };
+        console.log("to insert obj = ");
+        console.log(obj);
+
+        // con.query("INSERT INTO shield.vote SET ? ", obj, function(err, rows) {
+        //     if (err) {
+        //         console.log("ERROR INSERT VOTE");
+        //         throw err;
+        //     } else {
+        //         console.log("SUCCESS INSERT VOTE! obj =");
+        //         console.log(obj);
+        //     } //end else
+        // }); //end con.query
+    } //end insert_vote
+}
+
+
+// EXPRESS functions and app use, KEEP THEM AT THE BOTTOM
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+/**
+* Normalize a port into a number, string, or false.
+*/
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+* Event listener for HTTP server "error" event.
+*/
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string' ?
+  'Pipe ' + port :
+  'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+    console.error(bind + ' requires elevated privileges');
+    process.exit(1);
+    break;
+    case 'EADDRINUSE':
+    console.error(bind + ' is already in use');
+    process.exit(1);
+    break;
+    default:
+    throw error;
+  }
+}
+
+/**
+* Event listener for HTTP server "listening" event.
+*/
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string' ?
+  'pipe ' + addr :
+  'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

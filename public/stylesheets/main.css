@@ -183,19 +183,14 @@ input {
 }
 #home {
   position: relative;
-  left: 300px;
-  width: 73%;
+  padding: 0 50px;
 }
 #calendar-wrap, #profile-wrap, #ticket-wrap {
   position: relative;
-  left: 250px;
-  width: 78%;
 }
 
 #form-wrap, #view-wrap  {
   position: relative;
-  left: 270px;
-  width: 75%;
 }
 
 /*Ticket*/

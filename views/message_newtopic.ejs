@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <title><%= title %></title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+      <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
+      <%# 自己的code%>
+      <link rel="stylesheet" href="stylesheets/main.css" />
+   </head>
+   <body>
+      <div id="wrapper">
+         <!-- Navigation -->
+         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+               <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+               <span class="sr-only">Toggle navigation</span>
+               <span class="icon-bar"></span>
+               <span class="icon-bar"></span>
+               <span class="icon-bar"></span>
+               </button>
+               <a class="navbar-brand" href="/">PS Admin</a>
+            </div>
+            <!-- /.navbar-header -->
+            <ul class="nav navbar-top-links navbar-right">
+               <!-- /.dropdown -->
+               <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                  <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                  </a>
+                  <ul class="dropdown-menu dropdown-user">
+                     <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                     </li>
+                     <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                     </li>
+                     <li class="divider"></li>
+                     <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                     </li>
+                  </ul>
+                  <!-- /.dropdown-user -->
+               </li>
+               <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+            <div class="navbar-default sidebar" role="navigation">
+               <div class="sidebar-nav navbar-collapse">
+                  <ul class="nav" id="side-menu">
+                     <li>
+                        <a href="/" class="active"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                     </li>
+                     <li>
+                        <a href="/chat"><i class="fa fa-commenting fa-fw"></i> Chat</a>
+                     </li>
+                     <li>
+                        <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
+                     </li>
+
+                     <li>
+                        <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
+                     </li>
+
+                     <li id="message">
+                        <a href="#"><i class="fa fa-indent" aria-hidden="true"></i> Message</a>
+                     </li>
+                     <li class="subTag" style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_overview"> Overview</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_newtopic"> New Topic</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_autoreply"> Auto Reply</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_keywordsreply"> Keywords Reply</a>
+                     </li>
+                     <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
+                        <a href="/message_addfriendreply"> Add Friend Reply</a>
+                     </li>
+
+                  </ul>
+               </div>
+               <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+         </nav>
+      </div>
+      <div id="home">
+		<h3> Message: Add New Topics</h3>
+		<p>You can add, edit, and test the message you want to send to LINE@</p>
+        <p>NOTE FOR DEVELOPERS: <br/>
+    1. text 完成<br/>
+    2. 限制只能三則訊息<br/>
+    3. 和Chat串連發送訊息<br/>
+    4. 做Preview/ save功能<br/>
+    5. Sticker部分可研究：http://pank.org/blog/2016/05/line-bot-api.html<br/>
+    6. emoji未完成
+    </p>
+
+  <button class="tablinks" rel="Appointment">Preview Message</button>
+  <button class="tablinks" rel="Draft" >Save Draft</button>
+  <button class="tablinks" rel="History" style="float:right; width:20%">Send</button>
+
+<table>
+  <tr>
+    <th>Limit Users</th>
+    <td>
+    <form >
+  <input type="checkbox" name="Dateandtime" value="Time"> Send All
+<br>
+  <input type="checkbox" name="SendNow" value="SendNow"> <a id="setlimit" rel="limituser">Send to Limited Users</a><br>
+</form>
+</td>
+  </tr>
+</table>
+<!-- LIMIT USER -->
+<div id="limituser" style="display:none">
+<table>
+<tr>
+<td style="color:red">NOTE: You have to have 100+ friends to activate this function.</td>
+</tr>
+<tr>
+<td>
+<p><b>Filter by User Attributes</b></p>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="text" >Age</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="sticker">Sex</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="image" >Location</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="coupon">Platform</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" class="tablinks" rel="election" >Time since add friend</button>
+</td>
+</tr>
+<tr>
+<td><b>Selected Users Percentage</b> <p style="color:red">This is not available yet.</p>
+</td>
+</tr>
+<tr>
+<th>Tags(optional)   <input placeholder="example: female ios"></th>
+
+</tr>
+</table>
+</div>
+
+<table>
+  <tr>
+    <th>Set time and date</th>
+    <td>
+    <form >
+  <input type="checkbox" name="Dateandtime" value="Time"> Date and Time:  <input type="datetime-local" id="endDate" style="width:20%" />
+<br>
+  <input type="checkbox" name="SendNow" value="SendNow"> Send Now<br>
+</form>
+</td>
+  </tr>
+  <tr>
+    <th>Also send to main page</th>
+    <td>
+    <p>Note: You can only post one message at a time on your mainpage.</p>
+   <form>
+  <input type="checkbox" name="yes" value="yes"> Yes<br>
+  <input type="checkbox" name="no" value="no"> No<br>
+</form>
+    </td>
+  </tr>
+</table>
+
+<section>
+<!--TEXT AREA -->
+<div>
+ <table id="text">
+
+</table>  
+
+<!--EMOJI PLUGINS(UNDONE) -->
+<div id="emos" style="display:none; position:fixed; padding:5%; background-color: lightgrey; width:30%; height:30%">
+      <button class="tablinks" id="emojis" rel="(moonwink)"><img/></button>
+      <button class="tablinks" id="emojis">Emoji</button>
+      <button class="tablinks" id="emojis">Emoji</button>
+      <button class="tablinks" id="emojis">Emoji</button>
+      <button class="tablinks" id="emojis">Emoji</button>
+      <button class="tablinks" rel="Appointment">Emoji</button>
+      <button class="tablinks" rel="Appointment">Emoji</button>
+      <button class="tablinks" rel="Appointment">Emoji</button>
+      <button class="tablinks" rel="Appointment">Emoji</button>
+      <button class="tablinks" rel="Appointment">Emoji</button>
+      <button class="tablinks" rel="Appointment">Emoji</button>
+      <button class="tablinks" rel="Appointment">Emoji</button>
+      <button class="tablinks" rel="Appointment">Emoji</button>
+
+</div>
+</div>
+<!--STICKER -->
+<div id="sticker" style="display:none">
+ <table>
+  <tr>
+    <th style="height:150px; padding:1.5%; background-color: #ddd; color:red">Sticker is not available now.</th>
+  </tr>
+  <tr>
+    <td style="background-color: #ddd">
+    <form style="padding:1%">
+  </form>
+  </td>
+  </tr>
+</table>  
+</div>
+<!--IMAGE -->
+<table id="image" style="display:none; background-color: lightgrey">
+<th>Choose the image you want to upload.</th>
+<td style="height:200px; width:100%; padding:3%">
+  <input type="file"/>
+</td>
+
+</table>
+
+<!--COUPON -->
+  <table id="coupon" style="display:none;background-color: lightgrey;">
+    <tr>
+      <th>Coupon Content</th>
+      <td style="height:200px; width:100%; padding:3%">There's no coupon currently. Please create one at....</td>
+    </tr>
+  </table>
+
+<!--ELECTION -->
+  <table id="election" style="display:none;background-color: lightgrey;">
+    <tr>
+      <th style="padding:1%">Election Content</th>
+      <td style="height:200px; width:100%; padding:3%">There's no election currently. Please create one at....</td>
+    </tr>
+  </table>
+
+<!--PROMOTION -->
+  <table id="promotion" style="display:none;background-color: lightgrey;">
+    <tr>
+      <th style="padding:1%">Promotion Content</th>
+      <td style="height:200px; width:100%; padding:3%">There's no promotion currently. Please create one at....</td>
+    </tr>
+  </table>
+
+<!--SURVEY -->
+  <table id="survey" style="display:none;background-color: lightgrey;">
+    <tr>
+      <th style="padding:1%">Survey Content</th>
+      <td style="height:200px; width:100%; padding:3%">There's no survey currently. Please create one at....</td>
+    </tr>
+  </table>
+
+</section>
+
+
+
+<table>
+<td style="padding:5%">
+	<p>Note: You can send 3 messages at a time. Please select the type of message you want to send.</p>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="btn-text" >Text</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="btn-sticker">Sticker</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="btn-image" >Image</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="btn-coupon">Coupon</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="btn-election" >Election</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="btn-promotion">Promotion</button>
+  <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="btn-survey" >Survey</button>
+
+</td>
+</table>
+
+</div>
+
+
+  <button class="tablinks" rel="History" style="padding:0.5%; width: 20%; float:left; margin-left:40%; margin-top: 1%">Send</button>
+
+<style>
+
+table {
+	margin-top:2%;
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th{
+	width:15%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+      
+body {font-family: "Lato", sans-serif;}
+
+/* Style the tab */
+div.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    height:auto;
+
+}
+
+/* Style the buttons inside the tab */
+div.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+div.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+div.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+    height:500px;
+}
+
+/* Style the close button */
+.topright {
+    float: right;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.topright:hover {color: red;}
+</style>
+
+
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>      
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/4.1.2/firebase.js"></script>
+      <script src="javascripts/firebaseConfig.js"></script>
+      <script src="javascripts/message_newtopic.js"></script>
+
+
+   </body>
+</html>
