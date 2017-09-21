@@ -16,19 +16,15 @@ const database = firebase.database();
 if(window.location.pathname === '/login' || window.location.pathname === '/signup'){
   auth.onAuthStateChanged(user => {
     if(user){
-      window.location = '/';
+      window.location = '/chat';
     } else {
       console.log('need to sign in');
     }
   });
 } else {
   auth.onAuthStateChanged(user => {
-    if(user){
-      // console.log(user.email);
-      console.log('firebase signed in');
-    } else {
-      // console.log('need to sign in');
-      window.location.assign("/login");
+    if(!user){
+      window.location = '/login';
     }
   });
 }
@@ -37,6 +33,6 @@ if(window.location.pathname === '/login' || window.location.pathname === '/signu
 function logout(){
   auth.signOut()
   .then(response => {
-    window.location.assign("/login");
+    window.location = '/login';
   })
 }

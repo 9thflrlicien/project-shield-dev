@@ -34,11 +34,11 @@ server.on('listening', onListening);
 //config
 var apiai_app = apiai('a84ed63ae3914a1fb4601f2824d4cabd');
 var fb_bot = MessengerPlatform.create({
-  pageID: '1505268191222395',
-  appID: '472206313149798',
-  appSecret: '64f066580f1118cce5277483865680f9',
-  validationToken: '8d651e7bf52b3f923d099302268b8893',
-  pageToken: 'EAAGteBmOVWYBAJShzsZADFojyn9RzSkZC085RXHG4XZCe1ZAYXQ89HcHgUQR7z2ZAfvJ2MJT0nXqGOmeQDooK0FMNk7K1BLJHJ8KUlyI33dcUg221mLr5Ft6GYDQBQ6d5C8pvqy27flm7VNYShR8PAW4mF4bo09Vn90zdNY53tYLT9LeiesXG'
+  pageID: '406189186430126',
+  appID: '2000856436856651',
+  appSecret: '8fcb52e0a39a266bad6ea2eae22aa038',
+  validationToken: 'ee7b84f2219fb9e71738f33ab3c881b0',
+  pageToken: 'EAAcbxLEqV0sBAB4PEmkhaQRJyRTZBs5fm79r5eRt3hrt82OQ5hlDV4SwxoEzWNO05vpSxrY9czCmPjWHe63sZA2q3z2Cz6mP8kJs3k9DZCKml1YV4iQkwOuqZBaTdSTsYz9r7fTWzROZBqeBISHJ196FgcVhpuKPyTh5Vp7Cw4QZDZD'
 });
 var config = {
   apiKey: "AIzaSyCKIPCKJpN1PCqK1EUygD6erNpo2lGmrpA",
@@ -147,6 +147,7 @@ app.post('/webhook', function (req, res) {
         console.log('this is event');
         console.log(event);
         if (event.message) {
+          console.log('Entered');
           loadFbProfile(event, event.sender.id);
         } else {
           console.log("Webhook received unknown event: ", event);
@@ -1399,7 +1400,7 @@ io.sockets.on('connection', (socket) => {
     }
 
     for( let i in chatData ) {
-      if( chatData[i].Profile.userId == data.id ) {
+      if( chatData[i].Profile.userId === data.id ) {
         var unRead_fromProfile = chatData[i].Profile.unRead;
         break;
       }
@@ -1487,6 +1488,8 @@ io.sockets.on('connection', (socket) => {
         emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
       } else if(chanId === 'Line_2_room') {
         emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      } else if(chanId === 'FB_room') {
+        emitIO_and_pushDB(msgObj, null, channelIds[2], agent_sendTo_receiver, 0);
       } else {
         console.log('push to fb')
       }
@@ -1551,7 +1554,7 @@ io.sockets.on('connection', (socket) => {
     let sendData = [];
 
     for( let i in agentChatData ) {
-      if( agentChatData[i].Profile.roomId==roomId ) {
+      if( agentChatData[i].Profile.roomId === roomId ) {
         for( let j=head; j<tail+1; j++ ) {
           console.log("j = "+j);
           sendData.push( agentChatData[i].Messages[j] );
@@ -1570,7 +1573,7 @@ io.sockets.on('connection', (socket) => {
 
   socket.on('read message agentChat', data => {
     for( let prop in agentChatData ) {
-      if( agentChatData[prop].Profile.roomId == data.roomId ) {
+      if( agentChatData[prop].Profile.roomId === data.roomId ) {
         let unRead = agentChatData[prop].Profile.unRead;
         if( unRead ) {
           let pos = unRead.indexOf(data.reader);

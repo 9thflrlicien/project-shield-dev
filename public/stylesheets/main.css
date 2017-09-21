@@ -189,6 +189,10 @@ input {
   position: relative;
 }
 
+#profile-wrap {
+  margin: 0 200px;
+}
+
 #form-wrap, #view-wrap  {
   position: relative;
 }
