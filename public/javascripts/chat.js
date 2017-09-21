@@ -3,7 +3,7 @@ $(document).ready(function() {
   // var unreadCount = 0;
 
   var printAgent = $('#printAgent'); //agent welcome text
-  var messageForm = $('#send-message'); //button for agent to send message
+  // var messageForm = $('#send-message'); //button for agent to send message
   var messageInput = $('#message'); //input for agent to send message
 
   var name_list = []; //list of all users
@@ -59,8 +59,11 @@ $(document).ready(function() {
   $(document).on('click', '#upAud', upAud);
   $(document).on('click', '#save-group-btn', groupSubmit);
   $(document).on('click', '#submitMsg', submitMsg);
-
-
+  $('#message').on('keydown', function(event){
+    if(event.keyCode == 13){
+      document.getElementById('submitMsg').click();
+    }
+  })
   $(document).on('click', '.dropdown-menu', function(event) {
     event.stopPropagation();
   });
@@ -70,18 +73,7 @@ $(document).ready(function() {
     $(this).children('i').toggle();
   });
 
-  // $('#nav_subMenu').on('click', function(){
-  //   console.log('nav_subMenu clicked on line 64');
-  //     var target = $(this).attr('rel');
-  //     console.log('target on line 371.ejs')
-  //     console.log(target);
-  //     if ($("#"+target).is(":visible")){
-  //         $('#check_mark').hide();
-  //     }else{
-  //         $('#check_mark').show()
-  //       }
-  //   });
-
+  // mouse hover the chatApp
   $("#chatApp").hover(
     function() {
       $(this).css('width', '250px').find('h4').delay(50).fadeIn();
@@ -90,6 +82,7 @@ $(document).ready(function() {
       $(this).css('width', '70px').find('h4').hide();
     }
   );
+  // select a group
   $('.chatApp_item[open="true"]').click(function() {
     $(this).addClass('select').siblings().removeClass('select'); // 對點選以外的選項都隱藏
 
@@ -99,34 +92,6 @@ $(document).ready(function() {
     let title = $(this).children('h4').text();
     $(".filter_head #title").html(title);
   });
-
-  $(".filter_head #search").click(function() {
-    if( !$(".tablinks_head").children('.search').is(':visible') ) {
-      $(".tablinks_head").css('height', '+=40px').children('.search').fadeIn('fast');
-    }
-    else {
-      $(".tablinks_head").css('height', '-=40px').children('.search').delay(100).fadeOut('fast');
-    }
-  });
-  $(".filter_head #filter").click(function() {
-    if( !$(".tablinks_head").children('.filterArea').is(':visible') ) {
-      $(".tablinks_head").css('height', '+=320px').children('.filterArea').css('display', 'flex');
-    }
-    else {
-      $(".tablinks_head").css('height', '-=320px').children('.filterArea').delay(100).fadeOut('fast');
-    }
-  });
-
-  // $('.onclick_show').on('click', function() {
-  //   console.log('onclick_show exe');
-  //   var target = $(this).attr('rel');
-  //
-  //   if ($("#" + target).is(":visible")) {
-  //     $("#" + target).hide();
-  //   } else {
-  //     $("#" + target).show();
-  //   }
-  // }); //onclick_show
 
 
   $(document).on("mouseenter", ".message", function() {
@@ -184,26 +149,23 @@ $(document).ready(function() {
         $('.myText').text(groupInfo.group1);
         $('#save-group-btn').hide();
         $('#cls-cal-btn').hide();
-
       })
-
     });//database.ref
   };//end loadGroup
 
-
   function upImg() {
     var imgAtt = $('#attImgFill').val();
-    $('#message').val('<img src="' + imgAtt + '"/>');
+    $('#message').val('<img src="' + imgAtt);
   }
 
   function upVid() {
     var vidAtt = $('#attVidFill').val();
-    $('#message').val('<video controls><source src="' + vidAtt + '" type="video/mp4"></video>');
+    $('#message').val('<video controls><source src="' + vidAtt);
   }
 
   function upAud() {
     var audAtt = $('#attAudFill').val();
-    $('#message').val('<video controls><source src="' + audAtt + '" type="video/mp4"></video>');
+    $('#message').val('<audio controls><source src="' + audAtt);
   }
   setInterval(() => {
     closeIdleRoomTry();
@@ -361,7 +323,7 @@ $(document).ready(function() {
   function pushInfo(data) {
     let profile = data.Profile;
     infoCanvas.append(
-      '<div class="card-group" id="' + profile.userId + '-info" style="display:none">' +
+      '<div class="card-group" id="' + profile.userId + '-info" rel="'+profile.channelId+'-info" style="display:none">' +
       '<div class="card-body" id="profile">' +
       "<div class='photoContainer'>" +
       '<img src="' + profile.photo + '" alt="無法顯示相片" style="width:128px;height:128px;">' +
@@ -505,8 +467,11 @@ $(document).ready(function() {
 
     if(profile.channelId === undefined || profile.channelId === "FB"){
       // console.log('to fb');
+      if( profile.channelId === undefined ) profile.channelId = "FB";
+      // name_list.push(profile.channelId+profile.userId); //make a name list of all chated user
       $('#fb-clients').append(
-        "<b><button style='text-align:left' rel='" + profile.userId + "' class='tablinks'" +
+        "<b><button style='text-align:left' class='tablinks'" +
+        "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
         "data-avgTime='" + profile.avgChat + "' " +
         "data-totalTime='" + profile.totalChat + "' " +
         "data-chatTimeCount='" + profile.chatTimeCount + "' " +
@@ -524,7 +489,8 @@ $(document).ready(function() {
     } else if(profile.channelId === $('#Line_1_room').attr('rel')){
       // console.log('to room 1');
       $('#line1-clients').append(
-        "<b><button style='text-align:left' rel='" + profile.userId + "' class='tablinks'" +
+        "<b><button style='text-align:left' class='tablinks'" +
+        "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
         "data-avgTime='" + profile.avgChat + "' " +
         "data-totalTime='" + profile.totalChat + "' " +
         "data-chatTimeCount='" + profile.chatTimeCount + "' " +
@@ -543,7 +509,8 @@ $(document).ready(function() {
 
       // console.log('to room 2');
       $('#line2-clients').append(
-        "<b><button style='text-align:left' rel='" + profile.userId + "' class='tablinks'" +
+        "<b><button style='text-align:left' class='tablinks'" +
+        "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
         "data-avgTime='" + profile.avgChat + "' " +
         "data-totalTime='" + profile.totalChat + "' " +
         "data-chatTimeCount='" + profile.chatTimeCount + "' " +
@@ -561,14 +528,13 @@ $(document).ready(function() {
     } else {
       console.log('not found');
       console.log("profile.channelId: " + profile.channelId);
-
     }
 
     if(profile.channelId === undefined || profile.channelId == "FB"){
       canvas.append( //push string into canvas
         '<div id="' + profile.userId + '" rel="FB" class="tabcontent"style="display: none;">' +
         '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
-        "<div id='" + profile.userId + "-content' class='messagePanel' data-position='" + data.position + "'>" +
+        "<div id='" + profile.userId + "-content' rel='FB' class='messagePanel' data-position='" + data.position + "'>" +
         historyMsgStr + "</div>" +
         "</div>"
       ); // close append
@@ -576,7 +542,7 @@ $(document).ready(function() {
       canvas.append( //push string into canvas
         '<div id="' + profile.userId + '" rel="'+profile.channelId+'" class="tabcontent"style="display: none;">' +
         '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
-        "<div id='" + profile.userId + "-content' class='messagePanel' data-position='" + data.position + "'>" +
+        "<div id='" + profile.userId + "-content' rel='"+profile.channelId+"' class='messagePanel' data-position='" + data.position + "'>" +
         historyMsgStr + "</div>" +
         "</div>"
       ); // close append
@@ -585,7 +551,7 @@ $(document).ready(function() {
 
 
 
-    if (data.position != 0) $('#' + profile.userId + '-content').on('scroll', function() {
+    if (data.position != 0) $('#' + profile.userId + '-content' + '[rel="'+profile.channelId+'"]').on('scroll', function() {
       detecetScrollTop($(this));
     });
 
@@ -597,8 +563,9 @@ $(document).ready(function() {
     }
     n++;
 
-    name_list.push(profile.userId); //make a name list of all chated user
+    name_list.push(profile.channelId+profile.userId); //make a name list of all chated user
     userProfiles[profile.userId] = profile;
+    console.log(name_list);
 
   }
 
@@ -620,7 +587,7 @@ $(document).ready(function() {
   }
   socket.on('upload history msg from back', data => {
     console.log('get uploaded history msg');
-    let msgContent = $('#' + data.userId + '-content');
+    let msgContent = $('#' + data.userId + '-content' + '[rel="'+data.channelId+'"]');
 
     let origin_height = msgContent[0].scrollHeight;
     msgContent.find('.message:first').remove();
@@ -683,15 +650,16 @@ $(document).ready(function() {
       }); //tell socket that this user isnt unRead
     }
 
-    let target = $(this).attr('rel'); //find the message canvas
-    $('#user-rooms').val(target); //change value in select bar
-    $("#" + target + "-info").show().siblings().hide();
+    let targetRel = $(this).attr('rel'); //find the message rel
+    let targetId = $(this).attr('name'); //find the message id
 
-    $("#" + target).show().siblings().hide(); //show it, and close others
-    $('#' + target + '-content').scrollTop($('#' + target + '-content')[0].scrollHeight); //scroll to down
+    $('#user-rooms').val(targetId); //change value in select bar
+    $("#" + targetId + "-info" + "[rel='"+targetRel+"-info']").show().siblings().hide();
 
-    let profile = userProfiles[target];
-    $('.userPhoto').attr('src', profile.photo ? profile.photo : "");
+    $("#" + targetId + "[rel='"+targetRel+"']").show().siblings().hide(); //show it, and close others
+    $("#" + targetId + "[rel='"+targetRel+"']"+'>#' + targetId + '-content' + '[rel="'+targetRel+'"]').scrollTop($('#' + targetId + '-content' + '[rel="'+targetRel+'"]')[0].scrollHeight); //scroll to down
+
+    let profile = userProfiles[targetId];
     $('#prof_nick').text(profile.nickname);
   }
 
@@ -716,31 +684,32 @@ $(document).ready(function() {
     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
     // owner = "user", "agent" ; name = "Colman", "Ted", others...
     if( !data.channelId ) data.channelId = "FB";
-    displayMessage(data); //update canvas
+    displayMessage(data, data.channelId); //update canvas
     displayClient(data, data.channelId); //update tablinks
 
-    if (data.owner == "user") change_document_title(data.name); //not done yet
-    if (name_list.indexOf(data.id) == -1) { //if its never chated user, push his name into name list
-      name_list.push(data.id);
+    if (data.owner === "user") change_document_title(data.name); //not done yet
+    if (name_list.indexOf(data.channelId+data.id) == -1) { //if its never chated user, push his name into name list
+      name_list.push(data.channelId+data.id);
       console.log("new user!!! push into name_list!");
     }
   });
 
-  function displayMessage(data) {
+  function displayMessage(data, channelId) {
     // update canvas
     // console.log(data);
-    if (name_list.indexOf(data.id) !== -1) { //if its chated user
+    console.log(channelId+data.id);
+    if (name_list.indexOf(channelId+data.id) !== -1) { //if its chated user
       let str;
 
-      let designated_chat_room_msg_time = $("#" + data.id + "-content").find(".message:last").attr('rel');
+      let designated_chat_room_msg_time = $("#" + data.id + "-content" + "[rel='"+channelId+"']").find(".message:last").attr('rel');
       if (data.time - designated_chat_room_msg_time >= 900000) { // 如果現在時間多上一筆聊天記錄15分鐘
-        $("#" + data.id + "-content").append('<p class="message-day" style="text-align: center"><strong>-新訊息-</strong></p>');
+        $("#" + data.id + "-content" + "[rel='"+channelId+"']").append('<p class="message-day" style="text-align: center"><strong>-新訊息-</strong></p>');
       }
       if (data.owner == "agent") str = toAgentStr(data.message, data.name, data.time);
       else str = toUserStr(data.message, data.name, data.time);
 
-      $("#" + data.id + "-content").append(str); //push message into right canvas
-      $('#' + data.id + '-content').scrollTop($('#' + data.id + '-content')[0].scrollHeight); //scroll to down
+      $("#" + data.id + "-content" + "[rel='"+channelId+"']").append(str); //push message into right canvas
+      $('#' + data.id + '-content' + "[rel='"+channelId+"']").scrollTop($('#' + data.id + '-content' + '[rel="'+channelId+'"]')[0].scrollHeight); //scroll to down
     } //close if
     else { //if its never chated user
       let historyMsgStr = NO_HISTORY_MSG;
@@ -751,7 +720,7 @@ $(document).ready(function() {
       canvas.append( //new a canvas
         '<div id="' + data.id + '" class="tabcontent" style="display: none;">' +
         '<span class="topright">x&nbsp;</span>' +
-        '<div id="' + data.id + '-content" class="messagePanel">' +
+        '<div id="' + data.id + '-content" rel="'+channelId+'" class="messagePanel">' +
         historyMsgStr +
         '</div></div>'
       ); // close append
@@ -761,13 +730,16 @@ $(document).ready(function() {
   } //function
 
   function displayClient(data, channelId) {
-    // console.log(data);
+    console.log(data);
+    console.log(channelId+data.id);
+    console.log(data.message);
     //update tablinks
     let font_weight = data.owner == "user" ? "bold" : "normal"; //if msg is by user, mark it unread
 
-    console.log(name_list.indexOf(data.id) !== -1);
-    if (name_list.indexOf(data.id) !== -1) {
-      let target = $('.tablinks_area[rel="'+channelId+'"]').find(".tablinks[rel='" + data.id + "']");
+    console.log(name_list);
+    console.log(name_list.indexOf(channelId+data.id) > -1);
+    if (name_list.indexOf(data.channelId+data.id) > -1) {
+      let target = $('.tablinks_area[rel="'+channelId+'"]').find(".tablinks[name='" + data.id + "'][rel='"+channelId+"']");
       target.find("#msg").html(toTimeStr(data.time) + data.message).css("font-weight", font_weight);
       target.find('.unread_msg').html(data.unRead).css("display", "block");
       target.attr("data-recentTime", data.time);
@@ -782,14 +754,14 @@ $(document).ready(function() {
 
       let ele = target.parents('b'); //buttons to b
       ele.remove();
-      $('.tablinks_area[rel="'+channelId+'"]>.list-group:first').prepend(ele);
+       $('.tablinks_area[rel="'+channelId+'"]>.list-group:first').prepend(ele);
     }
     else { //new user, make a tablinks
       // pictureUrl
       console.log('new user');
 
-      $('.tablinks_area[rel="'+channelId+'"]').prepend(
-        "<b><button style='text-align:left' rel='" + data.id + "' class='tablinks'" +
+      $('.tablinks_area[rel="'+channelId+'"]>.list-group:first').prepend(
+        "<b><button style='text-align:left' name='" + data.id + "' rel='" + channelId + "' class='tablinks'>" +
         "<div class='img_holder'>" +
         "<img src='" + data.pictureUrl + "' alt='無法顯示相片'>" +
         "</div>" +
@@ -935,77 +907,23 @@ $(document).ready(function() {
     userProfiles[data.userId] = data;
   });
 
-  function submitMsg(event){
-    event.preventDefault();
-
+  function submitMsg(e){
+    e.preventDefault();
     // console.log($(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel'));
-    console.log($(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'));
+    // console.log($(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'));
 
     let sendObj = {
       id: "",
       msg: messageInput.val(),
       msgtime: Date.now(),
-      room: $(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id')
+      room: $(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      channelId: $(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
     };
-
-    if ($("#user-rooms option:selected").val() == '全選') {
-      name_list.map(function(id) {
-        sendObj.id = id;
-        socket.emit('send message', sendObj);
-      })
-    } else if ($("#user-rooms option:selected").val() == '對可見用戶發送') {
-      $('.tablinks:visible').each(function() {
-        sendObj.id = $(this).attr('rel');
-        socket.emit('send message', sendObj);
-      });
-    } else {
-      console.log(sendObj);
-      sendObj.id = $("#user-rooms option:selected").val();
-      socket.emit('send message', sendObj); //socket.emit
-    } //else
+    console.log(sendObj);
+    sendObj.id = $("#user-rooms option:selected").val();
+    socket.emit('send message', sendObj); //socket.emit
     messageInput.val('');
-
   }
-
-  // messageForm.submit((e) => {
-  //   e.preventDefault();
-  //   console.log(e.currentTarget);
-  //   let sendObj = {
-  //     id: "",
-  //     msg: messageInput.val(),
-  //     msgtime: Date.now(),
-  //     // room:
-  //   };
-  //
-  //   if ($("#user-rooms option:selected").val() == '全選') {
-  //     name_list.map(function(id) {
-  //       sendObj.id = id;
-  //       socket.emit('send message2', sendObj);
-  //     })
-  //   } else if ($("#user-rooms option:selected").val() == '對可見用戶發送') {
-  //     $('.tablinks:visible').each(function() {
-  //       sendObj.id = $(this).attr('rel');
-  //       socket.emit('send message2', sendObj);
-  //     });
-  //   } else {
-  //     console.log(sendObj);
-  //     sendObj.id = $("#user-rooms option:selected").val();
-  //     socket.emit('send message', sendObj); //socket.emit
-  //   } //else
-  //   messageInput.val('');
-  // });
-  //
-  // function selectAll(){
-  //   if ($( "#user-rooms option:selected" ).val()=='全選'){
-  //     designated_user_id = name_list;
-  //     select = 'true';
-  //   }
-  //   else{
-  //     designated_user_id = $( "#user-rooms option:selected" ).val();
-  //     select = 'false';
-  //   }
-  // }
-
   /*  =================================  */
 
   socket.on("push tags to chat", data => {
@@ -1262,8 +1180,9 @@ $(document).ready(function() {
 
   function displayAll() {
     $('.tablinks').each(function() {
-      let id = $(this).attr('rel');
-      $("div #" + id + "-content" + " .message").show().off("click");
+      let id = $(this).attr('id');
+      let rel = $(this).attr('rel');
+      $("div #" + id + "-content" + "[rel='"+rel+"']" + " .message").show().off("click");
       $(this).css("color", "");
     });
   }
@@ -1289,8 +1208,9 @@ $(document).ready(function() {
       } else {
         $('.tablinks').each(function() {
           //find his content parent
-          let id = $(this).attr('rel');
-          let panel = $("div #" + id + "-content");
+          let id = $(this).attr('id');
+          let rel = $(this).attr('rel');
+          let panel = $("div #" + id + "-content" + "[rel='"+rel+"']");
 
           //display searched msg & push #link when onclick
           let color = "";
@@ -1450,7 +1370,6 @@ $(document).ready(function() {
 
   function showTargetProfile(profile) {
     buffer = JSON.parse(JSON.stringify(profile)); //clone object
-    $('.userPhoto').attr('src', buffer.photo ? buffer.photo : "");
 
     var nick = buffer.nickname;
     $('#prof_nick').text(nick);
@@ -1605,7 +1524,7 @@ $(document).ready(function() {
     $('#inside-group-canvas').append(    //push string into canvas
       '<div id="' + profile.roomId + '" class="tabcontent" style="display: none;">'
       + '<span class="topright">x&nbsp;&nbsp;&nbsp</span>'
-      + "<div id='" + profile.roomId + "-content' class='messagePanel' >"
+      + "<div id='" + profile.roomId + "-content' rel='"+profile.channelId+"' class='messagePanel' >"
       + historyMsgStr + "</div>"
       + "</div>"
     );// close append
@@ -1616,46 +1535,19 @@ $(document).ready(function() {
     // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
   }
   $(document).on('click', '.inside-tablinks', function() {
-    let id = $(this).attr('rel');
+    let id = $(this).attr('id');
     $('.tabcontent#'+id).show();
 
     $("#inside-selected").removeAttr('id').css("background-color", "");   //selected tablinks change, clean prev's color
     $(this).attr('id','inside-selected').css("background-color",COLOR.CLICKED);    //clicked tablinks color
 
-    let target = $(this).attr('rel');         //find the message canvas
+    let target = $(this).attr('id');         //find the message canvas
+    let rel = $(this).attr('rel');
     $('#'+id).show().siblings().hide();   //show it, and close others
-    $('#'+target+'-content').scrollTop($('#'+target+'-content')[0].scrollHeight);   //scroll to down
+    $('#'+target+'-content' + "[rel='"+rel+"']").scrollTop($('#'+target+'-content' + "[rel='"+rel+"']")[0].scrollHeight);   //scroll to down
 
     console.log('click tablink executed');
   });
-
-  $('#inside-send-message').submit((e) => {
-    e.preventDefault();
-    let sendObj = {
-      id: "",
-      msg: messageInput.val(),
-      msgtime: Date.now()
-    };
-
-    if( $("#user-rooms option:selected").val() == '全選' ) {
-      name_list.map( function(id) {
-        sendObj.id = id;
-        socket.emit('send message2', sendObj);
-      })
-    }
-    else if( $("#user-rooms option:selected").val() == '對可見用戶發送' ) {
-      $('.tablinks:visible').each(function() {
-        sendObj.id = $(this).attr('rel');
-        socket.emit('send message2', sendObj);
-      });
-    }
-    else {
-      sendObj.id = $("#user-rooms option:selected").val();
-      socket.emit('send message2', sendObj);//socket.emit
-    }//else
-    messageInput.val('');
-  });
-
   // =====================Colman=========================== //
 
 

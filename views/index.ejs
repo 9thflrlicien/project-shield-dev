@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
       <%# 自己的code%>
       <link rel="stylesheet" href="stylesheets/main.css" />
+      <script src="//load.sumome.com/" data-sumo-site-id="1d5ae0b8f9b3d977e0d9a007c0704fcc3d55e23ec64de26cd49ed04cdcc6291a" async="async"></script>
    </head>
    <body>
       <div id="wrapper">
@@ -94,6 +95,16 @@
                <!--        <div id="view-selector-container"></div> -->
             </div>
          </div>
+         <div class="panel panel-default">
+            <div class="panel-heading">
+               <i class="fa fa-bar-chart-o fa-fw"></i> <span class="name" id="瀏覽網頁人數">瀏覽網頁人數</span>
+            </div>
+            <div class="panel-body">
+               <div id="embed-api-auth-container"></div>
+               <div id="chart-page-container"></div>
+               <!--        <div id="view-selector-container"></div> -->
+            </div>
+         </div>
          <!-- MULTIPLE VIEWS -->
          <div class="panel panel-default">
             <div class="panel-heading">
@@ -169,18 +180,71 @@
             */
            var dataChart = new gapi.analytics.googleCharts.DataChart({
              query: {
-               metrics: 'ga:sessions',
-               dimensions: 'ga:date',
-               'start-date': '30daysAgo',
-               'end-date': 'yesterday'
-             },
-             chart: {
-               container: 'chart-container',
-               type: 'LINE',
-               options: {
-                 width: '100%'
-               }
-             }
+                metrics: 'ga:sessions',
+                dimensions: 'ga:date',
+                'start-date': '30daysAgo',
+                'end-date': 'yesterday'
+              },
+              chart: {
+                container: 'chart-container',
+                type: 'LINE',
+                options: {
+                  width: '100%'
+                }
+              }
+
+
+           });
+           /**
+            * Render the dataChart on the page whenever a new view is selected.
+            */
+           viewSelector.on('change', function(ids) {
+             dataChart.set({query: {ids: ids}}).execute();
+           });
+         });
+
+      </script>
+      <script>
+         gapi.analytics.ready(function() {
+           /**
+            * Authorize the user immediately if the user has already granted access.
+            * If no access has been created, render an authorize button inside the
+            * element with the ID "embed-api-auth-container".
+            */
+           gapi.analytics.auth.authorize({
+             container: 'embed-api-auth-container',
+             clientid: '893891576690-e7sjrhcipgj0ekpulers7l2itsagdcrl.apps.googleusercontent.com'
+           });
+         /*=====================DASHBOARD======================*/
+           /**
+            * Create a new ViewSelector instance to be rendered inside of an
+            * element with the id "view-selector-container".
+            */
+           var viewSelector = new gapi.analytics.ViewSelector({
+             container: 'view-selector-container'
+           });
+           // Render the view selector to the page.
+           viewSelector.execute();
+           /**
+            * Create a new DataChart instance with the given query parameters
+            * and Google chart options. It will be rendered inside an element
+            * with the id "chart-container".
+            */
+           var dataChart = new gapi.analytics.googleCharts.DataChart({
+             query: {
+                metrics: 'ga:sessions',
+                dimensions: 'ga:pagePathLevel1',
+                'sort': '-ga:sessions',
+                'start-date': '2017-08-01',
+                'end-date': 'yesterday'
+              },
+              chart: {
+                container: 'chart-page-container',
+                type: 'PIE',
+                options: {
+                  width: '100%'
+                }
+              }
 
 
            });
@@ -216,12 +280,12 @@
             * Create a ViewSelector for the second view to be rendered inside of an
             * element with the id "view-selector-2-container".
             */
-           var viewSelector2 = new gapi.analytics.ViewSelector({
-             container: 'view-selector-2-container'
-           });
+          //  var viewSelector2 = new gapi.analytics.ViewSelector({
+          //    container: 'view-selector-2-container'
+          //  });
            // Render both view selectors to the page.
            viewSelector1.execute();
-           viewSelector2.execute();
+          //  viewSelector2.execute();
            /**
             * Create the first DataChart for top countries over the past 30 days.
             * It will be rendered inside an element with the id "chart-1-container".
@@ -248,24 +312,24 @@
             * Create the second DataChart for top countries over the past 30 days.
             * It will be rendered inside an element with the id "chart-2-container".
             */
-           var dataChart2 = new gapi.analytics.googleCharts.DataChart({
-             query: {
-               metrics: 'ga:sessions',
-               dimensions: 'ga:country',
-               'start-date': '30daysAgo',
-               'end-date': 'yesterday',
-               'max-results': 6,
-               sort: '-ga:sessions'
-             },
-             chart: {
-               container: 'chart-2-container',
-               type: 'PIE',
-               options: {
-                 width: '100%',
-                 pieHole: 4/9
-               }
-             }
-           });
+          //  var dataChart2 = new gapi.analytics.googleCharts.DataChart({
+          //    query: {
+          //      metrics: 'ga:sessions',
+          //      dimensions: 'ga:country',
+          //      'start-date': '30daysAgo',
+          //      'end-date': 'yesterday',
+          //      'max-results': 6,
+          //      sort: '-ga:sessions'
+          //    },
+          //    chart: {
+          //      container: 'chart-2-container',
+          //      type: 'PIE',
+          //      options: {
+          //        width: '100%',
+          //        pieHole: 4/9
+          //      }
+          //    }
+          //  });
            /**
             * Update the first dataChart when the first view selecter is changed.
             */
@@ -275,9 +339,9 @@
            /**
             * Update the second dataChart when the second view selecter is changed.
             */
-           viewSelector2.on('change', function(ids) {
-             dataChart2.set({query: {ids: ids}}).execute();
-           });
+          //  viewSelector2.on('change', function(ids) {
+          //    dataChart2.set({query: {ids: ids}}).execute();
+          //  });
          });
       </script>
       <script>

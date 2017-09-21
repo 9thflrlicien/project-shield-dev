@@ -131,7 +131,7 @@ var viewTicket;
 //==============FACEBOOK MESSAGE==============
 app.post('/webhook', function (req, res) {
   var data = req.body;
-  console.log('facebook webhook entered with data: ');
+  console.log('data on line 91');
   console.log(data);
 
   // Make sure this is a page subscription
@@ -147,16 +147,22 @@ app.post('/webhook', function (req, res) {
         console.log('this is event');
         console.log(event);
         if (event.message) {
+          console.log('Entered');
           loadFbProfile(event, event.sender.id);
-        }
-        else {
+        } else {
           console.log("Webhook received unknown event: ", event);
         }
       });
     });
-  }
-  else{
-    console.log('no page shown');
+
+    // Assume all went well.
+    //
+    // You must send back a 200, within 20 seconds, to let us know
+    // you've successfully received the callback. Otherwise, the request
+    // will time out and we will keep trying to resend.
+    res.sendStatus(200);
+  }else{
+    console.log('on line 124');
   }
 });//app.post
 //==============FACEBOOK MESSAGE END==============
@@ -1258,7 +1264,7 @@ io.sockets.on('connection', (socket) => {
     // console.log(sendData);
     socket.emit('push json to front', sendData);
     console.log('push json to front');
-    console.log(sendData);
+    // console.log(sendData);
   });
 
   socket.on('upload history msg from front', data => {
@@ -1316,6 +1322,27 @@ io.sockets.on('connection', (socket) => {
     let nowTime = Date.now();
 
     {
+      //------FACEBOOK----
+      if (data.msg.startsWith('<img')) {
+          let link = data.msg.substr(10);
+          console.log('this is link');
+          console.log(link);
+
+          fb_bot.sendImageMessage(data.id, link, true);
+      } else if (data.msg.startsWith('<video')) {
+          let link = data.msg.substr(29);
+          console.log('this is link');
+          console.log(link);
+
+          fb_bot.sendVideoMessage(data.id, link, true);
+      } else if (data.msg.startsWith('<audio')) {
+          let link = data.msg.substr(29);
+          console.log('this is link');
+          console.log(link);
+
+          fb_bot.sendAudioMessage(data.id, link, true);
+      }
+      // LINE
       if(msg.includes('/image')){
         let link = msg.substr(7);
         // console.log(link);
@@ -1355,6 +1382,7 @@ io.sockets.on('connection', (socket) => {
           type: "text",
           text: msg
         };
+        fb_bot.sendTextMessage(data.id, data.msg);
       }
     }
     // 訊息傳到LINE
@@ -1372,7 +1400,7 @@ io.sockets.on('connection', (socket) => {
     }
 
     for( let i in chatData ) {
-      if( chatData[i].Profile.userId == data.id ) {
+      if( chatData[i].Profile.userId === data.id ) {
         var unRead_fromProfile = chatData[i].Profile.unRead;
         break;
       }
@@ -1385,20 +1413,49 @@ io.sockets.on('connection', (socket) => {
       message: "undefined_message"
     };
 
+    //------FACEBOOK-------
+    if (msg.startsWith('<img')){
+        msgObj.message = data.msg+'"/>';
+        emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
+    }
+    else if (msg.startsWith('<video')){
+        msgObj.message = data.msg+ '" type="video/mp4"></video>';
+        emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
+    }
+    else if (msg.startsWith('<audio')){
+        msgObj.message = data.msg+ '" type="audio/mpeg"></audio>';
+        emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
+    }
+
     if (msg.includes('/image')) {
       msgObj.message = 'Send image to user';
-      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      if(chanId === 'Line_1_room'){
+        emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      } else if(chanId === 'Line_2_room') {
+        emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      } else {
+        console.log('push to fb')
+      }
     }
     else if (msg.includes('/audio')) {
       msgObj.message = 'Send audio to user';
-      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      if(chanId === 'Line_1_room'){
+        emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      } else if(chanId === 'Line_2_room') {
+        emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      } else {
+        console.log('push to fb')
+      }
     }
     else if (msg.includes('/video')) {
       msgObj.message = 'Send video to user';
-      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      if(chanId === 'Line_1_room'){
+        emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      } else if(chanId === 'Line_2_room') {
+        emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      } else {
+        console.log('push to fb')
+      }
     }
     else if ( isUrl(msg) ) {
       let urlStr = '<a href=';
@@ -1406,14 +1463,24 @@ io.sockets.on('connection', (socket) => {
         urlStr += '"https://';
       }
       msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
-      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      if(chanId === 'Line_1_room'){
+        emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      } else if(chanId === 'Line_2_room') {
+        emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      } else {
+        console.log('push to fb')
+      }
 
     }
     else if (msg.includes('/sticker')) {
       msgObj.message = 'Send sticker to user';
-      emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-      emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      if(chanId === 'Line_1_room'){
+        emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
+      } else if(chanId === 'Line_2_room') {
+        emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      } else {
+        console.log('push to fb')
+      }
     }
     else {
       msgObj.message = msg;
@@ -1421,6 +1488,8 @@ io.sockets.on('connection', (socket) => {
         emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
       } else if(chanId === 'Line_2_room') {
         emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
+      } else if(chanId === 'FB_room') {
+        emitIO_and_pushDB(msgObj, null, channelIds[2], agent_sendTo_receiver, 0);
       } else {
         console.log('push to fb')
       }
@@ -1485,7 +1554,7 @@ io.sockets.on('connection', (socket) => {
     let sendData = [];
 
     for( let i in agentChatData ) {
-      if( agentChatData[i].Profile.roomId==roomId ) {
+      if( agentChatData[i].Profile.roomId === roomId ) {
         for( let j=head; j<tail+1; j++ ) {
           console.log("j = "+j);
           sendData.push( agentChatData[i].Messages[j] );
@@ -1504,7 +1573,7 @@ io.sockets.on('connection', (socket) => {
 
   socket.on('read message agentChat', data => {
     for( let prop in agentChatData ) {
-      if( agentChatData[prop].Profile.roomId == data.roomId ) {
+      if( agentChatData[prop].Profile.roomId === data.roomId ) {
         let unRead = agentChatData[prop].Profile.unRead;
         if( unRead ) {
           let pos = unRead.indexOf(data.reader);
@@ -1569,7 +1638,23 @@ io.sockets.on('connection', (socket) => {
       io.sockets.emit('new message agentChat', obj);
     }
 
-    if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
+    //------FACEBOOK-------
+    if (msg.startsWith('<img')){
+        msgObj.message = data.msg+'"/>';
+        emitIO_and_pushDB(msgObj);
+    }
+    else if (msg.startsWith('<video')){
+        msgObj.message = data.msg+ '" type="video/mp4"></video>';
+        emitIO_and_pushDB(msgObj);
+    }
+    else if (msg.startsWith('<audio')){
+        msgObj.message = data.msg+ '" type="audio/mpeg"></audio>';
+        emitIO_and_pushDB(msgObj);
+    }
+
+    //--------LINE--------
+
+     else if (msg.indexOf('.com') !== -1 || msg.indexOf('.edu') !== -1 || msg.indexOf('.net') !== -1 || msg.indexOf('.io') !== -1 || msg.indexOf('.org') !== -1) {
       let urlStr = '<a href=';
       if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
         urlStr += '"https://';
@@ -1742,98 +1827,170 @@ function send_to_frontSocket(obj, pictureUrl, channelId, receiverId, unRead) {
   console.log("All sent!");
 }
 
-function loadFbProfile(obj, psid){
-  console.log("FB obj: ");
-  console.log(obj);
-  // fb_bot.webhook('/webhook');
-  fb_bot.getProfile(psid).then(function(data) {
-    console.log("profile data: ");
-    console.log(data);
-    var fb_user_name = data.first_name +' '+ data.last_name;
-    var fb_user_profilePic = data.profile_pic;
-    var fb_user_locale = data.locale;
-    var fb_user_gender = data.gender;
-    if (obj.message.attachments) {
-      //Checking if there are any image attachments
-      if(obj.message.attachments[0].type === "image"){
-        var imageURL = obj.message.attachments[0].payload.url;
-        obj.message = '<img src="'+imageURL+'"/>';
-      }//if image
-      else if (obj.message.attachments[0].type === "video"){
-        var videoURL = obj.message.attachments[0].payload.url;
-        obj.message = '<video controls><source src="'+videoURL+'" type="video/mp4"></video>';
+function loadFbProfile(obj, psid) {
 
-      }//if video
-      else if (obj.message.attachments[0].type === "audio"){
-        var audioURL = obj.message.attachments[0].payload.url;
-        obj.message = '<audio controls><source src="'+audioURL+'" type="audio/mpeg"/></audio>';
+    fb_bot.webhook('/webhook');
+    fb_bot.getProfile(psid).then(function(data) {
 
-      }//if audio
-      else if (obj.message.attachments[0].type === "file"){
-        var fileURL = obj.message.attachments[0].payload.url;
-        obj.message = 'The user sent a file, click <a target="blank" href="'+fileURL+'">HERE</a> for download.';
+        var fb_user_name = data.first_name + ' ' + data.last_name;
+        var fb_user_profilePic = data.profile_pic;
+        var fb_user_locale = data.locale;
+        var fb_user_gender = data.gender;
 
-      }//if audio
-      else if (obj.message.attachments[0].type === "location"){
-        var locateURL = obj.message.attachments[0].url;
-        obj.message = 'The user sent a location, click <a target="blank" href="'+locateURL+'">HERE</a> for map link.';
+        if (obj.message.attachments) {
+            //Checking if there are any image attachments
+            if (obj.message.attachments[0].type === "image") {
+                var imageURL = obj.message.attachments[0].payload.url;
+                obj.message = '<img src="' + imageURL + '"/>';
+            } //if image
+            else if (obj.message.attachments[0].type === "video") {
+                var videoURL = obj.message.attachments[0].payload.url;
+                obj.message = '<video controls><source src="' + videoURL + '" type="video/mp4"></video>';
 
-      }//if location
-    }
-    else {
-      obj.message = obj.message.text;
-    }
+            } //if video
+            else if (obj.message.attachments[0].type === "audio") {
+                var audioURL = obj.message.attachments[0].payload.url;
+                obj.message = '<audio controls><source src="' + audioURL + '" type="audio/mpeg"/></audio>';
 
-    for( let prop in chatData ) {
-      if(chatData[prop].Profile.userId == obj.sender.id) {
-        var count_unread_toFront = chatData[prop].Profile.unRead;
-        count_unread_toFront++;
-      }
-    }//for let prop in chatData
+            } //if audio
+            else if (obj.message.attachments[0].type === "file") {
+                var fileURL = obj.message.attachments[0].payload.url;
+                obj.message = 'The user sent a file, click <a target="blank" href="' + fileURL + '">HERE</a> for download.';
 
-    obj.id = obj.sender.id;
-    obj.owner = obj.recipient.id;
-    obj.name =  fb_user_name;
-    obj.time = obj.timestamp;
-    obj.unRead = count_unread_toFront;
-    io.sockets.emit('new message', obj);
+            } //if audio
+            else if (obj.message.attachments[0].type === "location") {
+                var locateURL = obj.message.attachments[0].url;
+                obj.message = 'The user sent a location, click <a target="blank" href="' + locateURL + '">HERE</a> for map link.';
 
-    //======receive message==========
+            } //if location
+        } else {
+            obj.message = obj.message.text;
 
-    var senderID = obj.sender.id;
-    var recipientID = obj.recipient.id;
-    var timeOfMessage = obj.timestamp;
-    var message_text = obj.message;
+        }
 
-    console.log("Received message for user %d and page %d at %d with message:",
-    senderID, recipientID, timeOfMessage);
-    console.log(JSON.stringify(obj.message));
+        for (let prop in chatData) {
+            if (chatData[prop].Profile.userId == obj.sender.id) {
+                var count_unread_toFront = chatData[prop].Profile.unRead;
+                count_unread_toFront++;
 
-    //===========================================
+            }
+        } //for let prop in chatData
 
-    //=============saving to database============
-    let message_lineTochat = message_text;
-    let receiverId = senderID;
-    let receiver_name = fb_user_name;
-    let nowTime = Date.now();
+        obj.id = obj.sender.id;
+        obj.owner = obj.recipient.id;
+        obj.name = fb_user_name;
+        obj.time = obj.timestamp;
+        obj.unRead = count_unread_toFront;
+        obj.channelId = 'FB';
+        obj.pictureUrl = fb_user_profilePic;
+        io.sockets.emit('new message', obj);
 
-    var msgObj = {
-      owner: "user",
-      name: receiver_name,
-      time: nowTime,
-      message: message_lineTochat,
-      id: receiverId,
-      prof_pic: fb_user_profilePic,
-      locale: fb_user_locale,
-      gend: fb_user_gender
-    };
 
-    emitIO_and_pushDB(msgObj, fb_user_profilePic, 'FB', receiverId, count_unread_toFront);
-  }).catch(function(error) {
-    console.log('facebook message error: ' + error);
-  });//fb_bot
+        //======receive message==========
 
-}//loadFbProfile
+        var senderID = obj.sender.id;
+        var recipientID = obj.recipient.id;
+        var timeOfMessage = obj.timestamp;
+        var message_text = obj.message;
+
+
+
+        console.log("Received message for user %d and page %d at %d with message:",
+            senderID, recipientID, timeOfMessage);
+        console.log(JSON.stringify(obj.message));
+
+        //===========================================
+
+        //=============saving to database============
+        let message_lineTochat = message_text;
+        let receiverId = senderID;
+        let receiver_name = fb_user_name;
+        let nowTime = Date.now();
+
+
+        var msgObj = {
+            owner: "user",
+            name: receiver_name,
+            time: nowTime,
+            message: message_lineTochat,
+            id: receiverId,
+            prof_pic: fb_user_profilePic,
+            locale: fb_user_locale,
+            gend: fb_user_gender
+        };
+
+
+        function emitIO_and_pushDB(obj) {
+
+            console.log("sending object user: ");
+            console.log(obj);
+
+            console.log("sending to new firebase database");
+            sendToNewFb(obj);
+            console.log("sending to new io sockets...");
+            console.log("All sent!");
+        }
+
+        function sendToNewFb(obj) {
+            let flag = true;
+            for (let prop in chatData) {
+                if (chatData[prop].Profile.userId == receiverId) {
+                    console.log("find user " + receiverId + " in database");
+                    var count_unread = chatData[prop].Profile.unRead;
+                    count_unread++;
+                    let length = chatData[prop].Messages.length;
+                    let updateObj = {};
+                    updateObj['/' + prop + '/Messages/' + length] = obj;
+                    newDBRef.update(updateObj);
+                    newDBRef.child(prop).child("Profile").update({
+                        unRead: count_unread,
+                        photo: obj.prof_pic
+                    });
+
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) {
+                console.log("new user come in");
+
+                let newData = {
+                    Profile: {
+                        nickname: obj.name,
+                        userId: obj.id,
+                        age: -1,
+                        地區: obj.locale,
+                        性別: obj.gend,
+                        telephone: "",
+                        address: "",
+                        firstChat: nowTime,
+                        首次聊天時間: nowTime,
+                        recentChat: nowTime,
+                        上次聊天時間: nowTime,
+                        totalChat: 1,
+                        總共聊天時間: 1,
+                        avgChat: 1,
+                        平均每次聊天時間: 1,
+                        聊天次數: 1,
+                        unRead: 1,
+                        photo: obj.prof_pic
+                    },
+                    Messages: [obj]
+                };
+                newDBRef.push(newData);
+                io.sockets.emit('new user profile', newData.Profile);
+            }
+        } //sendTONewFb
+
+        emitIO_and_pushDB(msgObj);
+
+
+
+    }).catch(function(error) {
+        console.log('on line 295 error');
+    }); //fb_bot
+
+} //loadFbProfile
 
 
 //==================ticket=======================
@@ -1938,7 +2095,6 @@ function vote(voter, time, categoryName, workerName, groupName, score) {
         // }); //end con.query
     } //end insert_vote
 }
-
 
 // EXPRESS functions and app use, KEEP THEM AT THE BOTTOM
 // catch 404 and forward to error handler

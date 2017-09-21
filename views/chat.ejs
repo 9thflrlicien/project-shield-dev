@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
     <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <!-- Morris Charts CSS -->
     <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
     <link rel="stylesheet" href="stylesheets/main.css" />
@@ -39,15 +38,8 @@
               <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> Chat</a>
             </li>
             <li>
-              <a href="/tag">| <i class="fa fa-commenting fa-fw"></i> Tag</a>
-            </li>
-            <li>
               <a href="/calendar">| <i class="fa fa-table fa-fw"></i> Calendar</a>
             </li>
-            <li>
-              <a href="/ticket">| <i class="fa fa-ticket fa-fw"></i> Support</a>
-            </li>
-
           </ul>
           <ul class="nav navbar-top-links navbar-right">
             <!-- /.dropdown -->
@@ -65,7 +57,6 @@
             <!-- /.dropdown -->
           </ul>
           <!-- /.navbar-top-links -->
-
       </nav>
     </div>
     <div id="chatHome">
@@ -73,7 +64,7 @@
         <div id="chatApp" class="colume" >
           <div class="chatApp_item" id="Line_1" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-            <h4>跟著董事長遊台灣1</h4>
+            <h4 id="group1" class="myText">跟著董事長遊台灣1</h4><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
           </div>
           <div class="chatApp_item" id="Line_2" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
@@ -101,142 +92,29 @@
           <p style="width:18%;position:absolute;top:40%;margin:10px;z-index:0">
             choose a chat app to continue
           </p>
-          <div class="tablinks_head">
-            <div class="filter_head">
-              <h4 id="title">Chat</h4>
-              <i class="fa fa-filter" id="filter" aria-hidden="true"></i>
-              <select class="searchSelect">
-                <option value="content">content</option>
-                <option value="sender">sender</option>
-                <option value="sendTime">msg time</option>>
-                <option value="remark">remark</option>
-              </select>
-              <i class="fa fa-search" id="search" aria-hidden="true"></i>
-            </div>
-
-            <div class="search" hidden>
-              <input type="text" id="searchBox" placeholder="Search for messages..">
-              <button id="filterClean"><i class="fa fa-times" aria-hidden="true"></i></button>
-            </div>
-
-            <div class="filterArea" style="display:none">
-
-
-              <div class="filterPanel">
-
-                <div class="filterUnit filterBar btn-group" id="filter_age">
-                  <button class="filter_btn" data-toggle="dropdown" aria-expanded="true">
-                    年齡:<span class="multiselect-selected-text" min="0" max="999">全選</span>
-                    <b class="caret"></b>
-                  </button>
-                  <ul class="multiselect-container dropdown-menu">
-                    <div class="filterSlider" id="age">
-                    </div>
-                  </ul>
-                </div>
-
-                <div class="filterUnit filterBar btn-group" id="filter_place">
-                  <button class="filter_btn" data-toggle="dropdown" aria-expanded="true">
-                    地區:<span class="multiselect-selected-text">全選</span>
-                    <b class="caret"></b>
-                  </button>
-                  <ul class="multiselect-container dropdown-menu">
-                    <div class="filterSelect" id="place">
-                      <li><button value="全選" checked id="select-all">全選</li>
-                      <li><input type="checkbox" value="北部" checked>北部</li>
-                      <li><input type="checkbox" value="中部" checked>中部</li>
-                      <li><input type="checkbox" value="東部" checked>東部</li>
-                      <li><input type="checkbox" value="南部" checked>南部</li>
-                    </div>
-                  </ul>
-                </div>
-
-                <div class="filterUnit filterBar btn-group" id="filter_recent">
-                  <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
-                    上次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
-                    <b class="caret"></b>
-                  </button>
-                  <ul class="multiselect-container dropdown-menu">
-                    <div class="filterSlider" id="recent">
-                    </div>
-                  </ul>
-                </div>
-
-                <div class="filterUnit filterBar btn-group" id="filter_first" >
-                  <button class="filter_btn" data-toggle="dropdown" aria-expanded="false">
-                    首次聊天時間:<span class="multiselect-selected-text" min="0" max="9999999999999">全選</span>
-                    <b class="caret"></b>
-                  </button>
-                  <ul class="multiselect-container dropdown-menu">
-                    <div class="filterSlider" id="first">
-                    </div>
-                  </ul>
-                </div>
-
-                <div style="display:flex;padding:5px">
-                  <input type="text" class="datepicker" id="startdate" placeholder="start date" readonly></input>
-                  <input type="text" class="datepicker" id="enddate" placeholder="end date" readonly></input>
-                </div>
-                <div style="display:flex;padding:5px">
-                  <button class="filterDate" id="firsttime">首次聊天</button>
-                  <button class="filterDate" id="recenttime">最近聊天</button>
-                </div>
-                <div style="display:flex;padding:5px">
-                  <select id="filterTimeSelect">
-                    <option value="0">0~5 min</option>
-                    <option value="1">5~10 min</option>
-                    <option value="2">10~30 min</option>
-                    <option value="3">30~60 min</option>
-                    <option value="4">60up min</option>
-                  </select>
-                  <button class="filterTime" id="avgtime">average</button>
-                  <button class="filterTime" id="totaltime">total</button>
-                </div>
-                <div style="display:flex;padding:5px;justify-content:center">
-                  <button id="filterBtn">filter</button>
-                  <button id="filterBtn-clean">show all</button>
-                </div>
-              </div>
-
-            </div>
-
-
-          </div>
-
           <div class="tablinks_area" id="Line_1_room">
-            <div id="chat-area">聊天中-------------</div>
             <ol class="list-group" id="line1-clients"></ol>
-            <div id="idle-area">閒置中-------------</div>
             <ol class="list-group" id="line1-idle-roomes"></ol>
           </div>
           <div class="tablinks_area" id="Line_2_room">
-            <div id="chat-area">chat-area-------------</div>
             <ol class="list-group" id="line2-clients"></ol>
-            <div id="idle-area">idle-area-------------</div>
             <ol class="list-group" id="line2-idle-roomes"></ol>
           </div>
           <div class="tablinks_area" id="FB_room" rel="FB">
-            <div id="chat-area">chat-area-------------</div>
             <ol class="list-group" id="fb-clients"></ol>
-            <div id="idle-area">idle-area-------------</div>
             <ol class="list-group" id="fb-idle-roomes"></ol>
           </div>
 
         </div>
 
         <div id="chat" class="contentPanel" style="background-color: /*#c2d4dd*/;width:30%;">
-
           <div class="chat_prof_head"></div>
           <div class="chat_prof">
-            <img src="" alt="無法顯示相片" class="userPhoto" style="width:60px;height:60px;border-radius:50px;margin:1.5%">
             <h4 id="prof_nick"></h4>
           </div>
-
           <section id="canvas">
           </section>
-
-          <!-- <form action="" id="send-message" disabled> -->
-          <form id="send-message">
+          <div id="send-message">
             <div class="uploadArea" style="float:bottom">
               <div  id="showAttImg" >
                 <div style="flex-direction:column;padding:5px 0">
@@ -270,11 +148,8 @@
               </div>
             </div>
             <div class="formUpper">
-              <div style="float:right;display:flex;padding:10px">
-                <select  id="user-rooms">
-                  <option id="selectAll" value="全選">全選</option>
-                  <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
-                </select>
+              <div style="float:right;display:none;padding:10px;">
+                <select id="user-rooms"></select>
               </div>
               <div class="insert_media" style="position:absolute;display:block">
                 <button  rel="showAttImg" id="attImg" class="onclick_show"><i class="fa fa-file-image-o fa" aria-hidden="true"></i></button>
@@ -284,13 +159,13 @@
             </div>
             <div class="formLower">
               <input placeholder="輸入訊息..." style="width:85%; height:50px;border:0" size="35" id="message" />
-              <input type="button" id="submitMsg"/>
+              <input type="button" id="submitMsg" />
             </div>
-          </form>
+          </div>
         </div>
 
 
-        <!-- <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" id="內部聊天室">
+        <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" class="enterprise" id="內部聊天室">
           <div class="chat_prof_head"></div>
           <div class="chat_prof">
             <img src="https://marketplace.canva.com/MAB7k1IXVl4/1/thumbnail/canva-single-shield-icon-MAB7k1IXVl4.png" alt="無法顯示相片" style="width:60px;height:60px;border-radius:50px;margin:1.5%;float:left;margin-right: 5px;">
@@ -298,7 +173,7 @@
            </div>
           <section id="canvas">
           </section>
-          <form action="" id="send-message" disabled>
+          <form action="" id="send-message" disabled style="display:none;">
             <select style="float:right" id="user-rooms">
               <option id="selectAll" value="全選">全選</option>
               <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
@@ -307,7 +182,7 @@
             <input type="submit"/>
           </form>
 
-        </div> -->
+        </div>
 
         <div id="infoPanel" class="colume">
           <div class="card text-center">
@@ -317,11 +192,11 @@
                   <a class="nav-link" href='#profile'>Profile</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href='#ticket' >Ticket</a>
-                </li>
-                <li class="nav-item">
                   <a class="nav-link "  href='#todo' >ToDo</a>
                 </li>
+                <!-- <li class="nav-item">
+                  <a class="nav-link" href='#ticket' >Ticket</a>
+                </li> -->
               </ul>
             </div>
             <section id="infoCanvas">

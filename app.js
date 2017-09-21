@@ -4,7 +4,6 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var cors = require('cors');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -34,11 +33,8 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/analyzeResponse', analyzeResponse);
 
-app.use(cors());
-app.options('*', cors());
-
+//facebook connection
 app.get('/webhook', function(req, res) {
-  console.log("YOYO");
   if (req.query['hub.mode'] === 'subscribe' &&
       req.query['hub.verify_token'] === 'verify_token') {
     console.log("Validating webhook");
