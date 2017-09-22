@@ -1,3 +1,3 @@
-tags 資料有進來但是沒有append上去？！（暫緩）
-先做其他三欄
-basic上傳公司logo的部分？！
+『在pushMsg和displayClient新增, chat.css新增agentImg_holder』
+『profile2.js, profile2.ejs, profile.css, tag.css更新』
+『chat.ejs, profile2.ejs, calendar.ejs改成中文』

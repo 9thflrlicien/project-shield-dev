@@ -602,6 +602,9 @@ $(document).ready(function() {
         profile.nickname +
         lastMsgStr +
         "</div>" +
+        "<div class='agentImg_holder'>" +
+        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+        "</div>" +
         "</button></b>"
       ); //new a tablinks
     } else if(profile.channelId === $('#Line_1_room').attr('rel')){
@@ -620,6 +623,9 @@ $(document).ready(function() {
         "<div class='msg_holder'>" +
         profile.nickname +
         lastMsgStr +
+        "</div>" +
+        "<div class='agentImg_holder'>" +
+        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
         "</div>" +
         "</button></b>"
       ); //new a tablinks
@@ -640,6 +646,9 @@ $(document).ready(function() {
         "<div class='msg_holder'>" +
         profile.nickname +
         lastMsgStr +
+        "</div>" +
+        "<div class='agentImg_holder'>" +
+        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
         "</div>" +
         "</button></b>"
       ); //new a tablinks
@@ -790,6 +799,9 @@ $(document).ready(function() {
         data.message +
         "</div>" +
         "<div class='unread_msg'>" + data.unRead + "</div>" +
+        "<div class='agentImg_holder'>" +
+        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+        "</div>" +
         "</button></b>"
       );
 

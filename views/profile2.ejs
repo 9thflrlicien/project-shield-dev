@@ -33,60 +33,51 @@
           </div>
           <!-- /.navbar-header -->
           <ul class="nav navbar-top-links navbar-left">
-
             <li>
-              <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i>聊天室</a>
             </li>
             <li>
-              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> Chat</a>
+              <a href="/calendar">| <i class="fa fa-table fa-fw"></i>行事曆</a>
             </li>
             <li>
-              <a href="/tag">| <i class="fa fa-commenting fa-fw"></i> Tag</a>
+              <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i>資訊主頁</a>
             </li>
-            <li>
-              <a href="/calendar">| <i class="fa fa-table fa-fw"></i> Calendar</a>
-            </li>
-            <li>
-              <a href="/ticket">| <i class="fa fa-ticket fa-fw"></i> Support</a>
-            </li>
-
           </ul>
           <ul class="nav navbar-top-links navbar-right">
+            <!-- /.dropdown -->
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-cog fa-lg"></i> <i class="fa fa-caret-down"></i>
               </a>
               <ul class="dropdown-menu dropdown-user">
-                <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
+                <li><a href="/profile"><i class="fa fa-user fa-fw"></i>設定</a></li>
                 <li class="divider"></li>
-                <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+                <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i>登出</a></li>
               </ul>
+              <!-- /.dropdown-user -->
             </li>
+            <!-- /.dropdown -->
           </ul>
       </nav>
     </div>
 
     <div class="container-fluid">
               <div id="btn-area" style="float:right;margin:2% 5% 0 5%">
-                <button type="button" class="btn btn-default" id="prof-edit" data-toggle="modal" data-target="#profModal">
-                  <span class="fa fa-plus fa-fw"></span>
-                  編輯帳戶資料
-                </button>
               </div>
 
         <div style="margin:20px 0" class="col-md-2">
           <ul class="nav nav-pills nav-stacked">
-            <li class="active"><a data-toggle="pill" href="#home">Basic</a></li>
-            <li><a data-toggle="pill" href="#menu1">Account</a></li>
-            <li><a data-toggle="pill" href="#menu2">Profile</a></li>
-            <li><a data-toggle="pill" href="#menu3">Tag</a></li>
+            <li class="active"><a data-toggle="pill" href="#home">基本設定</a></li>
+            <li><a data-toggle="pill" href="#menu1">用戶資料</a></li>
+            <li><a data-toggle="pill" href="#menu2">聊天室帳號</a></li>
+            <li><a data-toggle="pill" href="#menu3">標籤</a></li>
           </ul>
         </div>
 
         <div class="tab-content">
           <div id="home" class="tab-pane fade in active">
-            <h3>Basic</h3>
-                <div class="col-md-8 col-lg-8 panel panel-info profWid">
+            <h3>基本設定</h3>
+                <div class="col-md-8 col-lg-8 panel-info profWid">
                     <div class="panel-heading">
                       <h3 class="panel-title" id="prof-name"></h3>
                     </div>
@@ -105,14 +96,18 @@
                               </tr>
                             </tbody>
                           </table>
+                  <button type="button" class="btn btn-default" id="prof-edit" data-toggle="modal" data-target="#basicModal">
+                  <span class="fa fa-plus fa-fw"></span>
+                  編輯
+                </button>
                         </div>
                       </div>
                     </div>
                   </div>  
           </div>
           <div id="menu1" class="tab-pane fade">
-            <h3>Account</h3>
-                  <div class="col-md-8 col-lg-8 panel panel-info profWid">
+            <h3>用戶資料</h3>
+                  <div class="col-md-8 col-lg-8 panel-info profWid">
                     <div class="panel-heading">
                       <h3 class="panel-title" id="prof-name"></h3>
                     </div>
@@ -139,18 +134,22 @@
                               </tr>
                             </tbody>
                           </table>
+                   <button type="button" class="btn btn-default" id="prof-edit" data-toggle="modal" data-target="#accountModal">
+                  <span class="fa fa-plus fa-fw"></span>
+                  編輯
+                </button>
                         </div>
                       </div>
                     </div>
                   </div>        
           </div>
           <div id="menu2" class="tab-pane fade">
-            <h3>Profile</h3>
+            <h3>聊天室帳號</h3>
                 <div id="profile-wrap">
                   <div id="error-message" hidden>
                     請按編輯帳戶資料按鈕編輯檔案
                   </div>
-                  <div class="panel panel-info profWid">
+                  <div class="col-md-11 col-lg-11 panel-info profWid">
                     <div class="panel-heading">
                       <h3 class="panel-title" id="prof-name"></h3>
                     </div>
@@ -177,7 +176,7 @@
                               </tr>
                               <tr>
                                 <td>Channel Access Token 1: </td>
-                                <td id="prof-channelAccessToken_1"></td>
+                                <td style="max-width: 750px;max-height:120px;overflow:scroll;display:inline-block;" id="prof-channelAccessToken_1"></td>
                               </tr>
                               <tr>
                                 <td>Channel Id 2: </td>
@@ -189,10 +188,14 @@
                               </tr>
                               <tr>
                                 <td>Channel Access Token 2: </td>
-                                <td id="prof-channelAccessToken_2"></td>
+                                <td style="max-width: 750px;max-height:120px;overflow:scroll;display:inline-block;" id="prof-channelAccessToken_2"></td>
                               </tr>
                             </tbody>
                           </table>
+                  <button type="button" class="btn btn-default" id="prof-edit" data-toggle="modal" data-target="#profModal">
+                  <span class="fa fa-plus fa-fw"></span>
+                  編輯
+                </button>
                         </div>
                       </div>
                     </div>
@@ -201,14 +204,31 @@
           </div>
           </div>
           <div id="menu3" class="tab-pane fade">
-            <div id="tag-wrap">
-              <div id="tag-header">
+            <h3>標籤</h3>
+            <div id="profile-wrap">
+                <div style="margin:2% 5%">
+                  <button type="button" class="btn btn-default add-tag">
+                    <span class="fa fa-plus fa-fw"></span> 新增標籤
+                  </button>
+                  <button type="button" class="btn btn-default pull-right all-confirm">確認</button>
+                  <button type="button" class="btn btn-default pull-right all-cancel">取消</button>
+                </div>
+<!--               <div id="tag-header">
                 <div id="header-left">
                   <span class="bigFont">Tag</span>
                 </div>
-              </div>
-              <div id="tag-tab">
-                <div class="tabcontent">
+              </div> -->
+
+<!--                 <div class="tabcontent">
+ -->
+                  <div id="tag-tab" class="col-md-11 col-lg-11 panel-info profWid">
+                    <div class="panel-heading">
+                      <h3 class="panel-title" id="prof-name"></h3>
+                    </div>
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class=" col-md-12 col-lg-12 ">
+
                   <table class="table table-striped" id="tagTable">
                     <thead>
                       <tr>
@@ -226,18 +246,126 @@
                   </table>
                 </div>
                 <div class="btn-toolbar">
-                  <button type="button" class="btn btn-default" id="add-tag">
-                    <span class="fa fa-plus fa-fw"></span> Add a tag
+                  <button type="button" class="btn btn-default add-tag">
+                    <span class="fa fa-plus fa-fw"></span> 新增標籤
                   </button>
-                  <button type="button" class="btn btn-default pull-right" id="all-confirm">Confirm</button>
-                  <button type="button" class="btn btn-default pull-right" id="all-cancel">Cancel</button>
+                  <button type="button" class="btn btn-default pull-right all-confirm">確認</button>
+                  <button type="button" class="btn btn-default pull-right all-cancel">取消</button>
                 </div>
               </div>
           </div>
         </div>
+        </div>
+        </div>
 
 
     </div>
+    </div>
+
+    <!-- Basic Modal -->
+    <div class="modal fade" id="basicModal" tabindex="-1" role="dialog" aria-labelledby="profModalTitle" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="profModalTitle"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <form method="POST" action="/foo-route">
+              <!-- 編號 -->
+              <div class="form-group" hidden>
+                <label for="edit-id" class="col-2 col-form-label">ID</label>
+                <span id="prof-edit-id"></span>
+              </div>
+
+                                          <!-- Company -->
+              <div class="form-group">
+                <label for="prof-edit-company" class="col-2 col-form-label">公司: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-company">
+                </div>
+              </div>
+
+                                          <!-- Logo -->
+              <div class="form-group">
+                <label for="prof-edit-logo" class="col-2 col-form-label">Logo: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-logo">
+                </div>
+              </div>
+
+            </form>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="prof-submit">確認</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Modal -->
+    <div class="modal fade" id="accountModal" tabindex="-1" role="dialog" aria-labelledby="profModalTitle" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="profModalTitle"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <form method="POST" action="/foo-route">
+              <!-- 編號 -->
+              <div class="form-group" hidden>
+                <label for="edit-id" class="col-2 col-form-label">ID</label>
+                <span id="prof-edit-id"></span>
+              </div>
+              <!-- 出生日期 -->
+              <div class="form-group">
+                <label for="prof-edit-dob" class="col-2 col-form-label">出生日期: </label>
+                <div class="col-4">
+                  <input class="form-control" type="date" value="" id="prof-edit-dob">
+                </div>
+              </div>
+              <!-- 郵件 -->
+              <div class="form-group">
+                <label for="prof-edit-email" class="col-2 col-form-label">電子郵件: </label>
+                <div class="col-4">
+                  <input class="form-control" type="email" value="" id="prof-edit-email">
+                </div>
+              </div>
+              <!-- 性別 -->
+              <div class="form-group">
+                <label for="prof-edit-gender">性別: </label>
+                <select class="form-control" id="prof-edit-gender">
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </div>
+
+              <!-- 電話 -->
+              <div class="form-group">
+                <label for="prof-edit-phone" class="col-2 col-form-label">手機: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-phone">
+                </div>
+              </div>
+
+            </form>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="prof-submit">確認</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Profile Modal -->
@@ -258,51 +386,6 @@
                 <label for="edit-id" class="col-2 col-form-label">ID</label>
                 <span id="prof-edit-id"></span>
               </div>
-              <!-- 姓名 -->
-              <div class="form-group">
-                <label for="prof-edit-name" class="col-2 col-form-label">Name: </label>
-                <div class="col-4">
-                  <input class="form-control" type="text" value="" id="prof-edit-name">
-                </div>
-              </div>
-              <!-- 姓名 -->
-              <div class="form-group">
-                <label for="prof-edit-name" class="col-2 col-form-label">Nickname: </label>
-                <div class="col-4">
-                  <input class="form-control" type="text" value="" id="prof-edit-nick">
-                </div>
-              </div>
-              <!-- 出生日期 -->
-              <div class="form-group">
-                <label for="prof-edit-dob" class="col-2 col-form-label">Birth Date: </label>
-                <div class="col-4">
-                  <input class="form-control" type="date" value="" id="prof-edit-dob">
-                </div>
-              </div>
-              <!-- 郵件 -->
-              <div class="form-group">
-                <label for="prof-edit-email" class="col-2 col-form-label">Email: </label>
-                <div class="col-4">
-                  <input class="form-control" type="email" value="" id="prof-edit-email">
-                </div>
-              </div>
-              <!-- 性別 -->
-              <div class="form-group">
-                <label for="prof-edit-gender">Gender: </label>
-                <select class="form-control" id="prof-edit-gender">
-                  <option>Male</option>
-                  <option>Female</option>
-                </select>
-              </div>
-
-              <!-- 電話 -->
-              <div class="form-group">
-                <label for="prof-edit-phone" class="col-2 col-form-label">Phone: </label>
-                <div class="col-4">
-                  <input class="form-control" type="tel" value="" id="prof-edit-phone">
-                </div>
-              </div>
-
                             <!-- Channel Id -->
               <div class="form-group">
                 <label for="prof-edit-channelId_1" class="col-2 col-form-label">Channel Id 1: </label>
@@ -345,29 +428,12 @@
                   <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken_2">
                 </div>
               </div>
-
-                                          <!-- Company -->
-              <div class="form-group">
-                <label for="prof-edit-company" class="col-2 col-form-label">Company: </label>
-                <div class="col-4">
-                  <input class="form-control" type="tel" value="" id="prof-edit-company">
-                </div>
-              </div>
-
-                                          <!-- Logo -->
-              <div class="form-group">
-                <label for="prof-edit-logo" class="col-2 col-form-label">Logo: </label>
-                <div class="col-4">
-                  <input class="form-control" type="tel" value="" id="prof-edit-logo">
-                </div>
-              </div>
-
             </form>
 
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="prof-submit">Submit</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="prof-submit">確認</button>
           </div>
         </div>
       </div>
