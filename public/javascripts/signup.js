@@ -20,7 +20,10 @@ function register(){
       database.ref('users/' + auth.currentUser.uid).set({
         name: full_name,
         nickname: nick,
-        email: email
+        email: email,
+        group1: "line群組1",
+        group2: "line群組2",
+        fbgroup: "臉書群組"
       });
     })
     .catch(error => {

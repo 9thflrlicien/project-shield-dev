@@ -1,12 +1,12 @@
 // Initialize Firebase
 var config = {
-  apiKey: "AIzaSyCKIPCKJpN1PCqK1EUygD6erNpo2lGmrpA",
-  authDomain: "shield-production.firebaseapp.com",
-  databaseURL: "https://shield-production.firebaseio.com",
-  projectId: "shield-production",
-  storageBucket: "shield-production.appspot.com",
-  messagingSenderId: "524065152880"
-};
+    apiKey: "AIzaSyAqzIra9YkeE0HZZBSwXrjh4GemO7yVdmI",
+    authDomain: "shield-88fd0.firebaseapp.com",
+    databaseURL: "https://shield-88fd0.firebaseio.com",
+    projectId: "shield-88fd0",
+    storageBucket: "shield-88fd0.appspot.com",
+    messagingSenderId: "376341346069"
+  };
 firebase.initializeApp(config);
 
 const auth = firebase.auth();

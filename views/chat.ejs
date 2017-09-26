@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
     <link rel="stylesheet" href="stylesheets/main.css" />
     <link rel="stylesheet" href="stylesheets/chat.css" />
+
   </head>
   <body>
     <div id="wrapper">
@@ -26,18 +27,21 @@
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="/">SHIELD</a>
+              <a class="navbar-brand" href="/">Chatshier</a>
           </div>
           <!-- /.navbar-header -->
           <ul class="nav navbar-top-links navbar-left">
             <li>
-              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i>聊天室</a>
+              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> 聊天室</a>
             </li>
             <li>
-              <a href="/calendar">| <i class="fa fa-table fa-fw"></i>行事曆</a>
+              <a href="/calendar">| <i class="fa fa-table fa-fw"></i> 行事曆</a>
             </li>
             <li>
-              <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i>資訊主頁</a>
+              <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
+            </li>
+            <li>
+              <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
             </li>
           </ul>
           <ul class="nav navbar-top-links navbar-right">
@@ -64,15 +68,15 @@
         <div id="chatApp" class="colume" >
           <div class="chatApp_item" id="Line_1" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-            <h4 id="group1" class="myText">跟著董事長遊台灣1</h4><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+            <h4 id="group1" class="myText"></h4><input id="inputgroup1" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
           </div>
           <div class="chatApp_item" id="Line_2" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-            <h4>跟著董事長遊台灣2</h4>
+            <h4 id="group2" class="myText"></h4><input id="inputgroup2" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
           </div>
           <div class="chatApp_item" id="FB" open="true">
             <img class="software_icon" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png">
-            <h4>Facebook</h4>
+            <h4 id="fbgroup" class="myText"></h4><input id="inputfbgroup" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
           </div>
           <div class="chatApp_item" id="wechat">
             <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/wechat.svg">
@@ -90,7 +94,7 @@
 
         <div id="user" class="colume">
           <p class="choose">
-            choose a chat app to continue
+            請選擇一個群組
           </p>
           <p class="error"></p>
           <div class="tablinks_area" id="Line_1_room">
@@ -186,28 +190,37 @@
             <div class="card-header">
               <ul class="nav nav-tabs card-header-tabs">
                 <li class="nav-item">
-                  <a class="nav-link" href='#profile'>用戶資料</a>
+                  <a class="nav-link" href='#profile'>個人資料</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link "  href='#todo' >待辦事項</a>
+                  <a class="nav-link"  href='#todo' >待辦事項</a>
+                </li>                
+                <li class="nav-item">
+                    <a href="/tform" class="btn btn-info inner-add-complete">
+                      <span class="fa fa-plus fa-fw"></span> Add a Ticket
+                    </a>
                 </li>
               </ul>
             </div>
             <div id="infoCanvas"></div>
           </div>
-          <div class="memo">For note, memo, comment</div>
+          <div class="memo"><blockquote class="trello-card"><a href="https://trello.com/c/zdh6mk0R/2-if-not-then-use-the-integrated-freshdesk-api-created-by-fwl">備註無法顯示</a></blockquote><script src="https://trello.com/embed.js"></script></div>
         </div>
-
       </div>
 
-      <!-- Modal -->
-      <div class="modal fade" id="userInfoModal" role="dialog">
+      <div class="modal fade" id="ticketInfoModal" role="dialog">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <button class="close" data-dismiss="modal">&times;</button>
-              <img src="" alt="無法顯示相片" class="userPhoto" style="width:128px;height:128px;">
-              <h4 class="modal-title">用戶綽號</h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <div style="display:flex">
+                <span id="ID_num"></span>
+                <table>
+                  <th style="display:none">內容</th>
+                  <td class="modal-title edit">用戶代號</td>
+                </table>
+
+              </div>
             </div>
             <div class="modal-body">
               <table class="info_input_table">
@@ -215,12 +228,13 @@
               </table>
             </div>
             <div class="modal-footer">
-              <button id="userInfo-submit" class="btn btn-default" style="background-color: greenyellow;">確認</button>
-              <button id="userInfo-cancel" class="btn btn-default" data-dismiss="modal">取消</button>
+              <button type="button" id="ticketInfo-submit" class="btn btn-default" data-dismiss="modal" style="background-color: greenyellow;">Confirm</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
           </div>
         </div>
       </div>
+
       <!-- end -->
 
     </div>
@@ -234,5 +248,7 @@
     <script src="javascripts/sb-admin-2.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/chat.js"></script>
+    <script src="https://trello.com/embed.js"></script>
+
   </body>
 </html>

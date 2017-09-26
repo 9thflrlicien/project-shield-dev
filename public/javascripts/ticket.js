@@ -6,7 +6,7 @@ var socket = io.connect();
 
 var yourdomain = 'fongyu';
 var api_key = '4qydTzwnD7xRGaTt7Hqw';
-var ticket_content = $('#ticket-content');
+var ticket_content = $('.ticket-content');
 
 $(document).ready(function() {
   if(window.location.pathname === '/ticket'){
@@ -14,6 +14,9 @@ $(document).ready(function() {
   }
 
   $(document).on('click', '#form-submit', submitAdd) //新增ticket
+  $(document).on('click', '#form-goback', function(){
+    location.href = '/ticket'
+  }) //返回ticket
   $(document).on('click', '.ticket_content',moreInfo) ;
   $(document).on('click', "#ticketInfo-submit", updateStatus) ;
   $(document).on('click', '.edit', showInput) ;
@@ -40,12 +43,14 @@ function loadTable(){
         "Authorization": "Basic " + btoa(api_key + ":x")
       },
       success: function(data, textStatus, jqXHR) {
-        // console.log(data);
         for(let i=0;i < data.length;i++){
           ticketInfo = data;
+        console.log(data[i]);
+
           ticket_content.prepend(
             '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
             '<td style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
+            '<td>' + data[i].name + '</td>' +
             '<td>' + data[i].subject + '</td>' +
             '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
             '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
@@ -291,15 +296,15 @@ function addZero(n) {
 
 
 function submitAdd(){
+  let name = $('#form-name').text();
   let subject = $('#form-subject').val();
   let email = $('#form-email').val();
   let phone = $('#form-phone').val();
   let status = $('#form-status option:selected').text();
   let priority = $('#form-priority option:selected').text();
   let description = $('#form-description').val();
-  ticket_data = '{ "description": "'+description+'", "subject": "'+subject+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+' }';
-  // console.log(ticket_data)
-
+  ticket_data = '{ "description": "'+description+'", "name": "'+name+'", "subject": "'+subject+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+' }';
+  console.log(ticket_data);
   // 驗證
   let email_reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
   let phone_reg = /\b[0-9]+\b/;
@@ -331,6 +336,13 @@ function submitAdd(){
       $('#error').empty();
       $('#form-description').css('border', '1px solid #ccc');
     }, 3000);
+  } else if($('#form-name').val().trim() === '') {
+    $('#error').append('請輸入客戶姓名');
+    $('#form-name').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-description').css('border', '1px solid #ccc');
+    }, 3000);
   } else {
     $.ajax(
       {
@@ -343,7 +355,6 @@ function submitAdd(){
         },
         data: ticket_data,
         success: function(data, textStatus, jqXHR) {
-          // console.log('works');
         },
         error: function(jqXHR, tranStatus) {
           x_request_id = jqXHR.getResponseHeader('X-Request-Id');
@@ -352,6 +363,7 @@ function submitAdd(){
       }
     );
 
+    $('#form-name').val('');
     $('#form-subject').val('');
     $('#form-email').val('');
     $('#form-phone').val('');
@@ -448,7 +460,7 @@ function priorityNumberToText(priority){
 }
 
 function searchBar(){
-  let content = $('#ticket-content tr');
+  let content = $('.ticket-content tr');
   let val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
 
   content.show().filter(function() {

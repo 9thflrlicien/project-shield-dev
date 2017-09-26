@@ -1,3 +1,14 @@
-『在pushMsg和displayClient新增, chat.css新增agentImg_holder』
-『profile2.js, profile2.ejs, profile.css, tag.css更新』
-『chat.ejs, profile2.ejs, calendar.ejs改成中文』
+在chat.css裡面貼上ticket.css（有更動）
+找chat.js裡 id="todo"的地方，有新增一些東西（應該有兩個地方）
+chat.ejs裡要加上ticket.css
+id="ticket-content"改成class="ticket-content"
+loadTable裡我把ticket_content改成$('.ticket-content')不然一直讀不到
+chat.css card width改成60%;
+英文改中文
+ticket form back的按鈕沒有功能 (在ticket.js上面新增 #form-goback 功能)
+
+2. search不work
+3. todo不會縮
+4. 無法刪除ticket
+5. hover讓todo長出來
+6. freshdesk api還不能存名字，須研究decumentation

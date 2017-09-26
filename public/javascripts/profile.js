@@ -1,6 +1,5 @@
 $(document).ready(function() {
   // $('#side-menu').hide();
-
   var name = $('#prof-name').text();
   var id = $('#prof-id').text();
   var dob = $('#prof-dob').text();
@@ -34,11 +33,12 @@ $(document).ready(function() {
   $('#profModal').on('hidden.bs.modal', profClear); //viewModal 收起來
   $(document).on('click', '#signout-btn', logout); //登出
 //----------------TAG---------------
+  var socket = io.connect();
   var tagTable = $('#tagTable');
   var tagTableBody = $('#tagTable-body');
-  var addTagBtn = $('#add-tag');
-  var allConfirmBtn = $('#all-confirm');
-  var allCancelBtn = $('#all-cancel');
+  var addTagBtn = $('.add-tag');
+  var allConfirmBtn = $('.all-confirm');
+  var allCancelBtn = $('.all-cancel');
   var rowsCount = 0;  //dynamic load count in db ref
 
   tagTableBody.sortable();
@@ -62,8 +62,8 @@ $(document).ready(function() {
       tagTableBody.find('.tag-set-td:last').find('#set'+type).val(set)
         .show().siblings().hide();
 
-      if( modify ) tagTableBody.find(".tag-delete:last").html('<button class="tag-delete-btn">delete</button>');
-      else tagTableBody.find(".tag-delete:last").html('cant delete');
+      if( modify ) tagTableBody.find(".tag-delete:last").html('<button class="tag-delete-btn">刪除</button>');
+      else tagTableBody.find(".tag-delete:last").html('無法刪除');
     }
   });
 
@@ -176,7 +176,7 @@ $(document).ready(function() {
           //   +'<option value="DD, d MM, yy">Full - DD, d MM, yy</option>'
           //   +'<option value="\'day\' d \'of\' MM \'in the year\' yy">With text - \'day\' d \'of\' MM \'in the year\' yy</option>'
           // + '</select>'
-          + '<p class="tag-set" id="set2" style="display: none;"> no set </p>'
+          + '<p class="tag-set" id="set2" style="display: none;">無設定</p>'
           // + '<select class= "tag-set" id="set2" style="display: none;">'
           //   + '<option value="12">12 hr</option>'
           //   + '<option value="24">24 hr</option>'
@@ -184,8 +184,8 @@ $(document).ready(function() {
           + '<textarea class= "tag-set" id="set3" rows="3" columns = "10" style="resize: vertical; display: none;">'
           + '</textarea>'
         + '</td>'
-        + '<td class="tag-move"><p id="moveup">UP</p><p id="movedown">DOWN</p></td>'
-        + '<td class="tag-delete"></td>'
+        + '<td class="tag-move"><p id="moveup">上</p><p id="movedown">下</p></td>'
+        + '<td class="tag-delete"><button class="tag-delete-btn">刪除</button></td>'
         + '<td class="tag-modify">true</td>'
       + '</tr>'
     );
@@ -216,6 +216,8 @@ function loadProf() {
       $('#prof-channelId_2').text(profInfo.chanId_2);
       $('#prof-channelSecret_2').text(profInfo.chanSecret_2);
       $('#prof-channelAccessToken_2').text(profInfo.chanAT_2);
+      $('#prof-company').text(profInfo.company);
+      $('#prof-logo').text(profInfo.logo);
     }
 
   });
@@ -238,6 +240,8 @@ function profEdit() {
   let chanId_2 = $('#prof-channelId_2').text();
   let chanSecret_2 = $('#prof-channelSecret_2').text();
   let chanAT_2 = $('#prof-channelAccessToken_2').text();
+  let company = $('#prof-company').text();
+  let logo = $('#prof-logo').text();
 
   // console.log(id, name, dob, email, gender,phone);
 
@@ -255,6 +259,9 @@ function profEdit() {
   $('#prof-edit-channelId_2').val(chanId_2);
   $('#prof-edit-channelSecret_2').val(chanSecret_2);
   $('#prof-edit-channelAccessToken_2').val(chanAT_2);
+
+  $('#prof-edit-company').val(company);
+  $('#prof-edit-logo').val(logo);
 }
 
 function profSubmit() {
@@ -274,10 +281,11 @@ function profSubmit() {
   let chanSecret_2 = $('#prof-edit-channelSecret_2').val();
   let chanAT_2 = $('#prof-edit-channelAccessToken_2').val();
   // console.log(id, name, dob, email, gender,phone);
-
+  let company = $('#prof-edit-company').val();
+  let logo = $('#prof-edit-logo').val();
   // console.log(id);
   // database.ref('users/' + userId).remove();
-  database.ref('users/' + userId).set({
+  database.ref('users/' + userId).update({
     name: name,
     dob: dob,
     email: email,
@@ -289,7 +297,9 @@ function profSubmit() {
     chanAT_1: chanAT_1,
     chanId_2: chanId_2,
     chanSecret_2: chanSecret_2,
-    chanAT_2: chanAT_2
+    chanAT_2: chanAT_2,
+    company: company,
+    logo: logo
   });
   io.connect().emit('update bot', [
     {
@@ -324,6 +334,8 @@ function profClear() {
   $('#prof-edit-channelId_2').val('');
   $('#prof-edit-channelSecret_2').val('');
   $('#prof-edit-channelAccessToken_2').val('');
+  $('#prof-edit-company').val('');
+  $('#prof-edit-logo').val('');
 }
 
 

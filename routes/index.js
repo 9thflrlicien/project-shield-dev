@@ -31,7 +31,7 @@ router.get('/tform', function(req, res, next) {
 });
 
 router.get('/profile', function(req, res, next) {
-  res.render('profile2', { title: 'Profile' });
+  res.render('profile', { title: 'Profile' });
 });
 
 //authentication
