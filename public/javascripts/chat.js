@@ -55,11 +55,12 @@ $(document).ready(function() {
   // 群組名稱
   $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
   $(document).on('click', '#save-group-btn', groupSubmit); // 完成編輯群組名稱
-  $('#message').on('keydown', function(event){
+  $(document).on('click', '#cls-cal-btn', cancelSubmit); // 取消編輯群組名稱
+  $('#message').on('keydown', function(event){ // 按enter可以發送訊息
     if(event.keyCode == 13){
       document.getElementById('submitMsg').click();
     }
-  })
+  });
   $(document).on('click', '.dropdown-menu', function(event) {
     event.stopPropagation();
   });
@@ -758,7 +759,7 @@ $(document).ready(function() {
   } // end of displayMessage
 
   function displayClient(data, channelId) {
-    console.log(data);
+    // console.log(data);
     // console.log(channelId+data.id);
     // console.log(data.message);
     //update tablinks
@@ -768,7 +769,7 @@ $(document).ready(function() {
     // console.log(name_list.indexOf(channelId+data.id) > -1);
     if (name_list.indexOf(data.channelId+data.id) > -1) {
       let target = $('.tablinks_area[rel="'+channelId+'"]').find(".tablinks[name='" + data.id + "'][rel='"+channelId+"']");
-      console.log(data.message);
+      // console.log(data.message);
       if(data.message.startsWith('<a')){ // 判斷客戶傳送的是檔案還是文字
         target.find("#msg").html(toTimeStr(data.time) + '客戶傳送檔案').css("font-weight", font_weight); // 未讀訊息字體變大
       } else {
@@ -780,7 +781,7 @@ $(document).ready(function() {
       // console.log('data.unRead on line 400');
       // console.log(data.unRead);
       if (data.unRead == 0 || data.unRead == false || data.unRead == 'undefined') {
-        console.log('im here');
+        // console.log('im here');
         target.find('.unread_msg').html(data.unRead).css("display", "none");
       }
       n++;
@@ -939,10 +940,9 @@ $(document).ready(function() {
 
     // 把未讀訊息數歸零
     let userId = $(this).attr('name');
-    let roomId = $(this).attr('rel');
+    let roomId = $(this).attr('rel'); // channelId
     let selectedId = [];
     let outerInfo, outerId, innerInfo;
-    // console.log(userId, roomId);
     database.ref('chats/Data').once('value', outersnap => {
       outerInfo = outersnap.val();
       outerId = Object.keys(outerInfo);
@@ -1113,12 +1113,12 @@ $(document).ready(function() {
 
   function submitMsg(e){
     e.preventDefault();
-    let uid = auth.currentUser.uid;
-    let last_talk_to;
+    let email = auth.currentUser.email;
     // console.log($(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')); // 測試
     // console.log($(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id')); // 測試
     let room = $(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id');
     let channelId = $(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel');
+    let userId = $(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('id');
     if(room !== undefined || channelId !== undefined){
       let sendObj = {
         id: "",
@@ -1130,26 +1130,29 @@ $(document).ready(function() {
         // channelId: $(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
       };
       // 新增功能：把最後送出訊息的客服人員的編號放在客戶的Profile裡面
-      // database.ref('chats/Data').once('value', outsnap => {
-      //   let outInfo = outsnap.val();
-      //   let outId = Object.keys(outInfo);
-      //   database.ref('chats/Data' + outId + 'Profile').once('value', innsnap => {
-      //     let innInfo = innsnap.val();
-      //     console.log(innInfo);
-      //     if(innInfo.userId === room && innInfo.channelId === channelId){
-      //       last_talk_to = outId;
-      //     }
-      //   });
-      // });
-      // database.ref('chats/Data' + last_talk_to + 'Profile').update({
-      //   "最後聊天的客服人員": uid
-      // });
+      database.ref('chats/Data').once('value', outsnap => {
+        let outInfo = outsnap.val();
+        let outId = Object.keys(outInfo);
+        // console.log(outId);
+        for(let i in outId){
+          database.ref('chats/Data/' + outId[i] + '/Profile').once('value', innsnap => {
+            let innInfo = innsnap.val();
+            // console.log(innInfo.channelId);
+            if(innInfo.channelId === undefined){
+            } else if(innInfo.channelId === channelId && innInfo.userId === userId){
+              database.ref('chats/Data/' + outId[i] + '/Profile').update({
+                "最後聊天的客服人員": email
+              });
+            }
+          });
+        }
+      });
       sendObj.id = $("#user-rooms option:selected").val(); // select tag選到的值
       socket.emit('send message', sendObj); //emit到server (www)
       messageInput.val('');
     } else {
       console.log('either room id or channel id is undefined');
-      console.log('room id: ' + room);
+      console.log('room: ' + room);
       console.log('channel id: ' + channelId);
     }
 
@@ -1366,6 +1369,13 @@ function groupSubmit() {
     alert('群組名稱已修改為'+thegroup);
   }
 }//end groupSubmit
+
+function cancelSubmit(){
+  $(this).hide();
+  $(this).siblings('#save-group-btn').hide();
+  $(this).siblings('[type="text"]').hide();
+  $(this).siblings('.myText').show();
+} // end of cancelSubmit
 
 function closeIdleRoomTry() {
   let early_time = Date.now() - 15 * 60 * 1000; //15min before now
