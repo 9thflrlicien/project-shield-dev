@@ -1,5 +1,4 @@
 $(document).ready(function() {
-  // $('#side-menu').hide();
   var name = $('#prof-name').text();
   var id = $('#prof-id').text();
   var dob = $('#prof-dob').text();
@@ -29,7 +28,9 @@ $(document).ready(function() {
   setTimeout(loadProf, 1000);
 
   $(document).on('click', '#prof-edit', profEdit); //打開modal
-  $(document).on('click', '#prof-submit', profSubmit); //完成編輯
+  $(document).on('click', '#prof-submit-action', profSubmitAction); //完成編輯-action
+  $(document).on('click', '#prof-submit-profile', profSubmitProfile); //完成編輯-profile
+  $(document).on('click', '#prof-submit-basic', profSubmitBasic); //完成編輯-basic
   $('#profModal').on('hidden.bs.modal', profClear); //viewModal 收起來
   $(document).on('click', '#signout-btn', logout); //登出
 //----------------TAG---------------
@@ -219,10 +220,7 @@ function loadProf() {
       $('#prof-company').text(profInfo.company);
       $('#prof-logo').text(profInfo.logo);
     }
-
   });
-
-  // $('#prof-email').append(email);
 }
 
 function profEdit() {
@@ -243,8 +241,6 @@ function profEdit() {
   let company = $('#prof-company').text();
   let logo = $('#prof-logo').text();
 
-  // console.log(id, name, dob, email, gender,phone);
-
   $('#prof-edit-id').val(id);
   $('#prof-edit-name').val(name);
   $('#prof-edit-dob').val(dob);
@@ -264,15 +260,47 @@ function profEdit() {
   $('#prof-edit-logo').val(logo);
 }
 
-function profSubmit() {
+function profSubmitBasic() {
   let userId = auth.currentUser.uid;
-  let id = $('#prof-edit-id').val();
-  let name = $('#prof-edit-name').val();
-  let nick = $('#prof-edit-nick').val();
+  // console.log(id, name, dob, email, gender,phone);
+  let company = $('#prof-edit-company').val();
+  let logo = $('#prof-edit-logo').val();
+  // console.log(id);
+  // database.ref('users/' + userId).remove();
+  database.ref('users/' + userId).update({
+    company: company,
+    logo: logo
+  });
+
+  $('#error-message').hide();
+  profClear();
+  loadProf();
+  $('#basicModal').modal('hide');
+}
+
+function profSubmitAction() {
+  let userId = auth.currentUser.uid;
   let dob = $('#prof-edit-dob').val();
   let email = $('#prof-edit-email').val();
   let gender = $('#prof-edit-gender').val();
   let phone = $('#prof-edit-phone').val();
+  // console.log(id);
+  // database.ref('users/' + userId).remove();
+  database.ref('users/' + userId).update({
+    dob: dob,
+    email: email,
+    gender: gender,
+    phone: phone,
+  });
+
+  $('#error-message').hide();
+  profClear();
+  loadProf();
+  $('#accountModal').modal('hide');
+}
+
+function profSubmitProfile() {
+  let userId = auth.currentUser.uid;
 
   let chanId_1 = $('#prof-edit-channelId_1').val();
   let chanSecret_1 = $('#prof-edit-channelSecret_1').val();
@@ -281,25 +309,15 @@ function profSubmit() {
   let chanSecret_2 = $('#prof-edit-channelSecret_2').val();
   let chanAT_2 = $('#prof-edit-channelAccessToken_2').val();
   // console.log(id, name, dob, email, gender,phone);
-  let company = $('#prof-edit-company').val();
-  let logo = $('#prof-edit-logo').val();
   // console.log(id);
   // database.ref('users/' + userId).remove();
-  database.ref('users/' + userId).set({
-    name: name,
-    dob: dob,
-    email: email,
-    gender: gender,
-    phone: phone,
-    nickname: nick,
+  database.ref('users/' + userId).update({
     chanId_1: chanId_1,
     chanSecret_1: chanSecret_1,
     chanAT_1: chanAT_1,
     chanId_2: chanId_2,
     chanSecret_2: chanSecret_2,
     chanAT_2: chanAT_2,
-    company: company,
-    logo: logo
   });
   io.connect().emit('update bot', [
     {

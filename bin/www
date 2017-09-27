@@ -348,7 +348,7 @@ function bot_on_message(event) {
         survey(message_lineTochat); // 問卷
         appointment(message_lineTochat); // 預約
         commonquestions(message_lineTochat); // 常見問題
-        apiai(message_lineTochat);
+        // apiai(message_lineTochat);
       }
     }
 
@@ -6301,13 +6301,21 @@ io.sockets.on('connection', (socket) => {
     console.log("userId = "+userId);
     firebase.database().ref('users/' + userId).once('value', snap => {
       let chatInfo = snap.val();
-      let chanId_1 = chatInfo.chanId_1;
-      let chanId_2 = chatInfo.chanId_2;
-      console.log("response line channel, channelId = "+chanId_1+', '+chanId_2);
-      socket.emit('response line channel', {
-        chanId_1: chanId_1,
-        chanId_2: chanId_2
-      });
+      if(chatInfo !== null){
+        let chanId_1 = chatInfo.chanId_1;
+        let chanId_2 = chatInfo.chanId_2;
+        console.log("response line channel, channelId = "+chanId_1+', '+chanId_2);
+        socket.emit('response line channel', {
+          chanId_1: chanId_1,
+          chanId_2: chanId_2
+        });
+      } else {
+        console.log('chatInfo is null');
+        socket.emit('response line channel', {
+          chanId_1: '',
+          chanId_2: ''
+        });
+      }
     });
   });
 
