@@ -7,8 +7,9 @@ function register(){
   let lname = document.getElementById('last-name').value;
   let email = document.getElementById('register-email').value;
   let password = document.getElementById('register-password').value;
+  let nick = document.getElementById('nick').value;
   let full_name = fname + ' ' + lname;
-  console.log(full_name, email, password);
+  // console.log(full_name, email, password);
   if(fname === ''){
     showError('Please type in your first name');
   } else if(lname === ''){
@@ -16,13 +17,16 @@ function register(){
   } else {
     auth.createUserWithEmailAndPassword(email, password)
     .then(() => {
-      database.ref('users/' + auth.currentUser.uid).push({
+      database.ref('users/' + auth.currentUser.uid).set({
         name: full_name,
-        email: auth.currentUser.email
+        nickname: nick,
+        email: email,
+        group1: "line群組1",
+        group2: "line群組2",
+        fbgroup: "臉書群組"
       });
     })
     .catch(error => {
-      // console.log(error);
       showError(error.message);
     });
   }

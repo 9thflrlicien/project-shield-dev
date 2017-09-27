@@ -1,99 +1,220 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <meta charset="utf-8" />
-      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta name="description" content="" />
-      <title><%= title %></title>
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
-      <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
-      <!-- Morris Charts CSS -->
-      <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
-      <link rel="stylesheet" href="stylesheets/main.css" />
-      <link rel="stylesheet" href="stylesheets/chat.css" />
-   </head>
-   <body>
-      <div id="wrapper">
-         <!-- Navigation -->
-         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-            <div class="navbar-header">
-               <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-               <span class="sr-only">Toggle navigation</span>
-               <span class="icon-bar"></span>
-               <span class="icon-bar"></span>
-               <span class="icon-bar"></span>
-               </button>
-               <a class="navbar-brand" href="/">PS Admin</a>
-            </div>
-            <!-- /.navbar-header -->
-            <ul class="nav navbar-top-links navbar-right">
-
-               <!-- /.dropdown -->
-               <li class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                  <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-user">
-                     <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
-                     <li class="divider"></li>
-                     <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
-                  </ul>
-                  <!-- /.dropdown-user -->
-               </li>
-               <!-- /.dropdown -->
-            </ul>
-            <!-- /.navbar-top-links -->
-            <div class="navbar-default sidebar" role="navigation">
-
-              <div class="sidebar-nav navbar-collapse">
-                 <ul class="nav" id="side-menu">
-                    <li>
-                       <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
-                    </li>
-                    <li>
-                       <a href="/chat" class="active"><i class="fa fa-commenting fa-fw"></i> Chat</a>
-                    </li>
-                    <li>
-                       <a href="/history"><i class="fa fa-commenting fa-fw"></i> History</a>
-                    </li>
-                    <li>
-                       <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
-                    </li>
-                    <li>
-                       <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
-                    </li>
-                 </ul>
-              </div>
-            <!-- /.sidebar-collapse -->
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
+    <!-- Morris Charts CSS -->
+    <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
+    <link rel="stylesheet" href="stylesheets/main.css" />
+    <link rel="stylesheet" href="stylesheets/chat.css" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <!-- Navigation -->
+      <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+          <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                  <span class="sr-only">Toggle navigation</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="/">Chatshier</a>
           </div>
-            <!-- /.navbar-static-side -->
-         </nav>
-      </div>
-      <div id="home">
-         <h4 style="text-align: center" id="printAgent"></h4>
+          <!-- /.navbar-header -->
+          <ul class="nav navbar-top-links navbar-left">
+            <li>
+              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> 聊天室</a>
+            </li>
+            <li>
+              <a href="/calendar">| <i class="fa fa-table fa-fw"></i> 行事曆</a>
+            </li>
+            <li>
+              <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
+            </li>
+            <li>
+              <a href="#">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
+            </li>
+          </ul>
+          <ul class="nav navbar-top-links navbar-right">
+            <!-- /.dropdown -->
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-cog fa-lg"></i> <i class="fa fa-caret-down"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-user">
+                <li><a href="/profile"><i class="fa fa-user fa-fw"></i>設定</a></li>
+                <li class="divider"></li>
+                <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i>登出</a></li>
+              </ul>
+              <!-- /.dropdown-user -->
+            </li>
+            <!-- /.dropdown -->
+          </ul>
+          <!-- /.navbar-top-links -->
+      </nav>
+    </div>
 
-         <div class="tab">
-            <h4 class="tablinks_head">Network Loading...</h4>
-            <ol class="list-group" id="clients"></ol>
-         </div>
+    <div id="chatHome">
+      <div class="chatArea">
+        <div id="chatApp" class="colume" >
+          <div class="chatApp_item" id="Line_1" open="true">
+            <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
+            <h4 id="group1" class="myText"></h4><input id="inputgroup1" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+          </div>
+          <div class="chatApp_item" id="Line_2" open="true">
+            <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
+            <h4 id="group2" class="myText"></h4><input id="inputgroup2" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+          </div>
+          <div class="chatApp_item" id="FB" open="true">
+            <img class="software_icon" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png">
+            <h4 id="fbgroup" class="myText"></h4><input id="inputfbgroup" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+          </div>
+          <div class="chatApp_item" id="wechat">
+            <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/wechat.svg">
+            <h4>未開放</h4>
+          </div>
+          <div class="chatApp_item" id="kakotalk">
+            <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/kakaotalk.svg">
+            <h4>未開放</h4>
+          </div>
+          <div class="chatApp_item" id="whatsapp">
+            <img class="software_icon" src="https://cdn0.iconfinder.com/data/icons/social-flat-rounded-rects/512/whatsapp-256.png">
+            <h4>未開放</h4>
+          </div>
+        </div>
 
-         <div id="canvas">
-         </div>
-         <form action="" id="send-message" disabled>
-           <select id="user-rooms"></select>
-           <input size="35" id="message" />
-           <input type="submit"/>
-         </form>
-         <input type="text" id="searchBox" placeholder="Search for messages...">
+        <div id="user" class="colume">
+          <p class="choose">
+            請選擇一個群組
+          </p>
+          <p class="error"></p>
+          <div class="tablinks_area" id="Line_1_room">
+            <ol class="list-group" id="line1-clients"></ol>
+            <ol class="list-group" id="line1-idle-roomes"></ol>
+          </div>
+          <div class="tablinks_area" id="Line_2_room">
+            <ol class="list-group" id="line2-clients"></ol>
+            <ol class="list-group" id="line2-idle-roomes"></ol>
+          </div>
+          <div class="tablinks_area" id="FB_room" rel="FB">
+            <ol class="list-group" id="fb-clients"></ol>
+            <ol class="list-group" id="fb-idle-roomes"></ol>
+          </div>
+        </div>
+
+        <div id="chat" class="contentPanel" style="background-color: /*#c2d4dd*/;width:30%;">
+          <div class="chat_prof">
+            <h4 id="prof_nick"></h4>
+          </div>
+          <section id="canvas">
+          </section>
+          <div id="send-message">
+            <div class="uploadArea" style="float:bottom">
+              <div  id="showAttImg" >
+                <div style="flex-direction:column;padding:5px 0">
+                  <input size="35" id="attImgFill" placeholder="輸入圖片網址"/>
+                  <!-- <input type='file' accept='image/*' id="imageUPload"/> -->
+                </div>
+                <button id="upImg">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                  <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
+                </button>
+              </div>
+              <div  id="showAttVid" >
+                <div style="flex-direction:column;padding:5px 0">
+                  <input size="35" id="attVidFill" placeholder="輸入影片網址"/>
+                  <!-- <input type='file' accept='video/*' id="videoUPload"/> -->
+                </div>
+                <button id="upVid">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                  <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
+                </button>
+              </div>
+              <div  id="showAttAud" >
+                <div style="flex-direction:column;padding:5px 0">
+                  <input size="35" id="attAudFill" placeholder="輸入音訊網址"/>
+                  <!-- <input type='file' accept='audio/*' id="audioUPload"/> -->
+                </div>
+                <button id="upAud">
+                  <i class="fa fa-upload" aria-hidden="true"></i>
+                  <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
+                </button>
+              </div>
+            </div>
+            <div class="formUpper">
+              <div style="float:right;display:none;padding:10px;">
+                <select id="user-rooms"></select>
+              </div>
+              <div class="insert_media" style="position:absolute;display:block">
+                <button  rel="showAttImg" id="attImg" class="onclick_show"><i class="fa fa-file-image-o fa" aria-hidden="true"></i></button>
+                <button  rel="showAttVid" id="attVid" class="onclick_show"><i class="fa fa-file-video-o fa" aria-hidden="true"></i></button>
+                <button  rel="showAttAud" id="attAud" class="onclick_show"><i class="fa fa-file-audio-o fa" aria-hidden="true"></i></button>
+              </div>
+            </div>
+            <div class="formLower">
+              <input placeholder="輸入訊息..." style="width:85%; height:50px;border:0" size="35" id="message" />
+              <input type="button" id="submitMsg" />
+            </div>
+          </div>
+        </div>
+
+        <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" class="enterprise" id="內部聊天室">
+          <div class="chat_prof_head"></div>
+          <div class="chat_prof">
+            <img src="https://marketplace.canva.com/MAB7k1IXVl4/1/thumbnail/canva-single-shield-icon-MAB7k1IXVl4.png" alt="無法顯示相片" style="width:60px;height:60px;border-radius:50px;margin:1.5%;float:left;margin-right: 5px;">
+            <h4 id="prof_nick">內部聊天室</h4>
+           </div>
+          <section id="canvas">
+          </section>
+          <form action="" id="send-message" disabled style="display:none;">
+            <select style="float:right" id="user-rooms">
+              <option id="selectAll" value="全選">全選</option>
+              <option id="selectAll" value="對可見用戶發送">對可見用戶發送</option>
+            </select>
+            <input placeholder="輸入訊息..." style="width:100%; height:100px" size="35" id="message" />
+            <input type="submit"/>
+          </form>
+        </div>
+
+        <div id="infoPanel" class="colume">
+          <div class="card text-center">
+            <div class="card-header">
+              <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                  <a class="nav-link" href='#profile'>個人資料</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link "  href='#todo' >待辦事項</a>
+                </li>
+              </ul>
+            </div>
+            <div id="infoCanvas"></div>
+          </div>
+          <div class="memo"> 備註</div>
+        </div>
+
       </div>
-      <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
-      <script src="javascripts/firebaseConfig.js"></script>
-      <script src="javascripts/sb-admin-2.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
-      <script src="javascripts/chat.js"></script>
-   </body>
+
+      <!-- end -->
+
+    </div>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    <!-- <script src="javascripts/bootstrap-slider.js"></script> -->
+    <script src="javascripts/firebaseConfig.js"></script>
+    <script src="javascripts/sb-admin-2.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src="javascripts/chat.js"></script>
+  </body>
 </html>

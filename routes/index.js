@@ -6,7 +6,6 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'SHIELD' });
 });
 
-/* GET calendar page. */
 router.get('/calendar', function(req, res, next) {
   res.render('calendar', { title: 'SHIELD calendar' });
 });
@@ -15,16 +14,12 @@ router.get('/chat', function(req, res, next) {
   res.render('chat', { title: 'SHIELD chat' });
 });
 
-router.get('/history', function(req, res, next) {
-  res.render('history', { title: 'SHIELD history' });
+router.get('/dashboard', function(req, res, next) {
+  res.render('dashboard', { title: 'SHIELD Dashboard' });
 });
 
-//authentication
-router.get('/login', function(req, res, next) {
-  res.render('login', { title: 'Login' });
-});
-router.get('/signup', function(req, res, next) {
-  res.render('signup', { title: 'Register' });
+router.get('/tag', function(req, res, next) {
+  res.render('tag', { title: 'SHIELD tag' });
 });
 
 router.get('/ticket', function(req, res, next) {
@@ -39,5 +34,12 @@ router.get('/profile', function(req, res, next) {
   res.render('profile', { title: 'Profile' });
 });
 
+//authentication
+router.get('/login', function(req, res, next) {
+  res.render('login', { title: 'Login' });
+});
+router.get('/signup', function(req, res, next) {
+  res.render('signup', { title: 'Register' });
+});
 
 module.exports = router;
