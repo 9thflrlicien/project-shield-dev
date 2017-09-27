@@ -13,3 +13,4 @@
 ## Issues report<br />
 2017/09/27 to do list串接 - WWY <br />
 2017/09/27 note功能 - WWY <br />
+2017/09/27 API.ai bug修正 - TED <br />
