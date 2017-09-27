@@ -50,7 +50,7 @@ function loadTable(){
           ticket_content.prepend(
             '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
             '<td style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
-            '<td>' + data[i].name + '</td>' +
+            '<td>' + data[i].requester.name + '</td>' +
             '<td>' + data[i].subject + '</td>' +
             '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
             '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
@@ -296,14 +296,15 @@ function addZero(n) {
 
 
 function submitAdd(){
-  let name = $('#form-name').text();
+  let name = $('#form-name').val();
+  let groupId = $('#form-groupId').val();//因為沒有相關可用的string，暫時先儲存在to_emails這個功能下面
   let subject = $('#form-subject').val();
   let email = $('#form-email').val();
   let phone = $('#form-phone').val();
   let status = $('#form-status option:selected').text();
   let priority = $('#form-priority option:selected').text();
   let description = $('#form-description').val();
-  ticket_data = '{ "description": "'+description+'", "name": "'+name+'", "subject": "'+subject+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+' }';
+  ticket_data = '{ "description": "'+description+'", "name" : "'+name+'", "custom_fields" : {"group" : "'+groupId+'"}, "subject": "'+subject+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+'}';
   console.log(ticket_data);
   // 驗證
   let email_reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
@@ -346,6 +347,28 @@ function submitAdd(){
   } else {
     $.ajax(
       {
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/ticket_fields",
+        type: 'GET',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+        },
+        success: function(data, textStatus, jqXHR) {
+          console.log('this is ticket_fields');
+          console.log(data);
+        },
+        error: function(jqXHR, tranStatus) {
+          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
+          response_text = jqXHR.responseText;
+          console.log(response_text)
+        }
+      }
+    );
+
+    setTimeout(function(){
+      $.ajax(
+      {
         url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets",
         type: 'POST',
         contentType: "application/json; charset=utf-8",
@@ -359,9 +382,11 @@ function submitAdd(){
         error: function(jqXHR, tranStatus) {
           x_request_id = jqXHR.getResponseHeader('X-Request-Id');
           response_text = jqXHR.responseText;
+          console.log(response_text)
         }
       }
     );
+    }, 2000)
 
     $('#form-name').val('');
     $('#form-subject').val('');
@@ -371,7 +396,7 @@ function submitAdd(){
 
     setTimeout(() => {
       location.href = '/ticket';
-    }, 1000)
+    }, 1000000)
   }
 
 }

@@ -6,9 +6,44 @@ loadTable裡我把ticket_content改成$('.ticket-content')不然一直讀不到
 chat.css card width改成60%;
 英文改中文
 ticket form back的按鈕沒有功能 (在ticket.js上面新增 #form-goback 功能)
+chat.js裡新增$("#infoCanvas").hover, $(".memo").hover;
+ticket.js submitAdd裡面新增一系列name，loadTable也要新增，ticket.ejs, ticketForm.ejs, chat.js loadTable也要新增
+chat.css ticket以上的部分是新加的;
+chat.ejs memo的部分新增
+在loadTable裡面新增下面讀取memo的部分;
+--------------------------------------------------------------------
 
 2. search不work
-3. todo不會縮
-4. 無法刪除ticket
-5. hover讓todo長出來
-6. freshdesk api還不能存名字，須研究decumentation
+4. 無法刪除ticket(待討論)
+6. freshdesk api不能存custom_field名字，須研究decumentation https://support.freshdesk.com/support/solutions/articles/216548
+8. note加上附件檔案(要問一下ted document上的狀況要怎麼做)
+9. edit ticket開放的東西再增加
+
+
+
+
+curl -u API_KEY:X -H "Content-Type: application/json" -d '{ "helpdesk_ticket": 
+{ "description": "Details about the issue...",
+ "subject": "Support Needed...", 
+ "email": "tom@outerspace.com", 
+ "priority": 1, 
+ "status": 2, 
+ "custom_field": { "weapon_1": "Laser Gun"} },  
+ "cc_emails":"ram@freshdesk.com, diana@freshdesk.com" }' 
+ -X POST http://domain.freshdesk.com/helpdesk/tickets.json
+
+
+curl -v -u user@yourcompany.com:test -H "Content-Type: application/json" -X POST -d '
+{ "body":"Hi tom, Still Angry", "private":false, "notify_emails":["tom@yourcompany.com"] }'
+
+ 'https://domain.freshdesk.com/api/v2/tickets/3/notes'
+
+curl -u API_KEY:X -H "Content-Type: application/json" -X POST -d '
+{ "description": "Details about the issue...", 
+"subject": "Support Needed...", 
+"email": "tom@outerspace.com", 
+"priority": 1, 
+"status": 2, 
+"cc_emails": ["ram@freshdesk.com","diana@freshdesk.com"], 
+"custom_fields" : { "gadget": "Cold Welder"} }' 
+'https://domain.freshdesk.com/api/v2/tickets'

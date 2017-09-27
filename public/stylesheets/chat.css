@@ -1,3 +1,27 @@
+.submemo{
+  width:300px;
+  height: 60px;
+  padding:3%;
+  background-color: white;
+  border-top: lightgrey solid 1px;
+}
+#submitMemo{
+  width: 20px;
+  height: 20px;
+  background-image: url("https://image.flaticon.com/icons/svg/60/60525.svg");
+  background-size: cover;
+  color: transparent;
+  background-color: rgba(255,255,255,.7);
+  background-blend-mode: color;
+  border: 0;
+}
+.ticket_memo{
+  width:300px;
+  height: 100px;
+  padding:3%;
+  background-color: lightyellow;
+  overflow-y: scroll;
+}
 /*TICKET.CSS*/
 #form-wrap {
   position: relative;
@@ -893,7 +917,7 @@ p {
   width: 60%;
 }
 .memo{
-  flex-direction: column;
+  flex-direction: column-reverse;
   width: 45%;
   text-align: left;
   padding:5px 0;

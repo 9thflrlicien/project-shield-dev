@@ -52,6 +52,7 @@ $(document).ready(function() {
   $(document).on('click', '#upVid', upVid);
   $(document).on('click', '#upAud', upAud);
   $(document).on('click', '#submitMsg', submitMsg);
+  $(document).on('click', '#submitMemo', submitMemo);
 
   // 群組名稱
   $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
@@ -59,6 +60,11 @@ $(document).ready(function() {
   $('#message').on('keydown', function(event){
     if(event.keyCode == 13){
       document.getElementById('submitMsg').click();
+    }
+  })
+  $('#message_memo').on('keydown', function(event){
+    if(event.keyCode == 13){
+      document.getElementById('submitMemo').click();
     }
   })
   $(document).on('click', '.dropdown-menu', function(event) {
@@ -113,7 +119,10 @@ $(document).ready(function() {
 
 });
 
-function loadTable(){
+function loadTable(userId){
+  $('.ticket-content').empty();
+  $('.ticket_memo').empty();
+  var ticket_memo_list = [];
   $.ajax(
     {
       url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets?include=requester",
@@ -124,28 +133,62 @@ function loadTable(){
         "Authorization": "Basic " + btoa(api_key + ":x")
       },
       success: function(data, textStatus, jqXHR) {
+
         for(let i=0;i < data.length;i++){
+
+            if (data[i].to_email == userId){
+
           ticketInfo = data;
           $('.ticket-content').prepend(
             '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
-            '<td style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
-            '<td>' + data[i].name + '</td>' +
+            '<td class="data_id" style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
+            '<td>' + data[i].requester.name + '</td>' +
             '<td>' + data[i].subject + '</td>' +
             '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
             '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
             '<td>'+displayDate(data[i].due_by)+'</td>' +
             '<td>'+ dueDate(data[i].due_by)+'</td>' +
             '</tr>'
-          )
+          );
+          ticket_memo_list.push(String(data[i].id));
+
+
         }
+       } 
       },
       error: function(jqXHR, tranStatus) {
         console.log('error');
       }
     }
   );
+setTimeout(function(){
+  for (var i=0; i<ticket_memo_list.length; i++){ 
+  $.ajax(
+    {
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_memo_list[i]+"/conversations",
+      type: 'GET',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+        "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      success: function(data, textStatus, jqXHR) {
+        for(let i=0;i < data.length;i++){
 
-
+          ticketInfo = data;
+          $('.ticket_memo').append(data[i].body);
+        // }
+       } 
+      },
+      error: function(jqXHR, tranStatus) {
+        console.log(jqXHR);
+        console.log(tranStatus);
+        console.log('error');
+      }
+    }
+  );
+}
+}, 2000);
 }
 
 
@@ -593,11 +636,12 @@ function searchBar(){
   // mouse cli the ticket
   $("#infoCanvas").hover(
     function() {
-      console.log('this is hovered');
       $(this).css('width', '600px');
+      $('.memo').css('margin-left', '30%');
     },
     function() {
       $(this).css('width', '100%');
+      $('.memo').css('margin-left', '0%');
     }
   );
   // select a group
@@ -1424,7 +1468,7 @@ function searchBar(){
     console.log('click tablink executed');
 
     // 把未讀訊息數歸零
-    let userId = $(this).attr('name');
+    let userId = $(this).attr('name');   
     let roomId = $(this).attr('rel');
     let selectedId = [];
     let outerInfo, outerId, innerInfo;
@@ -1448,7 +1492,7 @@ function searchBar(){
     //
     // }, 2000)
 
-    loadTable();
+    loadTable(userId);
 
     $(".tablinks#selected").removeAttr('id').css("background-color", ""); //selected tablinks change, clean prev's color
     $(this).attr('id', 'selected').css("background-color", COLOR.CLICKED); //clicked tablinks color
@@ -1619,6 +1663,34 @@ function searchBar(){
       socket.emit('chat to server', chatObj);
     });
   } // end of loadChatRoom
+
+  function submitMemo(e){
+    e.preventDefault();
+    var ticket_id = $(this).parent().siblings().find(".data_id").text(); //把memo存到該客戶的第一張ticket裡
+
+    $('.ticket_memo').prepend('<div><p>'+$('#message_memo').val()+'</p></div>');
+    var ticket_memo = '{ "body": "'+$('#message_memo').val()+'", "private" : false }';
+    $.ajax(
+      {
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id[0]+"/notes",
+        type: 'POST',
+        contentType: "multipart/form-data",
+        dataType: "json",
+        headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+        },
+        data: ticket_memo,
+        success: function(data, textStatus, jqXHR) {
+        },
+        error: function(jqXHR, tranStatus) {
+          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
+          response_text = jqXHR.responseText;
+          console.log(response_text);
+        }
+      }
+    );
+    $('#message_memo').val("");
+  }
 
   function submitMsg(e){
     e.preventDefault();
