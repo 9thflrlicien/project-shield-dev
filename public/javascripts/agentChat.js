@@ -607,7 +607,7 @@ $(document).ready(function() {
         returnStr += "<p class='message-day' style='text-align: center'><strong>" + toDateStr(messages[i].time) + "</strong></p>";  //plus date info
       }
       prevTime = messages[i].time;
-      
+
       if( messages[i].name == person ) {    //plus every history msg into string
         returnStr += toAgentStr(messages[i].message, messages[i].name, messages[i].time);
       }

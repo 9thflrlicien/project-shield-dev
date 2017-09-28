@@ -13,11 +13,12 @@
     <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
     <%# 自己的code%>
     <link rel="stylesheet" href="stylesheets/main.css" />
+    <link rel="stylesheet" href="stylesheets/tag.css" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
 
   </head>
   <body>
-
-
     <div id="wrapper">
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
@@ -28,142 +29,354 @@
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="/">PS Admin</a>
+              <a class="navbar-brand" href="/">SHIELD</a>
           </div>
           <!-- /.navbar-header -->
-
-          <ul class="nav navbar-top-links navbar-right">
-              <!-- /.dropdown -->
-              <li class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                      <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
-                  </a>
-                  <ul class="dropdown-menu dropdown-user">
-                      <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
-                      <li class="divider"></li>
-                      <li><a href="#" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
-                  </ul>
-                  <!-- /.dropdown-user -->
-              </li>
-              <!-- /.dropdown -->
+          <ul class="nav navbar-top-links navbar-left">
+            <li>
+              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i>聊天室</a>
+            </li>
+            <li>
+              <a href="/calendar">| <i class="fa fa-table fa-fw"></i>行事曆</a>
+            </li>
+            <li>
+              <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i>資訊主頁</a>
+            </li>
           </ul>
-
-          <!-- /.navbar-top-links -->
-          <div class="navbar-default sidebar" role="navigation">
-            <div class="sidebar-nav navbar-collapse">
-              <ul class="nav" id="side-menu">
-                <li>
-                  <a href="/" class="active"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
-                </li>
-                <li>
-                  <a href="/chatAll"><i class="fa fa-commenting fa-fw"></i> Chat</a>
-                </li>
-                <li>
-                  <a href="/tag"><i class="fa fa-commenting fa-fw"></i> Tag</a>
-                </li>
-                <li>
-                  <a href="/calendar"><i class="fa fa-table fa-fw"></i> Calendar</a>
-                </li>
-                <li>
-                  <a href="/ticket"><i class="fa fa-ticket fa-fw"></i> Support</a>
-                </li>
-                <li id="message">
-                  <a href="#"><i class="fa fa-indent" aria-hidden="true"></i> Message</a>
-                </li>
-                <li class="subTag" style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
-                  <a href="/message_overview"> Overview</a>
-                </li>
-                <!--                      <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
-                <a href="/message_newtopic"> New Topic</a>
-              </li> -->
-              <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
-                <a href="/message_autoreply"> Auto Reply</a>
-              </li>
-              <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
-                <a href="/message_keywordsreply"> Keywords Reply</a>
-              </li>
-              <li class="subTag"  style="display:none; font-size: 12px; line-height: auto; margin-left: 35px;">
-                <a href="/message_addfriendreply"> Add Friend Reply</a>
-              </li>
-
-            </ul>
-          </div>
-          <!-- /.sidebar-collapse -->
-        </div>
-        <!-- /.navbar-static-side -->
+          <ul class="nav navbar-top-links navbar-right">
+            <!-- /.dropdown -->
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-cog fa-lg"></i> <i class="fa fa-caret-down"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-user">
+                <li><a href="/profile"><i class="fa fa-user fa-fw"></i>設定</a></li>
+                <li class="divider"></li>
+                <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i>登出</a></li>
+              </ul>
+              <!-- /.dropdown-user -->
+            </li>
+            <!-- /.dropdown -->
+          </ul>
       </nav>
     </div>
 
-    <div id="profile-wrap">
-      <div id="error-message" hidden>
-        Please go to the button below and fill in your profile information.
-      </div>
-      <div class="panel panel-info profWid">
-        <div class="panel-heading">
-          <h3 class="panel-title" id="prof-name"></h3>
-        </div>
-        <div class="panel-body">
-          <div class="row">
-            <div class=" col-md-12 col-lg-12 ">
-              <table class="table table-user-information">
-                <tbody>
-                  <tr hidden>
-                    <td>ID: </td>
-                    <td id="prof-id"></td>
-                  </tr>
-                  <tr hidden>
-                    <td>Nickname: </td>
-                    <td id="prof-nick"></td>
-                  </tr>
-                  <tr>
-                    <td>Date of Birth: </td>
-                    <td id="prof-dob"></td>
-                  </tr>
-                  <tr>
-                    <td>Email: </td>
-                    <td id="prof-email"></td>
-                  </tr>
-                  <tr>
-                    <td>Gender: </td>
-                    <td id="prof-gender"></td>
-                  </tr>
-                  <tr>
-                    <td>Phone Number: </td>
-                    <td id="prof-phone"></td>
-                  </tr>
-                  <tr>
-                    <td>Channel Id 1: </td>
-                    <td id="prof-channelId_1"></td>
-                  </tr>
-                  <tr>
-                    <td>Channel Secret 1: </td>
-                    <td id="prof-channelSecret_1"></td>
-                  </tr>
-                  <tr>
-                    <td>Channel Access Token 1: </td>
-                    <td id="prof-channelAccessToken_1"></td>
-                  </tr>
-                  <tr>
-                    <td>Channel Id 2: </td>
-                    <td id="prof-channelId_2"></td>
-                  </tr>
-                  <tr>
-                    <td>Channel Secret 2: </td>
-                    <td id="prof-channelSecret_2"></td>
-                  </tr>
-                  <tr>
-                    <td>Channel Access Token 2: </td>
-                    <td id="prof-channelAccessToken_2"></td>
-                  </tr>
-                </tbody>
-              </table>
-              <div id="btn-area">
-                <button type="button" class="btn btn-default" id="prof-edit" data-toggle="modal" data-target="#profModal">
-                  <span class="fa fa-plus fa-fw"></span>
-                  Edit Profile
-                </button>
+    <div class="container-fluid">
+              <div id="btn-area" style="float:right;margin:2% 5% 0 5%">
               </div>
-            </div>
+
+        <div style="margin:20px 0" class="col-md-2">
+          <ul class="nav nav-pills nav-stacked">
+            <li class="active"><a data-toggle="pill" href="#home">基本設定</a></li>
+            <li><a data-toggle="pill" href="#menu1">用戶資料</a></li>
+            <li><a data-toggle="pill" href="#menu2">聊天室帳號</a></li>
+            <li><a data-toggle="pill" href="#menu3">標籤</a></li>
+          </ul>
+        </div>
+
+        <div class="tab-content">
+          <div id="home" class="tab-pane fade in active">
+            <h3>基本設定</h3>
+                <div class="col-md-8 col-lg-8 panel-info profWid">
+                    <div class="panel-heading">
+                      <h3 class="panel-title" id="prof-name"></h3>
+                    </div>
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-md-12 col-lg-12 ">
+                          <table class="table table-user-information">
+                            <tbody>
+                              <tr>
+                                <td>公司: </td>
+                                <td id="prof-company"></td>
+                              </tr>
+                              <tr>
+                                <td>Logo: </td>
+                                <td id="prof-logo"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                  <button type="button" class="btn btn-default" id="prof-edit" data-toggle="modal" data-target="#basicModal">
+                  <span class="fa fa-plus fa-fw"></span>
+                  編輯
+                </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+          </div>
+          <div id="menu1" class="tab-pane fade">
+            <h3>用戶資料</h3>
+                  <div class="col-md-8 col-lg-8 panel-info profWid">
+                    <div class="panel-heading">
+                      <h3 class="panel-title" id="prof-name"></h3>
+                    </div>
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-md-12 col-lg-12 ">
+                          <table class="table table-user-information">
+                            <tbody>
+                              <tr>
+                                <td>生日: </td>
+                                <td id="prof-dob"></td>
+                              </tr>
+                              <tr>
+                                <td>電子郵件: </td>
+                                <td id="prof-email"></td>
+                              </tr>
+                              <tr>
+                                <td>性別: </td>
+                                <td id="prof-gender"></td>
+                              </tr>
+                              <tr>
+                                <td>手機: </td>
+                                <td id="prof-phone"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                   <button type="button" class="btn btn-default" id="prof-edit" data-toggle="modal" data-target="#accountModal">
+                  <span class="fa fa-plus fa-fw"></span>
+                  編輯
+                </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+          </div>
+          <div id="menu2" class="tab-pane fade">
+            <h3>聊天室帳號</h3>
+                <div id="profile-wrap">
+                  <div id="error-message" hidden>
+                    請按編輯帳戶資料按鈕編輯檔案
+                  </div>
+                  <div class="col-md-11 col-lg-11 panel-info profWid">
+                    <div class="panel-heading">
+                      <h3 class="panel-title" id="prof-name"></h3>
+                    </div>
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class=" col-md-12 col-lg-12 ">
+                          <table class="table table-user-information">
+                            <tbody>
+                              <tr hidden>
+                                <td>ID: </td>
+                                <td id="prof-id"></td>
+                              </tr>
+                              <tr hidden>
+                                <td>Nickname: </td>
+                                <td id="prof-nick"></td>
+                              </tr>
+                              <tr>
+                                <td>Channel Id 1: </td>
+                                <td id="prof-channelId_1"></td>
+                              </tr>
+                              <tr>
+                                <td>Channel Secret 1: </td>
+                                <td id="prof-channelSecret_1"></td>
+                              </tr>
+                              <tr>
+                                <td>Channel Access Token 1: </td>
+                                <td style="max-width: 750px;max-height:120px;overflow:scroll;display:inline-block;" id="prof-channelAccessToken_1"></td>
+                              </tr>
+                              <tr>
+                                <td>Channel Id 2: </td>
+                                <td id="prof-channelId_2"></td>
+                              </tr>
+                              <tr>
+                                <td>Channel Secret 2: </td>
+                                <td id="prof-channelSecret_2"></td>
+                              </tr>
+                              <tr>
+                                <td>Channel Access Token 2: </td>
+                                <td style="max-width: 750px;max-height:120px;overflow:scroll;display:inline-block;" id="prof-channelAccessToken_2"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                  <button type="button" class="btn btn-default" id="prof-edit" data-toggle="modal" data-target="#profModal">
+                  <span class="fa fa-plus fa-fw"></span>
+                  編輯
+                </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+          </div>
+          </div>
+          <div id="menu3" class="tab-pane fade">
+            <h3>標籤</h3>
+            <div id="profile-wrap">
+                <div style="margin:2% 5%">
+                  <button type="button" class="btn btn-default add-tag">
+                    <span class="fa fa-plus fa-fw"></span> 新增標籤
+                  </button>
+                  <button type="button" class="btn btn-default pull-right all-confirm">確認</button>
+                  <button type="button" class="btn btn-default pull-right all-cancel">取消</button>
+                </div>
+<!--               <div id="tag-header">
+                <div id="header-left">
+                  <span class="bigFont">Tag</span>
+                </div>
+              </div> -->
+
+<!--                 <div class="tabcontent">
+ -->
+                  <div id="tag-tab" class="col-md-11 col-lg-11 panel-info profWid">
+                    <div class="panel-heading">
+                      <h3 class="panel-title" id="prof-name"></h3>
+                    </div>
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class=" col-md-12 col-lg-12 ">
+
+                  <table class="table table-striped" id="tagTable">
+                    <thead>
+                      <tr>
+                        <th> 欄位名稱 </th>
+                        <th> 欄位類別 </th>
+                        <th> 欄位設定 </th>
+                        <th> 移動 </th>
+                        <th> 刪除 </th>
+                        <th> 可變更(系統設定) </th>
+                      </tr>
+                    </thead>
+                    <tbody id="tagTable-body">
+
+                    </tbody>
+                  </table>
+                </div>
+                <div class="btn-toolbar">
+                  <button type="button" class="btn btn-default add-tag">
+                    <span class="fa fa-plus fa-fw"></span> 新增標籤
+                  </button>
+                  <button type="button" class="btn btn-default pull-right all-confirm">確認</button>
+                  <button type="button" class="btn btn-default pull-right all-cancel">取消</button>
+                </div>
+              </div>
+          </div>
+        </div>
+        </div>
+        </div>
+
+
+    </div>
+    </div>
+
+    <!-- Basic Modal -->
+    <div class="modal fade" id="basicModal" tabindex="-1" role="dialog" aria-labelledby="profModalTitle" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="profModalTitle"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <form method="POST" action="/foo-route">
+              <!-- 編號 -->
+              <div class="form-group" hidden>
+                <label for="edit-id" class="col-2 col-form-label">ID</label>
+                <span id="prof-edit-id"></span>
+              </div>
+                                          <!-- 姓名 -->
+              <div class="form-group">
+                <label for="prof-edit-name" class="col-2 col-form-label">姓名: </label>
+                <div class="col-4">
+                  <input class="form-control" type="text" value="" id="prof-edit-name">
+                </div>
+              </div>
+                                          <!-- 姓名 -->
+              <div class="form-group">
+                <label for="prof-edit-name" class="col-2 col-form-label">Nickname: </label>
+                <div class="col-4">
+                  <input class="form-control" type="text" value="" id="prof-edit-nick">
+                </div>
+              </div>
+
+                                          <!-- Company -->
+              <div class="form-group">
+                <label for="prof-edit-company" class="col-2 col-form-label">公司: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-company">
+                </div>
+              </div>
+
+                                          <!-- Logo -->
+              <div class="form-group">
+                <label for="prof-edit-logo" class="col-2 col-form-label">Logo: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-logo">
+                </div>
+              </div>
+
+            </form>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="prof-submit">確認</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Modal -->
+    <div class="modal fade" id="accountModal" tabindex="-1" role="dialog" aria-labelledby="profModalTitle" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="profModalTitle"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <form method="POST" action="/foo-route">
+              <!-- 編號 -->
+              <div class="form-group" hidden>
+                <label for="edit-id" class="col-2 col-form-label">ID</label>
+                <span id="prof-edit-id"></span>
+              </div>
+              <!-- 出生日期 -->
+              <div class="form-group">
+                <label for="prof-edit-dob" class="col-2 col-form-label">出生日期: </label>
+                <div class="col-4">
+                  <input class="form-control" type="date" value="" id="prof-edit-dob">
+                </div>
+              </div>
+              <!-- 郵件 -->
+              <div class="form-group">
+                <label for="prof-edit-email" class="col-2 col-form-label">電子郵件: </label>
+                <div class="col-4">
+                  <input class="form-control" type="email" value="" id="prof-edit-email">
+                </div>
+              </div>
+              <!-- 性別 -->
+              <div class="form-group">
+                <label for="prof-edit-gender">性別: </label>
+                <select class="form-control" id="prof-edit-gender">
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </div>
+
+              <!-- 電話 -->
+              <div class="form-group">
+                <label for="prof-edit-phone" class="col-2 col-form-label">手機: </label>
+                <div class="col-4">
+                  <input class="form-control" type="tel" value="" id="prof-edit-phone">
+                </div>
+              </div>
+
+            </form>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="prof-submit">確認</button>
           </div>
         </div>
       </div>
@@ -187,51 +400,6 @@
                 <label for="edit-id" class="col-2 col-form-label">ID</label>
                 <span id="prof-edit-id"></span>
               </div>
-              <!-- 姓名 -->
-              <div class="form-group">
-                <label for="prof-edit-name" class="col-2 col-form-label">Name: </label>
-                <div class="col-4">
-                  <input class="form-control" type="text" value="" id="prof-edit-name">
-                </div>
-              </div>
-              <!-- 姓名 -->
-              <div class="form-group">
-                <label for="prof-edit-name" class="col-2 col-form-label">Nickname: </label>
-                <div class="col-4">
-                  <input class="form-control" type="text" value="" id="prof-edit-nick">
-                </div>
-              </div>
-              <!-- 出生日期 -->
-              <div class="form-group">
-                <label for="prof-edit-dob" class="col-2 col-form-label">Birth Date: </label>
-                <div class="col-4">
-                  <input class="form-control" type="date" value="" id="prof-edit-dob">
-                </div>
-              </div>
-              <!-- 郵件 -->
-              <div class="form-group">
-                <label for="prof-edit-email" class="col-2 col-form-label">Email: </label>
-                <div class="col-4">
-                  <input class="form-control" type="email" value="" id="prof-edit-email">
-                </div>
-              </div>
-              <!-- 性別 -->
-              <div class="form-group">
-                <label for="prof-edit-gender">Gender: </label>
-                <select class="form-control" id="prof-edit-gender">
-                  <option>Male</option>
-                  <option>Female</option>
-                </select>
-              </div>
-
-              <!-- 電話 -->
-              <div class="form-group">
-                <label for="prof-edit-phone" class="col-2 col-form-label">Phone: </label>
-                <div class="col-4">
-                  <input class="form-control" type="tel" value="" id="prof-edit-phone">
-                </div>
-              </div>
-
                             <!-- Channel Id -->
               <div class="form-group">
                 <label for="prof-edit-channelId_1" class="col-2 col-form-label">Channel Id 1: </label>
@@ -274,13 +442,12 @@
                   <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken_2">
                 </div>
               </div>
-
             </form>
 
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="prof-submit">Submit</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="prof-submit">確認</button>
           </div>
         </div>
       </div>
@@ -292,5 +459,10 @@
     <script src="javascripts/firebaseConfig.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/profile.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="javascripts/sb-admin-2.js"></script>
+
+
   </body>
 </html>
