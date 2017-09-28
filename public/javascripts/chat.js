@@ -137,6 +137,7 @@ $(document).ready(function() {
           for(let i=0;i < data.length;i++){
             console.log("freshdesk data[i], i="+i);
             console.log(data[i]);
+            console.log("");
             if (data[i].subject == userId){
 
               ticketInfo = data;
