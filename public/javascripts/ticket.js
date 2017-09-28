@@ -415,7 +415,7 @@ function priorityTextToMark(priority){
     default:
         return 1;
   }
-}
+} 
 
 function statusTextToMark(status){
   switch(status) {
