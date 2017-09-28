@@ -1866,10 +1866,18 @@ $(document).ready(function() {
     }
   });
 
+  $(document).on('keyup', '.ticket_search_bar', function(e) {
+      console.log(".ticket_search_bar key press");
+      let searchStr = $(this).val();
 
+      let trs = $(this).parents('table').find('tbody').find('tr');
+      trs.each(function() {
+        let text = $(this).text();
+        if( text.indexOf(searchStr)==-1 ) $(this).hide();
+        else $(this).show();
+      });
+  });
   // ============Colman end======================
-
-
 
 }); //document ready close tag
 
