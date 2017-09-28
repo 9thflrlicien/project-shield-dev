@@ -1042,7 +1042,6 @@ $(document).ready(function() {
     });
   });
 
-  // =====================Colman=========================== //
   socket.on('push inside chat', (data) => {
     console.log("YO");
     console.log(data);
@@ -1604,12 +1603,12 @@ $(document).ready(function() {
       '<table>'+
       '<thead>'+
       '<tr>'+
-      '<th> ID </th>'+
-      '<th> 客戶姓名 </th>'+
-      '<th> 內容 </th>'+
-      '<th> 狀態 </th>'+
-      '<th> 優先 </th>'+
-      '<th> 到期 </th>'+
+      '<th class="table-sort"> ID <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 客戶姓名 <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 內容 <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 狀態 <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 優先 <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 到期 <i class="fa fa-fw fa-sort"></i></th>'+
       '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="搜尋"></th>'+
       '</tr>'+
       '</thead>'+
@@ -1827,6 +1826,50 @@ $(document).ready(function() {
       }
     }
   } // end of initialFilterWay
+
+
+  // ===============Colman=======================
+
+  $(document).on('click', '.table-sort', function() {
+    let index = $(this).index();
+    let compare;
+    let icon = $(this).find('i');
+    if( icon.attr('class').indexOf('fa-sort-up')==-1 ) {
+      compare = sortUp;
+      icon.attr('class','fa fa-fw fa-sort-up');
+    }
+    else {
+      compare = sortDown;
+      icon.attr('class','fa fa-fw fa-sort-down');
+    }
+    $(this).siblings().find('i').attr('class','fa fa-fw fa-sort');
+
+    let trs = $(this).parents('table').find('tbody').find('tr');
+    for( let i=0; i<trs.length; i++ ) {
+      for( let j=i+1; j<trs.length; j++ ) {
+        let a = trs.eq(i).find('td').eq(index).text();
+        let b = trs.eq(j).find('td').eq(index).text();
+        if( compare( a, b ) ) {
+          let tmp = trs[i];
+          trs[i] = trs[j];
+          trs[j] = tmp;
+        }
+      }
+    }
+    trs.eq(1).parent().append(trs);
+
+    function sortUp( a, b ) {
+      return a>b;
+    }
+    function sortDown( a, b ) {
+      return a<b;
+    }
+  });
+
+
+  // ============Colman end======================
+
+
 
 }); //document ready close tag
 
@@ -2209,7 +2252,6 @@ function pushInsideMsg(data) {
   // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
 }
 
-// =====================Colman=========================== //
 function historyMsg_to_Str(messages) {
   let returnStr = "";
   let nowDateStr = "";
