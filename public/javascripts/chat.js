@@ -53,6 +53,7 @@ $(document).ready(function() {
   $(document).on('click', '#upAud', upAud);
   $(document).on('click', '#submitMsg', submitMsg);
   $(document).on('click', '#submitMemo', submitMemo);
+  $(document).on('click', '#submitMemoAtt', submitMemoAtt);
 
   // 群組名稱
   $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
@@ -136,7 +137,7 @@ function loadTable(userId){
 
         for(let i=0;i < data.length;i++){
 
-            if (data[i].to_email == userId){
+            if (data[i].requester.name == userId){
 
           ticketInfo = data;
           $('.ticket-content').prepend(
@@ -1663,6 +1664,37 @@ function searchBar(){
       socket.emit('chat to server', chatObj);
     });
   } // end of loadChatRoom
+
+  function submitMemoAtt(e){
+    e.preventDefault();
+    var file_path = $('#myFile').val();
+    var ticket_id = $(".data_id").text(); //把memo存到該客戶的第一張ticket裡
+    $('.ticket_memo').prepend('<div><p>檔案'+file_path+'已上傳，重新整理瀏覽檔案</p></div>');
+    var ticket_memo_att = '{ "body": "'+file_path+'", "private" : false, "attachments[]": "@'+file_path+'"  }'
+        console.log(ticket_id[0]);
+        console.log(ticket_id[1]);
+
+
+    $.ajax(
+      {
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id[0]+ticket_id[1]+"/notes",
+        type: 'POST',
+        contentType: "multipart/form-data",
+        dataType: "json",
+        headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+        },
+        data: ticket_memo_att,
+        success: function(data, textStatus, jqXHR) {
+        },
+        error: function(jqXHR, tranStatus) {
+          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
+          response_text = jqXHR.responseText;
+          console.log(response_text);
+        }
+      }
+    );
+  }
 
   function submitMemo(e){
     e.preventDefault();
