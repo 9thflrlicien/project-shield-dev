@@ -12,7 +12,7 @@ var con = mysql.createConnection({
 
 con.connect(function(err) {
   if (err) {
-    console.log(err);
+    // console.log(err);
     console.log("Shield in MySql Connected FAIL!");
   }
   else {

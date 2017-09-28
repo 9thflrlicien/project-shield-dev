@@ -52,25 +52,28 @@ $(document).ready(function() {
 
   $(document).on('click', '.tag-name[modify="true"]', function() {
     if( $(this).find('input').length==0 ) {
+      //如果現在是非編輯狀態
       console.log(".tag-name click");
-      let val = $(this).text();
-      $(this).html('<input type="text" value="' +val + '"></input>');
-      $(this).find('input').select();
+      let val = $(this).text();        //抓目前的DATA
+      $(this).html('<input type="text" value="' +val + '"></input>'); //把element改成input，放目前的DATA進去
+      $(this).find('input').select();   //自動FOCUS該INPUT
     }
   });
 
   $(document).on('keypress', '.tag-name input', function(e) {
     let code = (e.keyCode ? e.keyCode : e.which);
     if (code == 13) {
+      //如果按了ENTER
       console.log(".tag-name-input keypress");
-      $(this).blur();
+      $(this).blur(); //就離開此INPUT，觸發on blur事件
     }
   });
   $(document).on('blur', '.tag-name input', function() {
+    //當USER離開此INPUT
     console.log(".tag-name-input blur");
-    let val = $(this).val();
+    let val = $(this).val();  //抓INPUT裡的資料
     if( !val ) val="new tag";
-    $(this).parent().html(val);
+    $(this).parent().html(val);   //將INPUT元素刪掉，把資料直接放上去
   });
 
   $(document).on('change', '.tag-option', function() {
