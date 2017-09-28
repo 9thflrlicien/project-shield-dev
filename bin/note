@@ -13,9 +13,10 @@ chat.ejs memo的部分新增
 在loadTable裡面新增下面讀取memo的部分;
 --------------------------------------------------------------------
 
-2. search不work
+2. search不work //done
 4. 無法刪除ticket(待討論)
 6. freshdesk api不能存custom_field名字，須研究decumentation https://support.freshdesk.com/support/solutions/articles/216548
+//將UID存至subject欄位，並用data[i].subject辨識身分
 8. note加上附件檔案(要問一下ted document上的狀況要怎麼做)
 9. edit ticket開放的東西再增加
 

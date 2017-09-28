@@ -297,14 +297,14 @@ function addZero(n) {
 
 function submitAdd(){
   let name = $('#form-name').val();
-  let groupId = $('#form-groupId').val();//因為沒有相關可用的string，暫時先儲存在to_emails這個功能下面
+  let uid = $('#form-uid').val();//因為沒有相關可用的string，暫時先儲存在to_emails這個功能下面
   let subject = $('#form-subject').val();
   let email = $('#form-email').val();
   let phone = $('#form-phone').val();
-  let status = $('#form-status option:selected').text();
-  let priority = $('#form-priority option:selected').text();
+  let status = $('#form-status option:selected').val();
+  let priority = $('#form-priority option:selected').val();
   let description = $('#form-description').val();
-  ticket_data = '{ "description": "'+description+'", "name" : "'+name+'", "custom_fields" : {"group" : "'+groupId+'"}, "subject": "'+subject+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+'}';
+  ticket_data = '{ "description": "'+description+'", "name" : "'+name+'", "subject": "'+uid+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+'}';
   console.log(ticket_data);
   // 驗證
   let email_reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
@@ -388,11 +388,11 @@ function submitAdd(){
     );
     }, 2000)
 
-    $('#form-name').val('');
-    $('#form-subject').val('');
-    $('#form-email').val('');
-    $('#form-phone').val('');
-    $('#form-description').val('');
+    // $('#form-name').val('');
+    // $('#form-subject').val('');
+    // $('#form-email').val('');
+    // $('#form-phone').val('');
+    // $('#form-description').val('');
 
     setTimeout(() => {
       location.href = '/ticket';

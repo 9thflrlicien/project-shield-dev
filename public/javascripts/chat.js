@@ -135,15 +135,16 @@ $(document).ready(function() {
         success: function(data, textStatus, jqXHR) {
 
           for(let i=0;i < data.length;i++){
-
-            if (data[i].to_email == userId){
+            console.log("freshdesk data[i], i="+i);
+            console.log(data[i]);
+            if (data[i].subject == userId){
 
               ticketInfo = data;
               $('.ticket-content').prepend(
                 '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
                 '<td class="data_id" style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
                 '<td>' + data[i].requester.name + '</td>' +
-                '<td>' + data[i].subject + '</td>' +
+                '<td>' + data[i].description.substr(0,10) + '...</td>' +
                 '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
                 '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
                 '<td>'+displayDate(data[i].due_by)+'</td>' +
@@ -163,6 +164,7 @@ $(document).ready(function() {
     );
     setTimeout(function(){
       for (var i=0; i<ticket_memo_list.length; i++){
+        console.log("ticket id = "+ticket_memo_list[i]);
         $.ajax(
           {
             url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_memo_list[i]+"/conversations",
@@ -173,8 +175,10 @@ $(document).ready(function() {
               "Authorization": "Basic " + btoa(api_key + ":x")
             },
             success: function(data, textStatus, jqXHR) {
+              console.log("data = ");
+              console.log(data);
               for(let i=0;i < data.length;i++){
-
+                console.log("data.length = "+data.length);
                 ticketInfo = data;
                 $('.ticket_memo').append(data[i].body);
                 // }
@@ -303,6 +307,7 @@ $(document).ready(function() {
   function moreInfo() {
     let display ;
     let i = $(this).attr('id');
+    console.log("id = "+i);
     let Tinfo = ticketInfo[i];
     let Cinfo ;
     let Ainfo ;
