@@ -7041,15 +7041,15 @@ io.sockets.on('connection', (socket) => {
   socket.emit('all agents info', viewAgent);
   socket.emit('all contacts info', viewContact);
 
-  socket.on('update ticket', (data, callback) => {
-    console.log(data) ;
-    updateTicket(data) ;
-  });
-  socket.on('get ticket', (data ,callback) => {
-    console.log(data) ;
-    getUserTicket(data);
+  // socket.on('update ticket', (data, callback) => {
+  //   console.log(data) ;
+  //   updateTicket(data) ;
+  // });
+  // socket.on('get ticket', (data ,callback) => {
+  //   console.log(data) ;
+  //   getUserTicket(data);
 
-  });
+  // });
   function getUserTicket(data) {
     var email = data.email ;
     var id = data.id ;

@@ -19,6 +19,13 @@ chat.js新增 keyup, ticket_search_bar，框在colman裡面的程式
 在public裡面加入bendor和build的資料夾;
 右上角setting不會動
 
+
+更新
+新增delete button在ticket.ejs modal裡
+submit button class改成btn-success, style刪掉
+ticket.js新增$('#ticketInfo-delete').click功能
+
+
 ===================================================================
 待完成
 8. note加上附件檔案(要問一下ted document上的狀況要怎麼做)（無法）
@@ -28,3 +35,7 @@ chat.js新增 keyup, ticket_search_bar，框在colman裡面的程式
 5. chat裡面add ticket的按鈕太醜
 6. profile裡面沒有可以設定chatApp名字的地方
 
+delete ticket新增在modal裡，點delete跳出popup，確認delete?
+edit，edit完，confirm
+
+正在updateStatus處編輯時間的部分

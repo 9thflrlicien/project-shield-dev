@@ -29,6 +29,31 @@ $(document).ready(function() {
   });
 
   $("#exampleInputAmount").keyup(searchBar);
+  $('#ticketInfo-delete').click(function(){
+    if (confirm("確認刪除表單？")) {
+      var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
+      $.ajax({
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
+        type: 'DELETE',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+        }  ,
+        success:  function(data, textStatus, jqXHR) {
+          alert("表單已刪除");
+          setTimeout(() => {
+            location.reload();
+          }, 500)
+        },
+        error:  function(jqXHR, tranStatus) {
+          alert("表單刪除失敗，請重試");
+          console.log(jqXHR)
+      }   
+      });
+    } else {
+    }
+  })
 
 });
 
@@ -114,32 +139,63 @@ function updateStatus() {
   let name, value, json = '{' ;
   let obj = {} ;
   let id = $(this).attr("val") ;
+  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
 
   input.each(function () {$(this).blur();});
-
-  // alert(editable.length) ;
   for(let i=0;i<editable.length;i++){
     name = editable.eq(i).parent().children("th").text().split(" ") ;
     value = editable.eq(i).text() ;
     json += '"'+name[0]+'":"'+value+'",';
   }
-  // alert(select.length) ;
   for(let i=0;i<select.length;i++){
     name = select.eq(i).parent().parent().children("th").text() ;
     value = select.eq(i).val() ;
-    // alert(name+":"+value) ;
-    json += '"'+name+'":'+value+',';
+    json += '"'+name+'":'+value+','
   }
-
   json += '"id":"'+id+'"}' ;
   console.log(json) ;
   obj = JSON.parse(json) ;
+  console.log('this is obj');
+  console.log(obj);
+  console.log('this is json');
+  console.log(json);
 
-  if(confirm("Are you sure to change ticket?")) {
-    socket.emit('update ticket',obj);
-    setTimeout(() => {
-      location.reload();
-    }, 1000)
+  客戶名 = obj.subject;
+  客戶ID = obj.客戶ID;
+  回覆人員 = obj.回覆人員;
+  優先 = parseInt(obj.優先);
+  狀態 = parseInt(obj.狀態);
+  描述 = obj.描述;
+  console.log(obj.到期時間過期.split("/").join("-0").split(" ").join("T")+"Z");
+  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期.split("/").join("-").split(" ").join("T")+"Z";
+  else 到期時間 = obj.到期時間即期.split("/").join("-0").split(" ").join("T")+"Z";
+
+
+
+  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+到期時間+'"}';
+
+  if(confirm("確定變更表單？")) {
+    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
+    $.ajax({
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
+      type: 'PUT',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      data: obj,
+      success:  function(data, textStatus, jqXHR) {
+        alert("表單已更新");
+        setTimeout(() => {
+        location.reload();
+       }, 500)
+      },
+      error:  function(jqXHR, tranStatus) {
+        alert("表單更新失敗，請重試");
+        console.log(jqXHR.responseText)
+      }       
+    });
   }
 
 
