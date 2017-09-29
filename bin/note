@@ -1,3 +1,4 @@
+已完成
 在chat.css裡面貼上ticket.css（有更動）
 找chat.js裡 id="todo"的地方，有新增一些東西（應該有兩個地方）
 chat.ejs裡要加上ticket.css
@@ -11,28 +12,19 @@ ticket.js submitAdd裡面新增一系列name，loadTable也要新增，ticket.ej
 chat.css ticket以上的部分是新加的;
 chat.ejs memo的部分新增
 在loadTable裡面新增下面讀取memo的部分;
+ticket.js submitAdd下面新增儲存到calendar裡的
+chat.js新增 keyup, ticket_search_bar，框在colman裡面的程式
 
---dashboard
+---------dashboard-------
 在public裡面加入bendor和build的資料夾;
 右上角setting不會動
---------------------------------------------------------------------
 
-2. search不work(colman以用好)
-6. freshdesk api不能存custom_field名字，須研究decumentation https://support.freshdesk.com/support/solutions/articles/216548
+===================================================================
+待完成
 8. note加上附件檔案(要問一下ted document上的狀況要怎麼做)（無法）
 9. edit ticket開放的東西再增加
+10. ticket_memo overflow不會動TAT
+4. 無法刪除ticket
+5. chat裡面add ticket的按鈕太醜
+6. profile裡面沒有可以設定chatApp名字的地方
 
-4. 無法刪除ticket(待討論)
-
-
-
-curl -v -u user@yourcompany.com:test 
--F "attachments[]=@/path/to/attachment1.ext" 
--F "body=Hi tom, Still Angry" 
--X POST 
-'https://domain.freshdesk.com/api/v2/tickets/20/notes'
-
-curl -v -u user@yourcompany.com:test
- -H "Content-Type: application/json" 
- -X POST 
- -d '{ "body":"Hi tom, Still Angry", "private":false, "notify_emails":["tom@yourcompany.com"] }' 'https://domain.freshdesk.com/api/v2/tickets/3/notes'

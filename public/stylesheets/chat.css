@@ -1,26 +1,41 @@
+.ticket_memo{
+    overflow: scroll !important;
+}
+#message_memo{
+  position: relative;
+  bottom: 25px;
+  width: 90%;
+
+}
 .submemo{
   width:300px;
+  float:bottom; 
+  position: absolute;
+  bottom:0px;
   height: 60px;
-  padding:3%;
+  padding:2% 1%;
   background-color: white;
   border-top: lightgrey solid 1px;
+
 }
 #submitMemo{
-  width: 20px;
-  height: 20px;
-  background-image: url("https://image.flaticon.com/icons/svg/60/60525.svg");
+  position: relative;
+  bottom: 20px;
+  width: 25px;
+  height: 25px;
+  background-image: url("http://simpleicon.com/wp-content/uploads/pen-15-256x256.png");
   background-size: cover;
   color: transparent;
   background-color: rgba(255,255,255,.7);
   background-blend-mode: color;
   border: 0;
 }
-.ticket_memo{
+.memo_content{
   width:300px;
-  height: 100px;
-  padding:3%;
+  height: 50px;
+  padding:5%;
+  margin: 2% 0%;
   background-color: lightyellow;
-  overflow-y: scroll;
 }
 /*TICKET.CSS*/
 #form-wrap {
@@ -919,6 +934,7 @@ p {
 .memo{
   flex-direction: column-reverse;
   width: 45%;
+  height:100%;
   text-align: left;
   padding:5px 0;
   overflow: hidden ;

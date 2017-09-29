@@ -116,9 +116,24 @@ $(document).ready(function() {
     if(e.which == 13) $(this).blur() ;
   });
 
-  $("#exampleInputAmount").keyup(searchBar);
+  // $("#exampleInputAmount").keyup(searchBar);
 
 });
+
+  // ===============Colman=======================
+
+  $(document).on('keyup', '.ticket_search_bar', function(e) {
+      console.log(".ticket_search_bar key press");
+      let searchStr = $(this).val();
+
+      let trs = $(this).parents('table').find('tbody').find('tr');
+      trs.each(function() {
+        let text = $(this).text();
+        if( text.indexOf(searchStr)==-1 ) $(this).hide();
+        else $(this).show();
+      });
+  });
+  // ============Colman end======================
 
 function loadTable(userId){
   $('.ticket-content').empty();
@@ -137,14 +152,14 @@ function loadTable(userId){
 
         for(let i=0;i < data.length;i++){
 
-            if (data[i].requester.name == userId){
+            if (data[i].subject == userId){
 
           ticketInfo = data;
           $('.ticket-content').prepend(
             '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
             '<td class="data_id" style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
             '<td>' + data[i].requester.name + '</td>' +
-            '<td>' + data[i].subject + '</td>' +
+            '<td>' + data[i].description + '</td>' +
             '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
             '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
             '<td>'+displayDate(data[i].due_by)+'</td>' +
@@ -177,7 +192,7 @@ setTimeout(function(){
         for(let i=0;i < data.length;i++){
 
           ticketInfo = data;
-          $('.ticket_memo').append(data[i].body);
+          $('.ticket_memo').prepend('<div class="memo_content">'+data[i].body+'</div>');
         // }
        } 
       },
@@ -189,7 +204,7 @@ setTimeout(function(){
     }
   );
 }
-}, 2000);
+}, 500);
 }
 
 
@@ -403,8 +418,8 @@ function dueDate(day) {
   hr /= 1000*60*60 ;
   // hr = Math.round(hr) ;
   // return hr ;
-  if(hr<0) html = '<span class="overdue">overdue</span>' ;
-  else html = '<span class="non overdue">response due</span>' ;
+  if(hr<0) html = '<span class="overdue">過期</span>' ;
+  else html = '<span class="non overdue">即期</span>' ;
   return html ;
 }
 function responderName(id) {
@@ -625,16 +640,16 @@ function searchBar(){
       $(this).css('width', '70px').find('h4').hide();
     }
   );
-  // mouse hover the memo
-  $(".memo").hover(
-    function() {
-      $(this).css('width', '400px');
-    },
-    function() {
-      $(this).css('width', '45%');
-    }
-  );
-  // mouse cli the ticket
+  // // mouse hover the memo
+  // $(".memo").hover(
+  //   function() {
+  //     $(this).css('width', '400px');
+  //   },
+  //   function() {
+  //     $(this).css('width', '45%');
+  //   }
+  // );
+  // mouse hover the ticket
   $("#infoCanvas").hover(
     function() {
       $(this).css('width', '600px');
@@ -1698,15 +1713,15 @@ function searchBar(){
 
   function submitMemo(e){
     e.preventDefault();
-    var ticket_id = $(this).parent().siblings().find(".data_id").text(); //把memo存到該客戶的第一張ticket裡
-
-    $('.ticket_memo').prepend('<div><p>'+$('#message_memo').val()+'</p></div>');
+    var ticket_id = $(this).parent().parent().siblings().find('#infoCanvas').find('.ticket-content').find('.data_id').text(); //把memo存到該客戶的第一張ticket裡
+    $('.ticket_memo').prepend('<div class="memo_content"><p>'+$('#message_memo').val()+'</p></div>');
     var ticket_memo = '{ "body": "'+$('#message_memo').val()+'", "private" : false }';
+
     $.ajax(
       {
-        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id[0]+"/notes",
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id[0]+ticket_id[1]+"/notes",
         type: 'POST',
-        contentType: "multipart/form-data",
+        contentType: "application/json",
         dataType: "json",
         headers: {
           "Authorization": "Basic " + btoa(api_key + ":x")
@@ -1718,6 +1733,7 @@ function searchBar(){
           x_request_id = jqXHR.getResponseHeader('X-Request-Id');
           response_text = jqXHR.responseText;
           console.log(response_text);
+          console.log(x_request_id);
         }
       }
     );

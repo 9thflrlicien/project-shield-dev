@@ -51,7 +51,7 @@ function loadTable(){
             '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
             '<td style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
             '<td>' + data[i].requester.name + '</td>' +
-            '<td>' + data[i].subject + '</td>' +
+            '<td>' + data[i].description.substring(0,10)+ '</td>' +
             '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
             '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
             '<td>'+displayDate(data[i].due_by)+'</td>' +
@@ -190,25 +190,28 @@ function moreInfo() {
 
   display =
   '<tr>'+
-  '<th>responder</th>'+
+  '<th>客戶ID</th>'+
+  '<td class="edit">'+Tinfo.subject+'</td>'+
+  '</tr><tr>'+
+  '<th>回覆人員</th>'+
   '<td>'+showSelect('responder',Tinfo.responder_id)+'</td>'+
   '</tr><tr>'+
-  '<th>priority</th>'+
+  '<th>優先</th>'+
   '<td>'+showSelect('priority',Tinfo.priority)+'</td>'+
   '</tr><tr>'+
-  '<th>status</th>'+
+  '<th>狀態</th>'+
   '<td>'+showSelect('status',Tinfo.status)+'</td>'+
   '</tr><tr>'+
-  '<th>description</th>'+
+  '<th>描述</th>'+
   '<td class="edit">'+Tinfo.description+'</td>'+
   '</tr><tr>'+
-  '<th>due date '+dueDate(Tinfo.due_by)+'</th>'+
+  '<th>到期時間'+dueDate(Tinfo.due_by)+'</th>'+
   '<td class="edit">'+displayDate(Tinfo.due_by)+'</td>'+
   '</tr><tr>'+
-  '<th>creat date</th>'+
+  '<th>建立時間</th>'+
   '<td>'+displayDate(Tinfo.created_at)+'</td>'+
   '</tr><tr>'+
-  '<th>last update</th>'+
+  '<th>最後更新</th>'+
   '<td>'+displayDate(Tinfo.updated_at)+'</td>'+
   '</tr>' ;
 
@@ -250,7 +253,7 @@ function moreInfo() {
 
   $(".info_input_table").html('') ;
   $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority)) ;
-  $(".modal-title").text(Tinfo.subject) ;
+  $(".modal-title").text(Tinfo.requester.name) ;
   $("#ticketInfo-submit").attr("val",Tinfo.id) ;
   $(".info_input_table").append(display);
 }
@@ -275,13 +278,15 @@ function displayDate(date) {
 function dueDate(day) {
   let html = '' ;
   let nowTime = new Date().getTime() ;
+  console.log('this is nowTime');
+  console.log(nowTime);
   let dueday = Date.parse(displayDate(day)) ;
   let hr = dueday - nowTime ;
   hr /= 1000*60*60 ;
   // hr = Math.round(hr) ;
   // return hr ;
-  if(hr<0) html = '<span class="overdue">overdue</span>' ;
-  else html = '<span class="non overdue">response due</span>' ;
+  if(hr<0) html = '<span class="overdue">過期</span>' ;
+  else html = '<span class="non overdue">即期</span>' ;
   return html ;
 }
 function responderName(id) {
@@ -297,14 +302,13 @@ function addZero(n) {
 
 function submitAdd(){
   let name = $('#form-name').val();
-  let groupId = $('#form-groupId').val();//因為沒有相關可用的string，暫時先儲存在to_emails這個功能下面
-  let subject = $('#form-subject').val();
+  let uid = $('#form-uid').val();//因為沒有相關可用的string，暫時先儲存在to_emails這個功能下面
   let email = $('#form-email').val();
   let phone = $('#form-phone').val();
   let status = $('#form-status option:selected').text();
   let priority = $('#form-priority option:selected').text();
   let description = $('#form-description').val();
-  ticket_data = '{ "description": "'+description+'", "name" : "'+name+'", "custom_fields" : {"group" : "'+groupId+'"}, "subject": "'+subject+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+'}';
+  ticket_data = '{ "description": "'+description+'", "name" : "'+name+'",  "subject": "'+uid+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+'}';
   console.log(ticket_data);
   // 驗證
   let email_reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
@@ -323,8 +327,8 @@ function submitAdd(){
       $('#error').empty();
       $('#form-phone').css('border', '1px solid #ccc');
     }, 3000);
-  } else if($('#form-subject').val().trim() === '') {
-    $('#error').append('請輸入主題');
+  } else if($('#form-uid').val().trim() === '') {
+    $('#error').append('請輸入客戶ID');
     $('#form-subject').css('border', '1px solid red');
     setTimeout(() => {
       $('#error').empty();
@@ -345,26 +349,24 @@ function submitAdd(){
       $('#form-description').css('border', '1px solid #ccc');
     }, 3000);
   } else {
-    $.ajax(
-      {
-        url: "https://"+yourdomain+".freshdesk.com/api/v2/ticket_fields",
-        type: 'GET',
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        headers: {
-          "Authorization": "Basic " + btoa(api_key + ":x")
-        },
-        success: function(data, textStatus, jqXHR) {
-          console.log('this is ticket_fields');
-          console.log(data);
-        },
-        error: function(jqXHR, tranStatus) {
-          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
-          response_text = jqXHR.responseText;
-          console.log(response_text)
-        }
+
+    let nowTime = new Date().getTime();
+    let dueDate = nowTime+ 86400000*3;
+
+    let start = ISODateTimeString(nowTime);
+    let end = ISODateTimeString(dueDate)
+    let userId = auth.currentUser.uid;
+
+//把事件儲存到calendar database，到期時間和ticket一樣設定三天
+    database.ref('cal-events/' + userId).set(
+        {
+        title: name+": "+description.substring(0,10)+"...",
+        start: start,
+        end: end,
+        description: description,
+        allDay: false
       }
-    );
+      );
 
     setTimeout(function(){
       $.ajax(
@@ -386,7 +388,7 @@ function submitAdd(){
         }
       }
     );
-    }, 2000)
+    }, 2000);
 
     $('#form-name').val('');
     $('#form-subject').val('');
@@ -399,6 +401,15 @@ function submitAdd(){
     }, 1000000)
   }
 
+}
+function ISODateTimeString(d) {
+  d = new Date(d);
+  function pad(n) {return n<10 ? '0'+n : n}
+  return d.getFullYear()+'-'
+       + pad(d.getMonth()+1)+'-'
+       + pad(d.getDate())+'T'
+       + pad(d.getHours())+':'
+       + pad(d.getMinutes());
 }
 
 function priorityTextToMark(priority){
