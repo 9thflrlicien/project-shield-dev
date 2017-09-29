@@ -1,5 +1,5 @@
-var name_list = []; //list of all users
-var room_list = [];
+var name_list = []; // list of all users
+var room_list = []; // room ID for line
 var user_list = []; // user list for checking on idle chat rooms
 
 var fbCount = 0;
@@ -16,7 +16,6 @@ const NO_HISTORY_MSG = "<p class='message-day' style='text-align: center'><stron
 $(document).ready(function() {
   var socket = io.connect(); //socket
   var printAgent = $('#printAgent'); //agent welcome text
-  // var messageForm = $('#send-message'); //button for agent to send message
   var messageInput = $('#message'); //input for agent to send message
   var canvas = $("#canvas"); //panel of message canvas
   var searchBox = $('#searchBox'); // search box
@@ -58,10 +57,9 @@ $(document).ready(function() {
   $(document).on('click', '#upImg', upImg); // 傳圖
   $(document).on('click', '#upVid', upVid); // 傳影
   $(document).on('click', '#upAud', upAud); // 傳音
-  $(document).on('click', '#submitMsg', submitMsg);
+  $(document).on('click', '#submitMsg', submitMsg); // 訊息送出
   // 群組名稱
   $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
-  $(document).on('click', '#save-group-btn', groupSubmit); // 完成編輯群組名稱
   $(document).on('click', '#cls-cal-btn', cancelSubmit); // 取消編輯群組名稱
   $('#message').on('keydown', function(event){ // 按enter可以發送訊息
     if(event.keyCode == 13){
@@ -118,32 +116,45 @@ $(document).ready(function() {
     }
   });//onclick_show
 
-  // mouse hover the chatApp
-  // $("#chatApp").hover(
-  //   function() {
-  //     $(this).css('width', '250px').find('h4').delay(50).fadeIn();
-  //   },
-  //   function() {
-  //     $(this).css('width', '70px').find('h4').hide();
-  //   }
-  // );
-  // select a group
-  // $('.chatApp_item[open="true"]').click(function() {
-  //   $('.choose').hide();
-  //   $('.error').hide();
-  //   $(this).addClass('select').siblings().removeClass('select'); // 對點選以外的選項都隱藏
-  //
-  //   let id = $(this).attr('id');
-  //   $("#user").children('#' + id + '_room').show('fast').siblings('.tablinks_area').hide(); // 對應的id以外的選項都隱藏
-  //
-  //   let title = $(this).children('h4').text();
-  //   $(".filter_head #title").html(title);
-  // });
-
   $('.chatApp_item[open="true"]').click(function() {
     let thisRel = $(this).attr('rel');
     if(thisRel === 'All'){
       $('.tablinks_area').find('b').show();
+    } else if(thisRel === 'unread'){
+      $('.tablinks_area').find('.unread_msg').each(function(index, el) {
+        // console.log($(this).text());
+        if($(this).text() === '0'){
+          $(this).parent().parent().hide();
+        } else {
+          $(this).parent().parent().show();
+        }
+      });
+    } else if(thisRel === 'assigned'){
+      $('.tablinks_area').find('b').hide();
+      $('#指派負責人 #td-inner').each(function(index, el) {
+        // console.log(el);
+        if($(this).text() !== '尚未輸入'){
+          let id = $(this).parent().parent().parent().parent().parent().parent().attr('id');
+          let room = $(this).parent().parent().parent().parent().parent().parent().attr('rel');
+          let newId = id.substr(0, id.indexOf('-'));
+          let newRoom = room.substr(0, room.indexOf('-'));
+          // console.log(newId, newRoom);
+          $('[name="'+newId+'"][rel="'+newRoom+'"]').parent().show();
+        }
+      });
+    } else if(thisRel === 'unassigned'){
+      $('.tablinks_area').find('b').hide();
+      $('#指派負責人 #td-inner').each(function(index, el) {
+        // console.log(el);
+        if($(this).text() === '尚未輸入'){
+          let id = $(this).parent().parent().parent().parent().parent().parent().attr('id');
+          let room = $(this).parent().parent().parent().parent().parent().parent().attr('rel');
+          let newId = id.substr(0, id.indexOf('-'));
+          let newRoom = room.substr(0, room.indexOf('-'));
+          // console.log(newId, newRoom);
+          $('[name="'+newId+'"][rel="'+newRoom+'"]').parent().show();
+        }
+      });
     } else {
       $('.tablinks_area').find('b').hide();
       $('.tablinks_area').find('[rel="'+thisRel+'"]').parent().show();
@@ -170,13 +181,19 @@ $(document).ready(function() {
       // 把在離天是裡面的關鍵字標黃
 
       $('.tablinks').each( function() {
-        //find his content parent
         let id = $(this).attr('name');
         let room = $(this).attr('rel');
         let panel = $("div #"+id+"-content[rel='"+room+"']");
-
-        //display searched msg & push #link when onclick
         let color = "";
+
+        // 客戶名單搜尋
+        $(this).find('.client_name').each(function(){
+          let text = $(this).text();
+          if( text.toLowerCase().indexOf(searchStr)!=-1 ) {
+            $(this).css({'color': COLOR.FIND, 'background-color': COLOR.FINDBACK});
+          }
+        });
+        // 聊天室搜尋
         panel.find(".message").each(function() {
           let text = $(this).find('.content').text();
           if( text.toLowerCase().indexOf(searchStr)!=-1 ) {
@@ -187,14 +204,9 @@ $(document).ready(function() {
           }
         });
         $(this).css("color", color);
-
       });
     }
   }); //end searchBox change func
-
-  setInterval(() => {
-    closeIdleRoomTry();
-  }, 20000);
 
   if (window.location.pathname === '/chat') {
     socket.emit("get tags from chat");
@@ -272,12 +284,13 @@ $(document).ready(function() {
       }
     }, 10);
 
-    setTimeout(() => { // 載入群組名稱
-      loadChatGroupName();
-    }, 1000);
+    // setTimeout(() => { // 載入群組名稱
+    //   loadChatGroupName();
+    // }, 1000);
   }
 
   socket.on('response line channel', (data) => {
+    // console.log(data.chanId_1, data.chanId_2);
     if(data.chanId_1 === '' && data.chanId_2 === ''){
       $('.error').text('群組名稱沒有設定，請於設定頁面更改。');
     } else {
@@ -285,9 +298,8 @@ $(document).ready(function() {
       $('#Line_2').attr('rel', data.chanId_2);
       room_list.push(data.chanId_1);
       room_list.push(data.chanId_2);
+      socket.emit('get json from back');
     }
-
-    socket.emit('get json from back');
   })
 
   socket.on('push json to front', (data) => {
@@ -299,8 +311,6 @@ $(document).ready(function() {
     sortUsers("recentTime", sortRecentBool, function(a, b) {
       return a < b;
     }); //sort users by recent time
-    closeIdleRoomTry();
-    // $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
 
   socket.on('push user ticket', (data) => {
@@ -627,7 +637,7 @@ $(document).ready(function() {
 
     let msgTime = '<div style="float:right;font-size:8px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</div>';
 
-    if(profile.VIP等級 !== undefined){
+    if(profile.VIP等級 !== undefined){ // VIP優先放進 VIP欄位
       if( profile.channelId === undefined ){
         profile.channelId = "FB";
         // fbCount += profile.unRead;
@@ -645,7 +655,7 @@ $(document).ready(function() {
           "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
           "</div>" +
           "<div class='msg_holder'>" +
-          profile.nickname +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
           lastMsgStr +
           "</div>" +
           // "<div class='agentImg_holder'>" +
@@ -667,7 +677,7 @@ $(document).ready(function() {
           "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
           "</div>" +
           "<div class='msg_holder'>" +
-          profile.nickname +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
           lastMsgStr +
           "</div>" +
           // "<div class='agentImg_holder'>" +
@@ -696,7 +706,7 @@ $(document).ready(function() {
           "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
           "</div>" +
           "<div class='msg_holder'>" +
-          profile.nickname +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
           lastMsgStr +
           "</div>" +
           // "<div class='agentImg_holder'>" +
@@ -718,7 +728,7 @@ $(document).ready(function() {
           "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
           "</div>" +
           "<div class='msg_holder'>" +
-          profile.nickname +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
           lastMsgStr +
           "</div>" +
           // "<div class='agentImg_holder'>" +
@@ -742,7 +752,7 @@ $(document).ready(function() {
           "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
           "</div>" +
           "<div class='msg_holder'>" +
-          profile.nickname +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
           lastMsgStr +
           "</div>" +
           // "<div class='agentImg_holder'>" +
@@ -764,7 +774,7 @@ $(document).ready(function() {
           "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
           "</div>" +
           "<div class='msg_holder'>" +
-          profile.nickname +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
           lastMsgStr +
           "</div>" +
           // "<div class='agentImg_holder'>" +
@@ -788,7 +798,7 @@ $(document).ready(function() {
           "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
           "</div>" +
           "<div class='msg_holder'>" +
-          profile.nickname +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
           lastMsgStr +
           "</div>" +
           // "<div class='agentImg_holder'>" +
@@ -810,7 +820,7 @@ $(document).ready(function() {
           "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
           "</div>" +
           "<div class='msg_holder'>" +
-          profile.nickname +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
           lastMsgStr +
           "</div>" +
           // "<div class='agentImg_holder'>" +
@@ -822,6 +832,7 @@ $(document).ready(function() {
       }
     }
 
+    // 依照不同的channel ID做分類
     if(profile.channelId === undefined || profile.channelId === "FB"){
       canvas.append( //push string into canvas
         '<div id="' + profile.userId + '" rel="FB" class="tabcontent"style="display: none;">' +
@@ -946,7 +957,7 @@ $(document).ready(function() {
       if(data.message.startsWith('<a')){ // 判斷客戶傳送的是檔案還是文字
         target.find("#msg").html(toTimeStr(data.time) + '客戶傳送檔案').css("font-weight", font_weight); // 未讀訊息字體變大
       } else {
-        target.find("#msg").html(toTimeStr(data.time) + data.message).css("font-weight", font_weight); // 未讀訊息字體變大
+        target.find("#msg").html(toTimeStr(data.time) + "<span class='client_name'>" + data.message + "</span>").css("font-weight", font_weight); // 未讀訊息字體變大
       }
       target.find('.unread_msg').html(data.unRead).css("display", "block"); // 未讀訊息數顯示出來
       target.attr("data-recentTime", data.time);
@@ -954,7 +965,6 @@ $(document).ready(function() {
       // console.log('data.unRead on line 400');
       // console.log(data.unRead);
       if (data.unRead == 0 || data.unRead == false || data.unRead == 'undefined') {
-        // console.log('im here');
         target.find('.unread_msg').html(data.unRead).css("display", "none");
       }
       n++;
@@ -973,8 +983,7 @@ $(document).ready(function() {
         "<img src='" + data.pictureUrl + "' alt='無法顯示相片'>" +
         "</div>" +
         "<div class='msg_holder'>" +
-        data.name +
-        "<br />" +
+        "<span class='client_name'>" + data.name + "</span>" +
         data.message +
         "</div>" +
         "<div class='unread_msg'>" + data.unRead + "</div>" +
@@ -993,8 +1002,8 @@ $(document).ready(function() {
         "<table class='panelTable'>" +
         "<tbody>" +
         "<tr>" +
-        "<th class='userInfo-th' id='nickname'>nickname</th>" +
-        "<td class='userInfo-td' id='nickname' type='text' set='single' modify='false'>" +
+        "<th class='userInfo-th' id='姓名'>姓名</th>" +
+        "<td class='userInfo-td' id='姓名' type='text' set='single' modify='false'>" +
         "<p id='td-inner'>" + data.name + "</p>" +
         "</td>" +
         "</tr>" +
@@ -1017,14 +1026,14 @@ $(document).ready(function() {
         "</td>" +
         "</tr>" +
         "<tr>" +
-        "<th class='userInfo-th' id='address'>address</th>" +
-        "<td class='userInfo-td' id='address' type='text' set='single' modify='false'>" +
+        "<th class='userInfo-th' id='住址'>住址</th>" +
+        "<td class='userInfo-td' id='住址' type='text' set='single' modify='false'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
-        "<th class='userInfo-th' id='telephone'>telephone</th>" +
-        "<td class='userInfo-td' id='telephone' type='text' set='single' modify='false'>" +
+        "<th class='userInfo-th' id='電話'>電話</th>" +
+        "<td class='userInfo-td' id='電話' type='text' set='single' modify='false'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
@@ -1035,8 +1044,8 @@ $(document).ready(function() {
         "</td>" +
         "</tr>" +
         "<tr>" +
-        "<th class='userInfo-th' id='TAG'>TAG</th>" +
-        "<td class='userInfo-td' id='TAG' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='false'>" +
+        "<th class='userInfo-th' id='標籤'>標籤</th>" +
+        "<td class='userInfo-td' id='標籤' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='false'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
@@ -1137,6 +1146,8 @@ $(document).ready(function() {
         });
       }
     });
+
+    $(this).find('.unread_msg').text('0');
 
     $(".tablinks#selected").removeAttr('id').css("background-color", ""); //selected tablinks change, clean prev's color
     $(this).attr('id', 'selected').css("background-color", COLOR.CLICKED); //clicked tablinks color
@@ -1520,64 +1531,12 @@ $(document).ready(function() {
 
 }); //document ready close tag
 
-function groupSubmit() {
-  let userId = auth.currentUser.uid;
-  let thegroup = $(this).siblings('.myText').attr('id');
-  let groupname = $(this).siblings('input').val();
-  if (confirm('確認更改群組名稱為「'+thegroup+'」？')){ // 暫時解
-    if(thegroup === 'group1'){
-      database.ref('users/' + userId).update({
-        group1: groupname
-      });
-
-    } else if(thegroup === 'group2'){
-      database.ref('users/' + userId).update({
-        group2: groupname
-      });
-    } else if(thegroup === 'fbgroup'){
-      database.ref('users/' + userId).update({
-        fbgroup: groupname
-      });
-    } else {
-      console.log('update fail');
-    }
-    $('#'+thegroup).text(groupname)
-    $(this).siblings().hide();
-    $(this).hide();
-    $(this).siblings('.software_icon').show();
-    $(this).siblings('.myText').show();
-    alert('群組名稱已修改為'+thegroup);
-  }
-}//end groupSubmit
-
 function cancelSubmit(){
   $(this).hide();
   $(this).siblings('#save-group-btn').hide();
   $(this).siblings('[type="text"]').hide();
   $(this).siblings('.myText').show();
 } // end of cancelSubmit
-
-function closeIdleRoomTry() {
-  let early_time = Date.now() - 15 * 60 * 1000; //15min before now
-  let lastForFb = $('#fb-clients').find('.tablinks:last'); //last user in online room
-  let lastForLine1 = $('#line1-clients').find('.tablinks:last'); //last user in online room
-  let lastforLine2 = $('#line2-clients').find('.tablinks:last'); //last user in online room
-  while (lastForFb && lastForFb.attr('data-recentTime') < early_time) { //while last of online user should push into idle room
-    lastForFb.parents('b').remove();
-    $('#fb-idle-roomes').prepend(lastForFb.parents('b'));
-    lastForFb = $('#fb-clients').find('.tablinks:last');
-  }
-  while ( lastForLine1 && lastForLine1.attr('data-recentTime') < early_time ) { //while last of online user should push into idle room
-    lastForLine1.parents('b').remove();
-    $('#line1-idle-roomes').prepend(lastForLine1.parents('b'))
-    lastForLine1 = $('#line1-clients').find('.tablinks:last');
-  }
-  while ( lastforLine2 && lastforLine2.attr('data-recentTime') < early_time ) { //while last of online user should push into idle room
-    lastforLine2.parents('b').remove();
-    $('#line2-idle-roomes').prepend(lastforLine2.parents('b'));
-    lastforLine2 = $('#line2-clients').find('.tablinks:last');
-  }
-}
 
 function closeIdleRoom() {
   // declare current datetime and parse into ms
@@ -1625,6 +1584,7 @@ function displayAll() {
     let rel = $(this).attr('rel');
     $(this).find('#msg').text($("div #" + id + "-content" + "[rel='"+rel+"']" + " .message:last").find('.content').text().trim()).css('color', 'black');
     $("div #" + id + "-content" + "[rel='"+rel+"']" + " .message").find('.content').css({"color": "black", "background-color": "lightgrey"});
+    $(this).find('.client_name').css({"color": "black", "background-color": ""});
   });
 } // end of displayAll
 

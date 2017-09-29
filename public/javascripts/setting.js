@@ -46,8 +46,8 @@ $(document).ready(function() {
 
   socket.emit("get tags from tags");
   socket.on("push tags to tags", data=> {
-    console.log("data:");
-    console.log(data);
+    // console.log("data:");
+    // console.log(data);
     for( let i in data ) {
       append_new_tag();
       let name = data[i].name;
