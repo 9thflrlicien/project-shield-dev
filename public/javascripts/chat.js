@@ -1,5 +1,10 @@
 var name_list = []; //list of all users
+var room_list = [];
 var user_list = []; // user list for checking on idle chat rooms
+
+var fbCount = 0;
+var line1Count = 0;
+var line2Count = 0;
 
 const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>" +
 "Loading History Messages..." +
@@ -14,6 +19,7 @@ $(document).ready(function() {
   // var messageForm = $('#send-message'); //button for agent to send message
   var messageInput = $('#message'); //input for agent to send message
   var canvas = $("#canvas"); //panel of message canvas
+  var searchBox = $('#searchBox'); // search box
   var userId = "";
   var person = "agentColman"; //agent name
   var infoCanvas = $("#infoCanvas");
@@ -35,8 +41,9 @@ $(document).ready(function() {
   var filterDataCustomer = {}; //option of filter customized tags
 
   const COLOR = {
-    FIND: "#A52A2A",
+    FIND: "#ff0000",
     CLICKED: "#ccc",
+    FINDBACK: "#ffff00"
   }
   let n = 0;
 
@@ -112,25 +119,35 @@ $(document).ready(function() {
   });//onclick_show
 
   // mouse hover the chatApp
-  $("#chatApp").hover(
-    function() {
-      $(this).css('width', '250px').find('h4').delay(50).fadeIn();
-    },
-    function() {
-      $(this).css('width', '70px').find('h4').hide();
-    }
-  );
+  // $("#chatApp").hover(
+  //   function() {
+  //     $(this).css('width', '250px').find('h4').delay(50).fadeIn();
+  //   },
+  //   function() {
+  //     $(this).css('width', '70px').find('h4').hide();
+  //   }
+  // );
   // select a group
+  // $('.chatApp_item[open="true"]').click(function() {
+  //   $('.choose').hide();
+  //   $('.error').hide();
+  //   $(this).addClass('select').siblings().removeClass('select'); // 對點選以外的選項都隱藏
+  //
+  //   let id = $(this).attr('id');
+  //   $("#user").children('#' + id + '_room').show('fast').siblings('.tablinks_area').hide(); // 對應的id以外的選項都隱藏
+  //
+  //   let title = $(this).children('h4').text();
+  //   $(".filter_head #title").html(title);
+  // });
+
   $('.chatApp_item[open="true"]').click(function() {
-    $('.choose').hide();
-    $('.error').hide();
-    $(this).addClass('select').siblings().removeClass('select'); // 對點選以外的選項都隱藏
-
-    let id = $(this).attr('id');
-    $("#user").children('#' + id + '_room').show('fast').siblings('.tablinks_area').hide(); // 對應的id以外的選項都隱藏
-
-    let title = $(this).children('h4').text();
-    $(".filter_head #title").html(title);
+    let thisRel = $(this).attr('rel');
+    if(thisRel === 'All'){
+      $('.tablinks_area').find('b').show();
+    } else {
+      $('.tablinks_area').find('b').hide();
+      $('.tablinks_area').find('[rel="'+thisRel+'"]').parent().show();
+    }
   });
 
   $(document).on("mouseenter", ".message", function() {
@@ -139,6 +156,41 @@ $(document).ready(function() {
   $(document).on("mouseleave", ".message", function() {
     $(this).find('.sender').hide();
   });
+
+  searchBox.on('keypress', function (e) {
+    let code = (e.keyCode ? e.keyCode : e.which);
+    if (code != 13) return;
+
+    let searchStr = $(this).val().toLowerCase();
+    if( searchStr === "" ) {
+      displayAll();
+    } else {
+      // 搜尋displayClient所有的名字
+      // 搜尋所有canvas下的訊息 如果有match就在displayClient的message上顯示 "找到訊息"
+      // 把在離天是裡面的關鍵字標黃
+
+      $('.tablinks').each( function() {
+        //find his content parent
+        let id = $(this).attr('name');
+        let room = $(this).attr('rel');
+        let panel = $("div #"+id+"-content[rel='"+room+"']");
+
+        //display searched msg & push #link when onclick
+        let color = "";
+        panel.find(".message").each(function() {
+          let text = $(this).find('.content').text();
+          if( text.toLowerCase().indexOf(searchStr)!=-1 ) {
+            // displayMessage match的字標黃
+            $(this).find('.content').css({'color': COLOR.FIND, 'background-color': COLOR.FINDBACK});
+            // displayClient顯示"找到訊息"並標紅
+            $('[name="'+id+'"][rel="'+room+'"]').find('#msg').css('color', COLOR.FIND).text("找到訊息");
+          }
+        });
+        $(this).css("color", color);
+
+      });
+    }
+  }); //end searchBox change func
 
   setInterval(() => {
     closeIdleRoomTry();
@@ -229,8 +281,10 @@ $(document).ready(function() {
     if(data.chanId_1 === '' && data.chanId_2 === ''){
       $('.error').text('群組名稱沒有設定，請於設定頁面更改。');
     } else {
-      $('.tablinks_area#Line_1_room').attr('rel', data.chanId_1);
-      $('.tablinks_area#Line_2_room').attr('rel', data.chanId_2);
+      $('#Line_1').attr('rel', data.chanId_1);
+      $('#Line_2').attr('rel', data.chanId_2);
+      room_list.push(data.chanId_1);
+      room_list.push(data.chanId_2);
     }
 
     socket.emit('get json from back');
@@ -295,7 +349,6 @@ $(document).ready(function() {
 
   socket.on('new message', (data) => {
     // console.log("receive socket! data = ");
-    // console.log(data);
     // console.log(data);
     // if www push "new message"
     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
@@ -545,11 +598,9 @@ $(document).ready(function() {
 
   // inner functions
   function pushMsg(data) {
-    // console.log(data);
     // one user do function one time; data structure see file's end
     let historyMsg = data.Messages;
     let profile = data.Profile;
-    // console.log(profile);
 
     let historyMsgStr = "";
     if (data.position != 0) {
@@ -561,9 +612,6 @@ $(document).ready(function() {
     }
 
     historyMsgStr += historyMsg_to_Str(historyMsg);
-    historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>" +
-    "-即時訊息-" +
-    " </italic></strong></p>"; //history message string tail
     // end of history message
 
     $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>'); //new a option in select bar
@@ -578,86 +626,203 @@ $(document).ready(function() {
     }
 
     let msgTime = '<div style="float:right;font-size:8px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</div>';
-    // display last message at tablinks
 
-    if(profile.channelId === undefined || profile.channelId === "FB"){
-      // console.log('to fb');
-      if( profile.channelId === undefined ) profile.channelId = "FB";
-      // name_list.push(profile.channelId+profile.userId); //make a name list of all chated user
-      $('#fb-clients').append(
-        "<b><button style='text-align:left' class='tablinks'" +
-        "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
-        "data-avgTime='" + profile.avgChat + "' " +
-        "data-totalTime='" + profile.totalChat + "' " +
-        "data-chatTimeCount='" + profile.chatTimeCount + "' " +
-        "data-firstTime='" + profile.firstChat + "' " +
-        "data-recentTime='" + lastMsg.time + "' >"+
-        "<div class='img_holder'>" +
-        "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='msg_holder'>" +
-        profile.nickname +
-        lastMsgStr +
-        "</div>" +
-        "<div class='agentImg_holder'>" +
-        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
-        "</button></b>"
-      ); //new a tablinks
-    } else if(profile.channelId === $('#Line_1_room').attr('rel')){
-      // console.log('to room 1');
-      $('#line1-clients').append(
-        "<b><button style='text-align:left' class='tablinks'" +
-        "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
-        "data-avgTime='" + profile.avgChat + "' " +
-        "data-totalTime='" + profile.totalChat + "' " +
-        "data-chatTimeCount='" + profile.chatTimeCount + "' " +
-        "data-firstTime='" + profile.firstChat + "' " +
-        "data-recentTime='" + lastMsg.time + "' >"+
-        "<div class='img_holder'>" +
-        "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='msg_holder'>" +
-        profile.nickname +
-        lastMsgStr +
-        "</div>" +
-        "<div class='agentImg_holder'>" +
-        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
-        "</button></b>"
-      ); //new a tablinks
-    } else if(profile.channelId === $('#Line_2_room').attr('rel')){
+    if(profile.VIP等級 !== undefined){
+      if( profile.channelId === undefined ){
+        profile.channelId = "FB";
+        // fbCount += profile.unRead;
+      }
+      if(profile.unRead > 0){
+        $('#vip_list').prepend(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          profile.nickname +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      } else {
+        $('#vip_list').prepend(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          profile.nickname +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      }
 
-      // console.log('to room 2');
-      $('#line2-clients').append(
-        "<b><button style='text-align:left' class='tablinks'" +
-        "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
-        "data-avgTime='" + profile.avgChat + "' " +
-        "data-totalTime='" + profile.totalChat + "' " +
-        "data-chatTimeCount='" + profile.chatTimeCount + "' " +
-        "data-firstTime='" + profile.firstChat + "' " +
-        "data-recentTime='" + lastMsg.time + "' >"+
-        "<div class='img_holder'>" +
-        "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='msg_holder'>" +
-        profile.nickname +
-        lastMsgStr +
-        "</div>" +
-        "<div class='agentImg_holder'>" +
-        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
-        "</button></b>"
-      ); //new a tablinks
-    } else {
-      // console.log('not found');
-      // console.log("profile.channelId: " + profile.channelId);
+    } else if(profile.channelId === undefined || profile.channelId === "FB"){
+      if( profile.channelId === undefined ){
+        profile.channelId = "FB";
+        // fbCount += profile.unRead;
+      }
+      if(profile.unRead > 0){
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          profile.nickname +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      } else {
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          profile.nickname +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      }
+    } else if(profile.channelId === room_list[0]){
+      if(profile.unRead > 0){
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          profile.nickname +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      } else {
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          profile.nickname +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      }
+    } else if(profile.channelId === room_list[1]){
+      if(profile.unRead > 0){
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          profile.nickname +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      } else {
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          profile.nickname +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      }
     }
 
-    if(profile.channelId === undefined || profile.channelId == "FB"){
+    if(profile.channelId === undefined || profile.channelId === "FB"){
       canvas.append( //push string into canvas
         '<div id="' + profile.userId + '" rel="FB" class="tabcontent"style="display: none;">' +
         '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
@@ -665,7 +830,15 @@ $(document).ready(function() {
         historyMsgStr + "</div>" +
         "</div>"
       ); // close append
-    } else {
+    } else if(profile.channelId === room_list[0]){
+      canvas.append( //push string into canvas
+        '<div id="' + profile.userId + '" rel="'+profile.channelId+'" class="tabcontent"style="display: none;">' +
+        '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
+        "<div id='" + profile.userId + "-content' rel='"+profile.channelId+"' class='messagePanel' data-position='" + data.position + "'>" +
+        historyMsgStr + "</div>" +
+        "</div>"
+      ); // close append
+    } else if(profile.channelId === room_list[1]){
       canvas.append( //push string into canvas
         '<div id="' + profile.userId + '" rel="'+profile.channelId+'" class="tabcontent"style="display: none;">' +
         '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
@@ -675,7 +848,6 @@ $(document).ready(function() {
       ); // close append
     }
 
-    // console.log(profile.userId, profile.channelId);
     if (data.position != 0) $('#' + profile.userId + '-content' + '[rel="'+profile.channelId+'"]').on('scroll', function() {
       detecetScrollTop($(this));
     });
@@ -690,7 +862,6 @@ $(document).ready(function() {
 
     name_list.push(profile.channelId+profile.userId); //make a name list of all chated user
     userProfiles[profile.userId] = profile;
-    // console.log(name_list);
   } // end of pushMsg
 
   function agentName() {
@@ -728,6 +899,7 @@ $(document).ready(function() {
     // console.log(data);
     // console.log(channelId+data.id);
     if (name_list.indexOf(channelId+data.id) !== -1) { //if its chated user
+      // console.log('returned user');
       let str;
 
       let designated_chat_room_msg_time = $("#" + data.id + "-content" + "[rel='"+channelId+"']").find(".message:last").attr('rel');
@@ -768,7 +940,8 @@ $(document).ready(function() {
     // console.log(name_list);
     // console.log(name_list.indexOf(channelId+data.id) > -1);
     if (name_list.indexOf(data.channelId+data.id) > -1) {
-      let target = $('.tablinks_area[rel="'+channelId+'"]').find(".tablinks[name='" + data.id + "'][rel='"+channelId+"']");
+      let target = $('.tablinks_area').find(".tablinks[name='" + data.id + "'][rel='"+channelId+"']");
+      // console.log(target);
       // console.log(data.message);
       if(data.message.startsWith('<a')){ // 判斷客戶傳送的是檔案還是文字
         target.find("#msg").html(toTimeStr(data.time) + '客戶傳送檔案').css("font-weight", font_weight); // 未讀訊息字體變大
@@ -788,7 +961,7 @@ $(document).ready(function() {
 
       let ele = target.parents('b'); //buttons to b
       ele.remove();
-       $('.tablinks_area[rel="'+channelId+'"]>.list-group:first').prepend(ele);
+       $('.tablinks_area>#clients').prepend(ele);
     }
     else { //new user, make a tablinks
       // pictureUrl
@@ -805,9 +978,9 @@ $(document).ready(function() {
         data.message +
         "</div>" +
         "<div class='unread_msg'>" + data.unRead + "</div>" +
-        "<div class='agentImg_holder'>" +
-        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
-        "</div>" +
+        // "<div class='agentImg_holder'>" +
+        // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+        // "</div>" +
         "</button></b>"
       );
 
@@ -936,13 +1109,19 @@ $(document).ready(function() {
   } // end of displayClient
 
   function clickUserTablink() {
-    // console.log('click tablink executed');
-
-    // 把未讀訊息數歸零
     let userId = $(this).attr('name');
     let roomId = $(this).attr('rel'); // channelId
     let selectedId = [];
     let outerInfo, outerId, innerInfo;
+    // 先取得未讀訊息數量
+    // let unread_count = $(this).find('.unread_msg').text();
+    // let new_count = fbCount - unread_count;
+    // if(new_count > 0){
+    //   $('#FB>.unread_msg_count').text(new_count);
+    // } else {
+    //   $('#FB>.unread_msg_count').hide();
+    // }
+    // 把未讀訊息數歸零
     database.ref('chats/Data').once('value', outersnap => {
       outerInfo = outersnap.val();
       outerId = Object.keys(outerInfo);
@@ -982,8 +1161,8 @@ $(document).ready(function() {
     $("#" + targetId + "[rel='"+targetRel+"']"+'>#' + targetId + '-content' + '[rel="'+targetRel+'"]').scrollTop($('#' + targetId + '-content' + '[rel="'+targetRel+'"]')[0].scrollHeight); //scroll to down
 
     let profile = userProfiles[targetId];
-    // console.log(profile);
     $('#prof_nick').text(profile.nickname);
+
   } // end of clickUserTablink
 
   function toggleInfoPanel() {
@@ -1008,7 +1187,8 @@ $(document).ready(function() {
 
   function clickSpan() {
     let userId = $(this).parent().hide().attr("id");
-    $(".tablinks[rel='" + userId + "'] ").removeAttr('id').css("background-color", ""); //clean tablinks color
+    let room = $(this).parent().hide().attr("rel");
+    $(".tablinks[name='" + userId + "'][rel='"+room+"']").removeAttr('id').css("background-color", ""); //clean tablinks color
   } // end of clickSpan
 
   function loadPanelProfile(profile) {
@@ -1441,10 +1621,10 @@ function closeIdleRoom() {
 
 function displayAll() {
   $('.tablinks').each(function() {
-    let id = $(this).attr('id');
+    let id = $(this).attr('name');
     let rel = $(this).attr('rel');
-    $("div #" + id + "-content" + "[rel='"+rel+"']" + " .message").show().off("click");
-    $(this).css("color", "");
+    $(this).find('#msg').text($("div #" + id + "-content" + "[rel='"+rel+"']" + " .message:last").find('.content').text().trim()).css('color', 'black');
+    $("div #" + id + "-content" + "[rel='"+rel+"']" + " .message").find('.content').css({"color": "black", "background-color": "lightgrey"});
   });
 } // end of displayAll
 

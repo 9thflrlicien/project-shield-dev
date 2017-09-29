@@ -8,10 +8,7 @@
     <title><%= title %></title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
     <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
-    <!-- Morris Charts CSS -->
-    <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
     <link rel="stylesheet" href="stylesheets/main.css" />
     <link rel="stylesheet" href="stylesheets/chat.css" />
   </head>
@@ -50,7 +47,7 @@
                 <i class="fa fa-cog fa-lg"></i> <i class="fa fa-caret-down"></i>
               </a>
               <ul class="dropdown-menu dropdown-user">
-                <li><a href="/profile"><i class="fa fa-user fa-fw"></i>設定</a></li>
+                <li><a href="/setting"><i class="fa fa-user fa-fw"></i>設定</a></li>
                 <li class="divider"></li>
                 <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i>登出</a></li>
               </ul>
@@ -65,38 +62,52 @@
     <div id="chatHome">
       <div class="chatArea">
         <div id="chatApp" class="colume" >
+          <div class="chatApp_item" id="All" open="true" rel="All">
+            <img class="software_icon" src="https://firebasestorage.googleapis.com/v0/b/shield-88fd0.appspot.com/o/icon_all.png?alt=media&token=628e24a5-c562-480a-ac07-b70e167853ac">
+          </div>
           <div class="chatApp_item" id="Line_1" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-            <h4 id="group1" class="myText"></h4><input id="inputgroup1" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+            <div class="unread_msg_count"></div>
+            <!-- <h4 id="group1" class="myText"></h4><input id="inputgroup1" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button> -->
           </div>
           <div class="chatApp_item" id="Line_2" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-            <h4 id="group2" class="myText"></h4><input id="inputgroup2" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+            <div class="unread_msg_count"></div>
+            <!-- <h4 id="group2" class="myText"></h4><input id="inputgroup2" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button> -->
           </div>
-          <div class="chatApp_item" id="FB" open="true">
+          <div class="chatApp_item" id="FB" open="true" rel="FB">
             <img class="software_icon" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png">
-            <h4 id="fbgroup" class="myText"></h4><input id="inputfbgroup" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+            <div class="unread_msg_count"></div>
+            <!-- <h4 id="fbgroup" class="myText"></h4><input id="inputfbgroup" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button> -->
           </div>
           <div class="chatApp_item" id="wechat">
             <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/wechat.svg">
-            <h4>未開放</h4>
+            <!-- <h4>未開放</h4> -->
           </div>
           <div class="chatApp_item" id="kakotalk">
             <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/kakaotalk.svg">
-            <h4>未開放</h4>
+            <!-- <h4>未開放</h4> -->
           </div>
           <div class="chatApp_item" id="whatsapp">
             <img class="software_icon" src="https://cdn0.iconfinder.com/data/icons/social-flat-rounded-rects/512/whatsapp-256.png">
-            <h4>未開放</h4>
+            <!-- <h4>未開放</h4> -->
           </div>
         </div>
 
         <div id="user" class="colume">
-          <p class="choose">
+          <div class="search">
+            <input type="text" id="searchBox" placeholder="Search for messages..">
+          </div>
+
+          <!-- <p class="choose">
             請選擇一個群組
-          </p>
+          </p> -->
           <p class="error"></p>
-          <div class="tablinks_area" id="Line_1_room">
+          <div class="tablinks_area">
+            <ol class="list-group" id="vip_list"></ol>
+            <ol class="list-group" id="clients"></ol>
+          </div>
+          <!-- <div class="tablinks_area" id="Line_1_room">
             <ol class="list-group" id="line1-clients"></ol>
             <ol class="list-group" id="line1-idle-roomes"></ol>
           </div>
@@ -107,7 +118,7 @@
           <div class="tablinks_area" id="FB_room" rel="FB">
             <ol class="list-group" id="fb-clients"></ol>
             <ol class="list-group" id="fb-idle-roomes"></ol>
-          </div>
+          </div> -->
         </div>
 
         <div id="chat" class="contentPanel" style="background-color: /*#c2d4dd*/;width:30%;">
@@ -209,12 +220,10 @@
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
-    <!-- <script src="javascripts/bootstrap-slider.js"></script> -->
     <script src="javascripts/firebaseConfig.js"></script>
-    <script src="javascripts/sb-admin-2.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/chat.js"></script>
+    <script src="javascripts/sb-admin-2.js"></script>
   </body>
 </html>
