@@ -5,10 +5,10 @@
   y store current year.
 */
 var current_datetime = new Date();
-// console.log(date);
 var event_list;
 var userId;
-
+var avoidremindagain;
+var socket = io.connect();
 var calendar = $('#calendar');
 var nowEventId = "invalid";
 
@@ -18,10 +18,12 @@ var nowEventId = "invalid";
 //
 // });
 
+
+
 $(document).on('click', '#signout-btn', logout); //登出
-$(document).on('click', '#add-cal-btn', set_cal);
-$(document).on('click', '#save-cal-btn', set_cal);
-$(document).on('click', '#del-cal-btn', del_cal);
+$(document).on('click', '#add-cal-btn', set_cal); //新增事件
+$(document).on('click', '#save-cal-btn', set_cal); //更新事件
+$(document).on('click', '#del-cal-btn', del_cal); //刪除事件
 
 var getAuth = setInterval( function() {
   console.log("loading auth...");
@@ -42,10 +44,13 @@ var getAuth = setInterval( function() {
   }
 }, 200 );
 
-var loadCalTable = setInterval( function() {
+var loadCalTable = setInterval( function() { //loop until loading is done
   console.log("loading calendar...");
-  if( !event_list ) return;
-  clearInterval(loadCalTable);
+   if( !event_list ) return; //check event_list
+   clearInterval(loadCalTable); //end loop
+
+  //reminder
+  var Reminder = setInterval(reminder,30000);
 
   //Initialize fullCalendar.
 	calendar.fullCalendar({
@@ -62,12 +67,10 @@ var loadCalTable = setInterval( function() {
     eventLimit: true,   // allow "more" link when too many events
 		selectable: true,   //allows a user to highlight multiple days or timeslots by clicking and dragging.
 		selectHelper: true, //whether to draw a "placeholder" event while the user is dragging.
-
     //events is the main option for calendar.
 		events: event_list,
-
     //execute after user select timeslots.
-		select: (start, end, jsEvent, view) => {
+		select: (start, end, jsEvent, view) => { //新增新事件
       nowEventId = "invalid";
       let convert_start = convertTime(start._d);
       let convert_end = convertTime(end._d);
@@ -93,7 +96,7 @@ var loadCalTable = setInterval( function() {
 		},
 
     // edit after click.
-    eventClick: function(event, jsEvent, view) {
+    eventClick: function(event, jsEvent, view) { //更改事件
       nowEventId = event._id;
 
       // 資料的值放進對應的input
@@ -131,16 +134,18 @@ var loadCalTable = setInterval( function() {
         start: start,
         end: end,
         description: event.description,
-        allDay: event.allDay
+        allDay: event.allDay,
+        remind: false
       };
       database.ref('cal-events/' + userId + '/' + keyId).set(obj);
     },
 
     eventDurationEditable: true
 	});
+
 }, 200 );
 
-function set_cal() {
+function set_cal() { //確定新增或更改事件
   let keyId       = $('#keyId').text();
   let title       = $('#title').val();
   let start_date  = $('#startDate').val();
@@ -172,14 +177,15 @@ function set_cal() {
     start: start_date,
     end: end_date,
     description: description,
-    allDay: allDay
+    allDay: allDay,
+    remind: false
   };
-  if( !keyId ) {
+  if( !keyId ) { //新增事件
     let key = database.ref('cal-events/' + userId).push(obj).key;
     obj.keyId = key;
     calendar.fullCalendar('renderEvent', obj ,true ); // make the event "stick"
   }
-  else {
+  else { //更改事件
     calendar.fullCalendar('removeEvents', nowEventId );
     calendar.fullCalendar('renderEvent', obj, true); // make the event "stick"
     database.ref('cal-events/' + userId + '/' + keyId).set(obj);
@@ -188,11 +194,55 @@ function set_cal() {
   $('#myModal').modal('hide');
 };   //end on click
 
-function del_cal() {
+function del_cal() { //確定刪除事件
   calendar.fullCalendar('removeEvents', nowEventId );
   let keyId = $('#keyId').text();
   database.ref('cal-events/' + userId + '/' + keyId).remove();
   $('#myModal').modal('hide');
+}
+
+function reminder(){ //事件開始時提醒
+  console.log('Check the reminder...');
+  //let nowtime = (current_datetime.getMonth()+1)+'-'+current_datetime.getDate()+'T'+current_datetime.getHours()+':'+current_datetime.getMinutes();
+  let current_datetime = new Date();
+  let nowtime = ISODateTimeString(current_datetime); //convertTime(current_datetime)-8hours
+  console.log(nowtime);
+  socket.emit('reminder of calendar', { //呼叫www自動寄通知信
+    userId : userId,
+    nowtime : nowtime,
+    email : auth.currentUser.email
+  });
+  socket.on('pop up reminder', (title)=> {
+    alert('Your event "'+title+'" has started.');
+  });
+  // database.ref('cal-events/'+userId).once('value', snap =>{
+  //   let data = snap.val();
+  //   for(let i in data){
+  //     if((data[i].start == nowtime) && (data[i].remind == false)){
+  //     //事件開始時間與現在時間相同，且此事件與上個提醒過的事件名稱不同
+  //     database.ref('cal-events/' + userId + '/' + i).update({remind:true});
+  //     //console.log(data[i].title);
+  //     alert('Your event "'+data[i].title+'" has started.');
+  //     socket.emit('reminder of calendar', { //呼叫www自動寄通知信
+  //       // userId : userId,
+  //       // keyId : i,
+  //       title : data[i].title,
+  //       email : auth.currentUser.email
+  //     });
+
+      //avoidremindagain = data[i].title;
+      //自動寄信完成後 將remind改為false
+
+      //clearTimeout(avoidremindagain);
+
+
+    // console.log(i);
+    // socket.on('set remind false', (keyId)=> {
+    //   console.log('set remind false!');
+    //   database.ref('cal-events/' + userId + '/' + keyId).update({remind:false});
+    // });
+  //}
+//}
 }
 
 function ISOEndDate(d) {

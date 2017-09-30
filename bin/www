@@ -16,6 +16,25 @@ var apiai = require('apiai');
 var fs = require('fs');
 var unirest = require('unirest'); // 來單使用套件
 
+var admin = require("firebase-admin"); //firebase admin SDK
+var serviceAccount = require("./../firebase-adminsdk.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://shield-dev-91210.firebaseio.com"
+});
+
+//提醒事件自動寄信
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({ //信箱憑證
+  service: 'gmail',
+  auth: {
+    user: '9thflr.wuyuan@gmail.com',
+    pass: 'susan1018'
+  }
+});
+
+
 // Get port from environment and store in Express.
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
@@ -98,6 +117,12 @@ tagsRef.on('value', snapshot=> {
   tagsData = snapshot.val().Data;
   console.log("tags data loading complete!");
   // ...
+});
+
+const calref = admin.database().ref().child('cal-events');
+calref.on('value', snapshot=> {
+  EventData = snapshot.val();
+  console.log("Events data loading complete!");
 });
 
 var ticket = {} ;
@@ -6905,6 +6930,53 @@ io.sockets.on('connection', (socket) => {
   //   });
   // });
 
+  //-----------------------------cal事件提醒功能-------------------------------------------------------
+  socket.on('reminder of calendar', (info) => {
+      console.log(info.nowtime+' function in!');
+      //console.log('Server is checking the reminder...');
+      //console.log(info.nowtime);
+      admin.database().ref('cal-events/' + info.userId).once('value', snap => {
+          let data = snap.val();
+          for (let i in data) {
+              //console.log(data[i].remind);
+              if ((data[i].start == info.nowtime) && (data[i].remind == false)) {
+                  //事件開始時間與現在時間相同，且此事件與上個提醒過的事件名稱不同
+                  admin.database().ref('cal-events/' + info.userId + '/' + i).update({
+                      remind: true
+                  });
+                  socket.emit('pop up reminder', data[i].title);
+                  console.log('Event started');
+
+                  var mailOptions = { //信件內容
+                      from: '9thflr.wuyuan@gmail.com',
+                      to: data.email,
+                      subject: 'Your event "' + data.title + '" has started.',
+                      text: 'Your event "' + data.title + '" has started.'
+                  };
+                  //自動寄信function
+                  // transporter.sendMail(mailOptions, function(error, info){
+                  //   if (error) {
+                  //     console.log(error);
+                  //   } else {
+                  //     console.log('Email sent: ' + info.response);
+                  //   }
+                  //   });
+
+                  var avoidremindagain = setTimeout(function() {
+                      console.log('Waiting for 60 seconds');
+                      admin.database().ref('cal-events/' + info.userId + '/' + i).update({
+                          remind: false
+                      });
+                      clearTimeout(avoidremindagain);
+                      //socket.emit('set remind false', i);
+                  }, 60000);
+
+              }
+          }
+      });console.log(info.nowtime+' function out');
+  });
+  //------------------------------------------------------------------------------------------------------
+
   socket.on('disconnect', (data) => {
     if (!socket.nickname) return;
     delete users[socket.nickname];
@@ -7164,9 +7236,6 @@ function isUrl(str) {
   else if(str.indexOf('.org') !== -1 ) return true;
   return false;
 } // end of isUrl
-
-
-
 
 
 // EXPRESS functions and app use, KEEP THEM AT THE BOTTOM
