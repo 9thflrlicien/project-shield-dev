@@ -1,5 +1,9 @@
+.ticket_memo::-webkit-scrollbar {
+    width: 1em;
+}
 .ticket_memo{
     overflow: scroll !important;
+    height:700px;
 }
 #message_memo{
   position: relative;
@@ -40,7 +44,7 @@
 /*TICKET.CSS*/
 #form-wrap {
   position: relative;
-  left: 270px;
+  left: 15%;
   width: 70%
 }
 

@@ -91,6 +91,7 @@ $(document).ready(function() {
     }
   });//onclick_show
 
+
 //---------------------ticket.js----------------------
 
 var ticketInfo = {} ;
@@ -104,7 +105,7 @@ var ticket_content = $('.ticket-content');
 
 $(document).ready(function() {
 
-  $(document).on('click', '#form-submit', submitAdd) //新增ticket
+  // $(document).on('click', '#form-submit', submitAdd) //新增ticket
   $(document).on('click', '.ticket_content',moreInfo) ;
   $(document).on('click', "#ticketInfo-submit", updateStatus) ;
   $(document).on('click', '.edit', showInput) ;
@@ -153,8 +154,6 @@ function loadTable(userId){
         for(let i=0;i < data.length;i++){
 
             if (data[i].subject == userId){
-
-          ticketInfo = data;
           $('.ticket-content').prepend(
             '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
             '<td class="data_id" style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
@@ -190,8 +189,6 @@ setTimeout(function(){
       },
       success: function(data, textStatus, jqXHR) {
         for(let i=0;i < data.length;i++){
-
-          ticketInfo = data;
           $('.ticket_memo').prepend('<div class="memo_content">'+data[i].body+'</div>');
         // }
        } 
@@ -471,15 +468,15 @@ function addZero(n) {
 
 
 function submitAdd(){
-  let subject = $('#form-subject').val();
+  let name = $('#form-name').val();
+  let uid = $('#form-uid').val();//因為沒有相關可用的string，暫時先儲存在to_emails這個功能下面
   let email = $('#form-email').val();
   let phone = $('#form-phone').val();
   let status = $('#form-status option:selected').text();
   let priority = $('#form-priority option:selected').text();
   let description = $('#form-description').val();
-  ticket_data = '{ "description": "'+description+'", "subject": "'+subject+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+' }';
-  // console.log(ticket_data)
-
+  ticket_data = '{ "description": "'+description+'", "name" : "'+name+'",  "subject": "'+uid+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+'}';
+  console.log(ticket_data);
   // 驗證
   let email_reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
   let phone_reg = /\b[0-9]+\b/;
@@ -497,8 +494,8 @@ function submitAdd(){
       $('#error').empty();
       $('#form-phone').css('border', '1px solid #ccc');
     }, 3000);
-  } else if($('#form-subject').val().trim() === '') {
-    $('#error').append('請輸入主題');
+  } else if($('#form-uid').val().trim() === '') {
+    $('#error').append('請輸入客戶ID');
     $('#form-subject').css('border', '1px solid red');
     setTimeout(() => {
       $('#error').empty();
@@ -511,8 +508,35 @@ function submitAdd(){
       $('#error').empty();
       $('#form-description').css('border', '1px solid #ccc');
     }, 3000);
+  } else if($('#form-name').val().trim() === '') {
+    $('#error').append('請輸入客戶姓名');
+    $('#form-name').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-description').css('border', '1px solid #ccc');
+    }, 3000);
   } else {
-    $.ajax(
+
+    let nowTime = new Date().getTime();
+    let dueDate = nowTime+ 86400000*3;
+
+    let start = ISODateTimeString(nowTime);
+    let end = ISODateTimeString(dueDate)
+    let userId = auth.currentUser.uid;
+
+//把事件儲存到calendar database，到期時間和ticket一樣設定三天
+    database.ref('cal-events/' + userId).push(
+        {
+        title: name+": "+description.substring(0,10)+"...",
+        start: start,
+        end: end,
+        description: description,
+        allDay: false
+      }
+      );
+
+    setTimeout(function(){
+      $.ajax(
       {
         url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets",
         type: 'POST',
@@ -523,15 +547,17 @@ function submitAdd(){
         },
         data: ticket_data,
         success: function(data, textStatus, jqXHR) {
-          // console.log('works');
         },
         error: function(jqXHR, tranStatus) {
           x_request_id = jqXHR.getResponseHeader('X-Request-Id');
           response_text = jqXHR.responseText;
+          console.log(response_text)
         }
       }
     );
+    }, 2000);
 
+    $('#form-name').val('');
     $('#form-subject').val('');
     $('#form-email').val('');
     $('#form-phone').val('');
@@ -539,7 +565,7 @@ function submitAdd(){
 
     setTimeout(() => {
       location.href = '/ticket';
-    }, 1000)
+    }, 1000000)
   }
 
 }
@@ -669,7 +695,6 @@ function searchBar(){
   // mouse hover the chatApp
   $("#chatApp").hover(
     function() {
-      console.log('this is hovered');
 
       $(this).css('width', '250px').find('h4').delay(50).fadeIn();
     },
@@ -1504,7 +1529,7 @@ function searchBar(){
         '<th> 優先 </th>'+
         '<th> 到期 </th>'+
         '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="Search"></th>'+
-        '<th><a href="/tform"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
+        '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
         '</tr>'+
         '</thead>'+
         '<tbody class="ticket-content">'+
@@ -1520,13 +1545,16 @@ function searchBar(){
 
   function clickUserTablink() {
     console.log('click tablink executed');
-
     // 把未讀訊息數歸零
     let userId = $(this).attr('name');   
     let roomId = $(this).attr('rel');
+    let username = $(this).find('.msg_holder').text();
     let selectedId = [];
     let outerInfo, outerId, innerInfo;
     // console.log(userId, roomId);
+
+    $('#form-uid').val(userId);
+
     database.ref('chats/Data').once('value', outersnap => {
       outerInfo = outersnap.val();
       outerId = Object.keys(outerInfo);
@@ -1667,7 +1695,7 @@ function searchBar(){
       '<th> 優先 </th>'+
       '<th> 到期 </th>'+
       '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="搜尋"></th>'+
-      '<th><a href="/tform"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
+      '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
       '</tr>'+
       '</thead>'+
       '<tbody class="ticket-content">'+

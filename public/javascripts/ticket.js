@@ -168,7 +168,7 @@ function updateStatus() {
   var new_time=[];
   var new_time2=[];
   time_list.map(function(i){
-    if (!i.startsWith(0) && i.length !== 4) i = '0'+i;
+    if (!i.startsWith(0) && i.length == 1 || i.length == 10) i = '0'+i;
     new_time.push(i);
   });
     new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
@@ -177,6 +177,7 @@ function updateStatus() {
       new_time2.push(i);
     })
     new_time = new_time2.join(":");
+    console.log(new_time);
 
   obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
 
@@ -420,7 +421,7 @@ function submitAdd(){
     let userId = auth.currentUser.uid;
 
 //把事件儲存到calendar database，到期時間和ticket一樣設定三天
-    database.ref('cal-events/' + userId).set(
+    database.ref('cal-events/' + userId).push(
         {
         title: name+": "+description.substring(0,10)+"...",
         start: start,

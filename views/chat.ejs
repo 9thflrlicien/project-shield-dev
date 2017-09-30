@@ -205,7 +205,7 @@
             <div id="infoCanvas"></div>
           </div>
           <div class="memo">
-            <div class="ticket_memo">請先新增表單才能使用備註</div>
+            <div class="ticket_memo"><div class="memo_content"><p>請先新增表單才能使用備註</p></div></div>
             <div class="submemo">
               <input placeholder="輸入備註..." style="width:85%; height:50px;border:0" size="35" id="message_memo" />
               <input type="button" id="submitMemo" />
@@ -243,6 +243,95 @@
         </div>
       </div>
 
+      <!-- 新增todo表單-->
+      <div class="modal fade" id="addTicketModal" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <div style="display:flex">
+                <span id="ID_num"></span>
+                <table>
+                  <th style="display:none">內容</th>
+                  <td class="modal-title edit">用戶代號</td>
+                </table>
+
+              </div>
+            </div>
+            <div class="modal-body">
+              <!-- Form -->
+              <div id="form-wrap">
+                <!-- 任務內容 -->
+                <form>
+                  <!-- 客戶名 -->
+                  <div class="form-group row">
+                    <label for="subject" class="col-2 col-form-label">客戶姓名</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-name">
+                    </div>
+                  </div>
+                  <!-- 客戶Id -->
+                  <div class="form-group row">
+                    <label for="subject" class="col-2 col-form-label">客戶ID</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-uid">
+                    </div>
+                  </div>
+                  <!-- email -->
+                  <div class="form-group row">
+                    <label for="email" class="col-2 col-form-label">電子郵件</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-email">
+                    </div>
+                  </div>
+                  <!-- phone -->
+                  <div class="form-group row">
+                    <label for="phone" class="col-2 col-form-label">手機</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-phone">
+                    </div>
+                  </div>
+                  <!-- 狀態 -->
+                  <div class="form-group row">
+                    <label for="status">狀態</label>
+                    <select class="form-control" id="form-status">
+                      <option>Open</option>
+                      <option>Pending</option>
+                      <option>Resolved</option>
+                      <option>Closed</option>
+                    </select>
+                  </div>
+                  <!-- 緊急 -->
+                  <div class="form-group row">
+                    <label for="priority">優先</label>
+                    <select class="form-control" id="form-priority">
+                      <option>低</option>
+                      <option>中</option>
+                      <option>高</option>
+                      <option>急</option>
+                    </select>
+                  </div>
+
+                  <!-- 說明 -->
+                  <div class="form-group row">
+                    <label for="description">說明</label>
+                    <textarea class="form-control" id="form-description" rows="3"></textarea>
+                  </div>
+                  <br />
+                  <div id="error" class="error"></div>
+                  <br />
+                  <button type="button" class="btn btn-default" data-dismiss="modal">返回</button>
+                  <button type="button" class="btn btn-success" data-dismiss="modal" id="form-submit">確認</button>
+                  <br />
+                  <br />
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       <!-- end -->
 
     </div>
@@ -256,6 +345,7 @@
     <script src="javascripts/sb-admin-2.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/chat.js"></script>
+    <script src="javascripts/ticket.js"></script>
     <script src="https://trello.com/embed.js"></script>
 
   </body>
