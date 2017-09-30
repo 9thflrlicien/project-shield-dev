@@ -153,12 +153,8 @@ function updateStatus() {
     json += '"'+name+'":'+value+','
   }
   json += '"id":"'+id+'"}' ;
-  console.log(json) ;
   obj = JSON.parse(json) ;
-  console.log('this is obj');
-  console.log(obj);
-  console.log('this is json');
-  console.log(json);
+
 
   客戶名 = obj.subject;
   客戶ID = obj.客戶ID;
@@ -166,13 +162,23 @@ function updateStatus() {
   優先 = parseInt(obj.優先);
   狀態 = parseInt(obj.狀態);
   描述 = obj.描述;
-  console.log(obj.到期時間過期.split("/").join("-0").split(" ").join("T")+"Z");
-  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期.split("/").join("-").split(" ").join("T")+"Z";
-  else 到期時間 = obj.到期時間即期.split("/").join("-0").split(" ").join("T")+"Z";
+  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期;
+  else 到期時間 = obj.到期時間即期;
+  var time_list = 到期時間.split("/");
+  var new_time=[];
+  var new_time2=[];
+  time_list.map(function(i){
+    if (!i.startsWith(0) && i.length !== 4) i = '0'+i;
+    new_time.push(i);
+  });
+    new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
+    new_time.map(function(i){
+      if (i.length == 1) i = '0'+i;
+      new_time2.push(i);
+    })
+    new_time = new_time2.join(":");
 
-
-
-  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+到期時間+'"}';
+  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
 
   if(confirm("確定變更表單？")) {
     var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();

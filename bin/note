@@ -21,21 +21,19 @@ chat.js新增 keyup, ticket_search_bar，框在colman裡面的程式
 
 
 更新
-新增delete button在ticket.ejs modal裡
-submit button class改成btn-success, style刪掉
-ticket.js新增$('#ticketInfo-delete').click功能
+-新增delete button在ticket.ejs modal裡
+-submit button class改成btn-success, style刪掉
+-ticket.js新增$('#ticketInfo-delete').click功能
+-ticket.js, chat.js裡新增新增 updateStatus()，編輯ticket
+-chat.js id="todo"的兩個地方新增一個 '<th><a href="/tform"><span class="fa fa-plus fa-fw"></span>新增表單</a></th>'+
+的地方
+-chat.ejs infoPanel "+add a ticket"的地方刪掉
+
 
 
 ===================================================================
 待完成
 8. note加上附件檔案(要問一下ted document上的狀況要怎麼做)（無法）
-9. edit ticket開放的東西再增加
 10. ticket_memo overflow不會動TAT
-4. 無法刪除ticket
-5. chat裡面add ticket的按鈕太醜
 6. profile裡面沒有可以設定chatApp名字的地方
-
-delete ticket新增在modal裡，點delete跳出popup，確認delete?
-edit，edit完，confirm
-
-正在updateStatus處編輯時間的部分
+7. 表單自動填入ID
