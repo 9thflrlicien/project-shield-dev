@@ -17,51 +17,38 @@
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
           <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                  <span class="sr-only">Toggle navigation</span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-              </button>
-              <a class="navbar-brand" href="/">SHIELD</a>
+              <a class="navbar-brand" href="/">Chatshier</a>
           </div>
           <!-- /.navbar-header -->
           <ul class="nav navbar-top-links navbar-left">
-
-            <li>
-              <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
-            </li>
-            <li>
-              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> Chat</a>
-            </li>
-            <li>
-              <a href="/tag">| <i class="fa fa-commenting fa-fw"></i> Tag</a>
-            </li>
-            <li>
-              <a href="/calendar">| <i class="fa fa-table fa-fw"></i> Calendar</a>
-            </li>
-            <li>
-              <a href="/ticket">| <i class="fa fa-ticket fa-fw"></i> Support</a>
-            </li>
-
+             <li>
+                <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i>聊天室</a>
+             </li>
+             <li>
+                <a href="/calendar">| <i class="fa fa-table fa-fw"></i>行事曆</a>
+             </li>
+             <li>
+                <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i>資訊主頁</a>
+             </li>
+             <li>
+                <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
+             </li>
           </ul>
           <ul class="nav navbar-top-links navbar-right">
-            <!-- /.dropdown -->
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
-              </a>
-              <ul class="dropdown-menu dropdown-user">
-                <li><a href="/setting"><i class="fa fa-user fa-fw"></i> 設定</a></li>
-                <li class="divider"></li>
-                <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> 登出</a></li>
-              </ul>
-              <!-- /.dropdown-user -->
-            </li>
-            <!-- /.dropdown -->
+             <!-- /.dropdown -->
+             <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-cog fa-lg"></i> <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                   <li><a href="/setting"><i class="fa fa-user fa-fw"></i> 設定</a></li>
+                   <li class="divider"></li>
+                   <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> 登出</a></li>
+                </ul>
+                <!-- /.dropdown-user -->
+             </li>
+             <!-- /.dropdown -->
           </ul>
-          <!-- /.navbar-top-links -->
-
       </nav>
     </div>
 
@@ -69,30 +56,44 @@
     <div id="form-wrap">
       <!-- 任務內容 -->
       <form>
+        <!-- 客戶名 -->
+        <div class="form-group row">
+          <label for="subject" class="col-2 col-form-label">客戶姓名</label>
+          <div class="col-4">
+            <input class="form-control" type="text" value="" id="form-name">
+          </div>
+        </div>
+        <!-- 客戶Id -->
+        <div class="form-group row">
+          <label for="subject" class="col-2 col-form-label">客戶ID</label>
+          <div class="col-4">
+            <input class="form-control" type="text" value="" id="form-uid">
+          </div>
+        </div>
         <!-- 主題 -->
         <div class="form-group row">
-          <label for="subject" class="col-2 col-form-label">Subject</label>
+          <label for="subject" class="col-2 col-form-label">主題</label>
           <div class="col-4">
             <input class="form-control" type="text" value="" id="form-subject">
           </div>
         </div>
         <!-- email -->
         <div class="form-group row">
-          <label for="email" class="col-2 col-form-label">Email</label>
+          <label for="email" class="col-2 col-form-label">電子郵件</label>
           <div class="col-4">
             <input class="form-control" type="text" value="" id="form-email">
           </div>
         </div>
         <!-- phone -->
         <div class="form-group row">
-          <label for="phone" class="col-2 col-form-label">Phone</label>
+          <label for="phone" class="col-2 col-form-label">手機</label>
           <div class="col-4">
             <input class="form-control" type="text" value="" id="form-phone">
           </div>
         </div>
         <!-- 狀態 -->
         <div class="form-group row">
-          <label for="status">Status</label>
+          <label for="status">狀態</label>
           <select class="form-control" id="form-status">
             <option>Open</option>
             <option>Pending</option>
@@ -102,25 +103,25 @@
         </div>
         <!-- 緊急 -->
         <div class="form-group row">
-          <label for="priority">Priority</label>
+          <label for="priority">優先</label>
           <select class="form-control" id="form-priority">
-            <option>Low</option>
-            <option>Medium</option>
-            <option>High</option>
-            <option>Urgent</option>
+            <option>低</option>
+            <option>中</option>
+            <option>高</option>
+            <option>急</option>
           </select>
         </div>
 
         <!-- 說明 -->
         <div class="form-group row">
-          <label for="description">Description</label>
+          <label for="description">說明</label>
           <textarea class="form-control" id="form-description" rows="3"></textarea>
         </div>
         <br />
         <div id="error" class="error"></div>
         <br />
-        <button type="button" class="btn btn-default" id="form-goback">Back</button>
-        <button type="button" class="btn btn-primary" id="form-submit">Submit</button>
+        <button type="button" class="btn btn-default" id="form-goback">返回</button>
+        <button type="button" class="btn btn-primary" id="form-submit">確認</button>
         <br />
         <br />
       </form>

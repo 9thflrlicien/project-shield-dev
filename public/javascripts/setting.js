@@ -5,9 +5,11 @@ $(document).ready(function() {
   var email = $('#prof-email').text();
   var gender = $('#prof-gender').text();
   var phone = $('#prof-phone').text();
+  var name1 = $('#prof-name1').text();
   var chanId_1 = $('#prof-channelId_1').text();
   var chanSecret_1 = $('#prof-channelSecret_1').text();
   var chanAT_1 = $('#prof-channelAccessToken_1').text();
+  var name2 = $('#prof-name2').text();
   var chanId_2 = $('#prof-channelId_2').text();
   var chanSecret_2 = $('#prof-channelSecret_2').text();
   var chanAT_2 = $('#prof-channelAccessToken_2').text();
@@ -18,9 +20,11 @@ $(document).ready(function() {
   $('#prof-gender').text('');
   $('#prof-phone').text('');
   $('#prof-nick').text('');
+  $('#prof-name1').text('');
   $('#prof-channelId_1').text('');
   $('#prof-channelSecret_1').text('');
   $('#prof-channelAccessToken_1').text('');
+  $('#prof-name2').text('');
   $('#prof-channelId_2').text('');
   $('#prof-channelSecret_2').text('');
   $('#prof-channelAccessToken_2').text('');
@@ -211,9 +215,11 @@ function loadProf() {
       $('#prof-gender').text(profInfo.gender);
       $('#prof-phone').text(profInfo.phone);
       $('#prof-nick').text(profInfo.nickname);
+      $('#prof-name1').text(profInfo.name1);
       $('#prof-channelId_1').text(profInfo.chanId_1);
       $('#prof-channelSecret_1').text(profInfo.chanSecret_1);
       $('#prof-channelAccessToken_1').text(profInfo.chanAT_1);
+      $('#prof-name2').text(profInfo.name2);
       $('#prof-channelId_2').text(profInfo.chanId_2);
       $('#prof-channelSecret_2').text(profInfo.chanSecret_2);
       $('#prof-channelAccessToken_2').text(profInfo.chanAT_2);
@@ -232,9 +238,11 @@ function profEdit() {
   let email = $('#prof-email').text();
   let gender = $('#prof-gender').text();
   let phone = $('#prof-phone').text();
+  let name1 = $('#prof-name1').text();
   let chanId_1 = $('#prof-channelId_1').text();
   let chanSecret_1 = $('#prof-channelSecret_1').text();
   let chanAT_1 = $('#prof-channelAccessToken_1').text();
+  let name2 = $('#prof-name2').text();
   let chanId_2 = $('#prof-channelId_2').text();
   let chanSecret_2 = $('#prof-channelSecret_2').text();
   let chanAT_2 = $('#prof-channelAccessToken_2').text();
@@ -249,9 +257,11 @@ function profEdit() {
   $('#prof-edit-phone').val(phone);
   $('#prof-edit-nick').val(nick);
 
+  $('#prof-edit-name1').val(name1);
   $('#prof-edit-channelId_1').val(chanId_1);
   $('#prof-edit-channelSecret_1').val(chanSecret_1);
   $('#prof-edit-channelAccessToken_1').val(chanAT_1);
+  $('#prof-edit-name2').val(name2);
   $('#prof-edit-channelId_2').val(chanId_2);
   $('#prof-edit-channelSecret_2').val(chanSecret_2);
   $('#prof-edit-channelAccessToken_2').val(chanAT_2);
@@ -302,9 +312,11 @@ function profSubmitAction() {
 function profSubmitProfile() {
   let userId = auth.currentUser.uid;
 
+  let name1 = $('#prof-edit-name1').val();
   let chanId_1 = $('#prof-edit-channelId_1').val();
   let chanSecret_1 = $('#prof-edit-channelSecret_1').val();
   let chanAT_1 = $('#prof-edit-channelAccessToken_1').val();
+  let name2 = $('#prof-edit-name2').val();
   let chanId_2 = $('#prof-edit-channelId_2').val();
   let chanSecret_2 = $('#prof-edit-channelSecret_2').val();
   let chanAT_2 = $('#prof-edit-channelAccessToken_2').val();
@@ -312,9 +324,11 @@ function profSubmitProfile() {
   // console.log(id);
   // database.ref('users/' + userId).remove();
   database.ref('users/' + userId).update({
+    name1: name1,
     chanId_1: chanId_1,
     chanSecret_1: chanSecret_1,
     chanAT_1: chanAT_1,
+    name2: name2,
     chanId_2: chanId_2,
     chanSecret_2: chanSecret_2,
     chanAT_2: chanAT_2,
@@ -346,9 +360,11 @@ function profClear() {
   $('#prof-edit-gender').val('Male');
   $('#prof-edit-phone').val('');
   $('#prof-edit-nick').val('');
+  $('#prof-edit-name1').val('');
   $('#prof-edit-channelId_1').val('');
   $('#prof-edit-channelSecret_1').val('');
   $('#prof-edit-channelAccessToken_1').val('');
+  $('#prof-edit-name2').val('');
   $('#prof-edit-channelId_2').val('');
   $('#prof-edit-channelSecret_2').val('');
   $('#prof-edit-channelAccessToken_2').val('');

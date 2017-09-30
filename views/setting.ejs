@@ -40,7 +40,7 @@
                   <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i>資訊主頁</a>
                </li>
                <li>
-                  <a href="#">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
+                  <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
                </li>
             </ul>
             <ul class="nav navbar-top-links navbar-right">
@@ -164,6 +164,10 @@
                                        <td id="prof-nick"></td>
                                     </tr>
                                     <tr>
+                                       <td>群組名1: </td>
+                                       <td id="prof-name1"></td>
+                                    </tr>
+                                    <tr>
                                        <td>Channel Id 1: </td>
                                        <td id="prof-channelId_1"></td>
                                     </tr>
@@ -174,6 +178,10 @@
                                     <tr>
                                        <td>Channel Access Token 1: </td>
                                        <td style="max-width: 750px;max-height:120px;overflow:scroll;display:inline-block;" id="prof-channelAccessToken_1"></td>
+                                    </tr>
+                                    <tr>
+                                       <td>群組名2: </td>
+                                       <td id="prof-name2"></td>
                                     </tr>
                                     <tr>
                                        <td>Channel Id 2: </td>
@@ -190,8 +198,7 @@
                                  </tbody>
                               </table>
                               <button type="button" class="btn btn-default" id="prof-edit" data-toggle="modal" data-target="#profModal">
-                              <span class="fa fa-plus fa-fw"></span>
-                              編輯
+                                <span class="fa fa-plus fa-fw"></span> 編輯
                               </button>
                            </div>
                         </div>
@@ -357,6 +364,13 @@
                         <label for="edit-id" class="col-2 col-form-label">ID</label>
                         <span id="prof-edit-id"></span>
                      </div>
+                     <!-- Channel Name -->
+                     <div class="form-group">
+                        <label for="prof-edit-channelId_1" class="col-2 col-form-label">Channel Name 1: </label>
+                        <div class="col-4">
+                           <input class="form-control" type="tel" value="" id="prof-edit-name1">
+                        </div>
+                     </div>
                      <!-- Channel Id -->
                      <div class="form-group">
                         <label for="prof-edit-channelId_1" class="col-2 col-form-label">Channel Id 1: </label>
@@ -376,6 +390,13 @@
                         <label for="prof-edit-channelAccessToken_1" class="col-2 col-form-label">Channel Access Token 1: </label>
                         <div class="col-4">
                            <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken_1">
+                        </div>
+                     </div>
+                     <!-- Channel Name -->
+                     <div class="form-group">
+                        <label for="prof-edit-channelId_1" class="col-2 col-form-label">Channel Name 2: </label>
+                        <div class="col-4">
+                           <input class="form-control" type="tel" value="" id="prof-edit-name2">
                         </div>
                      </div>
                      <!-- Channel Id -->

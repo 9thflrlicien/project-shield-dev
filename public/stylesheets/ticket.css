@@ -1,3 +1,10 @@
+.ticket_memo::-webkit-scrollbar {
+    width: 1em;
+}
+.ticket_memo{
+    overflow: scroll !important;
+    height:700px;
+}
 
 #form-wrap {
   position: relative;

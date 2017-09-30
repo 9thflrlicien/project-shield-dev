@@ -17,12 +17,6 @@
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
           <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                  <span class="sr-only">Toggle navigation</span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-              </button>
               <a class="navbar-brand" href="/">Chatshier</a>
           </div>
           <!-- /.navbar-header -->
@@ -37,7 +31,7 @@
               <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
             </li>
             <li>
-              <a href="#">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
+              <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
             </li>
           </ul>
           <ul class="nav navbar-top-links navbar-right">
@@ -62,21 +56,27 @@
     <div id="chatHome">
       <div class="chatArea">
         <div id="chatApp" class="colume" >
-          <div class="chatApp_item" id="All" open="true" rel="All">
-            <img class="software_icon" src="https://firebasestorage.googleapis.com/v0/b/shield-88fd0.appspot.com/o/icon_all.png?alt=media&token=628e24a5-c562-480a-ac07-b70e167853ac">
-          </div>
           <div class="chatApp_item" id="Line_1" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
+            <div class="hidden_group_name" id="line1">
+              <p></p>
+            </div>
             <div class="unread_msg_count"></div>
             <!-- <h4 id="group1" class="myText"></h4><input id="inputgroup1" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button> -->
           </div>
           <div class="chatApp_item" id="Line_2" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
+            <div class="hidden_group_name" id="line2">
+              <p></p>
+            </div>
             <div class="unread_msg_count"></div>
             <!-- <h4 id="group2" class="myText"></h4><input id="inputgroup2" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button> -->
           </div>
           <div class="chatApp_item" id="FB" open="true" rel="FB">
             <img class="software_icon" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png">
+            <div class="hidden_group_name" id="fbname">
+              <p>Fabebook</p>
+            </div>
             <div class="unread_msg_count"></div>
             <!-- <h4 id="fbgroup" class="myText"></h4><input id="inputfbgroup" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button> -->
           </div>
@@ -92,8 +92,11 @@
             <img class="software_icon" src="https://cdn0.iconfinder.com/data/icons/social-flat-rounded-rects/512/whatsapp-256.png">
             <!-- <h4>未開放</h4> -->
           </div>
+          <div class="chatApp_item" id="All" open="true" rel="All">
+            <span>全部客戶</span>
+          </div>
           <div class="chatApp_item" id="all_unread" open="true" rel="unread">
-            <img class="software_icon" src="http://images.apusapps.com/src/icon-clear-msg-notification.png">
+            <span>未讀訊息</span>
           </div>
           <div class="chatApp_item" id="assigned" open="true" rel="assigned">
             <span>已指派</span>
@@ -201,9 +204,131 @@
             </div>
             <div id="infoCanvas"></div>
           </div>
-          <div class="memo"> 備註</div>
+
+          <div class="memo">
+            <div class="ticket_memo"><div class="memo_content"><p>請先新增表單才能使用備註</p></div></div>
+            <div class="submemo">
+              <input placeholder="輸入備註..." style="width:65%; height:50px;border:0" size="35" id="message_memo" />
+              <input type="button" id="submitMemo" />
+            </div>
+          </div>
         </div>
 
+        <div class="modal fade" id="ticketInfoModal" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div style="display:flex">
+                  <span id="ID_num"></span>
+                  <table>
+                    <th style="display:none">內容</th>
+                    <td class="modal-title edit">用戶代號</td>
+                  </table>
+
+                </div>
+              </div>
+              <div class="modal-body">
+                <table class="ticket_info_content">
+
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" id="ticketInfo-submit" class="btn btn-default" data-dismiss="modal" style="background-color: greenyellow;">Confirm</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 新增todo表單-->
+      <div class="modal fade" id="addTicketModal" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <div style="display:flex">
+                <span id="ID_num"></span>
+                <table>
+                  <th style="display:none">內容</th>
+                  <td class="modal-title edit">用戶代號</td>
+                </table>
+
+              </div>
+            </div>
+            <div class="modal-body">
+              <!-- Form -->
+              <div id="form-wrap">
+                <!-- 任務內容 -->
+                <form>
+                  <!-- 客戶名 -->
+                  <div class="form-group row">
+                    <label for="subject" class="col-2 col-form-label">客戶姓名</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-name">
+                    </div>
+                  </div>
+                  <!-- 客戶Id -->
+                  <div class="form-group row">
+                    <label for="subject" class="col-2 col-form-label">客戶ID</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-uid">
+                    </div>
+                  </div>
+                  <!-- email -->
+                  <div class="form-group row">
+                    <label for="email" class="col-2 col-form-label">電子郵件</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-email">
+                    </div>
+                  </div>
+                  <!-- phone -->
+                  <div class="form-group row">
+                    <label for="phone" class="col-2 col-form-label">手機</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-phone">
+                    </div>
+                  </div>
+                  <!-- 狀態 -->
+                  <div class="form-group row">
+                    <label for="status">狀態</label>
+                    <select class="form-control" id="form-status">
+                      <option>Open</option>
+                      <option>Pending</option>
+                      <option>Resolved</option>
+                      <option>Closed</option>
+                    </select>
+                  </div>
+                  <!-- 緊急 -->
+                  <div class="form-group row">
+                    <label for="priority">優先</label>
+                    <select class="form-control" id="form-priority">
+                      <option>低</option>
+                      <option>中</option>
+                      <option>高</option>
+                      <option>急</option>
+                    </select>
+                  </div>
+
+                  <!-- 說明 -->
+                  <div class="form-group row">
+                    <label for="description">說明</label>
+                    <textarea class="form-control" id="form-description" rows="3"></textarea>
+                  </div>
+                  <br />
+                  <div id="error" class="error"></div>
+                  <br />
+                  <button type="button" class="btn btn-default" data-dismiss="modal">返回</button>
+                  <button type="button" class="btn btn-success" data-dismiss="modal" id="form-submit">確認</button>
+                  <br />
+                  <br />
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
 
       <!-- end -->

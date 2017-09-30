@@ -5,8 +5,8 @@ var agentInfo = {} ;
 var socket = io.connect();
 
 var yourdomain = 'fongyu';
-var api_key = '4qydTzwnD7xRGaTt7Hqw';
-var ticket_content = $('#ticket-content');
+var api_key = 'UMHU5oqRvapqkIWuOdT8';
+var ticket_content = $('.ticket-content');
 
 $(document).ready(function() {
   if(window.location.pathname === '/ticket'){
@@ -14,6 +14,9 @@ $(document).ready(function() {
   }
 
   $(document).on('click', '#form-submit', submitAdd) //新增ticket
+  $(document).on('click', '#form-goback', function(){
+    location.href = '/ticket'
+  }) //返回ticket
   $(document).on('click', '.ticket_content',moreInfo) ;
   $(document).on('click', "#ticketInfo-submit", updateStatus) ;
   $(document).on('click', '.edit', showInput) ;
@@ -26,6 +29,31 @@ $(document).ready(function() {
   });
 
   $("#exampleInputAmount").keyup(searchBar);
+  $('#ticketInfo-delete').click(function(){
+    if (confirm("確認刪除表單？")) {
+      var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
+      $.ajax({
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
+        type: 'DELETE',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+        }  ,
+        success:  function(data, textStatus, jqXHR) {
+          alert("表單已刪除");
+          setTimeout(() => {
+            location.reload();
+          }, 500)
+        },
+        error:  function(jqXHR, tranStatus) {
+          alert("表單刪除失敗，請重試");
+          console.log(jqXHR)
+      }
+      });
+    } else {
+    }
+  })
 
 });
 
@@ -40,13 +68,15 @@ function loadTable(){
         "Authorization": "Basic " + btoa(api_key + ":x")
       },
       success: function(data, textStatus, jqXHR) {
-        // console.log(data);
         for(let i=0;i < data.length;i++){
           ticketInfo = data;
-          ticket_content.prepend(
+        console.log(data[i]);
+
+          ticket_content.append(
             '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
             '<td style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
-            '<td>' + data[i].subject + '</td>' +
+            '<td>' + data[i].requester.name + '</td>' +
+            '<td>' + data[i].description.substring(0,10)+ '</td>' +
             '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
             '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
             '<td>'+displayDate(data[i].due_by)+'</td>' +
@@ -109,32 +139,69 @@ function updateStatus() {
   let name, value, json = '{' ;
   let obj = {} ;
   let id = $(this).attr("val") ;
+  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
 
   input.each(function () {$(this).blur();});
-
-  // alert(editable.length) ;
   for(let i=0;i<editable.length;i++){
     name = editable.eq(i).parent().children("th").text().split(" ") ;
     value = editable.eq(i).text() ;
     json += '"'+name[0]+'":"'+value+'",';
   }
-  // alert(select.length) ;
   for(let i=0;i<select.length;i++){
     name = select.eq(i).parent().parent().children("th").text() ;
     value = select.eq(i).val() ;
-    // alert(name+":"+value) ;
-    json += '"'+name+'":'+value+',';
+    json += '"'+name+'":'+value+','
   }
-
   json += '"id":"'+id+'"}' ;
-  console.log(json) ;
   obj = JSON.parse(json) ;
 
-  if(confirm("Are you sure to change ticket?")) {
-    socket.emit('update ticket',obj);
-    setTimeout(() => {
-      location.reload();
-    }, 1000)
+
+  客戶名 = obj.subject;
+  客戶ID = obj.客戶ID;
+  回覆人員 = obj.回覆人員;
+  優先 = parseInt(obj.優先);
+  狀態 = parseInt(obj.狀態);
+  描述 = obj.描述;
+  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期;
+  else 到期時間 = obj.到期時間即期;
+  var time_list = 到期時間.split("/");
+  var new_time=[];
+  var new_time2=[];
+  time_list.map(function(i){
+    if (!i.startsWith(0) && i.length == 1 || i.length == 10) i = '0'+i;
+    new_time.push(i);
+  });
+    new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
+    new_time.map(function(i){
+      if (i.length == 1) i = '0'+i;
+      new_time2.push(i);
+    })
+    new_time = new_time2.join(":");
+
+  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
+
+  if(confirm("確定變更表單？")) {
+    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
+    $.ajax({
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
+      type: 'PUT',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      data: obj,
+      success:  function(data, textStatus, jqXHR) {
+        alert("表單已更新");
+        setTimeout(() => {
+        location.reload();
+       }, 500)
+      },
+      error:  function(jqXHR, tranStatus) {
+        alert("表單更新失敗，請重試");
+        console.log(jqXHR.responseText)
+      }
+    });
   }
 
 
@@ -185,25 +252,28 @@ function moreInfo() {
 
   display =
   '<tr>'+
-  '<th>responder</th>'+
+  '<th>客戶ID</th>'+
+  '<td class="edit">'+Tinfo.subject+'</td>'+
+  '</tr><tr>'+
+  '<th>回覆人員</th>'+
   '<td>'+showSelect('responder',Tinfo.responder_id)+'</td>'+
   '</tr><tr>'+
-  '<th>priority</th>'+
+  '<th>優先</th>'+
   '<td>'+showSelect('priority',Tinfo.priority)+'</td>'+
   '</tr><tr>'+
-  '<th>status</th>'+
+  '<th>狀態</th>'+
   '<td>'+showSelect('status',Tinfo.status)+'</td>'+
   '</tr><tr>'+
-  '<th>description</th>'+
+  '<th>描述</th>'+
   '<td class="edit">'+Tinfo.description+'</td>'+
   '</tr><tr>'+
-  '<th>due date '+dueDate(Tinfo.due_by)+'</th>'+
+  '<th>到期時間'+dueDate(Tinfo.due_by)+'</th>'+
   '<td class="edit">'+displayDate(Tinfo.due_by)+'</td>'+
   '</tr><tr>'+
-  '<th>creat date</th>'+
+  '<th>建立時間</th>'+
   '<td>'+displayDate(Tinfo.created_at)+'</td>'+
   '</tr><tr>'+
-  '<th>last update</th>'+
+  '<th>最後更新</th>'+
   '<td>'+displayDate(Tinfo.updated_at)+'</td>'+
   '</tr>' ;
 
@@ -245,7 +315,7 @@ function moreInfo() {
 
   $(".info_input_table").html('') ;
   $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority)) ;
-  $(".modal-title").text(Tinfo.subject) ;
+  $(".modal-title").text(Tinfo.requester.name) ;
   $("#ticketInfo-submit").attr("val",Tinfo.id) ;
   $(".info_input_table").append(display);
 }
@@ -270,15 +340,20 @@ function displayDate(date) {
 function dueDate(day) {
   let html = '' ;
   let nowTime = new Date().getTime() ;
+  console.log('this is nowTime');
+  console.log(nowTime);
   let dueday = Date.parse(displayDate(day)) ;
   let hr = dueday - nowTime ;
   hr /= 1000*60*60 ;
   // hr = Math.round(hr) ;
   // return hr ;
-  if(hr<0) html = '<span class="overdue">overdue</span>' ;
-  else html = '<span class="non overdue">response due</span>' ;
+  if(hr<0){
+    html = '<span class="overdue">過期</span>';
+  } else {
+    html = '<span class="non overdue">即期</span>';
+  }
   return html ;
-}
+} // end of dueDate
 function responderName(id) {
   for(let i in agentInfo){
     if(agentInfo[i].id == id) return agentInfo[i].contact.name ;
@@ -291,15 +366,15 @@ function addZero(n) {
 
 
 function submitAdd(){
-  let subject = $('#form-subject').val();
+  let name = $('#form-name').val();
+  let uid = $('#form-uid').val();//因為沒有相關可用的string，暫時先儲存在to_emails這個功能下面
   let email = $('#form-email').val();
   let phone = $('#form-phone').val();
   let status = $('#form-status option:selected').text();
   let priority = $('#form-priority option:selected').text();
   let description = $('#form-description').val();
-  ticket_data = '{ "description": "'+description+'", "subject": "'+subject+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+' }';
-  // console.log(ticket_data)
-
+  ticket_data = '{ "description": "'+description+'", "name" : "'+name+'",  "subject": "'+uid+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+'}';
+  console.log(ticket_data);
   // 驗證
   let email_reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
   let phone_reg = /\b[0-9]+\b/;
@@ -317,8 +392,8 @@ function submitAdd(){
       $('#error').empty();
       $('#form-phone').css('border', '1px solid #ccc');
     }, 3000);
-  } else if($('#form-subject').val().trim() === '') {
-    $('#error').append('請輸入主題');
+  } else if($('#form-uid').val().trim() === '') {
+    $('#error').append('請輸入客戶ID');
     $('#form-subject').css('border', '1px solid red');
     setTimeout(() => {
       $('#error').empty();
@@ -331,37 +406,75 @@ function submitAdd(){
       $('#error').empty();
       $('#form-description').css('border', '1px solid #ccc');
     }, 3000);
-  } else {
-    $.ajax(
-      {
-        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets",
-        type: 'POST',
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        headers: {
-          "Authorization": "Basic " + btoa(api_key + ":x")
-        },
-        data: ticket_data,
-        success: function(data, textStatus, jqXHR) {
-          // console.log('works');
-        },
-        error: function(jqXHR, tranStatus) {
-          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
-          response_text = jqXHR.responseText;
-        }
-      }
-    );
-
-    $('#form-subject').val('');
-    $('#form-email').val('');
-    $('#form-phone').val('');
-    $('#form-description').val('');
-
+  } else if($('#form-name').val().trim() === '') {
+    $('#error').append('請輸入客戶姓名');
+    $('#form-name').css('border', '1px solid red');
     setTimeout(() => {
-      location.href = '/ticket';
-    }, 1000)
+      $('#error').empty();
+      $('#form-description').css('border', '1px solid #ccc');
+    }, 3000);
+  } else {
+
+    let nowTime = new Date().getTime();
+    let dueDate = nowTime+ 86400000*3;
+
+    let start = ISODateTimeString(nowTime);
+    let end = ISODateTimeString(dueDate)
+    let userId = auth.currentUser.uid;
+
+    $.ajax(
+    {
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets",
+      type: 'POST',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+        "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      data: ticket_data,
+      success: function(data, textStatus, jqXHR) {
+        console.log('tickt created');
+        //把事件儲存到calendar database，到期時間和ticket一樣設定三天
+        database.ref('cal-events/' + userId).push(
+            {
+            title: name+": "+description.substring(0,10)+"...",
+            start: start,
+            end: end,
+            description: description,
+            allDay: false
+          }
+        );
+      },
+      error: function(jqXHR, tranStatus) {
+        x_request_id = jqXHR.getResponseHeader('X-Request-Id');
+        response_text = jqXHR.responseText;
+        console.log(response_text)
+      }
+    }
+  );
+
+
+  $('#form-name').val('');
+  $('#form-uid').val('');
+  $('#form-subject').val('');
+  $('#form-email').val('');
+  $('#form-phone').val('');
+  $('#form-description').val('');
+
+    // setTimeout(() => {
+    //   location.href = '/chat';
+    // }, 5000);
   }
 
+}
+function ISODateTimeString(d) {
+  d = new Date(d);
+  function pad(n) {return n<10 ? '0'+n : n}
+  return d.getFullYear()+'-'
+       + pad(d.getMonth()+1)+'-'
+       + pad(d.getDate())+'T'
+       + pad(d.getHours())+':'
+       + pad(d.getMinutes());
 }
 
 function priorityTextToMark(priority){
@@ -445,10 +558,10 @@ function priorityNumberToText(priority){
     default:
         return 'Low';
   }
-}
+} // end of priorityNumberToText
 
 function searchBar(){
-  let content = $('#ticket-content tr');
+  let content = $('.ticket-content tr');
   let val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
 
   content.show().filter(function() {

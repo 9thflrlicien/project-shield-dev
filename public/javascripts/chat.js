@@ -13,6 +13,14 @@ const NO_HISTORY_MSG = "<p class='message-day' style='text-align: center'><stron
 "-沒有更舊的歷史訊息-" +
 "</i></strong></p>";
 
+var ticketInfo = {} ;
+var contactInfo = {} ;
+var agentInfo = {} ;
+var socket = io.connect();
+
+var yourdomain = 'fongyu';
+var api_key = 'UMHU5oqRvapqkIWuOdT8';
+
 $(document).ready(function() {
   var socket = io.connect(); //socket
   var printAgent = $('#printAgent'); //agent welcome text
@@ -58,12 +66,19 @@ $(document).ready(function() {
   $(document).on('click', '#upVid', upVid); // 傳影
   $(document).on('click', '#upAud', upAud); // 傳音
   $(document).on('click', '#submitMsg', submitMsg); // 訊息送出
+  $(document).on('click', '#submitMemo', submitMemo);
+  $(document).on('click', '.ticket_content',moreInfo) ;
   // 群組名稱
-  $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
-  $(document).on('click', '#cls-cal-btn', cancelSubmit); // 取消編輯群組名稱
+  // $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
+  // $(document).on('click', '#cls-cal-btn', cancelSubmit); // 取消編輯群組名稱
   $('#message').on('keydown', function(event){ // 按enter可以發送訊息
     if(event.keyCode == 13){
       document.getElementById('submitMsg').click();
+    }
+  });
+  $('#message_memo').on('keydown', function(event){
+    if(event.keyCode == 13){
+      document.getElementById('submitMemo').click();
     }
   });
   $(document).on('click', '.dropdown-menu', function(event) {
@@ -100,6 +115,9 @@ $(document).ready(function() {
     if( !val ) val="new tag";
     $(this).parent().html(val);   //將INPUT元素刪掉，把資料直接放上去
   });
+  $('.hidden_group_name').mouseover(function() { // 秀群組名稱
+    $(this).show();
+  })
   // 傳圖，音，影檔功能
   $('.onclick_show').on('click', function(e){
     // console.log('onclick_show exe');
@@ -115,6 +133,32 @@ $(document).ready(function() {
       $(this).attr('active','true').siblings().attr('active','false');;
     }
   });//onclick_show
+
+  $("#infoCanvas").hover(
+    function() {
+      $(this).css('width', '500px');
+      $('.memo').css('margin-left', '30%');
+    },
+    function() {
+      $(this).css('width', '100%');
+      $('.memo').css('margin-left', '0%');
+    }
+  ); // infoCanvas
+
+  // ===============Colman=======================
+
+  $(document).on('keyup', '.ticket_search_bar', function(e) {
+      console.log(".ticket_search_bar key press");
+      let searchStr = $(this).val();
+
+      let trs = $(this).parents('table').find('tbody').find('tr');
+      trs.each(function() {
+        let text = $(this).text();
+        if( text.indexOf(searchStr)==-1 ) $(this).hide();
+        else $(this).show();
+      });
+  });
+  // ============Colman end======================
 
   $('.chatApp_item[open="true"]').click(function() {
     let thisRel = $(this).attr('rel');
@@ -221,16 +265,20 @@ $(document).ready(function() {
         // console.log("userId = "+userId);
         database.ref('users/' + userId).once('value', snap => {
           // console.log(snap.val());
+          let name1 = snap.val().name1;
+          let name2 = snap.val().name2;
           let id1 = snap.val().chanId_1;
           let id2 = snap.val().chanId_2;
           let secret1 = snap.val().chanSecret_1;
           let secret2 = snap.val().chanSecret_2;
           let token1 = snap.val().chanAT_1;
           let token2 = snap.val().chanAT_2;
-          if((id1 === undefined || id1 === null || id1 === '' ||
+          if((name1 === undefined || name1 === null || name1 === '' ||
+              id1 === undefined || id1 === null || id1 === '' ||
               secret1 === undefined || secret1 === null || secret1 === '' ||
               token1 === undefined || token1 === null || token1 === '' )&&
-              (id2 === undefined || id2 === null || id2 === '' ||
+              (name2 === undefined || name2 === null || name2 === '' ||
+              id2 === undefined || id2 === null || id2 === '' ||
               secret2 === undefined || secret2 === null || secret2 === '' ||
               token2 === undefined || token2 === null || token2 === '' ))
           {
@@ -238,13 +286,17 @@ $(document).ready(function() {
             setTimeout(() => {
               $('.error').text('');
             }, 10000)
-          } else if((id1 === undefined || id1 === null || id1 === '' ||
+          } else if((name1 === undefined || name1 === null || name1 === '' ||
+                      id1 === undefined || id1 === null || id1 === '' ||
                       secret1 === undefined || secret1 === null || secret1 === '' ||
                       token1 === undefined || token1 === null || token1 === '')||
-                    (id2 === undefined || id2 === null || id2 === '' ||
+                    (name2 === undefined || name2 === null || name2 === '' ||
+                      id2 === undefined || id2 === null || id2 === '' ||
                       secret2 === undefined || secret2 === null || secret2 === '' ||
                       token2 === undefined || token2 === null || token2 === ''))
           {
+            $('#line1 p').text(name1);
+            $('#line2 p').text(name2);
             socket.emit('update bot', [
               {
                 channelId: id1,
@@ -263,6 +315,8 @@ $(document).ready(function() {
             }, 10000);
 
           } else {
+            $('#line1 p').text(name1);
+            $('#line2 p').text(name2);
             socket.emit('update bot', [
               {
                 channelId: id1,
@@ -632,8 +686,10 @@ $(document).ready(function() {
     if(lastMsg.message.startsWith('<a')){
       lastMsgStr = '<br><div id="msg" style="font-weight: ' + font_weight + '; font-size:8px; margin-left:12px;">' + '客戶傳送檔案' + "</div>";
     } else {
-      lastMsgStr = '<br><div id="msg" style="font-weight: ' + font_weight + '; font-size:8px; margin-left:12px;">' + lastMsg.message + "</div>";
+      lastMsgStr = '<br><div id="msg" style="font-weight: ' + font_weight + '; font-size:8px; margin-left:12px;">' + loadMessageInDisplayClient(lastMsg.message) + "</div>";
     }
+
+    // console.log(lastMsg.message.length);
 
     let msgTime = '<div style="float:right;font-size:8px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</div>';
 
@@ -957,7 +1013,7 @@ $(document).ready(function() {
       if(data.message.startsWith('<a')){ // 判斷客戶傳送的是檔案還是文字
         target.find("#msg").html(toTimeStr(data.time) + '客戶傳送檔案').css("font-weight", font_weight); // 未讀訊息字體變大
       } else {
-        target.find("#msg").html(toTimeStr(data.time) + "<span class='client_name'>" + data.message + "</span>").css("font-weight", font_weight); // 未讀訊息字體變大
+        target.find("#msg").html(toTimeStr(data.time) + "<span class='client_name'>" + loadMessageInDisplayClient(data.message) + "</span>").css("font-weight", font_weight); // 未讀訊息字體變大
       }
       target.find('.unread_msg').html(data.unRead).css("display", "block"); // 未讀訊息數顯示出來
       target.attr("data-recentTime", data.time);
@@ -1002,8 +1058,8 @@ $(document).ready(function() {
         "<table class='panelTable'>" +
         "<tbody>" +
         "<tr>" +
-        "<th class='userInfo-th' id='姓名'>姓名</th>" +
-        "<td class='userInfo-td' id='姓名' type='text' set='single' modify='false'>" +
+        "<th class='userInfo-th' id='nickname'>nickname</th>" +
+        "<td class='userInfo-td' id='nickname' type='text' set='single' modify='false'>" +
         "<p id='td-inner'>" + data.name + "</p>" +
         "</td>" +
         "</tr>" +
@@ -1026,14 +1082,14 @@ $(document).ready(function() {
         "</td>" +
         "</tr>" +
         "<tr>" +
-        "<th class='userInfo-th' id='住址'>住址</th>" +
-        "<td class='userInfo-td' id='住址' type='text' set='single' modify='false'>" +
+        "<th class='userInfo-th' id='address'>address</th>" +
+        "<td class='userInfo-td' id='address' type='text' set='single' modify='false'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
-        "<th class='userInfo-th' id='電話'>電話</th>" +
-        "<td class='userInfo-td' id='電話' type='text' set='single' modify='false'>" +
+        "<th class='userInfo-th' id='telephone'>telephone</th>" +
+        "<td class='userInfo-td' id='telephone' type='text' set='single' modify='false'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
@@ -1044,8 +1100,8 @@ $(document).ready(function() {
         "</td>" +
         "</tr>" +
         "<tr>" +
-        "<th class='userInfo-th' id='標籤'>標籤</th>" +
-        "<td class='userInfo-td' id='標籤' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='false'>" +
+        "<th class='userInfo-th' id='TAG'>TAG</th>" +
+        "<td class='userInfo-td' id='TAG' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='false'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
@@ -1110,10 +1166,30 @@ $(document).ready(function() {
         "</table>" +
         '</div>' +
         '<div class="card-body" id="ticket" style="display:none; "></div>' +
-        '<div class="card-body" id="todo" style="display:none; ">ToDo</div>' +
+        '<div class="card-body" id="todo" style="display:none; ">'+
+        '<div class="ticket">'+
+        '<table>'+
+        '<thead>'+
+        '<tr>'+
+        '<th> ID </th>'+
+        '<th> 姓名 </th>'+
+        '<th hidden> 內容 </th>'+
+        '<th> 狀態 </th>'+
+        '<th> 優先 </th>'+
+        '<th> 到期 </th>'+
+        '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="Search"></th>'+
+        '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
+        '</tr>'+
+        '</thead>'+
+        '<tbody class="ticket-content">'+
+        '</tbody>'+
+        '</table>'+
+        '</div>'+
+        '</div>' +
         '</div>' +
         '</div>'
       );
+
     }
   } // end of displayClient
 
@@ -1149,6 +1225,8 @@ $(document).ready(function() {
 
     $(this).find('.unread_msg').text('0');
 
+    loadTable(userId);
+
     $(".tablinks#selected").removeAttr('id').css("background-color", ""); //selected tablinks change, clean prev's color
     $(this).attr('id', 'selected').css("background-color", COLOR.CLICKED); //clicked tablinks color
 
@@ -1166,7 +1244,7 @@ $(document).ready(function() {
     let targetId = $(this).attr('name'); //find the message id
 
     $('#user-rooms').val(targetId); //change value in select bar
-    $("#" + targetId + "-info" + "[rel='"+targetRel+"-info']").show().siblings().hide();
+    $("#" + targetId + "-info" + "[rel='"+targetRel+"-info']").attr("style", "display:block").siblings().hide();
 
     $("#" + targetId + "[rel='"+targetRel+"']").show().siblings().hide(); //show it, and close others
     $("#" + targetId + "[rel='"+targetRel+"']"+'>#' + targetId + '-content' + '[rel="'+targetRel+'"]').scrollTop($('#' + targetId + '-content' + '[rel="'+targetRel+'"]')[0].scrollHeight); //scroll to down
@@ -1256,7 +1334,25 @@ $(document).ready(function() {
       loadPanelProfile(profile) +
       '</div>' +
       '<div class="card-body" id="ticket" style="display:none; "></div>' +
-      '<div class="card-body" id="todo" style="display:none; ">ToDo</div>' +
+      '<div class="card-body" id="todo" style="display:none; ">'+
+      '<div class="ticket">'+
+      '<table>'+
+      '<thead>'+
+      '<tr>'+
+      '<th> ID </th>'+
+      '<th> 姓名 </th>'+
+      '<th> 狀態 </th>'+
+      '<th> 優先 </th>'+
+      '<th> 到期 </th>'+
+      '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="搜尋"></th>'+
+      '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
+      '</tr>'+
+      '</thead>'+
+      '<tbody class="ticket-content">'+
+      '</tbody>'+
+      '</table>'+
+      '</div>'+
+      '</div>' +
       '</div>' +
       '</div>'
     );
@@ -1301,6 +1397,37 @@ $(document).ready(function() {
       socket.emit('chat to server', chatObj);
     });
   } // end of loadChatRoom
+
+  function submitMemo(e){
+    e.preventDefault();
+    var ticket_id = $(this).parent().parent().siblings().find('#infoCanvas').find('[style="display:block"]').find('.data_id').text(); //把memo存到該客戶的第一張ticket裡
+    // console.log(ticket_id);
+    $('.ticket_memo').prepend('<div class="memo_content"><p>'+$('#message_memo').val()+'</p></div>');
+    var ticket_memo = '{ "body": "'+$('#message_memo').val()+'", "private" : false }';
+
+    $.ajax(
+      {
+        // url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id[0]+ticket_id[1]+"/notes",
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id+"/notes",
+        type: 'POST',
+        contentType: "application/json",
+        dataType: "json",
+        headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+        },
+        data: ticket_memo,
+        success: function(data, textStatus, jqXHR) {
+        },
+        error: function(jqXHR, tranStatus) {
+          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
+          response_text = jqXHR.responseText;
+          console.log(response_text);
+          console.log(x_request_id);
+        }
+      }
+    );
+    $('#message_memo').val("");
+  }
 
   function submitMsg(e){
     e.preventDefault();
@@ -1658,7 +1785,7 @@ function displayDate(date) {
   min = gmt8.getMinutes(),
   sec = gmt8.getSeconds();
 
-  return yy + "/" + mm + "/" + dd + " " + hr + ":" + min + ":" + sec;
+  return yy + "/" + mm + "/" + dd + " " + hr + ":" + min;
 } // end of displayDate
 
 function sortRecentChatTime() {
@@ -1961,3 +2088,328 @@ function openTitle() {
   $(this).hide();
   $(this).siblings().show();
 } // end of openTitle
+
+function loadTable(userId){
+  $('.ticket-content').empty();
+  $('.ticket_memo').empty();
+  var ticket_memo_list = [];
+  $.ajax(
+    {
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets?include=requester",
+      type: 'GET',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+        "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      success: function(data, textStatus, jqXHR) {
+        for(let i=0;i < data.length;i++){
+          if (data[i].subject == userId){
+            ticketInfo = data;
+            $('.ticket-content').prepend(
+              '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
+              '<td class="data_id" style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
+              '<td>' + data[i].requester.name + '</td>' +
+              '<td hidden>' + data[i].description + '</td>' +
+              '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
+              '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
+              '<td>'+displayDate(data[i].due_by)+'</td>' +
+              '<td>'+ dueDate(data[i].due_by)+'</td>' +
+              '</tr>'
+            );
+            ticket_memo_list.push(String(data[i].id));
+          }
+        }
+      },
+      error: function(jqXHR, tranStatus) {
+        console.log('error');
+      }
+    }
+  );
+
+  setTimeout(function(){
+    for (var i=0; i<ticket_memo_list.length; i++){
+      $.ajax(
+        {
+          url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_memo_list[i]+"/conversations",
+          type: 'GET',
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          headers: {
+            "Authorization": "Basic " + btoa(api_key + ":x")
+          },
+          success: function(data, textStatus, jqXHR) {
+            // console.log(data);
+            for(let i=0;i < data.length;i++){
+              $('.ticket_memo').prepend('<div class="memo_content">'+data[i].body+'</div>');
+            // }
+           }
+          },
+          error: function(jqXHR, tranStatus) {
+            console.log(jqXHR);
+            console.log(tranStatus);
+            console.log('error');
+          }
+        }
+      );
+    }
+  }, 500);
+}
+
+function updateStatus() {
+  let select = $(".select"),
+      editable = $(".edit"),
+      input = $("input");
+  let name, value, json = '{' ;
+  let obj = {} ;
+  let id = $(this).attr("val") ;
+  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
+
+  input.each(function () {$(this).blur();});
+  for(let i=0;i<editable.length;i++){
+    name = editable.eq(i).parent().children("th").text().split(" ") ;
+    value = editable.eq(i).text() ;
+    json += '"'+name[0]+'":"'+value+'",';
+  }
+  for(let i=0;i<select.length;i++){
+    name = select.eq(i).parent().parent().children("th").text() ;
+    value = select.eq(i).val() ;
+    json += '"'+name+'":'+value+','
+  }
+  json += '"id":"'+id+'"}' ;
+  obj = JSON.parse(json) ;
+
+
+  客戶名 = obj.subject;
+  客戶ID = obj.客戶ID;
+  回覆人員 = obj.回覆人員;
+  優先 = parseInt(obj.優先);
+  狀態 = parseInt(obj.狀態);
+  描述 = obj.描述;
+  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期;
+  else 到期時間 = obj.到期時間即期;
+  var time_list = 到期時間.split("/");
+  var new_time=[];
+  var new_time2=[];
+  time_list.map(function(i){
+    if (!i.startsWith(0) && i.length == 1 || i.length == 10) i = '0'+i;
+    new_time.push(i);
+  });
+    new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
+    new_time.map(function(i){
+      if (i.length == 1) i = '0'+i;
+      new_time2.push(i);
+    })
+    new_time = new_time2.join(":");
+
+  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
+
+  if(confirm("確定變更表單？")) {
+    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
+    $.ajax({
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
+      type: 'PUT',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      data: obj,
+      success:  function(data, textStatus, jqXHR) {
+        alert("表單已更新");
+        setTimeout(() => {
+        location.reload();
+       }, 500)
+      },
+      error:  function(jqXHR, tranStatus) {
+        alert("表單更新失敗，請重試");
+        console.log(jqXHR.responseText)
+      }
+    });
+  }
+
+
+}
+
+function statusNumberToText(status){
+  switch(status) {
+    case 5:
+        return 'Closed';
+        break;
+    case 4:
+        return 'Resolved';
+        break;
+    case 3:
+        return 'Pending';
+        break;
+    default:
+        return 'Open';
+  }
+} // end of statusNumberToText
+
+function priorityNumberToText(priority){
+  switch(priority) {
+    case 4:
+        return 'Urgent';
+        break;
+    case 3:
+        return 'High';
+        break;
+    case 2:
+        return 'Medium';
+        break;
+    default:
+        return 'Low';
+  }
+} // end of priorityNumberToText
+
+function dueDate(day) {
+  let html = '' ;
+  let nowTime = new Date().getTime() ;
+  // console.log('this is nowTime');
+  // console.log(nowTime);
+  let dueday = Date.parse(displayDate(day)) ;
+  let hr = dueday - nowTime ;
+  hr /= 1000*60*60 ;
+  if(hr<0){
+    html = '<span class="overdue">過期</span>';
+  } else {
+    html = '<span class="non overdue">即期</span>';
+  }
+  return html ;
+} // end of dueDate
+
+function responderName(id) {
+  for(let i in agentInfo){
+    if(agentInfo[i].id == id) return agentInfo[i].contact.name ;
+  }
+  return "unassigned" ;
+}
+
+function searchBar(){
+  let content = $('.ticket-content tr');
+  let val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+  content.show().filter(function() {
+    var text1 = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+    return !~text1.indexOf(val);
+  }).hide();
+} // end of searchBar
+
+function showSelect(prop,n) {
+  // let prop = $(this).parent().children("th").text() ;
+  // alert(prop) ;
+  let html = "<select class='select'>" ;
+  if(prop == 'priority'){
+    html += "<option value="+n+">"+priorityNumberToText(n)+"</option>" ;
+    for(let i=1;i<5;i++){
+      if(i == n) continue ;
+      html += "<option value="+i+">"+priorityNumberToText(i)+"</option>" ;
+    }
+
+  }
+  else if(prop == 'status'){
+
+    html += "<option value="+n+">"+statusNumberToText(n)+"</option>" ;
+    for(let i=2;i<6;i++){
+      if(i == n) continue ;
+      html += "<option value="+i+">"+statusNumberToText(i)+"</option>" ;
+    }
+  }
+  else if(prop == 'responder'){
+    html += "<option value="+n+">"+responderName(n)+"</option>" ;
+    for(let i in agentInfo){
+      let id = agentInfo[i].id ;
+      if( id == n) continue ;
+      html += "<option value="+id+">"+responderName(id)+"</option>" ;
+    }
+  }
+  html += "</select>" ;
+  return html ;
+  // $(this).html(html);
+} // end of showSelect
+
+function moreInfo() {
+  let display ;
+  let i = $(this).attr('id');
+  let Tinfo = ticketInfo[i];
+  let Cinfo ;
+  let Ainfo ;
+
+  $("#ID_num").text(Tinfo.id) ;
+  $("#ID_num").css("background-color",priorityColor(Tinfo.priority)) ;
+
+  display =
+  '<tr>'+
+  '<th>responder</th>'+
+  '<td>'+showSelect('responder',Tinfo.responder_id)+'</td>'+
+  '</tr><tr>'+
+  '<th>priority</th>'+
+  '<td>'+showSelect('priority',Tinfo.priority)+'</td>'+
+  '</tr><tr>'+
+  '<th>status</th>'+
+  '<td>'+showSelect('status',Tinfo.status)+'</td>'+
+  '</tr><tr>'+
+  '<th>description</th>'+
+  '<td class="edit">'+Tinfo.description_text+'</td>'+
+  '</tr><tr>'+
+  '<th>due date '+dueDate(Tinfo.due_by)+'</th>'+
+  '<td class="edit">'+displayDate(Tinfo.due_by)+'</td>'+
+  '</tr><tr>'+
+  '<th>creat date</th>'+
+  '<td>'+displayDate(Tinfo.created_at)+'</td>'+
+  '</tr><tr>'+
+  '<th>last update</th>'+
+  '<td>'+displayDate(Tinfo.updated_at)+'</td>'+
+  '</tr>' ;
+
+  for(let j in contactInfo){
+    if(contactInfo[j].id == Tinfo.requester_id) {
+      Cinfo = contactInfo[j] ;
+      display +=
+      '<tr>'+
+      '<th>requester</th>'+
+      '<td>'+Cinfo.name+'</td>'+
+      '</tr><tr>'+
+      '<th>requester email</th>'+
+      '<td>'+Cinfo.email+'</td>'+
+      '</tr><tr>'+
+      '<th>requester phone</th>'+
+      '<td>'+Cinfo.phone+'</td>'+
+      '</tr>'
+      break ;
+    }
+  }
+
+  for(let j in agentInfo){
+    if(agentInfo[j].id == Tinfo.requester_id) {
+      Ainfo = agentInfo[j] ;
+      display +=
+      '<tr>'+
+      '<th>requester(<span style="color:red">agent</span>)</th>'+
+      '<td>'+Ainfo.contact.name+'</td>'+
+      '</tr><tr>'+
+      '<th>requester email</th>'+
+      '<td>'+Ainfo.contact.email+'</td>'+
+      '</tr><tr>'+
+      '<th>requester phone</th>'+
+      '<td>'+Ainfo.contact.phone+'</td>'+
+      '</tr>'
+      break ;
+    }
+  }
+
+  $(".ticket_info_content").html('') ;
+  $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority)) ;
+  $(".modal-title").text(Tinfo.subject) ;
+  $("#ticketInfo-submit").attr("val",Tinfo.id) ;
+  $(".ticket_info_content").append(display);
+} // end of moreInfo
+
+function loadMessageInDisplayClient(msg){
+  if(msg.length > 6){
+    return msg = msg.substr(0, 6) + '...';
+  } else {
+    return msg;
+  }
+}
