@@ -14,6 +14,13 @@
       <link rel="stylesheet" href="stylesheets/main.css" />
       <link rel="stylesheet" href="stylesheets/tag.css" />
       <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <style>
+        .long-token {
+          max-width: 100px;
+          overflow-x:scroll;
+          /*float: right;*/
+        }
+      </style>
    </head>
    <body>
       <div id="wrapper">
@@ -177,7 +184,7 @@
                                     </tr>
                                     <tr>
                                        <td>Channel Access Token 1: </td>
-                                       <td style="max-width: 750px;max-height:120px;overflow:scroll;display:inline-block;" id="prof-channelAccessToken_1"></td>
+                                       <td class="long-token" id="prof-channelAccessToken_1"></td>
                                     </tr>
                                     <tr>
                                        <td>群組名2: </td>
@@ -193,7 +200,31 @@
                                     </tr>
                                     <tr>
                                        <td>Channel Access Token 2: </td>
-                                       <td style="max-width: 750px;max-height:120px;overflow:scroll;display:inline-block;" id="prof-channelAccessToken_2"></td>
+                                       <td class="long-token" id="prof-channelAccessToken_2"></td>
+                                    </tr>
+                                    <tr>
+                                      <td>Facebook群組名: </td>
+                                      <td id="prof-fbPageName"></td>
+                                    </tr>
+                                    <tr>
+                                      <td>Page Id: </td>
+                                      <td id="prof-fbPageId"></td>
+                                    </tr>
+                                    <tr>
+                                      <td>App ID: </td>
+                                      <td id="prof-fbAppId"></td>
+                                    </tr>
+                                    <tr>
+                                      <td>App Secret: </td>
+                                      <td id="prof-fbAppSecret"></td>
+                                    </tr>
+                                    <tr>
+                                      <td>Validation Token: </td>
+                                      <td id="prof-fbValidToken"></td>
+                                    </tr>
+                                    <tr>
+                                      <td>Page Token: </td>
+                                      <td class="long-token" id="prof-fbPageToken"></td>
                                     </tr>
                                  </tbody>
                               </table>
@@ -418,6 +449,42 @@
                         <label for="prof-edit-channelAccessToken_2" class="col-2 col-form-label">Channel Access Token 2: </label>
                         <div class="col-4">
                            <input class="form-control" type="tel" value="" id="prof-edit-channelAccessToken_2">
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <label for="prof-edit-fbPageName" class="col-2 col-form-label">Facebook Page Name: </label>
+                        <div class="col-4">
+                           <input class="form-control" type="tel" value="" id="prof-edit-fbPageName">
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <label for="prof-edit-fbPageId" class="col-2 col-form-label">Page Id: </label>
+                        <div class="col-4">
+                           <input class="form-control" type="tel" value="" id="prof-edit-fbPageId">
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <label for="prof-edit-fbAppId" class="col-2 col-form-label">App ID: </label>
+                        <div class="col-4">
+                           <input class="form-control" type="tel" value="" id="prof-edit-fbAppId">
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <label for="prof-edit-fbAppSecret" class="col-2 col-form-label">App Secret: </label>
+                        <div class="col-4">
+                           <input class="form-control" type="tel" value="" id="prof-edit-fbAppSecret">
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <label for="prof-edit-fbValidToken" class="col-2 col-form-label">Validation Token:: </label>
+                        <div class="col-4">
+                           <input class="form-control" type="tel" value="" id="prof-edit-fbValidToken">
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <label for="prof-edit-fbPageToken" class="col-2 col-form-label">Page Token: </label>
+                        <div class="col-4">
+                           <input class="form-control" type="tel" value="" id="prof-edit-fbPageToken">
                         </div>
                      </div>
                   </form>

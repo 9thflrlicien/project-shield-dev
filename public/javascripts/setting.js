@@ -223,6 +223,12 @@ $(document).ready(function() {
         $('#prof-channelId_2').text(profInfo.chanId_2);
         $('#prof-channelSecret_2').text(profInfo.chanSecret_2);
         $('#prof-channelAccessToken_2').text(profInfo.chanAT_2);
+        $('#prof-fbPageName').text(profInfo.fbName);
+        $('#prof-fbPageId').text(profInfo.fbPageId);
+        $('#prof-fbAppId').text(profInfo.fbAppId);
+        $('#prof-fbAppSecret').text(profInfo.fbAppSecret);
+        $('#prof-fbValidToken').text(profInfo.fbValidToken);
+        $('#prof-fbPageToken').text(profInfo.fbPageToken);
         $('#prof-company').text(profInfo.company);
         $('#prof-logo').text(profInfo.logo);
       }
@@ -246,6 +252,12 @@ $(document).ready(function() {
     let chanId_2 = $('#prof-channelId_2').text();
     let chanSecret_2 = $('#prof-channelSecret_2').text();
     let chanAT_2 = $('#prof-channelAccessToken_2').text();
+    let fbName = $('#prof-fbPageName').text();
+    let fbPageId = $('#prof-fbPageId').text();
+    let fbAppId = $('#prof-fbAppId').text();
+    let fbAppSecret = $('#prof-fbAppSecret').text();
+    let fbValidToken = $('#prof-fbValidToken').text();
+    let fbPageToken = $('#prof-fbPageToken').text();
     let company = $('#prof-company').text();
     let logo = $('#prof-logo').text();
 
@@ -265,6 +277,13 @@ $(document).ready(function() {
     $('#prof-edit-channelId_2').val(chanId_2);
     $('#prof-edit-channelSecret_2').val(chanSecret_2);
     $('#prof-edit-channelAccessToken_2').val(chanAT_2);
+    $('#prof-edit-fbPageName').val(fbName);
+    $('#prof-edit-fbPageId').val(fbPageId);
+    $('#prof-edit-fbAppId').val(fbAppId);
+    $('#prof-edit-fbAppSecret').val(fbAppSecret);
+    $('#prof-edit-fbValidToken').val(fbValidToken);
+    $('#prof-edit-fbPageToken').val(fbPageToken);
+
 
     $('#prof-edit-company').val(company);
     $('#prof-edit-logo').val(logo);
@@ -320,6 +339,12 @@ $(document).ready(function() {
     let chanId_2 = $('#prof-edit-channelId_2').val();
     let chanSecret_2 = $('#prof-edit-channelSecret_2').val();
     let chanAT_2 = $('#prof-edit-channelAccessToken_2').val();
+    let fbName = $('#prof-edit-fbPageName').val();
+    let fbPageId = $('#prof-edit-fbPageId').val();
+    let fbAppId = $('#prof-edit-fbAppId').val();
+    let fbAppSecret = $('#prof-edit-fbAppSecret').val();
+    let fbValidToken = $('#prof-edit-fbValidToken').val();
+    let fbPageToken = $('#prof-edit-fbPageToken').val();
     // console.log(id, name, dob, email, gender,phone);
     // console.log(id);
     // database.ref('users/' + userId).remove();
@@ -332,12 +357,23 @@ $(document).ready(function() {
       chanId_2: chanId_2,
       chanSecret_2: chanSecret_2,
       chanAT_2: chanAT_2,
+      fbName: fbName,
+      fbPageId: fbPageId,
+      fbAppId: fbAppId,
+      fbAppSecret: fbAppSecret,
+      fbValidToken: fbValidToken,
+      fbPageToken: fbPageToken
     });
     io.connect().emit('update bot', [
       {
         channelId: chanId_1,
         channelSecret: chanSecret_1,
         channelAccessToken: chanAT_1
+      },
+      {
+        channelId: chanId_2,
+        channelSecret: chanSecret_2,
+        channelAccessToken: chanAT_2
       },
       {
         channelId: chanId_2,
