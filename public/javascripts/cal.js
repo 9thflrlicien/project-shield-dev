@@ -42,6 +42,12 @@ var loadCalTable = setInterval( function() {
 
   //Initialize fullCalendar.
 	calendar.fullCalendar({
+    theme: true,                  //fullcalendar的介面主題，啟用jQuery-UI
+    buttonIcons:
+    {
+      prev: 'circle-triangle-w',
+      next: 'circle-triangle-e'
+    },
     //Defines the buttons and title position which is at the top of the calendar.
 		header:
 		{
@@ -67,8 +73,10 @@ var loadCalTable = setInterval( function() {
 
       $('#keyId').text('');
       $('#title').val('');
-      $('#startDate').val(convert_start); // 時間input設定
-      $('#endDate').val(convert_end);     // 時間input設定
+      $('#startDate').val(convert_start.date); // 日期input設定
+      $('#startTime').val(convert_start.time); // 時間input設定
+      $('#endDate').val(convert_end.date);     
+      $('#endTime').val(convert_end.time); 
       $('#description').val('');
       $('#allday').prop('checked', false);
 
@@ -92,8 +100,12 @@ var loadCalTable = setInterval( function() {
       // 資料的值放進對應的input
       $('#keyId').text(event.keyId);
       $('#title').val(event.title);
-      $('#startDate').val(event.start._i);
-      $('#endDate').val(event.end._i);
+      let start=convertShow(event.start._i); //轉換成輸出格式
+      let end=convertShow(event.end._i);
+      $('#startDate').val(start.date);
+      $('#startTime').val(start.time);
+      $('#endDate').val(end.date);
+      $('#endTime').val(end.time);
       $('#description').val(event.description);
       $('#allday').prop('checked', event.allDay);
 
@@ -136,8 +148,8 @@ var loadCalTable = setInterval( function() {
 function set_cal() {
   let keyId       = $('#keyId').text();
   let title       = $('#title').val();
-  let start_date  = $('#startDate').val();
-  let end_date    = $('#endDate').val();
+  let start_date  = $('#startDate').val()+"T"+$('#startTime').val(); //把user輸入的日期和時間串起來
+  let end_date    = $('#endDate').val()+"T"+$('#endTime').val();
   let description = $('#description').val();
   let allDay = $('#allday').prop('checked');
 
@@ -210,15 +222,37 @@ function ISODateString(d) {
 function ISODateTimeString(d) {
   d = new Date(d);
   function pad(n) {return n<10 ? '0'+n : n}
-  return d.getFullYear()+'-'
-       + pad(d.getMonth()+1)+'-'
-       + pad(d.getDate())+'T'
-       + pad(d.getHours())+':'
-       + pad(d.getMinutes());
+  let finalDate = new Object();                   //分割成日期和時間
+  finalDate.date = d.getFullYear()+'-'
+                  + pad(d.getMonth()+1)+'-'
+                  + pad(d.getDate());
+  finalDate.time = pad(d.getHours())+':'
+                  + pad(d.getMinutes());
+  return finalDate;
 }
 
 function convertTime(date) {
   let newDate = new Date(date.getTime()+date.getTimezoneOffset()*60*1000);
-  let finalDate = ISODateTimeString(newDate);
+  finalDate = ISODateTimeString(newDate);
   return finalDate;
 }
+
+function convertShow(dateString){                 //資料轉換成輸出格式
+  let newDate = new Date(Date.parse(dateString));
+  finalDate = ISODateTimeString(newDate);
+  return finalDate;
+}
+
+function show_allday(){                          //勾選allday時，時間會hide
+  if($('#allday').prop('checked')){
+    $('#startTime').hide();
+    $('#endTime').hide();
+  }else{
+    $('#startTime').show();
+    $('#endTime').show();
+  }  
+}
+
+$("#myModal").on("shown.bs.modal", function(){  //在show form之後做allday判斷
+  show_allday();
+});
