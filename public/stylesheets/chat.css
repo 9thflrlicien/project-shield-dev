@@ -1,32 +1,59 @@
+.hidden_group_name{
+  display: none;
+  position: absolute;
+  background-color: #fff5ce;
+  width: 40px; height: 40px;
+}
+.hidden_group_name p {
+  color: black;
+}
+.chatApp_item:hover .hidden_group_name{
+  display: block;
+}
+.ticket_memo{
+    overflow: scroll !important;
+}
+#message_memo{
+  position: relative;
+  bottom: 25px;
+  width: 90%;
+
+}
 .submemo{
   width:300px;
+  float:bottom;
+  position: absolute;
+  bottom:0px;
   height: 60px;
-  padding:3%;
+  padding:2% 1%;
   background-color: white;
   border-top: lightgrey solid 1px;
+
 }
 #submitMemo{
-  width: 20px;
-  height: 20px;
-  background-image: url("https://image.flaticon.com/icons/svg/60/60525.svg");
+  position: relative;
+  bottom: 20px;
+  width: 25px;
+  height: 25px;
+  background-image: url("http://simpleicon.com/wp-content/uploads/pen-15-256x256.png");
   background-size: cover;
   color: transparent;
   background-color: rgba(255,255,255,.7);
   background-blend-mode: color;
   border: 0;
 }
-.ticket_memo{
+.memo_content{
   width:300px;
-  height: 100px;
-  padding:3%;
+  height: 50px;
+  padding:5%;
+  margin: 2% 0%;
   background-color: lightyellow;
-  overflow-y: scroll;
 }
 /*TICKET.CSS*/
 #form-wrap {
   position: relative;
-  left: 270px;
-  width: 70%
+  left: 20px;
+  width: 90%;
 }
 
 #edit-subt, #view-subt {
@@ -75,7 +102,7 @@
 }
 
 .inner-add-complete {
-  margin: 1% 5% ;
+  margin: 1% 0 ;
   padding:2%;
   font-size:10px;
   display:none;
@@ -351,7 +378,7 @@ input[type="range"]:active::-webkit-slider-thumb:after {
   min-width: 50px;
   float:right;
   position: absolute;
-  margin-left: 200px;
+  margin-left: 170px;
   background-color: lightgrey;
 }
 .enterprise {
@@ -422,7 +449,9 @@ input[type="range"]:active::-webkit-slider-thumb:after {
   font-size: 10px
 }
 #prof_nick{
-  color:lightgrey;
+  position: absolute;
+  top: 10%;
+  color:white;
   font-size: 100%;
   float:bottom;
   margin:0;
@@ -440,7 +469,9 @@ input[type="range"]:active::-webkit-slider-thumb:after {
   float:top;
   padding-bottom: 1%;
   background-color: grey;
+  position: relative;
 }
+
 html,body{
   height: 100%;
   font-family: Microsoft JhengHei;
@@ -487,14 +518,28 @@ html,body{
   height: 60px;
   padding: 10px;
   cursor: pointer;
+  position: relative;
 }
-.chatApp_item h4{
+/*.chatApp_item h4{
   margin-left: 20px;
-}
+}*/
 .chatApp_item:hover,.select{
   background-color: rgb(133, 134, 180);
 }
+.unread_msg_count{
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  height: 20px;
+  width: 20px;
+  background-color: red;
+  border-radius: 50%;
+  z-index: 999;
+  display: none;
+  text-align: center;
+}
 .software_icon{
+  position: absolute;
   width: 40px;
   height: 40px
 }
@@ -532,7 +577,7 @@ html,body{
   margin: 3px;
   float: left;
   border: 1px solid #ccc;
-  width: 80%;
+  width: 95%;
   height: 25px;
 }
 #filterClean{
@@ -596,10 +641,6 @@ html,body{
 .filter_btn:hover{
   background-color: #ccc
 }
-.dropdown-menu{
-  position: fixed;
-  top: 0;
-}
 .tablinks_head{
   overflow: hidden;
   height: 80px;
@@ -609,7 +650,7 @@ html,body{
 }
 .tablinks_area{
   flex:1;
-  display: none;
+  display: block;
   position: relative;
   background-color: inherit;
   height: 88% ;
@@ -810,11 +851,6 @@ button{
   float: right;
   height: 200px;
 }
-.dropdown-menu {
-  padding-left: 20px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
 #showChatApp{
   display:none;
   height:500px;
@@ -893,13 +929,10 @@ p {
   word-wrap: break-word;
 }
 #infoCanvas{
-  flex-direction: column;
   height: 92%;
   overflow-y: scroll;
   overflow-x: hidden;
   width: 100%;
-  z-index: 15;
-  transition: .3s ease-in-out;
 }
 .choose {
   width:18%;
@@ -917,34 +950,14 @@ p {
   width: 60%;
 }
 .memo{
-  flex-direction: column-reverse;
   width: 45%;
-  text-align: left;
-  padding:5px 0;
-  overflow: hidden ;
-  z-index: 10;
-  transition: .3s ease-in-out;
-  float:right;
-
-/*#chatApp{
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  background-color: rgb(82, 81, 119);
-  width: 70px;
-  text-align: left;
-  padding:5px 0;
-  overflow: hidden ;
-  z-index: 10;
-  transition: .3s ease-in-out;
-}*/
 }
 .photoContainer{
   display: flex;
   justify-content: center;
 }
 .panelTable{
-  margin: 5%;
+  margin: 0%;
 }
 .tagSpan{
   margin: 2%;

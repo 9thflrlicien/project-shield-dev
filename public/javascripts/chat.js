@@ -8,6 +8,14 @@ const NO_HISTORY_MSG = "<p class='message-day' style='text-align: center'><stron
 "-沒有更舊的歷史訊息-" +
 "</i></strong></p>";
 
+var ticketInfo = {} ;
+var contactInfo = {} ;
+var agentInfo = {} ;
+var socket = io.connect();
+
+var yourdomain = 'fongyu';
+var api_key = 'UMHU5oqRvapqkIWuOdT8';
+
 $(document).ready(function() {
   var socket = io.connect(); //socket
   var printAgent = $('#printAgent'); //agent welcome text
@@ -35,42 +43,43 @@ $(document).ready(function() {
   var filterDataCustomer = {}; //option of filter customized tags
 
   const COLOR = {
-    FIND: "#A52A2A",
+    FIND: "#ff0000",
     CLICKED: "#ccc",
+    FINDBACK: "#ffff00"
   }
   let n = 0;
 
-  $(document).on('click', '#signout-btn', logout); //登出
-  $(document).on('click', '.tablinks', clickUserTablink);
+  $(document).on('click', '#signout-btn', logout); // 登出
+  $(document).on('click', '.tablinks', clickUserTablink); // 群組清單裡面選擇客戶
   $(document).on('click', '.topright', clickSpan);
   $(document).on('click', '#userInfoBtn', showProfile);
   $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
   $(document).on('click', '.edit-button', changeProfile);
   $(document).on('click', '#userInfo-submit', submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
-  $(document).on('click', '#upImg', upImg);
-  $(document).on('click', '#upVid', upVid);
-  $(document).on('click', '#upAud', upAud);
-  $(document).on('click', '#submitMsg', submitMsg);
+  $(document).on('click', '#upImg', upImg); // 傳圖
+  $(document).on('click', '#upVid', upVid); // 傳影
+  $(document).on('click', '#upAud', upAud); // 傳音
+  $(document).on('click', '#submitMsg', submitMsg); // 訊息送出
   $(document).on('click', '#submitMemo', submitMemo);
-
+  $(document).on('click', '.ticket_content',moreInfo) ;
   // 群組名稱
-  $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
-  $(document).on('click', '#save-group-btn', groupSubmit); // 完成編輯群組名稱
-  $('#message').on('keydown', function(event){
+  // $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
+  // $(document).on('click', '#cls-cal-btn', cancelSubmit); // 取消編輯群組名稱
+  $('#message').on('keydown', function(event){ // 按enter可以發送訊息
     if(event.keyCode == 13){
       document.getElementById('submitMsg').click();
     }
-  })
+  });
   $('#message_memo').on('keydown', function(event){
     if(event.keyCode == 13){
       document.getElementById('submitMemo').click();
     }
-  })
+  });
   $(document).on('click', '.dropdown-menu', function(event) {
     event.stopPropagation();
   });
-  $(document).on('click', '.nav-link', toggleInfoPanel);
+  $(document).on('click', '.nav-link', toggleInfoPanel); // 客戶資料tab更換
   $(document).on('click', '.filterArea h4', function() {
     $(this).siblings().toggle(200, 'easeInOutCubic');
     $(this).children('i').toggle();
@@ -92,14 +101,6 @@ $(document).ready(function() {
 
   //---------------------ticket.js----------------------
 
-  var ticketInfo = {} ;
-  var contactInfo = {} ;
-  var agentInfo = {} ;
-  var socket = io.connect();
-
-  var yourdomain = 'fongyu';
-  var api_key = '4qydTzwnD7xRGaTt7Hqw';
-  var ticket_content = $('.ticket-content');
 
   $(document).ready(function() {
 
@@ -119,82 +120,6 @@ $(document).ready(function() {
 
   });
 
-  function loadTable(userId){
-    $('.ticket-content').empty();
-    $('.ticket_memo').empty();
-    var ticket_memo_list = [];
-    $.ajax(
-      {
-        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets?include=requester",
-        type: 'GET',
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        headers: {
-          "Authorization": "Basic " + btoa(api_key + ":x")
-        },
-        success: function(data, textStatus, jqXHR) {
-
-          for(let i=0;i < data.length;i++){
-            console.log("freshdesk data[i], i="+i);
-            console.log(data[i]);
-            console.log("");
-            if (data[i].subject == userId){
-
-              ticketInfo = data;
-              $('.ticket-content').prepend(
-                '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
-                '<td class="data_id" style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
-                '<td>' + data[i].requester.name + '</td>' +
-                '<td>' + data[i].description.substr(0,10) + '...</td>' +
-                '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
-                '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
-                '<td>'+displayDate(data[i].due_by)+'</td>' +
-                '<td>'+ dueDate(data[i].due_by)+'</td>' +
-                '</tr>'
-              );
-              ticket_memo_list.push(String(data[i].id));
-
-
-            }
-          }
-        },
-        error: function(jqXHR, tranStatus) {
-          console.log('error');
-        }
-      }
-    );
-    setTimeout(function(){
-      for (var i=0; i<ticket_memo_list.length; i++){
-        console.log("ticket id = "+ticket_memo_list[i]);
-        $.ajax(
-          {
-            url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_memo_list[i]+"/conversations",
-            type: 'GET',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            headers: {
-              "Authorization": "Basic " + btoa(api_key + ":x")
-            },
-            success: function(data, textStatus, jqXHR) {
-              console.log("data = ");
-              console.log(data);
-              for(let i=0;i < data.length;i++){
-                console.log("data.length = "+data.length);
-                ticketInfo = data;
-                $('.ticket_memo').append(data[i].body);
-                // }
-              }
-            },
-            error: function(jqXHR, tranStatus) {
-              console.log(jqXHR);
-              console.log(tranStatus);
-              console.log('error');
-            }
-          }
-        );
-      }
-    }, 2000);
-  }
 
 
   function showInput() {

@@ -8,25 +8,15 @@
     <title><%= title %></title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
     <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
-    <!-- Morris Charts CSS -->
-    <link rel="stylesheet" href="vendor/morrisjs/morris.css" >
     <link rel="stylesheet" href="stylesheets/main.css" />
     <link rel="stylesheet" href="stylesheets/chat.css" />
-
   </head>
   <body>
     <div id="wrapper">
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
           <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                  <span class="sr-only">Toggle navigation</span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-              </button>
               <a class="navbar-brand" href="/">Chatshier</a>
           </div>
           <!-- /.navbar-header -->
@@ -51,7 +41,7 @@
                 <i class="fa fa-cog fa-lg"></i> <i class="fa fa-caret-down"></i>
               </a>
               <ul class="dropdown-menu dropdown-user">
-                <li><a href="/profile"><i class="fa fa-user fa-fw"></i>設定</a></li>
+                <li><a href="/setting"><i class="fa fa-user fa-fw"></i>設定</a></li>
                 <li class="divider"></li>
                 <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i>登出</a></li>
               </ul>
@@ -68,46 +58,61 @@
         <div id="chatApp" class="colume" >
           <div class="chatApp_item" id="Line_1" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-            <h4 id="group1" class="myText"></h4><input id="inputgroup1" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+            <div class="hidden_group_name" id="line1">
+              <p></p>
+            </div>
+            <div class="unread_msg_count"></div>
+            <!-- <h4 id="group1" class="myText"></h4><input id="inputgroup1" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button> -->
           </div>
           <div class="chatApp_item" id="Line_2" open="true">
             <img class="software_icon" src="http://informatiekunde.dilia.be/sites/default/files/uploads/logo-line.png">
-            <h4 id="group2" class="myText"></h4><input id="inputgroup2" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+            <div class="hidden_group_name" id="line2">
+              <p></p>
+            </div>
+            <div class="unread_msg_count"></div>
+            <!-- <h4 id="group2" class="myText"></h4><input id="inputgroup2" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button> -->
           </div>
-          <div class="chatApp_item" id="FB" open="true">
+          <div class="chatApp_item" id="FB" open="true" rel="FB">
             <img class="software_icon" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png">
-            <h4 id="fbgroup" class="myText"></h4><input id="inputfbgroup" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button>
+            <div class="hidden_group_name" id="fbname">
+              <p>Fabebook</p>
+            </div>
+            <div class="unread_msg_count"></div>
+            <!-- <h4 id="fbgroup" class="myText"></h4><input id="inputfbgroup" type="text" style="display:none;width:100px;" /><button type="button" class="btn btn-primary" id="save-group-btn" style="display:none;width:40px;font-size:12px;padding:2px">Save</button><button type="button" class="btn btn-secondary" style="display:none;width:40px;font-size:12px;padding:2px" id="cls-cal-btn">Close</button> -->
           </div>
           <div class="chatApp_item" id="wechat">
             <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/wechat.svg">
-            <h4>未開放</h4>
+            <!-- <h4>未開放</h4> -->
           </div>
           <div class="chatApp_item" id="kakotalk">
             <img class="software_icon" src="https://cdn.worldvectorlogo.com/logos/kakaotalk.svg">
-            <h4>未開放</h4>
+            <!-- <h4>未開放</h4> -->
           </div>
           <div class="chatApp_item" id="whatsapp">
             <img class="software_icon" src="https://cdn0.iconfinder.com/data/icons/social-flat-rounded-rects/512/whatsapp-256.png">
-            <h4>未開放</h4>
+            <!-- <h4>未開放</h4> -->
+          </div>
+          <div class="chatApp_item" id="All" open="true" rel="All">
+            <span>全部客戶</span>
+          </div>
+          <div class="chatApp_item" id="all_unread" open="true" rel="unread">
+            <span>未讀訊息</span>
+          </div>
+          <div class="chatApp_item" id="assigned" open="true" rel="assigned">
+            <span>已指派</span>
+          </div>
+          <div class="chatApp_item" id="unassigned" open="true" rel="unassigned">
+            <span>未指派</span>
           </div>
         </div>
-
         <div id="user" class="colume">
-          <p class="choose">
-            請選擇一個群組
-          </p>
+          <div class="search">
+            <input type="text" id="searchBox" placeholder="Search for messages..">
+          </div>
           <p class="error"></p>
-          <div class="tablinks_area" id="Line_1_room">
-            <ol class="list-group" id="line1-clients"></ol>
-            <ol class="list-group" id="line1-idle-roomes"></ol>
-          </div>
-          <div class="tablinks_area" id="Line_2_room">
-            <ol class="list-group" id="line2-clients"></ol>
-            <ol class="list-group" id="line2-idle-roomes"></ol>
-          </div>
-          <div class="tablinks_area" id="FB_room" rel="FB">
-            <ol class="list-group" id="fb-clients"></ol>
-            <ol class="list-group" id="fb-idle-roomes"></ol>
+          <div class="tablinks_area">
+            <ol class="list-group" id="vip_list"></ol>
+            <ol class="list-group" id="clients"></ol>
           </div>
         </div>
 
@@ -122,7 +127,7 @@
               <div  id="showAttImg" >
                 <div style="flex-direction:column;padding:5px 0">
                   <input size="35" id="attImgFill" placeholder="輸入圖片網址"/>
-                  <input type='file' accept='image/*' id="imageUPload"/>
+                  <!-- <input type='file' accept='image/*' id="imageUPload"/> -->
                 </div>
                 <button id="upImg">
                   <i class="fa fa-upload" aria-hidden="true"></i>
@@ -132,7 +137,7 @@
               <div  id="showAttVid" >
                 <div style="flex-direction:column;padding:5px 0">
                   <input size="35" id="attVidFill" placeholder="輸入影片網址"/>
-                  <input type='file' accept='video/*' id="videoUPload"/>
+                  <!-- <input type='file' accept='video/*' id="videoUPload"/> -->
                 </div>
                 <button id="upVid">
                   <i class="fa fa-upload" aria-hidden="true"></i>
@@ -142,7 +147,7 @@
               <div  id="showAttAud" >
                 <div style="flex-direction:column;padding:5px 0">
                   <input size="35" id="attAudFill" placeholder="輸入音訊網址"/>
-                  <input type='file' accept='audio/*' id="audioUPload"/>
+                  <!-- <input type='file' accept='audio/*' id="audioUPload"/> -->
                 </div>
                 <button id="upAud">
                   <i class="fa fa-upload" aria-hidden="true"></i>
@@ -172,7 +177,7 @@
           <div class="chat_prof">
             <img src="https://marketplace.canva.com/MAB7k1IXVl4/1/thumbnail/canva-single-shield-icon-MAB7k1IXVl4.png" alt="無法顯示相片" style="width:60px;height:60px;border-radius:50px;margin:1.5%;float:left;margin-right: 5px;">
             <h4 id="prof_nick">內部聊天室</h4>
-           </div>
+          </div>
           <section id="canvas">
           </section>
           <form action="" id="send-message" disabled style="display:none;">
@@ -193,29 +198,52 @@
                   <a class="nav-link" href='#profile'>個人資料</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link"  href='#todo' >待辦事項</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/tform" class="btn btn-info inner-add-complete">
-                      <span class="fa fa-plus fa-fw"></span> Add a Ticket
-                    </a>
+                  <a class="nav-link "  href='#todo' >待辦事項</a>
                 </li>
               </ul>
             </div>
             <div id="infoCanvas"></div>
           </div>
+
           <div class="memo">
-            <blockquote class="trello-card"><a href="https://trello.com/c/zdh6mk0R/2-if-not-then-use-the-integrated-freshdesk-api-created-by-fwl">備註無法顯示</a>
-            </blockquote>
-            <div class="ticket_memo"></div>
-              <div class="submemo">
-              <input placeholder="輸入備註..." style="width:85%; height:50px;border:0" size="35" id="message_memo" />
+            <div class="ticket_memo"><div class="memo_content"><p>請先新增表單才能使用備註</p></div></div>
+            <div class="submemo">
+              <input placeholder="輸入備註..." style="width:65%; height:50px;border:0" size="35" id="message_memo" />
               <input type="button" id="submitMemo" />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="ticketInfoModal" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div style="display:flex">
+                  <span id="ID_num"></span>
+                  <table>
+                    <th style="display:none">內容</th>
+                    <td class="modal-title edit">用戶代號</td>
+                  </table>
+
+                </div>
               </div>
+              <div class="modal-body">
+                <table class="ticket_info_content">
+
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button type="button" id="ticketInfo-submit" class="btn btn-default" data-dismiss="modal" style="background-color: greenyellow;">Confirm</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="modal fade" id="ticketInfoModal" role="dialog">
+      <!-- 新增todo表單-->
+      <div class="modal fade" id="addTicketModal" role="dialog">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
@@ -230,14 +258,75 @@
               </div>
             </div>
             <div class="modal-body">
-              <table class="info_input_table">
+              <!-- Form -->
+              <div id="form-wrap">
+                <!-- 任務內容 -->
+                <form>
+                  <!-- 客戶名 -->
+                  <div class="form-group row">
+                    <label for="subject" class="col-2 col-form-label">客戶姓名</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-name">
+                    </div>
+                  </div>
+                  <!-- 客戶Id -->
+                  <div class="form-group row">
+                    <label for="subject" class="col-2 col-form-label">客戶ID</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-uid">
+                    </div>
+                  </div>
+                  <!-- email -->
+                  <div class="form-group row">
+                    <label for="email" class="col-2 col-form-label">電子郵件</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-email">
+                    </div>
+                  </div>
+                  <!-- phone -->
+                  <div class="form-group row">
+                    <label for="phone" class="col-2 col-form-label">手機</label>
+                    <div class="col-4">
+                      <input class="form-control" type="text" value="" id="form-phone">
+                    </div>
+                  </div>
+                  <!-- 狀態 -->
+                  <div class="form-group row">
+                    <label for="status">狀態</label>
+                    <select class="form-control" id="form-status">
+                      <option>Open</option>
+                      <option>Pending</option>
+                      <option>Resolved</option>
+                      <option>Closed</option>
+                    </select>
+                  </div>
+                  <!-- 緊急 -->
+                  <div class="form-group row">
+                    <label for="priority">優先</label>
+                    <select class="form-control" id="form-priority">
+                      <option>低</option>
+                      <option>中</option>
+                      <option>高</option>
+                      <option>急</option>
+                    </select>
+                  </div>
 
-              </table>
+                  <!-- 說明 -->
+                  <div class="form-group row">
+                    <label for="description">說明</label>
+                    <textarea class="form-control" id="form-description" rows="3"></textarea>
+                  </div>
+                  <br />
+                  <div id="error" class="error"></div>
+                  <br />
+                  <button type="button" class="btn btn-default" data-dismiss="modal">返回</button>
+                  <button type="button" class="btn btn-success" data-dismiss="modal" id="form-submit">確認</button>
+                  <br />
+                  <br />
+                </form>
+              </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" id="ticketInfo-submit" class="btn btn-default" data-dismiss="modal" style="background-color: greenyellow;">Confirm</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
+
           </div>
         </div>
       </div>
@@ -248,14 +337,10 @@
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
-    <!-- <script src="javascripts/bootstrap-slider.js"></script> -->
     <script src="javascripts/firebaseConfig.js"></script>
-    <script src="javascripts/sb-admin-2.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/chat.js"></script>
-    <script src="https://trello.com/embed.js"></script>
-
+    <script src="javascripts/sb-admin-2.js"></script>
   </body>
 </html>
