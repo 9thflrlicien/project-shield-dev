@@ -37,7 +37,6 @@ $(document).ready(function() {
 
   var userProfiles = []; //array which store all user's profile
   var buffer; //buffer which store now user's profile
-  var infoTable = $('.info_input_table'); //user info table
   var TagsData; //data of user info tags
 
   var filterDataBasic = { //option of filter age, recent_chat_time, first_chat_time
@@ -57,9 +56,6 @@ $(document).ready(function() {
   $(document).on('click', '#signout-btn', logout); // 登出
   $(document).on('click', '.tablinks', clickUserTablink); // 群組清單裡面選擇客戶
   $(document).on('click', '.topright', clickSpan);
-  $(document).on('click', '#userInfoBtn', showProfile);
-  $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
-  $(document).on('click', '.edit-button', changeProfile);
   $(document).on('click', '#userInfo-submit', submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
   $(document).on('click', '#upImg', upImg); // 傳圖
@@ -88,6 +84,30 @@ $(document).ready(function() {
   $(document).on('click', '.filterArea h4', function() {
     $(this).siblings().toggle(200, 'easeInOutCubic');
     $(this).children('i').toggle();
+  });
+  // user profile edit
+  $(document).on('click', '.userInfo-td[modify="true"] p#td-inner', function() {
+    // console.log(".userInfo-td click");
+    let val = $(this).text();        //抓目前的DATA
+    let td = $(this).parents('.userInfo-td');
+    td.html('<input id="td-inner" type="text" value="' +val + '"></input>'); //把element改成input，放目前的DATA進去
+    td.find('input').select();   //自動FOCUS該INPUT
+  });
+
+  $(document).on('keypress', '.userInfo-td[modify="true"] input[type="text"]', function(e) {
+    let code = (e.keyCode ? e.keyCode : e.which);
+    if (code == 13) {
+      //如果按了ENTER
+      console.log("input keypress");
+      $(this).blur(); //就離開此INPUT，觸發on blur事件
+    }
+  });
+  $(document).on('blur', '.userInfo-td[modify="true"] input[type="text"]', function() {
+    //當USER離開此INPUT
+    console.log(".userInfo-td-input blur");
+    let val = $(this).val();  //抓INPUT裡的資料
+    if( !val ) val="尚未輸入";
+    $(this).parent().html('<p id="td-inner">'+val+'</p>');   //將INPUT元素刪掉，把資料直接放上去
   });
   $('.hidden_group_name').mouseover(function() { // 秀群組名稱
     $(this).show();
@@ -1031,61 +1051,61 @@ $(document).ready(function() {
         "<tbody>" +
         "<tr>" +
         "<th class='userInfo-th' id='nickname'>nickname</th>" +
-        "<td class='userInfo-td' id='nickname' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='nickname' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>" + data.name + "</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='年齡'>年齡</th>" +
-        "<td class='userInfo-td' id='年齡' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='年齡' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='性別'>性別</th>" +
-        "<td class='userInfo-td' id='性別' type='single_select' set='男,女' modify='false'>" +
+        "<td class='userInfo-td' id='性別' type='single_select' set='男,女' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='地區'>地區</th>" +
-        "<td class='userInfo-td' id='地區' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='地區' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='address'>address</th>" +
-        "<td class='userInfo-td' id='address' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='address' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='telephone'>telephone</th>" +
-        "<td class='userInfo-td' id='telephone' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='telephone' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='備註'>備註</th>" +
-        "<td class='userInfo-td' id='備註' type='text' set='multi' modify='false'>" +
+        "<td class='userInfo-td' id='備註' type='text' set='multi' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='TAG'>TAG</th>" +
-        "<td class='userInfo-td' id='TAG' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='false'>" +
+        "<td class='userInfo-td' id='TAG' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='VIP等級'>VIP等級</th>" +
-        "<td class='userInfo-td' id='VIP等級' type='single_select' set='鑽石會員,白金會員,普通銅牌,超級普通會員' modify='false'>" +
+        "<td class='userInfo-td' id='VIP等級' type='single_select' set='鑽石會員,白金會員,普通銅牌,超級普通會員' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='下次聯絡客戶時間'>下次聯絡客戶時間</th>" +
-        "<td class='userInfo-td' id='下次聯絡客戶時間' type='time' set='' modify='false'>" +
+        "<td class='userInfo-td' id='下次聯絡客戶時間' type='time' set='' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "<p></p>" +
         "</td>" +
@@ -1124,13 +1144,13 @@ $(document).ready(function() {
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='客人的抱怨'>客人的抱怨</th>" +
-        "<td class='userInfo-td' id='客人的抱怨' type='text' set='multi' modify='false'>" +
+        "<td class='userInfo-td' id='客人的抱怨' type='text' set='multi' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='付費階段'>付費階段</th>" +
-        "<td class='userInfo-td' id='付費階段' type='single_select' set='等待報價,已完成報價，等待付費,已完成付費,要退錢' modify='false'>" +
+        "<td class='userInfo-td' id='付費階段' type='single_select' set='等待報價,已完成報價，等待付費,已完成付費,要退錢' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
@@ -1143,12 +1163,12 @@ $(document).ready(function() {
         '<table>'+
         '<thead>'+
         '<tr>'+
-        '<th> ID </th>'+
-        '<th> 姓名 </th>'+
-        '<th hidden> 內容 </th>'+
-        '<th> 狀態 </th>'+
-        '<th> 優先 </th>'+
-        '<th> 到期 </th>'+
+        '<th class="table-sort"> ID <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 客戶姓名 <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 內容 <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 狀態 <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 優先 <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 到期 <i class="fa fa-fw fa-sort"></i></th>'+
         '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="Search"></th>'+
         '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
         '</tr>'+
@@ -1253,50 +1273,118 @@ $(document).ready(function() {
   } // end of clickSpan
 
   function loadPanelProfile(profile) {
-    for (let i in profile.email) {
-      socket.emit('get ticket', {
-        email: profile.email[i],
-        id: profile.userId
-      });
-    }
     let html = "<table class='panelTable'>";
     for (let i in TagsData) {
       let name = TagsData[i].name;
       let type = TagsData[i].type;
       let set = TagsData[i].set;
       let modify = TagsData[i].modify;
+      let data = profile[name];
       let tdHtml = "";
+
       if (name === '客戶編號') continue;
       if (name === '電子郵件') {
-        for (let i in profile[name]) {
-          tdHtml += '<p id="td-inner">' + profile[name][i] + '</p>';
-        }
-      } else if (type == 'text' || type == 'single_select') {
-        if (profile[name] != undefined && profile[name] != null && profile[name] != "") tdHtml = '<p id="td-inner">' + profile[name] + '</p>';
-        else tdHtml = '<p id="td-inner">尚未輸入</p>';
-      } else if (type == "time") {
-        if (profile[name] != undefined && profile[name] != null && profile[name] != "") {
-          let d = new Date(profile[name]);
-          tdHtml = '<p id="td-inner">' + d.getFullYear() + '/' + addZero(d.getMonth() + 1) + '/' + addZero(d.getDate()) + ' ' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()) + '<p>';
-        } else tdHtml = '<p id="td-inner">尚未輸入<p>';
-      } else if (type == 'multi_select') {
-        if (profile[name] == undefined || profile[name] == null || profile[name] == "") tdHtml = '<p id="td-inner">尚未輸入</p>';
-        else {
-          let arr = profile[name].split(",");
-          for (let i in arr) tdHtml += '<span id="td-inner" class="tagSpan">' + arr[i] + '</span></br>';
+        for (let i in data) {
+          tdHtml += '<p id="td-inner">' + data[i] + '</p>';
         }
       }
-      html +=
-      '<tr>' +
+      else if (type == 'text') {
+        if ( data ) {
+          tdHtml = '<p id="td-inner">' + data + '</p>';
+        }
+        else {
+          tdHtml = '<p id="td-inner">尚未輸入</p>';
+        }
+      }
+      else if (type == "time") {
+        if( modify ) tdHtml = '<input type="datetime-local" id="td-inner" ';
+        else tdHtml = '<input type="datetime-local" id="td-inner" readOnly ';
+
+        if( data ) {
+          d = new Date(data);
+          tdHtml += 'value="'
+          + d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate()) + 'T'
+          + addZero(d.getHours()) + ':' + addZero(d.getMinutes())+ '"';
+        }
+        tdHtml += ' ></input>';
+      }
+      else if (type == 'single_select') {
+        if( modify ) tdHtml = '<select id="td-inner">';
+        else tdHtml = '<select id="td-inner" disabled>';
+
+        if( !data ) tdHtml += '<option selected="selected" > 未選擇 </option>';
+        else tdHtml += '<option> 未選擇 </option>';
+
+        for (let j in set) {
+          if( set[j]!=data ) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
+          else tdHtml += '<option value="' + set[j] + '" selected="selected">' + set[j] + '</option>';
+        }
+        tdHtml += '</select>';
+      }
+      else if (type == 'multi_select') {
+        tdHtml = '<div class="btn-group" id="td-inner">';
+        if (modify == true) tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
+        else tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false" disabled>';
+
+        if( !data ) data = "";
+        tdHtml += '<span class="multiselect-selected-text">'+data+'</span><b class="caret"></b></button>' +
+        '<ul class="multiselect-container dropdown-menu">';
+        // + '<li><button value="全選" id="select-all">全選</li>';
+
+        let selected = data.split(',');
+        for (let j in set) {
+          if( selected.indexOf(set[j])!=-1 ) tdHtml += '<li><input type="checkbox" value="' + set[j] + '" checked>' + set[j] + '</li>';
+          else tdHtml += '<li><input type="checkbox" value="' + set[j] + '">' + set[j] + '</li>';
+        }
+        tdHtml += '</ul></div>';
+      }
+      html += '<tr>' +
       '<th class="userInfo-th" id="' + name + '">' + name + '</th>' +
-      '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set + '" modify="false">' + tdHtml + '</td>';
+      '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set + '" modify="' + modify + '">' + tdHtml + '</td>';
     }
     html += "</table>";
     return html;
-  } // end of loadPanelProfile
 
+  } // end of loadPanelProfile
+  $(document).on('click', '.profile-confirm button', function() {
+    let userId = $(this).parents('.card-group').attr('id');
+    userId = userId.substr(0,userId.length-5);
+    let method = $(this).attr('id');
+    if( method == "confirm" ) {
+      if ( confirm("Are you sure to change profile?") ) {
+        let data = {userId: userId};
+        let tds = $(this).parents('.card-group').find('.panelTable tbody td');
+        console.log(tds);
+        tds.each( function() {
+          let prop = $(this).attr('id');
+          let type = $(this).attr('type');
+          let value;
+          if( type=="text" ) value = $(this).find('#td-inner').text();
+          else if( type=="time") value = $(this).find('#td-inner').val();
+          else if( type=="single_select" ) value = $(this).find('#td-inner').val();
+          else if( type=="multi_select" ) value = $(this).find('.multiselect-selected-text').text();
+          console.log(prop+", "+value);
+          if( !value ) value = "";
+          data[prop] = value;
+        });
+        console.log(data);
+        socket.emit('update profile', data);
+      }
+    }
+    else {
+      console.log("can");
+    }
+  });
   function pushInfo(data) {
     let profile = data.Profile;
+
+    for (let i in profile.email) {
+      socket.emit('get ticket', {
+        email: profile.email[i],
+        id: profile.userId
+      });
+    }
+
     infoCanvas.append(
       '<div class="card-group" id="' + profile.userId + '-info" rel="'+profile.channelId+'-info" style="display:none">' +
       '<div class="card-body" id="profile">' +
@@ -1304,6 +1392,10 @@ $(document).ready(function() {
       '<img src="' + profile.photo + '" alt="無法顯示相片" style="width:128px;height:128px;">' +
       "</div>" +
       loadPanelProfile(profile) +
+      '<div class="profile-confirm">'+
+      '<button type="button" class="btn btn-primary pull-right" id="confirm">Confirm</button>'+
+      '<button type="button" class="btn btn-default pull-right" id="cancel">Cancel</button>'+
+      '</div>' +
       '</div>' +
       '<div class="card-body" id="ticket" style="display:none; "></div>' +
       '<div class="card-body" id="todo" style="display:none; ">'+
@@ -1318,6 +1410,7 @@ $(document).ready(function() {
       '<th class="table-sort"> 優先 <i class="fa fa-fw fa-sort"></i></th>'+
       '<th class="table-sort"> 到期 <i class="fa fa-fw fa-sort"></i></th>'+
       '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="搜尋"></th>'+
+      '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
       '</tr>'+
       '</thead>'+
       '<tbody class="ticket-content">'+
@@ -1569,9 +1662,66 @@ $(document).ready(function() {
     }
   } // end of initialFilterWay
 
+  function upImg() {
+    var imgAtt = '/image ' + $('#attImgFill').val();
+    // $('#message').val('<img src="' + imgAtt);
+    let sendObj = {
+      id: "",
+      msg: imgAtt,
+      msgtime: Date.now(),
+      room: $(this).parent().parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
+    };
+    sendObj.id = $("#user-rooms option:selected").val();
+    if(sendObj.room !== undefined && sendObj.room !== '' && sendObj.channelId !== undefined && sendObj.channelId !== ''){
+      socket.emit('send message', sendObj); //socket.emit
+    } else {
+      console.log('room ID or channel ID is undefined, please select a room');
+    }
+    // console.log(sendObj.room);
+    $('#attImgFill').val('');
+  } // end of upImg
+
+  function upVid() {
+    var vidAtt = '/video ' + $('#attVidFill').val();
+    let sendObj = {
+      id: "",
+      msg: vidAtt,
+      msgtime: Date.now(),
+      room: $(this).parent().parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
+    };
+    sendObj.id = $("#user-rooms option:selected").val();
+    // socket.emit('send message', sendObj); //socket.emit
+    if(sendObj.room !== undefined && sendObj.room !== '' && sendObj.channelId !== undefined && sendObj.channelId !== ''){
+      socket.emit('send message', sendObj); //socket.emit
+    } else {
+      console.log('room ID or channel ID is undefined, please select a room');
+    }
+
+    $('#attVidFill').val('');
+  } // end of upVid
+
+  function upAud() {
+    var audAtt = '/audio ' + $('#attAudFill').val();
+    let sendObj = {
+      id: "",
+      msg: audAtt,
+      msgtime: Date.now(),
+      room: $(this).parent().parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
+    };
+    sendObj.id = $("#user-rooms option:selected").val();
+    // socket.emit('send message', sendObj); //socket.emit
+    if(sendObj.room !== undefined && sendObj.room !== '' && sendObj.channelId !== undefined && sendObj.channelId !== ''){
+      socket.emit('send message', sendObj); //socket.emit
+    } else {
+      console.log('room ID or channel ID is undefined, please select a room');
+    }
+    $('#attAudFill').val('');
+  } // upAud
 
   // ===============Colman=======================
-
   $(document).on('click', '.table-sort', function() {
     let index = $(this).index();
     let compare;
@@ -1607,76 +1757,17 @@ $(document).ready(function() {
       return a<b;
     }
   });
-
-  $(document).on('keyup', '.ticket_search_bar', function(e) {
-      console.log(".ticket_search_bar key press");
-      let searchStr = $(this).val();
-
-      let trs = $(this).parents('table').find('tbody').find('tr');
-      trs.each(function() {
-        let text = $(this).text();
-        if( text.indexOf(searchStr)==-1 ) $(this).hide();
-        else $(this).show();
-      });
-  });
   // ============Colman end======================
+
 
 }); //document ready close tag
 
-
-
-
-function groupSubmit() {
-  let userId = auth.currentUser.uid;
-  let thegroup = $(this).siblings('.myText').attr('id');
-  let groupname = $(this).siblings('input').val();
-  if (confirm('確認更改群組名稱為「'+thegroup+'」？')){ // 暫時解
-    if(thegroup === 'group1'){
-      database.ref('users/' + userId).update({
-        group1: groupname
-      });
-
-    } else if(thegroup === 'group2'){
-      database.ref('users/' + userId).update({
-        group2: groupname
-      });
-    } else if(thegroup === 'fbgroup'){
-      database.ref('users/' + userId).update({
-        fbgroup: groupname
-      });
-    } else {
-      console.log('update fail');
-    }
-    $('#'+thegroup).text(groupname)
-    $(this).siblings().hide();
-    $(this).hide();
-    $(this).siblings('.software_icon').show();
-    $(this).siblings('.myText').show();
-    alert('群組名稱已修改為'+thegroup);
-  }
-}//end groupSubmit
-
-function closeIdleRoomTry() {
-  let early_time = Date.now() - 15 * 60 * 1000; //15min before now
-  let lastForFb = $('#fb-clients').find('.tablinks:last'); //last user in online room
-  let lastForLine1 = $('#line1-clients').find('.tablinks:last'); //last user in online room
-  let lastforLine2 = $('#line2-clients').find('.tablinks:last'); //last user in online room
-  while (lastForFb && lastForFb.attr('data-recentTime') < early_time) { //while last of online user should push into idle room
-    lastForFb.parents('b').remove();
-    $('#fb-idle-roomes').prepend(lastForFb.parents('b'));
-    lastForFb = $('#fb-clients').find('.tablinks:last');
-  }
-  while ( lastForLine1 && lastForLine1.attr('data-recentTime') < early_time ) { //while last of online user should push into idle room
-    lastForLine1.parents('b').remove();
-    $('#line1-idle-roomes').prepend(lastForLine1.parents('b'))
-    lastForLine1 = $('#line1-clients').find('.tablinks:last');
-  }
-  while ( lastforLine2 && lastforLine2.attr('data-recentTime') < early_time ) { //while last of online user should push into idle room
-    lastforLine2.parents('b').remove();
-    $('#line2-idle-roomes').prepend(lastforLine2.parents('b'));
-    lastforLine2 = $('#line2-clients').find('.tablinks:last');
-  }
-}
+function cancelSubmit(){
+  $(this).hide();
+  $(this).siblings('#save-group-btn').hide();
+  $(this).siblings('[type="text"]').hide();
+  $(this).siblings('.myText').show();
+} // end of cancelSubmit
 
 function closeIdleRoom() {
   // declare current datetime and parse into ms
@@ -1720,10 +1811,11 @@ function closeIdleRoom() {
 
 function displayAll() {
   $('.tablinks').each(function() {
-    let id = $(this).attr('id');
+    let id = $(this).attr('name');
     let rel = $(this).attr('rel');
-    $("div #" + id + "-content" + "[rel='"+rel+"']" + " .message").show().off("click");
-    $(this).css("color", "");
+    $(this).find('#msg').text($("div #" + id + "-content" + "[rel='"+rel+"']" + " .message:last").find('.content').text().trim()).css('color', 'black');
+    $("div #" + id + "-content" + "[rel='"+rel+"']" + " .message").find('.content').css({"color": "black", "background-color": "lightgrey"});
+    $(this).find('.client_name').css({"color": "black", "background-color": ""});
   });
 } // end of displayAll
 
@@ -1797,7 +1889,7 @@ function displayDate(date) {
   min = gmt8.getMinutes(),
   sec = gmt8.getSeconds();
 
-  return yy + "/" + mm + "/" + dd + " " + hr + ":" + min + ":" + sec;
+  return yy + "/" + mm + "/" + dd + " " + hr + ":" + min;
 } // end of displayDate
 
 function sortRecentChatTime() {
@@ -1806,120 +1898,6 @@ function sortRecentChatTime() {
   });
   sortRecentBool = !sortRecentBool;
 } // end of sortRecentChatTime
-
-
-function showProfile() {
-  console.log("show profile");
-  let target = $('.tablinks#selected').attr('rel'); //get useridd of current selected user
-  if (target == undefined) {
-    infoTable.html("please choose an user");
-    return;
-  }
-  // console.log("show profile of userId " + target);
-  reload_tags();
-  showTargetProfile(userProfiles[target]);
-} // end of showProfile
-
-function reload_tags() {
-  infoTable.empty();
-  for (let i in TagsData) {
-    let name = TagsData[i].name;
-    let type = TagsData[i].type;
-    let set = TagsData[i].set;
-    let modify = TagsData[i].modify;
-    let tdHtml = "";
-    if (type == 'text') tdHtml = '<p id="td-inner">尚未輸入<p>';
-    else if (type == "time" && modify == true) tdHtml = '<input type="datetime-local" id="td-inner"></input>';
-    else if (type == "time" && modify == false) tdHtml = '<input type="datetime-local" id="td-inner" readOnly></input>';
-    else if (type == 'single_select') {
-      if (modify == true) tdHtml = '<select id="td-inner">';
-      else tdHtml = '<select id="td-inner" disabled>';
-      for (let j in set) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
-      tdHtml += '</select>';
-    } else if (type == 'multi_select') {
-      tdHtml = '<div class="btn-group" id="td-inner" data="">';
-      if (modify == true) tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
-      else tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false" disabled>';
-      tdHtml += '<span class="multiselect-selected-text"></span><b class="caret"></b></button>' +
-      '<ul class="multiselect-container dropdown-menu">';
-      // + '<li><button value="全選" id="select-all">全選</li>';
-      for (let j in set) tdHtml += '<li><input type="checkbox" value="' + set[j] + '">' + set[j] + '</li>';
-      tdHtml += '</ul></div>';
-    }
-    infoTable.append(
-      '<tr>' +
-      '<th class="userInfo-th" id="' + name + '">' + name + '</th>' +
-      '<th class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set + '" modify="' + modify + '">' + tdHtml + '</th>' +
-      '<td class="edit-button yes" name="yes">yes</td>' +
-      '<td class="edit-button no" name="no">no</td>' +
-      '</tr>'
-    );
-    // prof_userName.append(prof_name);
-  }
-} // end of reload_tags
-
-function showTargetProfile(profile) {
-  buffer = JSON.parse(JSON.stringify(profile)); //clone object
-
-  var nick = buffer.nickname;
-  console.log(nick);
-  $('#prof_nick').text(nick);
-
-  $('.info_input_table .userInfo-td').each(function() {
-    let data = buffer[$(this).attr('id')];
-    let type = $(this).attr('type');
-    let inner = $(this).find('#td-inner');
-
-    if (data) {
-      if (type == 'text') inner.text(data);
-      else if (type == 'single_select') inner.val(data);
-      else if (type == "multi_select") {
-        inner.attr('data', data);
-        inner.find('.multiselect-selected-text').text(data);
-
-        let arr = data.split(',');
-        inner.find('input').each(function() {
-          if (arr.indexOf($(this).val()) != -1) $(this).prop('checked', true);
-          else $(this).prop('checked', false);
-        });
-      } else if (type == 'time') {
-        let d = new Date(data);
-        inner.val(d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate()) + 'T' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()));
-      }
-    } else { ///if undefined, load default string, not prev string
-      if (type == 'text') inner.text("尚未輸入");
-      else if (type == 'single_select') inner.val("");
-      else if (type == "multi_select") {
-        inner.attr('data', "");
-        inner.find('.multiselect-selected-text').text("");
-        inner.find('input').attr('checked', false);
-      } else if (type == 'time') inner.val("");
-    }
-  });
-} // end of showTargetProfile
-
-function editProfile() {
-  if ($(this).parent().children('.edit-button').is(':visible')) return;
-  else $(this).parent().children('.edit-button').show(); //show yes/no button
-  ///on click, off click has some strange bug, so change way ><
-
-  let type = $(this).attr('type');
-  let set = $(this).attr('set');
-  let text = $(this).find('#td-inner').text();
-
-  if (type == 'text') {
-    if (set == 'single') $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text + '" />');
-    else if (set == 'multi') $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >' + text + '</textarea>');
-    else console.log("error 646");
-  } else if (type == 'single_select') {
-    //do nothing
-  } else if (type == 'time') {
-    //do nothing
-  } else if (type == 'multi_select') {
-    // $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
-  }
-  $(this).find('#td-inner').select();
-} // end of editProfile
 
 function multiselect_change() {
   let boxes = $(this).find('input');
@@ -1932,76 +1910,32 @@ function multiselect_change() {
   $(this).parent().find($('.multiselect-selected-text')).text(arr);
 } // end of multiselect_change
 
-function changeProfile(edit) {
-  let td = $(this).parent().children('.userInfo-td');
-  let id = td.attr('id');
-  let type = td.attr('type');
-  let inner = td.find('#td-inner');
 
-  $(this).parent().children('.edit-button').hide(); //hide yes/no button
+// function pushInsideMsg(data) {
+//   let messages = data.Messages;
+//   let profile = data.Profile;
+//
+//   let historyMsgStr = NO_HISTORY_MSG;
+//   historyMsgStr += historyMsg_to_Str(messages);
+//   historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
+//   + "-即時訊息-"
+//   +" </italic></strong></p>";   //history message string tail
+//
+//   $('#inside-group-canvas').append(    //push string into canvas
+//     '<div id="' + profile.roomId + '" class="tabcontent" style="display: none;">'
+//     + '<span class="topright">x&nbsp;&nbsp;&nbsp</span>'
+//     + "<div id='" + profile.roomId + "-content' rel='"+profile.channelId+"' class='messagePanel' >"
+//     + historyMsgStr + "</div>"
+//     + "</div>"
+//   );// close append
+//
+//   $('#inside-group-container').append('<div class="inside-tablinks-container"><button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button></div>');
+//
+//   // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
+//   // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
+// }
 
-  if ($(this).attr('name') == 'yes') { //confirm edit, change data in buffer instead of DB
-    let content;
-    if (type == "text") {
-      content = inner.val();
-      if (!content) content = "尚未輸入";
-      td.html('<p id="td-inner">' + content + '</p>');
-    } else if (type == 'single_select') content = inner.val();
-    else if (type == "multi_select") {
-      content = inner.find('.multiselect-selected-text').text();
-    } else if (type == "time") {
-      content = new Date(inner.val()).getTime();
-    }
-    buffer[id] = content;
-    // console.log("content = " + content);
-  } else { //deny edit, restore data before editing
-    let origin = buffer[id];
-    if (origin == undefined) origin = "";
-
-    if (type == "text") {
-      if (!origin) origin = "尚未輸入";
-      td.html('<p id="td-inner">' + origin + '</p>');
-    } else if (type == 'single_select') inner.val(origin);
-    else if (type == "multi_select") {
-      inner.find('.multiselect-selected-text').text(origin);
-
-      inner.find('input').prop('checked', false);
-      if (origin) {
-        let arr = origin.split(',');
-        for (let j in arr) inner.find('input[value="' + arr[j] + '"]').prop('checked', true);
-      }
-    } else if (type == "time") {
-      let d = new Date(origin);
-      console.log("date = " + d.toString());
-      inner.val(d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate()) + 'T' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()));
-    }
-  }
-} // end of changeProfile
-
-function pushInsideMsg(data) {
-  let messages = data.Messages;
-  let profile = data.Profile;
-
-  let historyMsgStr = NO_HISTORY_MSG;
-  historyMsgStr += historyMsg_to_Str(messages);
-  historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
-  + "-即時訊息-"
-  +" </italic></strong></p>";   //history message string tail
-
-  $('#inside-group-canvas').append(    //push string into canvas
-    '<div id="' + profile.roomId + '" class="tabcontent" style="display: none;">'
-    + '<span class="topright">x&nbsp;&nbsp;&nbsp</span>'
-    + "<div id='" + profile.roomId + "-content' rel='"+profile.channelId+"' class='messagePanel' >"
-    + historyMsgStr + "</div>"
-    + "</div>"
-  );// close append
-
-  $('#inside-group-container').append('<div class="inside-tablinks-container"><button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button></div>');
-
-  // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
-  // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
-}
-
+// =====================Colman=========================== //
 function historyMsg_to_Str(messages) {
   let returnStr = "";
   let nowDateStr = "";
@@ -2029,25 +1963,8 @@ function historyMsg_to_Str(messages) {
   return returnStr;
 } // end of historyMsg_to_Str
 
-function upImg() {
-  var imgAtt = '/image ' + $('#attImgFill').val();
-  // $('#message').val('<img src="' + imgAtt);
-  socket.emit('send message', sendObj);
-
-} // end of upImg
-
-function upVid() {
-  var vidAtt = $('#attVidFill').val();
-  $('#message').val('<video controls><source src="' + vidAtt);
-} // end of upVid
-
-function upAud() {
-  var audAtt = $('#attAudFill').val();
-  $('#message').val('<audio controls><source src="' + audAtt);
-} // upAud
-
 function toAgentStr(msg, name, time) {
-  if (msg.startsWith("<img")) {
+  if (msg.startsWith("<a")) {
     return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
   } else {
     return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
@@ -2055,7 +1972,7 @@ function toAgentStr(msg, name, time) {
 } // end of toAgentStr
 
 function toUserStr(msg, name, time) {
-  if (msg.startsWith("<img")) {
+  if (msg.startsWith("<a")) {
     return '<p style="line-height:250%" class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + ': </span></strong><span class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
   } else {
     return '<p style="line-height:250%" class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + ': </span></strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
@@ -2093,6 +2010,7 @@ function loadChatGroupName(){
     // console.log(snap.val());
 
     if(snap.val().group1 === undefined || snap.val().group2 === undefined || snap.val().fbgroup === undefined){
+      console.log(2072);
       $('.error').text('群組名稱沒有設定，請於設定頁面更改。');
       sendTime(() => {
         $('.error').text('')
@@ -2116,3 +2034,328 @@ function openTitle() {
   $(this).hide();
   $(this).siblings().show();
 } // end of openTitle
+
+function loadTable(userId){
+  $('.ticket-content').empty();
+  $('.ticket_memo').empty();
+  var ticket_memo_list = [];
+  $.ajax(
+    {
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets?include=requester",
+      type: 'GET',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+        "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      success: function(data, textStatus, jqXHR) {
+        for(let i=0;i < data.length;i++){
+          if (data[i].subject == userId){
+            ticketInfo = data;
+            $('.ticket-content').prepend(
+              '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
+              '<td class="data_id" style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
+              '<td>' + data[i].requester.name + '</td>' +
+              '<td hidden>' + data[i].description + '</td>' +
+              '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
+              '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
+              '<td>'+displayDate(data[i].due_by)+'</td>' +
+              '<td>'+ dueDate(data[i].due_by)+'</td>' +
+              '</tr>'
+            );
+            ticket_memo_list.push(String(data[i].id));
+          }
+        }
+      },
+      error: function(jqXHR, tranStatus) {
+        console.log('error');
+      }
+    }
+  );
+
+  setTimeout(function(){
+    for (var i=0; i<ticket_memo_list.length; i++){
+      $.ajax(
+        {
+          url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_memo_list[i]+"/conversations",
+          type: 'GET',
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          headers: {
+            "Authorization": "Basic " + btoa(api_key + ":x")
+          },
+          success: function(data, textStatus, jqXHR) {
+            // console.log(data);
+            for(let i=0;i < data.length;i++){
+              $('.ticket_memo').prepend('<div class="memo_content">'+data[i].body+'</div>');
+            // }
+           }
+          },
+          error: function(jqXHR, tranStatus) {
+            console.log(jqXHR);
+            console.log(tranStatus);
+            console.log('error');
+          }
+        }
+      );
+    }
+  }, 500);
+}
+
+function updateStatus() {
+  let select = $(".select"),
+      editable = $(".edit"),
+      input = $("input");
+  let name, value, json = '{' ;
+  let obj = {} ;
+  let id = $(this).attr("val") ;
+  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
+
+  input.each(function () {$(this).blur();});
+  for(let i=0;i<editable.length;i++){
+    name = editable.eq(i).parent().children("th").text().split(" ") ;
+    value = editable.eq(i).text() ;
+    json += '"'+name[0]+'":"'+value+'",';
+  }
+  for(let i=0;i<select.length;i++){
+    name = select.eq(i).parent().parent().children("th").text() ;
+    value = select.eq(i).val() ;
+    json += '"'+name+'":'+value+','
+  }
+  json += '"id":"'+id+'"}' ;
+  obj = JSON.parse(json) ;
+
+
+  客戶名 = obj.subject;
+  客戶ID = obj.客戶ID;
+  回覆人員 = obj.回覆人員;
+  優先 = parseInt(obj.優先);
+  狀態 = parseInt(obj.狀態);
+  描述 = obj.描述;
+  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期;
+  else 到期時間 = obj.到期時間即期;
+  var time_list = 到期時間.split("/");
+  var new_time=[];
+  var new_time2=[];
+  time_list.map(function(i){
+    if (!i.startsWith(0) && i.length == 1 || i.length == 10) i = '0'+i;
+    new_time.push(i);
+  });
+    new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
+    new_time.map(function(i){
+      if (i.length == 1) i = '0'+i;
+      new_time2.push(i);
+    })
+    new_time = new_time2.join(":");
+
+  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
+
+  if(confirm("確定變更表單？")) {
+    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
+    $.ajax({
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
+      type: 'PUT',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      data: obj,
+      success:  function(data, textStatus, jqXHR) {
+        alert("表單已更新");
+        setTimeout(() => {
+        location.reload();
+       }, 500)
+      },
+      error:  function(jqXHR, tranStatus) {
+        alert("表單更新失敗，請重試");
+        console.log(jqXHR.responseText)
+      }
+    });
+  }
+
+
+}
+
+function statusNumberToText(status){
+  switch(status) {
+    case 5:
+        return 'Closed';
+        break;
+    case 4:
+        return 'Resolved';
+        break;
+    case 3:
+        return 'Pending';
+        break;
+    default:
+        return 'Open';
+  }
+} // end of statusNumberToText
+
+function priorityNumberToText(priority){
+  switch(priority) {
+    case 4:
+        return 'Urgent';
+        break;
+    case 3:
+        return 'High';
+        break;
+    case 2:
+        return 'Medium';
+        break;
+    default:
+        return 'Low';
+  }
+} // end of priorityNumberToText
+
+function dueDate(day) {
+  let html = '' ;
+  let nowTime = new Date().getTime() ;
+  // console.log('this is nowTime');
+  // console.log(nowTime);
+  let dueday = Date.parse(displayDate(day)) ;
+  let hr = dueday - nowTime ;
+  hr /= 1000*60*60 ;
+  if(hr<0){
+    html = '<span class="overdue">過期</span>';
+  } else {
+    html = '<span class="non overdue">即期</span>';
+  }
+  return html ;
+} // end of dueDate
+
+function responderName(id) {
+  for(let i in agentInfo){
+    if(agentInfo[i].id == id) return agentInfo[i].contact.name ;
+  }
+  return "unassigned" ;
+}
+
+function searchBar(){
+  let content = $('.ticket-content tr');
+  let val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+  content.show().filter(function() {
+    var text1 = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+    return !~text1.indexOf(val);
+  }).hide();
+} // end of searchBar
+
+function showSelect(prop,n) {
+  // let prop = $(this).parent().children("th").text() ;
+  // alert(prop) ;
+  let html = "<select class='select'>" ;
+  if(prop == 'priority'){
+    html += "<option value="+n+">"+priorityNumberToText(n)+"</option>" ;
+    for(let i=1;i<5;i++){
+      if(i == n) continue ;
+      html += "<option value="+i+">"+priorityNumberToText(i)+"</option>" ;
+    }
+
+  }
+  else if(prop == 'status'){
+
+    html += "<option value="+n+">"+statusNumberToText(n)+"</option>" ;
+    for(let i=2;i<6;i++){
+      if(i == n) continue ;
+      html += "<option value="+i+">"+statusNumberToText(i)+"</option>" ;
+    }
+  }
+  else if(prop == 'responder'){
+    html += "<option value="+n+">"+responderName(n)+"</option>" ;
+    for(let i in agentInfo){
+      let id = agentInfo[i].id ;
+      if( id == n) continue ;
+      html += "<option value="+id+">"+responderName(id)+"</option>" ;
+    }
+  }
+  html += "</select>" ;
+  return html ;
+  // $(this).html(html);
+} // end of showSelect
+
+function moreInfo() {
+  let display ;
+  let i = $(this).attr('id');
+  let Tinfo = ticketInfo[i];
+  let Cinfo ;
+  let Ainfo ;
+
+  $("#ID_num").text(Tinfo.id) ;
+  $("#ID_num").css("background-color",priorityColor(Tinfo.priority)) ;
+
+  display =
+  '<tr>'+
+  '<th>responder</th>'+
+  '<td>'+showSelect('responder',Tinfo.responder_id)+'</td>'+
+  '</tr><tr>'+
+  '<th>priority</th>'+
+  '<td>'+showSelect('priority',Tinfo.priority)+'</td>'+
+  '</tr><tr>'+
+  '<th>status</th>'+
+  '<td>'+showSelect('status',Tinfo.status)+'</td>'+
+  '</tr><tr>'+
+  '<th>description</th>'+
+  '<td class="edit">'+Tinfo.description_text+'</td>'+
+  '</tr><tr>'+
+  '<th>due date '+dueDate(Tinfo.due_by)+'</th>'+
+  '<td class="edit">'+displayDate(Tinfo.due_by)+'</td>'+
+  '</tr><tr>'+
+  '<th>creat date</th>'+
+  '<td>'+displayDate(Tinfo.created_at)+'</td>'+
+  '</tr><tr>'+
+  '<th>last update</th>'+
+  '<td>'+displayDate(Tinfo.updated_at)+'</td>'+
+  '</tr>' ;
+
+  for(let j in contactInfo){
+    if(contactInfo[j].id == Tinfo.requester_id) {
+      Cinfo = contactInfo[j] ;
+      display +=
+      '<tr>'+
+      '<th>requester</th>'+
+      '<td>'+Cinfo.name+'</td>'+
+      '</tr><tr>'+
+      '<th>requester email</th>'+
+      '<td>'+Cinfo.email+'</td>'+
+      '</tr><tr>'+
+      '<th>requester phone</th>'+
+      '<td>'+Cinfo.phone+'</td>'+
+      '</tr>'
+      break ;
+    }
+  }
+
+  for(let j in agentInfo){
+    if(agentInfo[j].id == Tinfo.requester_id) {
+      Ainfo = agentInfo[j] ;
+      display +=
+      '<tr>'+
+      '<th>requester(<span style="color:red">agent</span>)</th>'+
+      '<td>'+Ainfo.contact.name+'</td>'+
+      '</tr><tr>'+
+      '<th>requester email</th>'+
+      '<td>'+Ainfo.contact.email+'</td>'+
+      '</tr><tr>'+
+      '<th>requester phone</th>'+
+      '<td>'+Ainfo.contact.phone+'</td>'+
+      '</tr>'
+      break ;
+    }
+  }
+
+  $(".ticket_info_content").html('') ;
+  $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority)) ;
+  $(".modal-title").text(Tinfo.subject) ;
+  $("#ticketInfo-submit").attr("val",Tinfo.id) ;
+  $(".ticket_info_content").append(display);
+} // end of moreInfo
+
+function loadMessageInDisplayClient(msg){
+  if(msg.length > 6){
+    return msg = msg.substr(0, 6) + '...';
+  } else {
+    return msg;
+  }
+}

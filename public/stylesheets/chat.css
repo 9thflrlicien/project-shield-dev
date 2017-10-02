@@ -112,7 +112,9 @@
 input, select {
   width: 15%;
 }
-
+#td-inner {
+  width: auto;
+}
 /*Tabs*/
 /* Style the tab */
 div.tab {
@@ -933,6 +935,10 @@ p {
   overflow-y: scroll;
   overflow-x: hidden;
   width: 100%;
+}
+.profile-confirm {
+  margin-top: 10px;
+  margin-bottom: 60px;
 }
 .choose {
   width:18%;
