@@ -1,5 +1,10 @@
-var name_list = []; //list of all users
+var name_list = []; // list of all users
+var room_list = []; // room ID for line
 var user_list = []; // user list for checking on idle chat rooms
+
+var fbCount = 0;
+var line1Count = 0;
+var line2Count = 0;
 
 const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>" +
 "Loading History Messages..." +
@@ -8,12 +13,20 @@ const NO_HISTORY_MSG = "<p class='message-day' style='text-align: center'><stron
 "-沒有更舊的歷史訊息-" +
 "</i></strong></p>";
 
+var ticketInfo = {} ;
+var contactInfo = {} ;
+var agentInfo = {} ;
+var socket = io.connect();
+
+var yourdomain = 'fongyu';
+var api_key = 'UMHU5oqRvapqkIWuOdT8';
+
 $(document).ready(function() {
   var socket = io.connect(); //socket
   var printAgent = $('#printAgent'); //agent welcome text
-  // var messageForm = $('#send-message'); //button for agent to send message
   var messageInput = $('#message'); //input for agent to send message
   var canvas = $("#canvas"); //panel of message canvas
+  var searchBox = $('#searchBox'); // search box
   var userId = "";
   var person = "agentColman"; //agent name
   var infoCanvas = $("#infoCanvas");
@@ -35,641 +48,52 @@ $(document).ready(function() {
   var filterDataCustomer = {}; //option of filter customized tags
 
   const COLOR = {
-    FIND: "#A52A2A",
+    FIND: "#ff0000",
     CLICKED: "#ccc",
+    FINDBACK: "#ffff00"
   }
   let n = 0;
 
-  $(document).on('click', '#signout-btn', logout); //登出
-  $(document).on('click', '.tablinks', clickUserTablink);
+  $(document).on('click', '#signout-btn', logout); // 登出
+  $(document).on('click', '.tablinks', clickUserTablink); // 群組清單裡面選擇客戶
   $(document).on('click', '.topright', clickSpan);
   $(document).on('click', '#userInfoBtn', showProfile);
   $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
   $(document).on('click', '.edit-button', changeProfile);
   $(document).on('click', '#userInfo-submit', submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
-  $(document).on('click', '#upImg', upImg);
-  $(document).on('click', '#upVid', upVid);
-  $(document).on('click', '#upAud', upAud);
-  $(document).on('click', '#submitMsg', submitMsg);
+  $(document).on('click', '#upImg', upImg); // 傳圖
+  $(document).on('click', '#upVid', upVid); // 傳影
+  $(document).on('click', '#upAud', upAud); // 傳音
+  $(document).on('click', '#submitMsg', submitMsg); // 訊息送出
   $(document).on('click', '#submitMemo', submitMemo);
-  $(document).on('click', '#submitMemoAtt', submitMemoAtt);
-
+  $(document).on('click', '.ticket_content',moreInfo) ;
   // 群組名稱
-  $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
-  $(document).on('click', '#save-group-btn', groupSubmit); // 完成編輯群組名稱
-  $('#message').on('keydown', function(event){
+  // $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
+  // $(document).on('click', '#cls-cal-btn', cancelSubmit); // 取消編輯群組名稱
+  $('#message').on('keydown', function(event){ // 按enter可以發送訊息
     if(event.keyCode == 13){
       document.getElementById('submitMsg').click();
     }
-  })
+  });
   $('#message_memo').on('keydown', function(event){
     if(event.keyCode == 13){
       document.getElementById('submitMemo').click();
     }
-  })
+  });
   $(document).on('click', '.dropdown-menu', function(event) {
     event.stopPropagation();
   });
-  $(document).on('click', '.nav-link', toggleInfoPanel);
+  $(document).on('click', '.nav-link', toggleInfoPanel); // 客戶資料tab更換
   $(document).on('click', '.filterArea h4', function() {
     $(this).siblings().toggle(200, 'easeInOutCubic');
     $(this).children('i').toggle();
   });
-  $('.onclick_show').on('click', function(e){
-    // console.log('onclick_show exe');
-    var target = $(this).attr('rel');
-    e.preventDefault();
-    if ($("#"+target).is(":visible")){
-      $("#"+target).fadeOut();
-      $(".uploadArea").css('top',0);
-      $(this).attr('active','false');
-    }else{
-      $("#"+target).css('display','flex').siblings().hide();
-      $(".uploadArea").css('top',-60);
-      $(this).attr('active','true').siblings().attr('active','false');;
-    }
-  });//onclick_show
-
-
-//---------------------ticket.js----------------------
-
-var ticketInfo = {} ;
-var contactInfo = {} ;
-var agentInfo = {} ;
-var socket = io.connect();
-
-var yourdomain = 'fongyu';
-var api_key = '4qydTzwnD7xRGaTt7Hqw';
-var ticket_content = $('.ticket-content');
-
-$(document).ready(function() {
-
-  // $(document).on('click', '#form-submit', submitAdd) //新增ticket
-  $(document).on('click', '.ticket_content',moreInfo) ;
-  $(document).on('click', "#ticketInfo-submit", updateStatus) ;
-  $(document).on('click', '.edit', showInput) ;
-  $(document).on('click','.inner', function (event) {
-    event.stopPropagation();
-  });
-  $(document).on('focusout', '.inner', hideInput);
-  $(document).on('keypress', '.inner',function (e) {
-    if(e.which == 13) $(this).blur() ;
-  });
-
-  // $("#exampleInputAmount").keyup(searchBar);
-
-});
-
-  // ===============Colman=======================
-
-  $(document).on('keyup', '.ticket_search_bar', function(e) {
-      console.log(".ticket_search_bar key press");
-      let searchStr = $(this).val();
-
-      let trs = $(this).parents('table').find('tbody').find('tr');
-      trs.each(function() {
-        let text = $(this).text();
-        if( text.indexOf(searchStr)==-1 ) $(this).hide();
-        else $(this).show();
-      });
-  });
-  // ============Colman end======================
-
-function loadTable(userId){
-  $('.ticket-content').empty();
-  $('.ticket_memo').empty();
-  var ticket_memo_list = [];
-  $.ajax(
-    {
-      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets?include=requester",
-      type: 'GET',
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      headers: {
-        "Authorization": "Basic " + btoa(api_key + ":x")
-      },
-      success: function(data, textStatus, jqXHR) {
-
-        for(let i=0;i < data.length;i++){
-
-            if (data[i].subject == userId){
-          $('.ticket-content').prepend(
-            '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
-            '<td class="data_id" style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
-            '<td>' + data[i].requester.name + '</td>' +
-            '<td>' + data[i].description + '</td>' +
-            '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
-            '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
-            '<td>'+displayDate(data[i].due_by)+'</td>' +
-            '<td>'+ dueDate(data[i].due_by)+'</td>' +
-            '</tr>'
-          );
-          ticket_memo_list.push(String(data[i].id));
-
-
-        }
-       } 
-      },
-      error: function(jqXHR, tranStatus) {
-        console.log('error');
-      }
-    }
-  );
-setTimeout(function(){
-  for (var i=0; i<ticket_memo_list.length; i++){ 
-  $.ajax(
-    {
-      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_memo_list[i]+"/conversations",
-      type: 'GET',
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      headers: {
-        "Authorization": "Basic " + btoa(api_key + ":x")
-      },
-      success: function(data, textStatus, jqXHR) {
-        for(let i=0;i < data.length;i++){
-          $('.ticket_memo').prepend('<div class="memo_content">'+data[i].body+'</div>');
-        // }
-       } 
-      },
-      error: function(jqXHR, tranStatus) {
-        console.log(jqXHR);
-        console.log(tranStatus);
-        console.log('error');
-      }
-    }
-  );
-}
-}, 500);
-}
-
-
-function showInput() {
-  let prop = $(this).parent().children("th").text() ;
-  let original = $(this).text() ;
-  if(prop.indexOf('due date') != -1 ){
-    let day = new Date(original) ;
-    day = Date.parse(day)+8*60*60*1000 ;
-    day = new Date(day) ;
-    // console.log(day);
-    $(this).html(
-      "<input type='datetime-local' class='inner' value='"+
-      day.toJSON().substring(0,23)
-      +"'></input>"
-    );
-  }
-  else if(prop == 'description'){
-    $(this).html(
-      "<textarea  class='inner' rows=4' cols='50'>"+
-      original+
-      "</textarea>"
-    );
-  }
-  else{
-    $(this).html(
-      "<input type='text' class='inner' value='"+
-      original+
-      "' autofocus>"
-    );
-  }
-}
-function hideInput() {
-  let change = $(this).val();
-  if($(this).attr('type')== 'datetime-local'){
-    $(this).parent().html(displayDate(change)) ;
-  }
-  $(this).parent().html(change) ;
-}
-
-function updateStatus() {
-  let select = $(".select"),
-      editable = $(".edit"),
-      input = $("input");
-  let name, value, json = '{' ;
-  let obj = {} ;
-  let id = $(this).attr("val") ;
-  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
-
-  input.each(function () {$(this).blur();});
-  for(let i=0;i<editable.length;i++){
-    name = editable.eq(i).parent().children("th").text().split(" ") ;
-    value = editable.eq(i).text() ;
-    json += '"'+name[0]+'":"'+value+'",';
-  }
-  for(let i=0;i<select.length;i++){
-    name = select.eq(i).parent().parent().children("th").text() ;
-    value = select.eq(i).val() ;
-    json += '"'+name+'":'+value+','
-  }
-  json += '"id":"'+id+'"}' ;
-  obj = JSON.parse(json) ;
-
-
-  客戶名 = obj.subject;
-  客戶ID = obj.客戶ID;
-  回覆人員 = obj.回覆人員;
-  優先 = parseInt(obj.優先);
-  狀態 = parseInt(obj.狀態);
-  描述 = obj.描述;
-  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期;
-  else 到期時間 = obj.到期時間即期;
-  var time_list = 到期時間.split("/");
-  var new_time=[];
-  var new_time2=[];
-  time_list.map(function(i){
-    if (!i.startsWith(0) && i.length !== 4) i = '0'+i;
-    new_time.push(i);
-  });
-    new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
-    new_time.map(function(i){
-      if (i.length == 1) i = '0'+i;
-      new_time2.push(i);
-    })
-    new_time = new_time2.join(":");
-
-  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
-
-  if(confirm("確定變更表單？")) {
-    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
-    $.ajax({
-      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
-      type: 'PUT',
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      headers: {
-          "Authorization": "Basic " + btoa(api_key + ":x")
-      },
-      data: obj,
-      success:  function(data, textStatus, jqXHR) {
-        alert("表單已更新");
-        setTimeout(() => {
-        location.reload();
-       }, 500)
-      },
-      error:  function(jqXHR, tranStatus) {
-        alert("表單更新失敗，請重試");
-        console.log(jqXHR.responseText)
-      }       
-    });
-  }
-
-
-}
-
-function showSelect(prop,n) {
-  // let prop = $(this).parent().children("th").text() ;
-  // alert(prop) ;
-  let html = "<select class='select'>" ;
-  if(prop == 'priority'){
-    html += "<option value="+n+">"+priorityNumberToText(n)+"</option>" ;
-    for(let i=1;i<5;i++){
-      if(i == n) continue ;
-      html += "<option value="+i+">"+priorityNumberToText(i)+"</option>" ;
-    }
-
-  }
-  else if(prop == 'status'){
-
-    html += "<option value="+n+">"+statusNumberToText(n)+"</option>" ;
-    for(let i=2;i<6;i++){
-      if(i == n) continue ;
-      html += "<option value="+i+">"+statusNumberToText(i)+"</option>" ;
-    }
-  }
-  else if(prop == 'responder'){
-    html += "<option value="+n+">"+responderName(n)+"</option>" ;
-    for(let i in agentInfo){
-      let id = agentInfo[i].id ;
-      if( id == n) continue ;
-      html += "<option value="+id+">"+responderName(id)+"</option>" ;
-    }
-  }
-  html += "</select>" ;
-  return html ;
-  // $(this).html(html);
-}
-
-function moreInfo() {
-  let display ;
-  let i = $(this).attr('id');
-  let Tinfo = ticketInfo[i];
-  let Cinfo ;
-  let Ainfo ;
-
-  $("#ID_num").text(Tinfo.id) ;
-  $("#ID_num").css("background-color",priorityColor(Tinfo.priority)) ;
-
-  display =
-  '<tr>'+
-  '<th>responder</th>'+
-  '<td>'+showSelect('responder',Tinfo.responder_id)+'</td>'+
-  '</tr><tr>'+
-  '<th>priority</th>'+
-  '<td>'+showSelect('priority',Tinfo.priority)+'</td>'+
-  '</tr><tr>'+
-  '<th>status</th>'+
-  '<td>'+showSelect('status',Tinfo.status)+'</td>'+
-  '</tr><tr>'+
-  '<th>description</th>'+
-  '<td class="edit">'+Tinfo.description+'</td>'+
-  '</tr><tr>'+
-  '<th>due date '+dueDate(Tinfo.due_by)+'</th>'+
-  '<td class="edit">'+displayDate(Tinfo.due_by)+'</td>'+
-  '</tr><tr>'+
-  '<th>creat date</th>'+
-  '<td>'+displayDate(Tinfo.created_at)+'</td>'+
-  '</tr><tr>'+
-  '<th>last update</th>'+
-  '<td>'+displayDate(Tinfo.updated_at)+'</td>'+
-  '</tr>' ;
-
-  for(let j in contactInfo){
-    if(contactInfo[j].id == Tinfo.requester_id) {
-      Cinfo = contactInfo[j] ;
-      display +=
-      '<tr>'+
-      '<th>requester</th>'+
-      '<td>'+Cinfo.name+'</td>'+
-      '</tr><tr>'+
-      '<th>requester email</th>'+
-      '<td>'+Cinfo.email+'</td>'+
-      '</tr><tr>'+
-      '<th>requester phone</th>'+
-      '<td>'+Cinfo.phone+'</td>'+
-      '</tr>'
-      break ;
-    }
-  }
-
-  for(let j in agentInfo){
-    if(agentInfo[j].id == Tinfo.requester_id) {
-      Ainfo = agentInfo[j] ;
-      display +=
-      '<tr>'+
-      '<th>requester(<span style="color:red">agent</span>)</th>'+
-      '<td>'+Ainfo.contact.name+'</td>'+
-      '</tr><tr>'+
-      '<th>requester email</th>'+
-      '<td>'+Ainfo.contact.email+'</td>'+
-      '</tr><tr>'+
-      '<th>requester phone</th>'+
-      '<td>'+Ainfo.contact.phone+'</td>'+
-      '</tr>'
-      break ;
-    }
-  }
-
-  $(".info_input_table").html('') ;
-  $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority)) ;
-  $(".modal-title").text(Tinfo.subject) ;
-  $("#ticketInfo-submit").attr("val",Tinfo.id) ;
-  $(".info_input_table").append(display);
-}
-
-
-
-function displayDate(date) {
-  let origin = new Date(date) ;
-  origin = origin.getTime();
-  let gmt8 = new Date(origin );
-
-  let yy = gmt8.getFullYear(),
-      mm = gmt8.getMonth()+1,
-      dd = gmt8.getDate(),
-      hr = gmt8.getHours(),
-      min= gmt8.getMinutes(),
-      sec= gmt8.getSeconds();
-
-  return yy+"/"+mm+"/"+dd+" "+hr+":"+min+":"+sec ;
-}
-
-function dueDate(day) {
-  let html = '' ;
-  let nowTime = new Date().getTime() ;
-  let dueday = Date.parse(displayDate(day)) ;
-  let hr = dueday - nowTime ;
-  hr /= 1000*60*60 ;
-  // hr = Math.round(hr) ;
-  // return hr ;
-  if(hr<0) html = '<span class="overdue">過期</span>' ;
-  else html = '<span class="non overdue">即期</span>' ;
-  return html ;
-}
-function responderName(id) {
-  for(let i in agentInfo){
-    if(agentInfo[i].id == id) return agentInfo[i].contact.name ;
-  }
-  return "unassigned" ;
-}
-function addZero(n) {
-  n = Number()
-}
-
-
-function submitAdd(){
-  let name = $('#form-name').val();
-  let uid = $('#form-uid').val();//因為沒有相關可用的string，暫時先儲存在to_emails這個功能下面
-  let email = $('#form-email').val();
-  let phone = $('#form-phone').val();
-  let status = $('#form-status option:selected').text();
-  let priority = $('#form-priority option:selected').text();
-  let description = $('#form-description').val();
-  ticket_data = '{ "description": "'+description+'", "name" : "'+name+'",  "subject": "'+uid+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+'}';
-  console.log(ticket_data);
-  // 驗證
-  let email_reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
-  let phone_reg = /\b[0-9]+\b/;
-  if(!email_reg.test(email)){
-    $('#error').append('請輸入正確的email格式');
-    $('#form-email').css('border', '1px solid red');
-    setTimeout(() => {
-      $('#error').empty();
-      $('#form-email').css('border', '1px solid #ccc');
-    }, 3000);
-  } else if(!phone_reg.test(phone)) {
-    $('#error').append('請輸入正確的電話格式');
-    $('#form-phone').css('border', '1px solid red');
-    setTimeout(() => {
-      $('#error').empty();
-      $('#form-phone').css('border', '1px solid #ccc');
-    }, 3000);
-  } else if($('#form-uid').val().trim() === '') {
-    $('#error').append('請輸入客戶ID');
-    $('#form-subject').css('border', '1px solid red');
-    setTimeout(() => {
-      $('#error').empty();
-      $('#form-subject').css('border', '1px solid #ccc');
-    }, 3000);
-  } else if($('#form-description').val().trim() === '') {
-    $('#error').append('請輸入內容');
-    $('#form-description').css('border', '1px solid red');
-    setTimeout(() => {
-      $('#error').empty();
-      $('#form-description').css('border', '1px solid #ccc');
-    }, 3000);
-  } else if($('#form-name').val().trim() === '') {
-    $('#error').append('請輸入客戶姓名');
-    $('#form-name').css('border', '1px solid red');
-    setTimeout(() => {
-      $('#error').empty();
-      $('#form-description').css('border', '1px solid #ccc');
-    }, 3000);
-  } else {
-
-    let nowTime = new Date().getTime();
-    let dueDate = nowTime+ 86400000*3;
-
-    let start = ISODateTimeString(nowTime);
-    let end = ISODateTimeString(dueDate)
-    let userId = auth.currentUser.uid;
-
-//把事件儲存到calendar database，到期時間和ticket一樣設定三天
-    database.ref('cal-events/' + userId).push(
-        {
-        title: name+": "+description.substring(0,10)+"...",
-        start: start,
-        end: end,
-        description: description,
-        allDay: false
-      }
-      );
-
-    setTimeout(function(){
-      $.ajax(
-      {
-        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets",
-        type: 'POST',
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        headers: {
-          "Authorization": "Basic " + btoa(api_key + ":x")
-        },
-        data: ticket_data,
-        success: function(data, textStatus, jqXHR) {
-        },
-        error: function(jqXHR, tranStatus) {
-          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
-          response_text = jqXHR.responseText;
-          console.log(response_text)
-        }
-      }
-    );
-    }, 2000);
-
-    $('#form-name').val('');
-    $('#form-subject').val('');
-    $('#form-email').val('');
-    $('#form-phone').val('');
-    $('#form-description').val('');
-
-    setTimeout(() => {
-      location.href = '/ticket';
-    }, 1000000)
-  }
-
-}
-
-function priorityTextToMark(priority){
-  switch(priority) {
-    case 'Urgent':
-        return 4;
-        break;
-    case 'High':
-        return 3;
-        break;
-    case 'Medium':
-        return 2;
-        break;
-    default:
-        return 1;
-  }
-}
-
-function statusTextToMark(status){
-  switch(status) {
-    case 'Closed':
-        return 5;
-        break;
-    case 'Resolved':
-        return 4;
-        break;
-    case 'Pending':
-        return 3;
-        break;
-    default:
-        return 2;
-  }
-}
-
-function priorityColor(priority) {
-  switch(priority) {
-    case 4:
-        return 'rgb(230, 100, 100)';
-        break;
-    case 3:
-        return 'rgb(233, 198, 13)';
-        break;
-    case 2:
-        return 'rgb(113, 180, 209)';
-        break;
-    case 1:
-        return 'rgb(126, 215, 170)';
-        break;
-    default:
-        return 'N/A';
-  }
-}
-
-function statusNumberToText(status){
-  switch(status) {
-    case 5:
-        return 'Closed';
-        break;
-    case 4:
-        return 'Resolved';
-        break;
-    case 3:
-        return 'Pending';
-        break;
-    default:
-        return 'Open';
-  }
-}
-
-function priorityNumberToText(priority){
-  switch(priority) {
-    case 4:
-        return 'Urgent';
-        break;
-    case 3:
-        return 'High';
-        break;
-    case 2:
-        return 'Medium';
-        break;
-    default:
-        return 'Low';
-  }
-}
-
-function searchBar(){
-  let content = $('.ticket-content tr');
-  let val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-
-  content.show().filter(function() {
-    var text1 = $(this).text().replace(/\s+/g, ' ').toLowerCase();
-    return !~text1.indexOf(val);
-  }).hide();
-}
-
-//------------------end ticket---------------------
-
-
+  // user profile edit
   $(document).on('click', '.userInfo-td[modify="false"]', function() {
-    if( $(this).find('input').length==0 ) { 
+    if( $(this).find('input').length==0 ) {
       //如果現在是非編輯狀態
-      console.log(".userInfo-td click");
+      // console.log(".userInfo-td click");
       let val = $(this).text();        //抓目前的DATA
       $(this).html('<input type="text" value="' +val + '"></input>'); //把element改成input，放目前的DATA進去
       $(this).find('input').select();   //自動FOCUS該INPUT
@@ -691,62 +115,142 @@ function searchBar(){
     if( !val ) val="new tag";
     $(this).parent().html(val);   //將INPUT元素刪掉，把資料直接放上去
   });
-
-  // mouse hover the chatApp
-  $("#chatApp").hover(
-    function() {
-
-      $(this).css('width', '250px').find('h4').delay(50).fadeIn();
-    },
-    function() {
-      $(this).css('width', '70px').find('h4').hide();
+  $('.hidden_group_name').mouseover(function() { // 秀群組名稱
+    $(this).show();
+  })
+  // 傳圖，音，影檔功能
+  $('.onclick_show').on('click', function(e){
+    // console.log('onclick_show exe');
+    var target = $(this).attr('rel');
+    e.preventDefault();
+    if ($("#"+target).is(":visible")){
+      $("#"+target).fadeOut();
+      $(".uploadArea").css('top',0);
+      $(this).attr('active','false');
+    }else{
+      $("#"+target).css('display','flex').siblings().hide();
+      $(".uploadArea").css('top',-60);
+      $(this).attr('active','true').siblings().attr('active','false');;
     }
-  );
-  // // mouse hover the memo
-  // $(".memo").hover(
-  //   function() {
-  //     $(this).css('width', '400px');
-  //   },
-  //   function() {
-  //     $(this).css('width', '45%');
-  //   }
-  // );
-  // mouse hover the ticket
+  });//onclick_show
+
   $("#infoCanvas").hover(
     function() {
-      $(this).css('width', '600px');
+      $(this).css('width', '500px');
       $('.memo').css('margin-left', '30%');
     },
     function() {
       $(this).css('width', '100%');
       $('.memo').css('margin-left', '0%');
     }
-  );
-  // select a group
+  ); // infoCanvas
+
+  // ===============Colman=======================
+
+  $(document).on('keyup', '.ticket_search_bar', function(e) {
+      console.log(".ticket_search_bar key press");
+      let searchStr = $(this).val();
+
+      let trs = $(this).parents('table').find('tbody').find('tr');
+      trs.each(function() {
+        let text = $(this).text();
+        if( text.indexOf(searchStr)==-1 ) $(this).hide();
+        else $(this).show();
+      });
+  });
+  // ============Colman end======================
+
   $('.chatApp_item[open="true"]').click(function() {
-    $('.choose').hide();
-    $('.error').hide();
-    $(this).addClass('select').siblings().removeClass('select'); // 對點選以外的選項都隱藏
-
-    let id = $(this).attr('id');
-    $("#user").children('#' + id + '_room').show('fast').siblings('.tablinks_area').hide(); // 對應的id以外的選項都隱藏
-
-    let title = $(this).children('h4').text();
-    $(".filter_head #title").html(title);
+    let thisRel = $(this).attr('rel');
+    if(thisRel === 'All'){
+      $('.tablinks_area').find('b').show();
+    } else if(thisRel === 'unread'){
+      $('.tablinks_area').find('.unread_msg').each(function(index, el) {
+        // console.log($(this).text());
+        if($(this).text() === '0'){
+          $(this).parent().parent().hide();
+        } else {
+          $(this).parent().parent().show();
+        }
+      });
+    } else if(thisRel === 'assigned'){
+      $('.tablinks_area').find('b').hide();
+      $('#指派負責人 #td-inner').each(function(index, el) {
+        // console.log(el);
+        if($(this).text() !== '尚未輸入'){
+          let id = $(this).parent().parent().parent().parent().parent().parent().attr('id');
+          let room = $(this).parent().parent().parent().parent().parent().parent().attr('rel');
+          let newId = id.substr(0, id.indexOf('-'));
+          let newRoom = room.substr(0, room.indexOf('-'));
+          // console.log(newId, newRoom);
+          $('[name="'+newId+'"][rel="'+newRoom+'"]').parent().show();
+        }
+      });
+    } else if(thisRel === 'unassigned'){
+      $('.tablinks_area').find('b').hide();
+      $('#指派負責人 #td-inner').each(function(index, el) {
+        // console.log(el);
+        if($(this).text() === '尚未輸入'){
+          let id = $(this).parent().parent().parent().parent().parent().parent().attr('id');
+          let room = $(this).parent().parent().parent().parent().parent().parent().attr('rel');
+          let newId = id.substr(0, id.indexOf('-'));
+          let newRoom = room.substr(0, room.indexOf('-'));
+          // console.log(newId, newRoom);
+          $('[name="'+newId+'"][rel="'+newRoom+'"]').parent().show();
+        }
+      });
+    } else {
+      $('.tablinks_area').find('b').hide();
+      $('.tablinks_area').find('[rel="'+thisRel+'"]').parent().show();
+    }
   });
 
   $(document).on("mouseenter", ".message", function() {
-    // console.log("HAA");
     $(this).find('.sender').show();
   });
   $(document).on("mouseleave", ".message", function() {
-    // console.log("888");
     $(this).find('.sender').hide();
   });
 
-  setInterval(() => {
-    closeIdleRoomTry();
-  }, 20000);
+  searchBox.on('keypress', function (e) {
+    let code = (e.keyCode ? e.keyCode : e.which);
+    if (code != 13) return;
+
+    let searchStr = $(this).val().toLowerCase();
+    if( searchStr === "" ) {
+      displayAll();
+    } else {
+      // 搜尋displayClient所有的名字
+      // 搜尋所有canvas下的訊息 如果有match就在displayClient的message上顯示 "找到訊息"
+      // 把在離天是裡面的關鍵字標黃
+
+      $('.tablinks').each( function() {
+        let id = $(this).attr('name');
+        let room = $(this).attr('rel');
+        let panel = $("div #"+id+"-content[rel='"+room+"']");
+        let color = "";
+
+        // 客戶名單搜尋
+        $(this).find('.client_name').each(function(){
+          let text = $(this).text();
+          if( text.toLowerCase().indexOf(searchStr)!=-1 ) {
+            $(this).css({'color': COLOR.FIND, 'background-color': COLOR.FINDBACK});
+          }
+        });
+        // 聊天室搜尋
+        panel.find(".message").each(function() {
+          let text = $(this).find('.content').text();
+          if( text.toLowerCase().indexOf(searchStr)!=-1 ) {
+            // displayMessage match的字標黃
+            $(this).find('.content').css({'color': COLOR.FIND, 'background-color': COLOR.FINDBACK});
+            // displayClient顯示"找到訊息"並標紅
+            $('[name="'+id+'"][rel="'+room+'"]').find('#msg').css('color', COLOR.FIND).text("找到訊息");
+          }
+        });
+        $(this).css("color", color);
+      });
+    }
+  }); //end searchBox change func
 
   if (window.location.pathname === '/chat') {
     socket.emit("get tags from chat");
@@ -761,16 +265,20 @@ function searchBar(){
         // console.log("userId = "+userId);
         database.ref('users/' + userId).once('value', snap => {
           // console.log(snap.val());
+          let name1 = snap.val().name1;
+          let name2 = snap.val().name2;
           let id1 = snap.val().chanId_1;
           let id2 = snap.val().chanId_2;
           let secret1 = snap.val().chanSecret_1;
           let secret2 = snap.val().chanSecret_2;
           let token1 = snap.val().chanAT_1;
           let token2 = snap.val().chanAT_2;
-          if((id1 === undefined || id1 === null || id1 === '' ||
+          if((name1 === undefined || name1 === null || name1 === '' ||
+              id1 === undefined || id1 === null || id1 === '' ||
               secret1 === undefined || secret1 === null || secret1 === '' ||
               token1 === undefined || token1 === null || token1 === '' )&&
-              (id2 === undefined || id2 === null || id2 === '' ||
+              (name2 === undefined || name2 === null || name2 === '' ||
+              id2 === undefined || id2 === null || id2 === '' ||
               secret2 === undefined || secret2 === null || secret2 === '' ||
               token2 === undefined || token2 === null || token2 === '' ))
           {
@@ -778,13 +286,17 @@ function searchBar(){
             setTimeout(() => {
               $('.error').text('');
             }, 10000)
-          } else if((id1 === undefined || id1 === null || id1 === '' ||
+          } else if((name1 === undefined || name1 === null || name1 === '' ||
+                      id1 === undefined || id1 === null || id1 === '' ||
                       secret1 === undefined || secret1 === null || secret1 === '' ||
                       token1 === undefined || token1 === null || token1 === '')||
-                    (id2 === undefined || id2 === null || id2 === '' ||
+                    (name2 === undefined || name2 === null || name2 === '' ||
+                      id2 === undefined || id2 === null || id2 === '' ||
                       secret2 === undefined || secret2 === null || secret2 === '' ||
                       token2 === undefined || token2 === null || token2 === ''))
           {
+            $('#line1 p').text(name1);
+            $('#line2 p').text(name2);
             socket.emit('update bot', [
               {
                 channelId: id1,
@@ -803,6 +315,8 @@ function searchBar(){
             }, 10000);
 
           } else {
+            $('#line1 p').text(name1);
+            $('#line2 p').text(name2);
             socket.emit('update bot', [
               {
                 channelId: id1,
@@ -824,23 +338,26 @@ function searchBar(){
       }
     }, 10);
 
-    setTimeout(() => { // 載入群組名稱
-      loadChatGroupName();
-    }, 1000)
+    // setTimeout(() => { // 載入群組名稱
+    //   loadChatGroupName();
+    // }, 1000);
   }
 
   socket.on('response line channel', (data) => {
-    $('.tablinks_area#Line_1_room').attr('rel', data.chanId_1);
-    $('.tablinks_area#Line_2_room').attr('rel', data.chanId_2);
-    // console.log("Line channel loading complete!");
-
-    // console.log("Start loading history message...");
-    socket.emit('get json from back');
+    // console.log(data.chanId_1, data.chanId_2);
+    if(data.chanId_1 === '' && data.chanId_2 === ''){
+      $('.error').text('群組名稱沒有設定，請於設定頁面更改。');
+    } else {
+      $('#Line_1').attr('rel', data.chanId_1);
+      $('#Line_2').attr('rel', data.chanId_2);
+      room_list.push(data.chanId_1);
+      room_list.push(data.chanId_2);
+      socket.emit('get json from back');
+    }
   })
 
   socket.on('push json to front', (data) => {
     //www emit data of history msg
-    // console.log("push json to front");
     for (i in data) pushMsg(data[i]); //one user do function one time
     setTimeout(function() {
       for (i in data) pushInfo(data[i]);
@@ -848,8 +365,6 @@ function searchBar(){
     sortUsers("recentTime", sortRecentBool, function(a, b) {
       return a < b;
     }); //sort users by recent time
-    closeIdleRoomTry();
-    // $('.tablinks_head').text('Loading complete'); //origin text is "network loading"
   });
 
   socket.on('push user ticket', (data) => {
@@ -877,8 +392,10 @@ function searchBar(){
   });
 
   socket.on('upload history msg from back', data => {
-    console.log('get uploaded history msg');
-    let msgContent = $('#' + data.userId + '-content' + '[rel="'+data.channelId+'"]');
+    // console.log(data);
+    // console.log('get uploaded history msg');
+    let msgContent = $('#' + data.userId + '-content' + '[rel="'+data.roomId+'"]');
+    // console.log(msgContent);
 
     let origin_height = msgContent[0].scrollHeight;
     msgContent.find('.message:first').remove();
@@ -895,8 +412,7 @@ function searchBar(){
   });
 
   socket.on('new message', (data) => {
-    console.log("receive socket! data = ");
-    console.log(data);
+    // console.log("receive socket! data = ");
     // console.log(data);
     // if www push "new message"
     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
@@ -1123,11 +639,11 @@ function searchBar(){
   });
 
   // =====================Colman=========================== //
-  socket.on('push inside chat', (data) => {
-    console.log("YO");
-    console.log(data);
-    for( let i in data ) pushInsideMsg(data[i]);
-  });
+  // socket.on('push inside chat', (data) => {
+  //   // console.log("YO");
+  //   console.log(data);
+  //   for( let i in data ) pushInsideMsg(data[i]);
+  // });
 
   $(document).on('click', '.inside-tablinks', function() {
     let id = $(this).attr('id');
@@ -1141,16 +657,14 @@ function searchBar(){
     $('#'+id).show().siblings().hide();   //show it, and close others
     $('#'+target+'-content' + "[rel='"+rel+"']").scrollTop($('#'+target+'-content' + "[rel='"+rel+"']")[0].scrollHeight);   //scroll to down
 
-    console.log('click tablink executed');
+    // console.log('click tablink executed');
   });
 
   // inner functions
   function pushMsg(data) {
-    // console.log(data);
     // one user do function one time; data structure see file's end
     let historyMsg = data.Messages;
     let profile = data.Profile;
-    // console.log(profile);
 
     let historyMsgStr = "";
     if (data.position != 0) {
@@ -1162,97 +676,220 @@ function searchBar(){
     }
 
     historyMsgStr += historyMsg_to_Str(historyMsg);
-    historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>" +
-    "-即時訊息-" +
-    " </italic></strong></p>"; //history message string tail
     // end of history message
 
     $('#user-rooms').append('<option value="' + profile.userId + '">' + profile.nickname + '</option>'); //new a option in select bar
     let lastMsg = historyMsg[historyMsg.length - 1];
     // let font_weight = profile.unRead ? "bold" : "normal"; //if last msg is by user, then assume the msg is unread by agent
     let font_weight = "normal";
-    let lastMsgStr = '<br><div id="msg" style="font-weight: ' + font_weight + '; font-size:8px; margin-left:12px;">' + lastMsg.message + "</div>";
-    let msgTime = '<div style="float:right;font-size:8px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</div>';
-    // display last message at tablinks
-
-    if(profile.channelId === undefined || profile.channelId === "FB"){
-      // console.log('to fb');
-      if( profile.channelId === undefined ) profile.channelId = "FB";
-      // name_list.push(profile.channelId+profile.userId); //make a name list of all chated user
-      $('#fb-clients').append(
-        "<b><button style='text-align:left' class='tablinks'" +
-        "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
-        "data-avgTime='" + profile.avgChat + "' " +
-        "data-totalTime='" + profile.totalChat + "' " +
-        "data-chatTimeCount='" + profile.chatTimeCount + "' " +
-        "data-firstTime='" + profile.firstChat + "' " +
-        "data-recentTime='" + lastMsg.time + "' >"+
-        "<div class='img_holder'>" +
-        "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='msg_holder'>" +
-        profile.nickname +
-        lastMsgStr +
-        "</div>" +
-        "<div class='agentImg_holder'>" +
-        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
-        "</button></b>"
-      ); //new a tablinks
-    } else if(profile.channelId === $('#Line_1_room').attr('rel')){
-      // console.log('to room 1');
-      $('#line1-clients').append(
-        "<b><button style='text-align:left' class='tablinks'" +
-        "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
-        "data-avgTime='" + profile.avgChat + "' " +
-        "data-totalTime='" + profile.totalChat + "' " +
-        "data-chatTimeCount='" + profile.chatTimeCount + "' " +
-        "data-firstTime='" + profile.firstChat + "' " +
-        "data-recentTime='" + lastMsg.time + "' >"+
-        "<div class='img_holder'>" +
-        "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='msg_holder'>" +
-        profile.nickname +
-        lastMsgStr +
-        "</div>" +
-        "<div class='agentImg_holder'>" +
-        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
-        "</button></b>"
-      ); //new a tablinks
-    } else if(profile.channelId === $('#Line_2_room').attr('rel')){
-
-      // console.log('to room 2');
-      $('#line2-clients').append(
-        "<b><button style='text-align:left' class='tablinks'" +
-        "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
-        "data-avgTime='" + profile.avgChat + "' " +
-        "data-totalTime='" + profile.totalChat + "' " +
-        "data-chatTimeCount='" + profile.chatTimeCount + "' " +
-        "data-firstTime='" + profile.firstChat + "' " +
-        "data-recentTime='" + lastMsg.time + "' >"+
-        "<div class='img_holder'>" +
-        "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='msg_holder'>" +
-        profile.nickname +
-        lastMsgStr +
-        "</div>" +
-        "<div class='agentImg_holder'>" +
-        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
-        "</div>" +
-        "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
-        "</button></b>"
-      ); //new a tablinks
+    let lastMsgStr;
+    if(lastMsg.message.startsWith('<a')){
+      lastMsgStr = '<br><div id="msg" style="font-weight: ' + font_weight + '; font-size:8px; margin-left:12px;">' + '客戶傳送檔案' + "</div>";
     } else {
-      // console.log('not found');
-      // console.log("profile.channelId: " + profile.channelId);
+      lastMsgStr = '<br><div id="msg" style="font-weight: ' + font_weight + '; font-size:8px; margin-left:12px;">' + loadMessageInDisplayClient(lastMsg.message) + "</div>";
     }
 
-    if(profile.channelId === undefined || profile.channelId == "FB"){
+    // console.log(lastMsg.message.length);
+
+    let msgTime = '<div style="float:right;font-size:8px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</div>';
+
+    if(profile.VIP等級 !== undefined){ // VIP優先放進 VIP欄位
+      if( profile.channelId === undefined ){
+        profile.channelId = "FB";
+        // fbCount += profile.unRead;
+      }
+      if(profile.unRead > 0){
+        $('#vip_list').prepend(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      } else {
+        $('#vip_list').prepend(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      }
+
+    } else if(profile.channelId === undefined || profile.channelId === "FB"){
+      if( profile.channelId === undefined ){
+        profile.channelId = "FB";
+        // fbCount += profile.unRead;
+      }
+      if(profile.unRead > 0){
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      } else {
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      }
+    } else if(profile.channelId === room_list[0]){
+      if(profile.unRead > 0){
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      } else {
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      }
+    } else if(profile.channelId === room_list[1]){
+      if(profile.unRead > 0){
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      } else {
+        $('#clients').append(
+          "<b><button style='text-align:left' class='tablinks'" +
+          "name='" + profile.userId + "' rel='" + profile.channelId + "'" +
+          "data-avgTime='" + profile.avgChat + "' " +
+          "data-totalTime='" + profile.totalChat + "' " +
+          "data-chatTimeCount='" + profile.chatTimeCount + "' " +
+          "data-firstTime='" + profile.firstChat + "' " +
+          "data-recentTime='" + lastMsg.time + "' >"+
+          "<div class='img_holder'>" +
+          "<img src='" + profile.photo + "' alt='無法顯示相片'>" +
+          "</div>" +
+          "<div class='msg_holder'>" +
+          "<span class='client_name'>" + profile.nickname + "</span>" +
+          lastMsgStr +
+          "</div>" +
+          // "<div class='agentImg_holder'>" +
+          // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+          // "</div>" +
+          "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
+          "</button></b>"
+        ); //new a tablinks
+      }
+    }
+
+    // 依照不同的channel ID做分類
+    if(profile.channelId === undefined || profile.channelId === "FB"){
       canvas.append( //push string into canvas
         '<div id="' + profile.userId + '" rel="FB" class="tabcontent"style="display: none;">' +
         '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
@@ -1260,7 +897,15 @@ function searchBar(){
         historyMsgStr + "</div>" +
         "</div>"
       ); // close append
-    } else {
+    } else if(profile.channelId === room_list[0]){
+      canvas.append( //push string into canvas
+        '<div id="' + profile.userId + '" rel="'+profile.channelId+'" class="tabcontent"style="display: none;">' +
+        '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
+        "<div id='" + profile.userId + "-content' rel='"+profile.channelId+"' class='messagePanel' data-position='" + data.position + "'>" +
+        historyMsgStr + "</div>" +
+        "</div>"
+      ); // close append
+    } else if(profile.channelId === room_list[1]){
       canvas.append( //push string into canvas
         '<div id="' + profile.userId + '" rel="'+profile.channelId+'" class="tabcontent"style="display: none;">' +
         '<span class="topright">x&nbsp;&nbsp;&nbsp</span>' +
@@ -1284,7 +929,6 @@ function searchBar(){
 
     name_list.push(profile.channelId+profile.userId); //make a name list of all chated user
     userProfiles[profile.userId] = profile;
-    // console.log(name_list);
   } // end of pushMsg
 
   function agentName() {
@@ -1320,8 +964,9 @@ function searchBar(){
   function displayMessage(data, channelId) {
     // update canvas
     // console.log(data);
-    console.log(channelId+data.id);
+    // console.log(channelId+data.id);
     if (name_list.indexOf(channelId+data.id) !== -1) { //if its chated user
+      // console.log('returned user');
       let str;
 
       let designated_chat_room_msg_time = $("#" + data.id + "-content" + "[rel='"+channelId+"']").find(".message:last").attr('rel');
@@ -1359,25 +1004,30 @@ function searchBar(){
     //update tablinks
     let font_weight = data.owner == "user" ? "bold" : "normal"; //if msg is by user, mark it unread
 
-    console.log(name_list);
-    console.log(name_list.indexOf(channelId+data.id) > -1);
+    // console.log(name_list);
+    // console.log(name_list.indexOf(channelId+data.id) > -1);
     if (name_list.indexOf(data.channelId+data.id) > -1) {
-      let target = $('.tablinks_area[rel="'+channelId+'"]').find(".tablinks[name='" + data.id + "'][rel='"+channelId+"']");
-      target.find("#msg").html(toTimeStr(data.time) + data.message).css("font-weight", font_weight); // 未讀訊息字體變大
+      let target = $('.tablinks_area').find(".tablinks[name='" + data.id + "'][rel='"+channelId+"']");
+      // console.log(target);
+      // console.log(data.message);
+      if(data.message.startsWith('<a')){ // 判斷客戶傳送的是檔案還是文字
+        target.find("#msg").html(toTimeStr(data.time) + '客戶傳送檔案').css("font-weight", font_weight); // 未讀訊息字體變大
+      } else {
+        target.find("#msg").html(toTimeStr(data.time) + "<span class='client_name'>" + loadMessageInDisplayClient(data.message) + "</span>").css("font-weight", font_weight); // 未讀訊息字體變大
+      }
       target.find('.unread_msg').html(data.unRead).css("display", "block"); // 未讀訊息數顯示出來
       target.attr("data-recentTime", data.time);
       // update tablnks's last msg
       // console.log('data.unRead on line 400');
       // console.log(data.unRead);
       if (data.unRead == 0 || data.unRead == false || data.unRead == 'undefined') {
-        console.log('im here');
         target.find('.unread_msg').html(data.unRead).css("display", "none");
       }
       n++;
 
       let ele = target.parents('b'); //buttons to b
       ele.remove();
-       $('.tablinks_area[rel="'+channelId+'"]>.list-group:first').prepend(ele);
+       $('.tablinks_area>#clients').prepend(ele);
     }
     else { //new user, make a tablinks
       // pictureUrl
@@ -1389,14 +1039,13 @@ function searchBar(){
         "<img src='" + data.pictureUrl + "' alt='無法顯示相片'>" +
         "</div>" +
         "<div class='msg_holder'>" +
-        data.name +
-        "<br />" +
+        "<span class='client_name'>" + data.name + "</span>" +
         data.message +
         "</div>" +
         "<div class='unread_msg'>" + data.unRead + "</div>" +
-        "<div class='agentImg_holder'>" +
-        "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
-        "</div>" +
+        // "<div class='agentImg_holder'>" +
+        // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
+        // "</div>" +
         "</button></b>"
       );
 
@@ -1523,8 +1172,8 @@ function searchBar(){
         '<thead>'+
         '<tr>'+
         '<th> ID </th>'+
-        '<th> 客戶姓名 </th>'+
-        '<th> 內容 </th>'+
+        '<th> 姓名 </th>'+
+        '<th hidden> 內容 </th>'+
         '<th> 狀態 </th>'+
         '<th> 優先 </th>'+
         '<th> 到期 </th>'+
@@ -1540,21 +1189,24 @@ function searchBar(){
         '</div>' +
         '</div>'
       );
+
     }
   } // end of displayClient
 
   function clickUserTablink() {
-    console.log('click tablink executed');
-    // 把未讀訊息數歸零
-    let userId = $(this).attr('name');   
-    let roomId = $(this).attr('rel');
-    let username = $(this).find('.msg_holder').text();
+    let userId = $(this).attr('name');
+    let roomId = $(this).attr('rel'); // channelId
     let selectedId = [];
     let outerInfo, outerId, innerInfo;
-    // console.log(userId, roomId);
-
-    $('#form-uid').val(userId);
-
+    // 先取得未讀訊息數量
+    // let unread_count = $(this).find('.unread_msg').text();
+    // let new_count = fbCount - unread_count;
+    // if(new_count > 0){
+    //   $('#FB>.unread_msg_count').text(new_count);
+    // } else {
+    //   $('#FB>.unread_msg_count').hide();
+    // }
+    // 把未讀訊息數歸零
     database.ref('chats/Data').once('value', outersnap => {
       outerInfo = outersnap.val();
       outerId = Object.keys(outerInfo);
@@ -1570,9 +1222,8 @@ function searchBar(){
         });
       }
     });
-    // setTimeout(() => {
-    //
-    // }, 2000)
+
+    $(this).find('.unread_msg').text('0');
 
     loadTable(userId);
 
@@ -1593,14 +1244,14 @@ function searchBar(){
     let targetId = $(this).attr('name'); //find the message id
 
     $('#user-rooms').val(targetId); //change value in select bar
-    $("#" + targetId + "-info" + "[rel='"+targetRel+"-info']").show().siblings().hide();
+    $("#" + targetId + "-info" + "[rel='"+targetRel+"-info']").attr("style", "display:block").siblings().hide();
 
     $("#" + targetId + "[rel='"+targetRel+"']").show().siblings().hide(); //show it, and close others
     $("#" + targetId + "[rel='"+targetRel+"']"+'>#' + targetId + '-content' + '[rel="'+targetRel+'"]').scrollTop($('#' + targetId + '-content' + '[rel="'+targetRel+'"]')[0].scrollHeight); //scroll to down
 
     let profile = userProfiles[targetId];
-    // console.log(profile);
     $('#prof_nick').text(profile.nickname);
+
   } // end of clickUserTablink
 
   function toggleInfoPanel() {
@@ -1625,9 +1276,9 @@ function searchBar(){
 
   function clickSpan() {
     let userId = $(this).parent().hide().attr("id");
-    $(".tablinks[rel='" + userId + "'] ").removeAttr('id').css("background-color", ""); //clean tablinks color
+    let room = $(this).parent().hide().attr("rel");
+    $(".tablinks[name='" + userId + "'][rel='"+room+"']").removeAttr('id').css("background-color", ""); //clean tablinks color
   } // end of clickSpan
-
 
   function loadPanelProfile(profile) {
     for (let i in profile.email) {
@@ -1689,8 +1340,7 @@ function searchBar(){
       '<thead>'+
       '<tr>'+
       '<th> ID </th>'+
-      '<th> 客戶姓名 </th>'+
-      '<th> 內容 </th>'+
+      '<th> 姓名 </th>'+
       '<th> 狀態 </th>'+
       '<th> 優先 </th>'+
       '<th> 到期 </th>'+
@@ -1701,7 +1351,7 @@ function searchBar(){
       '<tbody class="ticket-content">'+
       '</tbody>'+
       '</table>'+
-      '</div>'+      
+      '</div>'+
       '</div>' +
       '</div>' +
       '</div>'
@@ -1715,13 +1365,14 @@ function searchBar(){
       if (head < 0) head = 0;
       let request = {
         userId: ele.parent().attr('id'),
+        roomId: ele.parent().attr('rel'),
         head: head,
         tail: tail
       };
       if (head == 0) ele.off('scroll');
       ele.attr('data-position', head);
       socket.emit('upload history msg from front', request);
-      console.log('upload! head = ' + head + ', tail = ' + tail);
+      // console.log('upload! head = ' + head + ', tail = ' + tail);
     }
   } // end of detecetScrollTop
 
@@ -1747,46 +1398,17 @@ function searchBar(){
     });
   } // end of loadChatRoom
 
-  function submitMemoAtt(e){
-    e.preventDefault();
-    var file_path = $('#myFile').val();
-    var ticket_id = $(".data_id").text(); //把memo存到該客戶的第一張ticket裡
-    $('.ticket_memo').prepend('<div><p>檔案'+file_path+'已上傳，重新整理瀏覽檔案</p></div>');
-    var ticket_memo_att = '{ "body": "'+file_path+'", "private" : false, "attachments[]": "@'+file_path+'"  }'
-        console.log(ticket_id[0]);
-        console.log(ticket_id[1]);
-
-
-    $.ajax(
-      {
-        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id[0]+ticket_id[1]+"/notes",
-        type: 'POST',
-        contentType: "multipart/form-data",
-        dataType: "json",
-        headers: {
-          "Authorization": "Basic " + btoa(api_key + ":x")
-        },
-        data: ticket_memo_att,
-        success: function(data, textStatus, jqXHR) {
-        },
-        error: function(jqXHR, tranStatus) {
-          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
-          response_text = jqXHR.responseText;
-          console.log(response_text);
-        }
-      }
-    );
-  }
-
   function submitMemo(e){
     e.preventDefault();
-    var ticket_id = $(this).parent().parent().siblings().find('#infoCanvas').find('.ticket-content').find('.data_id').text(); //把memo存到該客戶的第一張ticket裡
+    var ticket_id = $(this).parent().parent().siblings().find('#infoCanvas').find('[style="display:block"]').find('.data_id').text(); //把memo存到該客戶的第一張ticket裡
+    // console.log(ticket_id);
     $('.ticket_memo').prepend('<div class="memo_content"><p>'+$('#message_memo').val()+'</p></div>');
     var ticket_memo = '{ "body": "'+$('#message_memo').val()+'", "private" : false }';
 
     $.ajax(
       {
-        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id[0]+ticket_id[1]+"/notes",
+        // url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id[0]+ticket_id[1]+"/notes",
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id+"/notes",
         type: 'POST',
         contentType: "application/json",
         dataType: "json",
@@ -1809,19 +1431,49 @@ function searchBar(){
 
   function submitMsg(e){
     e.preventDefault();
-    // console.log($(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel'));
-    // console.log($(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'));
-    let sendObj = {
-      id: "",
-      msg: messageInput.val(),
-      msgtime: Date.now(),
-      room: $(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
-      channelId: $(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
-    };
-    console.log(sendObj);
-    sendObj.id = $("#user-rooms option:selected").val();
-    socket.emit('send message', sendObj); //socket.emit
-    messageInput.val('');
+    let email = auth.currentUser.email;
+    // console.log($(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')); // 測試
+    // console.log($(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id')); // 測試
+    let room = $(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id');
+    let channelId = $(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel');
+    let userId = $(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('id');
+    if(room !== undefined || channelId !== undefined){
+      let sendObj = {
+        id: "",
+        msg: messageInput.val(),
+        msgtime: Date.now(),
+        room: room,
+        channelId: channelId
+        // room: $(this).parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'), // 聊天室
+        // channelId: $(this).parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
+      };
+      // 新增功能：把最後送出訊息的客服人員的編號放在客戶的Profile裡面
+      database.ref('chats/Data').once('value', outsnap => {
+        let outInfo = outsnap.val();
+        let outId = Object.keys(outInfo);
+        // console.log(outId);
+        for(let i in outId){
+          database.ref('chats/Data/' + outId[i] + '/Profile').once('value', innsnap => {
+            let innInfo = innsnap.val();
+            // console.log(innInfo.channelId);
+            if(innInfo.channelId === undefined){
+            } else if(innInfo.channelId === channelId && innInfo.userId === userId){
+              database.ref('chats/Data/' + outId[i] + '/Profile').update({
+                "最後聊天的客服人員": email
+              });
+            }
+          });
+        }
+      });
+      sendObj.id = $("#user-rooms option:selected").val(); // select tag選到的值
+      socket.emit('send message', sendObj); //emit到server (www)
+      messageInput.val('');
+    } else {
+      console.log('either room id or channel id is undefined');
+      console.log('room: ' + room);
+      console.log('channel id: ' + channelId);
+    }
+
   } // end of submitMsg
 
   function submitProfile() {
@@ -1945,62 +1597,73 @@ function searchBar(){
     }
   } // end of initialFilterWay
 
+  function upImg() {
+    var imgAtt = '/image ' + $('#attImgFill').val();
+    // $('#message').val('<img src="' + imgAtt);
+    let sendObj = {
+      id: "",
+      msg: imgAtt,
+      msgtime: Date.now(),
+      room: $(this).parent().parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
+    };
+    sendObj.id = $("#user-rooms option:selected").val();
+    if(sendObj.room !== undefined && sendObj.room !== '' && sendObj.channelId !== undefined && sendObj.channelId !== ''){
+      socket.emit('send message', sendObj); //socket.emit
+    } else {
+      console.log('room ID or channel ID is undefined, please select a room');
+    }
+    // console.log(sendObj.room);
+    $('#attImgFill').val('');
+  } // end of upImg
+
+  function upVid() {
+    var vidAtt = '/video ' + $('#attVidFill').val();
+    let sendObj = {
+      id: "",
+      msg: vidAtt,
+      msgtime: Date.now(),
+      room: $(this).parent().parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
+    };
+    sendObj.id = $("#user-rooms option:selected").val();
+    // socket.emit('send message', sendObj); //socket.emit
+    if(sendObj.room !== undefined && sendObj.room !== '' && sendObj.channelId !== undefined && sendObj.channelId !== ''){
+      socket.emit('send message', sendObj); //socket.emit
+    } else {
+      console.log('room ID or channel ID is undefined, please select a room');
+    }
+
+    $('#attVidFill').val('');
+  } // end of upVid
+
+  function upAud() {
+    var audAtt = '/audio ' + $('#attAudFill').val();
+    let sendObj = {
+      id: "",
+      msg: audAtt,
+      msgtime: Date.now(),
+      room: $(this).parent().parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
+    };
+    sendObj.id = $("#user-rooms option:selected").val();
+    // socket.emit('send message', sendObj); //socket.emit
+    if(sendObj.room !== undefined && sendObj.room !== '' && sendObj.channelId !== undefined && sendObj.channelId !== ''){
+      socket.emit('send message', sendObj); //socket.emit
+    } else {
+      console.log('room ID or channel ID is undefined, please select a room');
+    }
+    $('#attAudFill').val('');
+  } // upAud
+
 }); //document ready close tag
 
-
-
-
-function groupSubmit() {
-  let userId = auth.currentUser.uid;
-  let thegroup = $(this).siblings('.myText').attr('id');
-  let groupname = $(this).siblings('input').val();
-  if (confirm('確認更改群組名稱為「'+thegroup+'」？')){ // 暫時解
-    if(thegroup === 'group1'){
-      database.ref('users/' + userId).update({
-        group1: groupname
-      });
-
-    } else if(thegroup === 'group2'){
-      database.ref('users/' + userId).update({
-        group2: groupname
-      });
-    } else if(thegroup === 'fbgroup'){
-      database.ref('users/' + userId).update({
-        fbgroup: groupname
-      });
-    } else {
-      console.log('update fail');
-    }
-    $('#'+thegroup).text(groupname)
-    $(this).siblings().hide();
-    $(this).hide();
-    $(this).siblings('.software_icon').show();
-    $(this).siblings('.myText').show();
-    alert('群組名稱已修改為'+thegroup);
-  }
-}//end groupSubmit
-
-function closeIdleRoomTry() {
-  let early_time = Date.now() - 15 * 60 * 1000; //15min before now
-  let lastForFb = $('#fb-clients').find('.tablinks:last'); //last user in online room
-  let lastForLine1 = $('#line1-clients').find('.tablinks:last'); //last user in online room
-  let lastforLine2 = $('#line2-clients').find('.tablinks:last'); //last user in online room
-  while (lastForFb && lastForFb.attr('data-recentTime') < early_time) { //while last of online user should push into idle room
-    lastForFb.parents('b').remove();
-    $('#fb-idle-roomes').prepend(lastForFb.parents('b'));
-    lastForFb = $('#fb-clients').find('.tablinks:last');
-  }
-  while ( lastForLine1 && lastForLine1.attr('data-recentTime') < early_time ) { //while last of online user should push into idle room
-    lastForLine1.parents('b').remove();
-    $('#line1-idle-roomes').prepend(lastForLine1.parents('b'))
-    lastForLine1 = $('#line1-clients').find('.tablinks:last');
-  }
-  while ( lastforLine2 && lastforLine2.attr('data-recentTime') < early_time ) { //while last of online user should push into idle room
-    lastforLine2.parents('b').remove();
-    $('#line2-idle-roomes').prepend(lastforLine2.parents('b'));
-    lastforLine2 = $('#line2-clients').find('.tablinks:last');
-  }
-}
+function cancelSubmit(){
+  $(this).hide();
+  $(this).siblings('#save-group-btn').hide();
+  $(this).siblings('[type="text"]').hide();
+  $(this).siblings('.myText').show();
+} // end of cancelSubmit
 
 function closeIdleRoom() {
   // declare current datetime and parse into ms
@@ -2044,10 +1707,11 @@ function closeIdleRoom() {
 
 function displayAll() {
   $('.tablinks').each(function() {
-    let id = $(this).attr('id');
+    let id = $(this).attr('name');
     let rel = $(this).attr('rel');
-    $("div #" + id + "-content" + "[rel='"+rel+"']" + " .message").show().off("click");
-    $(this).css("color", "");
+    $(this).find('#msg').text($("div #" + id + "-content" + "[rel='"+rel+"']" + " .message:last").find('.content').text().trim()).css('color', 'black');
+    $("div #" + id + "-content" + "[rel='"+rel+"']" + " .message").find('.content').css({"color": "black", "background-color": "lightgrey"});
+    $(this).find('.client_name').css({"color": "black", "background-color": ""});
   });
 } // end of displayAll
 
@@ -2121,7 +1785,7 @@ function displayDate(date) {
   min = gmt8.getMinutes(),
   sec = gmt8.getSeconds();
 
-  return yy + "/" + mm + "/" + dd + " " + hr + ":" + min + ":" + sec;
+  return yy + "/" + mm + "/" + dd + " " + hr + ":" + min;
 } // end of displayDate
 
 function sortRecentChatTime() {
@@ -2302,29 +1966,29 @@ function changeProfile(edit) {
   }
 } // end of changeProfile
 
-function pushInsideMsg(data) {
-  let messages = data.Messages;
-  let profile = data.Profile;
-
-  let historyMsgStr = NO_HISTORY_MSG;
-  historyMsgStr += historyMsg_to_Str(messages);
-  historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
-  + "-即時訊息-"
-  +" </italic></strong></p>";   //history message string tail
-
-  $('#inside-group-canvas').append(    //push string into canvas
-    '<div id="' + profile.roomId + '" class="tabcontent" style="display: none;">'
-    + '<span class="topright">x&nbsp;&nbsp;&nbsp</span>'
-    + "<div id='" + profile.roomId + "-content' rel='"+profile.channelId+"' class='messagePanel' >"
-    + historyMsgStr + "</div>"
-    + "</div>"
-  );// close append
-
-  $('#inside-group-container').append('<div class="inside-tablinks-container"><button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button></div>');
-
-  // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
-  // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
-}
+// function pushInsideMsg(data) {
+//   let messages = data.Messages;
+//   let profile = data.Profile;
+//
+//   let historyMsgStr = NO_HISTORY_MSG;
+//   historyMsgStr += historyMsg_to_Str(messages);
+//   historyMsgStr += "<p class='message-day' style='text-align: center'><strong><italic>"
+//   + "-即時訊息-"
+//   +" </italic></strong></p>";   //history message string tail
+//
+//   $('#inside-group-canvas').append(    //push string into canvas
+//     '<div id="' + profile.roomId + '" class="tabcontent" style="display: none;">'
+//     + '<span class="topright">x&nbsp;&nbsp;&nbsp</span>'
+//     + "<div id='" + profile.roomId + "-content' rel='"+profile.channelId+"' class='messagePanel' >"
+//     + historyMsgStr + "</div>"
+//     + "</div>"
+//   );// close append
+//
+//   $('#inside-group-container').append('<div class="inside-tablinks-container"><button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button></div>');
+//
+//   // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
+//   // $('#inside-group-container').append('<button class="inside-tablinks" rel="'+profile.roomId+'">'+profile.roomName+'</button>');
+// }
 
 // =====================Colman=========================== //
 function historyMsg_to_Str(messages) {
@@ -2354,25 +2018,8 @@ function historyMsg_to_Str(messages) {
   return returnStr;
 } // end of historyMsg_to_Str
 
-function upImg() {
-  var imgAtt = '/image ' + $('#attImgFill').val();
-  // $('#message').val('<img src="' + imgAtt);
-  socket.emit('send message', sendObj);
-
-} // end of upImg
-
-function upVid() {
-  var vidAtt = $('#attVidFill').val();
-  $('#message').val('<video controls><source src="' + vidAtt);
-} // end of upVid
-
-function upAud() {
-  var audAtt = $('#attAudFill').val();
-  $('#message').val('<audio controls><source src="' + audAtt);
-} // upAud
-
 function toAgentStr(msg, name, time) {
-  if (msg.startsWith("<img")) {
+  if (msg.startsWith("<a")) {
     return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
   } else {
     return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
@@ -2380,7 +2027,7 @@ function toAgentStr(msg, name, time) {
 } // end of toAgentStr
 
 function toUserStr(msg, name, time) {
-  if (msg.startsWith("<img")) {
+  if (msg.startsWith("<a")) {
     return '<p style="line-height:250%" class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + ': </span></strong><span class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
   } else {
     return '<p style="line-height:250%" class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + ': </span></strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
@@ -2441,3 +2088,328 @@ function openTitle() {
   $(this).hide();
   $(this).siblings().show();
 } // end of openTitle
+
+function loadTable(userId){
+  $('.ticket-content').empty();
+  $('.ticket_memo').empty();
+  var ticket_memo_list = [];
+  $.ajax(
+    {
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets?include=requester",
+      type: 'GET',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+        "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      success: function(data, textStatus, jqXHR) {
+        for(let i=0;i < data.length;i++){
+          if (data[i].subject == userId){
+            ticketInfo = data;
+            $('.ticket-content').prepend(
+              '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
+              '<td class="data_id" style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
+              '<td>' + data[i].requester.name + '</td>' +
+              '<td hidden>' + data[i].description + '</td>' +
+              '<td class="status">' + statusNumberToText(data[i].status) + '</td>' +
+              '<td class="priority">' + priorityNumberToText(data[i].priority) + '</td>' +
+              '<td>'+displayDate(data[i].due_by)+'</td>' +
+              '<td>'+ dueDate(data[i].due_by)+'</td>' +
+              '</tr>'
+            );
+            ticket_memo_list.push(String(data[i].id));
+          }
+        }
+      },
+      error: function(jqXHR, tranStatus) {
+        console.log('error');
+      }
+    }
+  );
+
+  setTimeout(function(){
+    for (var i=0; i<ticket_memo_list.length; i++){
+      $.ajax(
+        {
+          url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_memo_list[i]+"/conversations",
+          type: 'GET',
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          headers: {
+            "Authorization": "Basic " + btoa(api_key + ":x")
+          },
+          success: function(data, textStatus, jqXHR) {
+            // console.log(data);
+            for(let i=0;i < data.length;i++){
+              $('.ticket_memo').prepend('<div class="memo_content">'+data[i].body+'</div>');
+            // }
+           }
+          },
+          error: function(jqXHR, tranStatus) {
+            console.log(jqXHR);
+            console.log(tranStatus);
+            console.log('error');
+          }
+        }
+      );
+    }
+  }, 500);
+}
+
+function updateStatus() {
+  let select = $(".select"),
+      editable = $(".edit"),
+      input = $("input");
+  let name, value, json = '{' ;
+  let obj = {} ;
+  let id = $(this).attr("val") ;
+  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
+
+  input.each(function () {$(this).blur();});
+  for(let i=0;i<editable.length;i++){
+    name = editable.eq(i).parent().children("th").text().split(" ") ;
+    value = editable.eq(i).text() ;
+    json += '"'+name[0]+'":"'+value+'",';
+  }
+  for(let i=0;i<select.length;i++){
+    name = select.eq(i).parent().parent().children("th").text() ;
+    value = select.eq(i).val() ;
+    json += '"'+name+'":'+value+','
+  }
+  json += '"id":"'+id+'"}' ;
+  obj = JSON.parse(json) ;
+
+
+  客戶名 = obj.subject;
+  客戶ID = obj.客戶ID;
+  回覆人員 = obj.回覆人員;
+  優先 = parseInt(obj.優先);
+  狀態 = parseInt(obj.狀態);
+  描述 = obj.描述;
+  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期;
+  else 到期時間 = obj.到期時間即期;
+  var time_list = 到期時間.split("/");
+  var new_time=[];
+  var new_time2=[];
+  time_list.map(function(i){
+    if (!i.startsWith(0) && i.length == 1 || i.length == 10) i = '0'+i;
+    new_time.push(i);
+  });
+    new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
+    new_time.map(function(i){
+      if (i.length == 1) i = '0'+i;
+      new_time2.push(i);
+    })
+    new_time = new_time2.join(":");
+
+  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
+
+  if(confirm("確定變更表單？")) {
+    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
+    $.ajax({
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
+      type: 'PUT',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      data: obj,
+      success:  function(data, textStatus, jqXHR) {
+        alert("表單已更新");
+        setTimeout(() => {
+        location.reload();
+       }, 500)
+      },
+      error:  function(jqXHR, tranStatus) {
+        alert("表單更新失敗，請重試");
+        console.log(jqXHR.responseText)
+      }
+    });
+  }
+
+
+}
+
+function statusNumberToText(status){
+  switch(status) {
+    case 5:
+        return 'Closed';
+        break;
+    case 4:
+        return 'Resolved';
+        break;
+    case 3:
+        return 'Pending';
+        break;
+    default:
+        return 'Open';
+  }
+} // end of statusNumberToText
+
+function priorityNumberToText(priority){
+  switch(priority) {
+    case 4:
+        return 'Urgent';
+        break;
+    case 3:
+        return 'High';
+        break;
+    case 2:
+        return 'Medium';
+        break;
+    default:
+        return 'Low';
+  }
+} // end of priorityNumberToText
+
+function dueDate(day) {
+  let html = '' ;
+  let nowTime = new Date().getTime() ;
+  // console.log('this is nowTime');
+  // console.log(nowTime);
+  let dueday = Date.parse(displayDate(day)) ;
+  let hr = dueday - nowTime ;
+  hr /= 1000*60*60 ;
+  if(hr<0){
+    html = '<span class="overdue">過期</span>';
+  } else {
+    html = '<span class="non overdue">即期</span>';
+  }
+  return html ;
+} // end of dueDate
+
+function responderName(id) {
+  for(let i in agentInfo){
+    if(agentInfo[i].id == id) return agentInfo[i].contact.name ;
+  }
+  return "unassigned" ;
+}
+
+function searchBar(){
+  let content = $('.ticket-content tr');
+  let val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+  content.show().filter(function() {
+    var text1 = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+    return !~text1.indexOf(val);
+  }).hide();
+} // end of searchBar
+
+function showSelect(prop,n) {
+  // let prop = $(this).parent().children("th").text() ;
+  // alert(prop) ;
+  let html = "<select class='select'>" ;
+  if(prop == 'priority'){
+    html += "<option value="+n+">"+priorityNumberToText(n)+"</option>" ;
+    for(let i=1;i<5;i++){
+      if(i == n) continue ;
+      html += "<option value="+i+">"+priorityNumberToText(i)+"</option>" ;
+    }
+
+  }
+  else if(prop == 'status'){
+
+    html += "<option value="+n+">"+statusNumberToText(n)+"</option>" ;
+    for(let i=2;i<6;i++){
+      if(i == n) continue ;
+      html += "<option value="+i+">"+statusNumberToText(i)+"</option>" ;
+    }
+  }
+  else if(prop == 'responder'){
+    html += "<option value="+n+">"+responderName(n)+"</option>" ;
+    for(let i in agentInfo){
+      let id = agentInfo[i].id ;
+      if( id == n) continue ;
+      html += "<option value="+id+">"+responderName(id)+"</option>" ;
+    }
+  }
+  html += "</select>" ;
+  return html ;
+  // $(this).html(html);
+} // end of showSelect
+
+function moreInfo() {
+  let display ;
+  let i = $(this).attr('id');
+  let Tinfo = ticketInfo[i];
+  let Cinfo ;
+  let Ainfo ;
+
+  $("#ID_num").text(Tinfo.id) ;
+  $("#ID_num").css("background-color",priorityColor(Tinfo.priority)) ;
+
+  display =
+  '<tr>'+
+  '<th>responder</th>'+
+  '<td>'+showSelect('responder',Tinfo.responder_id)+'</td>'+
+  '</tr><tr>'+
+  '<th>priority</th>'+
+  '<td>'+showSelect('priority',Tinfo.priority)+'</td>'+
+  '</tr><tr>'+
+  '<th>status</th>'+
+  '<td>'+showSelect('status',Tinfo.status)+'</td>'+
+  '</tr><tr>'+
+  '<th>description</th>'+
+  '<td class="edit">'+Tinfo.description_text+'</td>'+
+  '</tr><tr>'+
+  '<th>due date '+dueDate(Tinfo.due_by)+'</th>'+
+  '<td class="edit">'+displayDate(Tinfo.due_by)+'</td>'+
+  '</tr><tr>'+
+  '<th>creat date</th>'+
+  '<td>'+displayDate(Tinfo.created_at)+'</td>'+
+  '</tr><tr>'+
+  '<th>last update</th>'+
+  '<td>'+displayDate(Tinfo.updated_at)+'</td>'+
+  '</tr>' ;
+
+  for(let j in contactInfo){
+    if(contactInfo[j].id == Tinfo.requester_id) {
+      Cinfo = contactInfo[j] ;
+      display +=
+      '<tr>'+
+      '<th>requester</th>'+
+      '<td>'+Cinfo.name+'</td>'+
+      '</tr><tr>'+
+      '<th>requester email</th>'+
+      '<td>'+Cinfo.email+'</td>'+
+      '</tr><tr>'+
+      '<th>requester phone</th>'+
+      '<td>'+Cinfo.phone+'</td>'+
+      '</tr>'
+      break ;
+    }
+  }
+
+  for(let j in agentInfo){
+    if(agentInfo[j].id == Tinfo.requester_id) {
+      Ainfo = agentInfo[j] ;
+      display +=
+      '<tr>'+
+      '<th>requester(<span style="color:red">agent</span>)</th>'+
+      '<td>'+Ainfo.contact.name+'</td>'+
+      '</tr><tr>'+
+      '<th>requester email</th>'+
+      '<td>'+Ainfo.contact.email+'</td>'+
+      '</tr><tr>'+
+      '<th>requester phone</th>'+
+      '<td>'+Ainfo.contact.phone+'</td>'+
+      '</tr>'
+      break ;
+    }
+  }
+
+  $(".ticket_info_content").html('') ;
+  $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority)) ;
+  $(".modal-title").text(Tinfo.subject) ;
+  $("#ticketInfo-submit").attr("val",Tinfo.id) ;
+  $(".ticket_info_content").append(display);
+} // end of moreInfo
+
+function loadMessageInDisplayClient(msg){
+  if(msg.length > 6){
+    return msg = msg.substr(0, 6) + '...';
+  } else {
+    return msg;
+  }
+}

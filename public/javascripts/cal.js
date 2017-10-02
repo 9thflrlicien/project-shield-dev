@@ -1,11 +1,4 @@
-/*
-  date store today date.
-  d store today date.
-  m store current month.
-  y store current year.
-*/
 var current_datetime = new Date();
-// console.log(date);
 var event_list;
 var userId;
 
@@ -14,7 +7,7 @@ var nowEventId = "invalid";
 
 // jQuery
 // $(document).ready(function() {
-//   // $('#details').val('');
+//
 //
 // });
 
@@ -40,7 +33,7 @@ var getAuth = setInterval( function() {
       }
     });
   }
-}, 200 );
+}, 1000 );
 
 var loadCalTable = setInterval( function() {
   console.log("loading calendar...");
@@ -57,11 +50,11 @@ var loadCalTable = setInterval( function() {
 			right: 'month,agendaWeek,agendaDay'
 		},
 
-    defaultDate: current_datetime,   //The initial date displayed when the calendar first loads.
-    editable: true,     //true allow user to edit events.
-    eventLimit: true,   // allow "more" link when too many events
-		selectable: true,   //allows a user to highlight multiple days or timeslots by clicking and dragging.
-		selectHelper: true, //whether to draw a "placeholder" event while the user is dragging.
+    defaultDate: current_datetime, //The initial date displayed when the calendar first loads.
+    editable: true,                //true allow user to edit events.
+    eventLimit: true,              // allow "more" link when too many events
+		selectable: true,              //allows a user to highlight multiple days or timeslots by clicking and dragging.
+		selectHelper: true,            //whether to draw a "placeholder" event while the user is dragging.
 
     //events is the main option for calendar.
 		events: event_list,
@@ -138,7 +131,7 @@ var loadCalTable = setInterval( function() {
 
     eventDurationEditable: true
 	});
-}, 200 );
+}, 1000 );
 
 function set_cal() {
   let keyId       = $('#keyId').text();
@@ -186,7 +179,7 @@ function set_cal() {
   }
 
   $('#myModal').modal('hide');
-};   //end on click
+}; //end of set_cal
 
 function del_cal() {
   calendar.fullCalendar('removeEvents', nowEventId );

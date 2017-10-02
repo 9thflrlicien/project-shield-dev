@@ -5,7 +5,7 @@ var agentInfo = {} ;
 var socket = io.connect();
 
 var yourdomain = 'fongyu';
-var api_key = '4qydTzwnD7xRGaTt7Hqw';
+var api_key = 'UMHU5oqRvapqkIWuOdT8';
 var ticket_content = $('.ticket-content');
 
 $(document).ready(function() {
@@ -49,7 +49,7 @@ $(document).ready(function() {
         error:  function(jqXHR, tranStatus) {
           alert("表單刪除失敗，請重試");
           console.log(jqXHR)
-      }   
+      }
       });
     } else {
     }
@@ -72,7 +72,7 @@ function loadTable(){
           ticketInfo = data;
         console.log(data[i]);
 
-          ticket_content.prepend(
+          ticket_content.append(
             '<tr id="'+i+'" class="ticket_content" data-toggle="modal" data-target="#ticketInfoModal">'+
             '<td style="border-left: 5px solid '+priorityColor(data[i].priority)+'">' + data[i].id + '</td>' +
             '<td>' + data[i].requester.name + '</td>' +
@@ -177,7 +177,6 @@ function updateStatus() {
       new_time2.push(i);
     })
     new_time = new_time2.join(":");
-    console.log(new_time);
 
   obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
 
@@ -201,7 +200,7 @@ function updateStatus() {
       error:  function(jqXHR, tranStatus) {
         alert("表單更新失敗，請重試");
         console.log(jqXHR.responseText)
-      }       
+      }
     });
   }
 
@@ -348,10 +347,13 @@ function dueDate(day) {
   hr /= 1000*60*60 ;
   // hr = Math.round(hr) ;
   // return hr ;
-  if(hr<0) html = '<span class="overdue">過期</span>' ;
-  else html = '<span class="non overdue">即期</span>' ;
+  if(hr<0){
+    html = '<span class="overdue">過期</span>';
+  } else {
+    html = '<span class="non overdue">即期</span>';
+  }
   return html ;
-}
+} // end of dueDate
 function responderName(id) {
   for(let i in agentInfo){
     if(agentInfo[i].id == id) return agentInfo[i].contact.name ;
@@ -420,48 +422,48 @@ function submitAdd(){
     let end = ISODateTimeString(dueDate)
     let userId = auth.currentUser.uid;
 
-//把事件儲存到calendar database，到期時間和ticket一樣設定三天
-    database.ref('cal-events/' + userId).push(
-        {
-        title: name+": "+description.substring(0,10)+"...",
-        start: start,
-        end: end,
-        description: description,
-        allDay: false
+    $.ajax(
+    {
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets",
+      type: 'POST',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+        "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      data: ticket_data,
+      success: function(data, textStatus, jqXHR) {
+        console.log('tickt created');
+        //把事件儲存到calendar database，到期時間和ticket一樣設定三天
+        database.ref('cal-events/' + userId).push(
+            {
+            title: name+": "+description.substring(0,10)+"...",
+            start: start,
+            end: end,
+            description: description,
+            allDay: false
+          }
+        );
+      },
+      error: function(jqXHR, tranStatus) {
+        x_request_id = jqXHR.getResponseHeader('X-Request-Id');
+        response_text = jqXHR.responseText;
+        console.log(response_text)
       }
-      );
+    }
+  );
 
-    setTimeout(function(){
-      $.ajax(
-      {
-        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets",
-        type: 'POST',
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        headers: {
-          "Authorization": "Basic " + btoa(api_key + ":x")
-        },
-        data: ticket_data,
-        success: function(data, textStatus, jqXHR) {
-        },
-        error: function(jqXHR, tranStatus) {
-          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
-          response_text = jqXHR.responseText;
-          console.log(response_text)
-        }
-      }
-    );
-    }, 2000);
 
-    $('#form-name').val('');
-    $('#form-subject').val('');
-    $('#form-email').val('');
-    $('#form-phone').val('');
-    $('#form-description').val('');
+  $('#form-name').val('');
+  $('#form-uid').val('');
+  $('#form-subject').val('');
+  $('#form-email').val('');
+  $('#form-phone').val('');
+  $('#form-description').val('');
 
-    setTimeout(() => {
-      location.href = '/ticket';
-    }, 1000000)
+    // setTimeout(() => {
+    //   location.href = '/chat';
+    // }, 5000);
   }
 
 }
@@ -556,7 +558,7 @@ function priorityNumberToText(priority){
     default:
         return 'Low';
   }
-}
+} // end of priorityNumberToText
 
 function searchBar(){
   let content = $('.ticket-content tr');
