@@ -6932,7 +6932,7 @@ io.sockets.on('connection', (socket) => {
 
   //-----------------------------cal事件提醒功能-------------------------------------------------------
   socket.on('reminder of calendar', (info) => {
-      console.log(info.nowtime+' function in!');
+      //console.log(info.nowtime+' function in!');
       //console.log('Server is checking the reminder...');
       //console.log(info.nowtime);
       admin.database().ref('cal-events/' + info.userId).once('value', snap => {
@@ -6945,25 +6945,25 @@ io.sockets.on('connection', (socket) => {
                       remind: true
                   });
                   socket.emit('pop up reminder', data[i].title);
-                  console.log('Event started');
+                  console.log('Event ' +data[i].start+ ' started');
 
                   var mailOptions = { //信件內容
                       from: '9thflr.wuyuan@gmail.com',
-                      to: data.email,
-                      subject: 'Your event "' + data.title + '" has started.',
-                      text: 'Your event "' + data.title + '" has started.'
+                      to: info.email,
+                      subject: 'Your event "' + data[i].title + '" has started.',
+                      text: 'Your event "' + data[i].title + '" has started at '+ data[i].start
                   };
                   //自動寄信function
-                  // transporter.sendMail(mailOptions, function(error, info){
-                  //   if (error) {
-                  //     console.log(error);
-                  //   } else {
-                  //     console.log('Email sent: ' + info.response);
-                  //   }
-                  //   });
+                  transporter.sendMail(mailOptions, function(error, info){
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      console.log('Email sent: ' + info.response);
+                    }
+                    });
 
                   var avoidremindagain = setTimeout(function() {
-                      console.log('Waiting for 60 seconds');
+                      console.log('Waiting for 60 seconds to set remind false');
                       admin.database().ref('cal-events/' + info.userId + '/' + i).update({
                           remind: false
                       });
@@ -6973,7 +6973,7 @@ io.sockets.on('connection', (socket) => {
 
               }
           }
-      });console.log(info.nowtime+' function out');
+      });//console.log(info.nowtime+' function out');
   });
   //------------------------------------------------------------------------------------------------------
 

@@ -50,7 +50,7 @@ var loadCalTable = setInterval( function() { //loop until loading is done
    clearInterval(loadCalTable); //end loop
 
   //reminder
-  var Reminder = setInterval(reminder,30000);
+  var Reminder = setInterval(reminder,10000);
 
   //Initialize fullCalendar.
 	calendar.fullCalendar({
@@ -206,15 +206,13 @@ function reminder(){ //事件開始時提醒
   //let nowtime = (current_datetime.getMonth()+1)+'-'+current_datetime.getDate()+'T'+current_datetime.getHours()+':'+current_datetime.getMinutes();
   let current_datetime = new Date();
   let nowtime = ISODateTimeString(current_datetime); //convertTime(current_datetime)-8hours
-  console.log(nowtime);
-  socket.emit('reminder of calendar', { //呼叫www自動寄通知信
+  console.log('nowtime= '+nowtime);
+  socket.emit('reminder of calendar', { //呼叫www的判斷function
     userId : userId,
     nowtime : nowtime,
     email : auth.currentUser.email
   });
-  socket.on('pop up reminder', (title)=> {
-    alert('Your event "'+title+'" has started.');
-  });
+
   // database.ref('cal-events/'+userId).once('value', snap =>{
   //   let data = snap.val();
   //   for(let i in data){
@@ -244,7 +242,9 @@ function reminder(){ //事件開始時提醒
   //}
 //}
 }
-
+socket.on('pop up reminder', (title)=> {
+  alert('您的事件 "'+title+'" 已經開始, 系統將對您的登入Email寄出通知信');
+});
 function ISOEndDate(d) {
   d = new Date(d);
   if( d.getHours()==0 && d.getMinutes()==0 ) {
