@@ -134,9 +134,9 @@ var loadCalTable = setInterval(function() { //loop until loading is done
         eventDrop: (event, delta, revertFunc, jsEvent, ui, view) => {
             let time_gap = delta.asMilliseconds();
             let start = Date.parse(event.start._i);
-            start = ISODateTimeString(start + time_gap);
+            start = ISODateTimeString(start + time_gap).date+'T'+ISODateTimeString(start + time_gap).time;
             let end = Date.parse(event.end._i);
-            end = ISODateTimeString(end + time_gap);
+            end = ISODateTimeString(end + time_gap).date+'T'+ISODateTimeString(end + time_gap).time;
 
             let keyId = event.keyId;
             let obj = {
@@ -210,7 +210,6 @@ function del_cal() { //確定刪除事件
 
 function reminder() { //事件開始時提醒
     console.log('Check the reminder...');
-    //let nowtime = (current_datetime.getMonth()+1)+'-'+current_datetime.getDate()+'T'+current_datetime.getHours()+':'+current_datetime.getMinutes();
     let current_datetime = new Date();
     let nowtime = ISODateTimeString(current_datetime).date + 'T' + ISODateTimeString(current_datetime).time; //convertTime(current_datetime)-8hours
     console.log('nowtime= ' + nowtime);
