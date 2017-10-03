@@ -25,7 +25,11 @@ $(document).ready(function() {
     setTimeout(loadAutoReply, 1000);
   }
 
-  var socket = io.connect();
+  // var socket = io.connect();
+  // socket.on('reply keywords to front', (data)=>{
+  //   socket.emit('send message', data);
+  //   console.log('socket emit send message from js');
+  // })
 
 });
 
@@ -109,13 +113,11 @@ $(document).ready(function() {
                 '</td>' +
               '</tr>'
         );
-            var socket = io.connect();
-            console.log('before keywords');
-            socket.emit('update keywords', [{
-              message: dataArray[i].taskName,
-              reply: dataArray[i].taskText
-            }]);
-            console.log('after key');
+            // var socket = io.connect();
+            // socket.emit('update keywords', {
+            //   message: dataArray[i].taskName,
+            //   reply: dataArray[i].taskText
+            // });
       }
     });
 }
@@ -139,7 +141,6 @@ function loadView() {
     $('#view-textinput').append(testVal.taskText); //任務內容
     $('#view-owne').append(testVal.owner); //負責人
   
-
   });
 
 }

@@ -11,15 +11,17 @@ $(document).ready(function() {
 
     $(document).on('click', '.tablinks' , clickMsg);
     $(document).on('click','#csv', noCsv);
-    $(document).on('click','#addSubKey', addSubKey);
+    // $(document).on('click','.addSubKey', addSubKey);
     $(document).on('click', '#modal-submit', modalSubmit); //新增
     $(document).on('click', '#viewBtn', loadView);
     $(document).on('click', '#editBtn', openEdit); //打開編輯modal
     $(document).on('click', '#deleBtn', deleteRow); //刪除
     $(document).on('click', '#edit-submit', modalEdit);
-    $(document).on('click', '#addbtn', addMsgCanvas);
     $(document).on('mouseover', '#nav_message', subMessage);//Message 導覽標籤 subtags
 
+  function addSubKey(){
+    $('#subKeyCanvas').prepend('<div><input class="form-control" type="text"  style="width:20%" value="" id="modal-subKey"/><span onclick="this.parentElement.remove()"> x</span></div>')
+  }
 
   function subMessage(){
     if ($('.subTag').is(':visible')){
@@ -33,6 +35,11 @@ $(document).ready(function() {
     if(window.location.pathname === '/message_keywordsreply'){
     setTimeout(loadKeywordsReply, 1000);
   }
+  var socket = io.connect();
+  socket.on('reply keywords to front', (data)=>{
+    socket.emit('send message', data);
+    console.log('socket emit send message from js');
+  })
 
 
 
@@ -68,9 +75,11 @@ $(document).ready(function() {
   function modalSubmit() {
   let d = Date.now()
   let mainKey = $('#modal-mainKey').val();
-  let subKey = $('#modal-subKey').val();
+  let subKey = $('#modal-subKey').val().split(",");
   let text = $('#textinput').val();
   let cate = $('#modal-category').val();
+  if (cate == '狀態') $('.error_msg').show();
+  else{
 
 
   writeUserData(d, auth.currentUser.uid, mainKey, subKey, text, cate, auth.currentUser.email.toString());
@@ -82,10 +91,11 @@ $(document).ready(function() {
   $('#textinput').val('');
   $('#modal-category').val('');
 
-  alert('Saved!')
+  alert('變更已儲存!')
 
 
   loadKeywordsReply();
+ }
 }
 
 
@@ -97,15 +107,10 @@ $(document).ready(function() {
     taskCate: cate,
     owner: auth.currentUser.email,
   });
-    console.log('this is cate');
-  console.log(cate);
+
 }
 
 
-  function addSubKey(){
-    $('#subKeyCanvas').append('<div><input style="width:20%" type="text" value="" id="modal-subKey">  <span onclick="this.parentElement.remove()">x</span> </div>');
-console.log('subKey added');
-}
 
   function noCsv(){
        if ($('#nocsv').is(':visible')){
@@ -141,12 +146,14 @@ console.log('subKey added');
         database.ref('message-keywordsreply/' + userId).on('value', snap => {
         let dataArray = [];
         let testVal = snap.val();
+        if (testVal == null){}
+        else{ 
         let myIds = Object.keys(testVal);
 
         for(var i=0;i < myIds.length;i++){
           dataArray.push(snap.child(myIds[i]).val());
           console.log('data in looping for append')
-          if (dataArray[i].taskCate == 'Serving'){
+          if (dataArray[i].taskCate == '開放'){
 
             $("#serving").append(
               '<tr>' +
@@ -154,21 +161,28 @@ console.log('subKey added');
                 '<td id="td">' + dataArray[i].taskMainK + '</td>' +
                 '<td id="td">' + dataArray[i].taskSubK + '</td>' +
                 '<td id="td">' + dataArray[i].taskText + '</td>' +
-                '<td id="td" style="color:red"><b>此功能尚未開通</b></td>'+
+                '<td id="td"><b>此功能尚未開通</b></td>'+
                 '<td id="td" >'+dataArray[i].taskCate+'</td>'+
                 '<td id="td">'+
-            '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit  </b></a>' +
-            '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View  </b></a>' +
-            '<a href="#" id="deleBtn"><b>Delete</b></a>' +
+            '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>編輯  </b></a>' +
+            '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>檢視  </b></a>' +
+            '<a href="#" id="deleBtn"><b>刪除</b></a>' +
                 '</td>'+
               '</tr>'
             );
 
-            // io.connect().emit('update keywords', [{
-            //   message: dataArray[i].taskMainK,
-            //   reply: dataArray[i].taskText
-            // }
-            // ]);
+             var socket = io.connect();
+            socket.emit('update keywords', {
+              message: dataArray[i].taskMainK,
+              reply: dataArray[i].taskText
+            });
+            for (var n=0; n<dataArray[i].taskSubK.length; n++){
+              socket.emit('update subKeywords', {
+                message: dataArray[i].taskSubK[n],
+                reply: dataArray[i].taskText
+              });
+            }
+
           }else{
             $("#waiting").append(
               '<tr>' +
@@ -176,22 +190,22 @@ console.log('subKey added');
                 '<td id="td">' + dataArray[i].taskMainK + '</td>' +
                 '<td id="td">' + dataArray[i].taskSubK + '</td>' +
                 '<td id="td">' + dataArray[i].taskText + '</td>' +
-                '<td id="td" style="color:red"><b>此功能尚未開通</b></td>'+
+                '<td id="td"><b>此功能尚未開通</b></td>'+
                 '<td id="td">'+dataArray[i].taskCate+'</td>'+
                 '<td id="td">'+
-            '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>Edit  </b></a>' +
-            '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>View  </b></a>' +
-            '<a href="#" id="deleBtn"><b>Delete</b></a>' +
+            '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>編輯  </b></a>' +
+            '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>檢視  </b></a>' +
+            '<a href="#" id="deleBtn"><b>刪除</b></a>' +
                 '</td>'+
               '</tr>'
         );
-
 
           }
 
 
       }
-    });
+    }
+  });
 }
 
 function loadView() {
@@ -250,10 +264,11 @@ function openEdit() {
 }
 
 function modalEdit() {
+  if (confirm('確認更改？')){
   let key = $('#edit-id').text();
   let userId = auth.currentUser.uid;
   var mainKey = $('#edit-mainK').val(); //主關鍵字
-  var subKey = $('#edit-subK').val(); //副關鍵字
+  var subKey = $('#edit-subK').val().split(","); //副關鍵字
   var text = $('#edit-taskContent').val(); //任務內容
   var cate = $('#edit-status').val(); //狀態
   var owne = $('#edit-owner').val(); //負責人
@@ -275,6 +290,8 @@ function modalEdit() {
 
   loadKeywordsReply();
   $('#editModal').modal('hide');
+  alert('已成功更新');
+}
 }
 
 
@@ -295,9 +312,12 @@ function deleteRow() {
   let userId = auth.currentUser.uid;
   // console.log(userId, key);
 
-  database.ref('message-keywordsreply/' + userId + '/' + key).remove();
+  if (confirm('確定刪除？')){
+    database.ref('message-keywordsreply/' + userId + '/' + key).remove();
+    loadKeywordsReply();
+    alert('已成功刪除');
 
-  loadKeywordsReply();
+  }
 }
 
 

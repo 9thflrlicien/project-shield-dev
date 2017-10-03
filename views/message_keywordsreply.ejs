@@ -178,173 +178,43 @@
             </div>
             <div class="modal-body">
                 <!-- Form Content -->
-                <form>
                     <div class="form-group">
-                        <label for="modal-mainKey" class="col-2 col-form-label">Enter Main Keyword:</label>
+                        <label for="modal-task-name" class="col-2 col-form-label">主關鍵字:</label>
                         <div class="col-4">
                             <input class="form-control" type="text" value="" id="modal-mainKey">
                         </div>
                     </div>
-
                     <div class="form-group">
-                        <label for="modal-subKey" class="col-2 col-form-label">Add Sub Keyword:</label>
-                        <button id="addSubKey">新增副關鍵字</button>
-                        <div class="col-4" id="subKeyCanvas"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="modal-task-name" class="col-2 col-form-label">回應訊息:</label>
-                        <table>
-                            <td style="padding:5%">
-                                <p>一次可以發送五則訊息，請選擇訊息種類</p>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn">文字</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="sticker">貼圖</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="image">圖片</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="coupon">Coupon</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="election">投票</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="promotion">宣傳</button>
-                                <button style="width:20%;margin:0.5%; padding:0.5%; float:left" id="addbtn" rel="survey">調查</button>
-                            </td>
-                            <td>
-                              <!-- <div id="MsgCanvas"></div> -->
-                            <div id="text" style="display:block; height:100px; width:400px; padding:1.5%;margin:2%">
-                            <span style="float:right" onclick="this.parentElement.remove()">X</span>
-                            <table>
-                                <tr>
-                                <th style="padding:1.5%; margin:2%; background-color: #ddd">Enter Text:</th>
-                                </tr>
-                                <tr>
-                                <td style="background-color: #ddd">
-                                <form style="padding:1%; margin:2%">
-                                <input id="textinput" style="width:400px;height:100px" />
-                                </form>
-                                </td>
-                                </tr>
-                                <tr>
-                                <th style="padding:1.5%; margin:2%; background-color: #ddd">
-                                <button style="padding:1.5%; margin:2%; class="tablinks" rel="emos">Emoji</button>
-                                </th>
-                                </tr>
-                            </table>
+                        <label for="modal-task-name" class="col-2 col-form-label">副關鍵字:<p>可設定多個關鍵字，請用 ',' 隔開，不需空格。範例：你好,哈囉,嗨</p></label>
+                        <div class="col-4">
+                            <div class="col-4" id="subKeyCanvas"></div>
+                            <input class="form-control" type="text" value="" id="modal-subKey"/>
                         </div>
-
-                            </td>
-                        </table>
                     </div>
-
                     <div class="form-group">
-                        <label for="modal-category" class="col-2 col-form-label">Status:</label>
+                        <label for="modal-category" class="col-2 col-form-label">狀態:</label>
+                        <p class="error_msg" style="color:red;display:none">請選擇狀態</p>
                         <select class="form-control" id="modal-category">
-                          <option>Staus</option>
-                          <option>Serving</option>
-                          <option>Waiting</option>
+                          <option>狀態</option>
+                          <option>開放</option>
+                          <option>草稿</option>
                         </select>
                     </div>
-
-                    <section>
-                        <!--TEXT AREA -->
-                        <div id="text" style="display:none; height:150px;width:100%; padding:1.5%;margin:2%"><span style="float:right" onclick="this.parentElement.remove()">X</span>
-                            <table>
-                                <tr>
-                                    <th style="padding:1.5%; background-color: #ddd">輸入文字:</th>
-                                </tr>
-                                <tr>
-                                    <td style="background-color: #ddd">
-                                        <form style="padding:1%">
-                                            <input id="textinput" style="width:100%;height:100px" />
-                                        </form>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th style="padding:1.5%; background-color: #ddd">
-                                        <button class="tablinks" rel="emos">Emoji</button>
-                                    </th>
-                                </tr>
-                            </table>
-
-                            <!--EMOJI PLUGINS(UNDONE) -->
-                            <div id="emos" style="display:none; position:fixed; padding:5%; background-color: lightgrey; width:100%; height:30%">
-                                <button class="tablinks" id="emojis" rel="(moonwink)"><img src="#" /></button>
-                                <button class="tablinks" id="emojis">Emoji</button>
-                                <button class="tablinks" id="emojis">Emoji</button>
-                                <button class="tablinks" id="emojis">Emoji</button>
-                                <button class="tablinks" id="emojis">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-                                <button class="tablinks" rel="Appointment">Emoji</button>
-
-                            </div>
+                    <!--TEXT AREA -->
+                    <div class="form-group">
+                        <label for="modal-text">回覆文字:  </label>
+                        <div id="text" style="display:block">
+                          <input class="form-control" type="text" value=""  id="textinput" style="width:100%;height:100px">
                         </div>
-                        <!--STICKER -->
-                        <div id="sticker" style="display:none;margin:2%;height:150px;width:100%; padding:1.5%;margin:2%">
-                            <table>
-                                <tr>
-                                    <th style="height:150px;width:80%; padding:1.5%; background-color: #ddd; color:red; border:solid white 1px">貼圖功能未開放</th>
-                                </tr>
-                                <tr>
-                                    <td style="background-color: #ddd">
-                                        <form style="padding:1%">
-                                        </form>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <!--IMAGE -->
-                        <table id="image" style="margin:2%;display:none; background-color: lightgrey; border:solid white 1px">
-                            <th style="border:solid white 1px; padding:3%">請選擇上傳圖片</th>
-                            <td style="height:200px; width:400px; padding:3%">
-                                <input type="file" />
-                            </td>
-
-                        </table>
-
-                        <!--COUPON -->
-                        <table id="coupon" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
-                            <tr>
-                                <th style="padding:1%; border:solid white 1px">Coupon內容</th>
-                                <td style="height:200px; width:400px; padding:3%; border:solid white 1px">There's no coupon currently. Please create one at....</td>
-                            </tr>
-                        </table>
-
-                        <!--ELECTION -->
-                        <table id="election" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
-                            <tr>
-                                <th style="padding:1%; border:solid white 1px">Election Content</th>
-                                <td style="height:200px; width:400px; padding:3%">There's no election currently. Please create one at....</td>
-                            </tr>
-                        </table>
-
-                        <!--PROMOTION -->
-                        <table id="promotion" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
-                            <tr>
-                                <th style="padding:1%;border:solid white 1px">Promotion Content</th>
-                                <td style="height:200px; width:400px; padding:3%">There's no promotion currently. Please create one at....</td>
-                            </tr>
-                        </table>
-
-                        <!--SURVEY -->
-                        <table id="survey" style="margin:2%;display:none;background-color: lightgrey;border:solid white 1px">
-                            <tr>
-                                <th style="padding:1%; border: solid white 1px">Survey Content</th>
-                                <td style="height:200px; width:400px; padding:3%">There's no survey currently. Please create one at....</td>
-                            </tr>
-                        </table>
-
-                    </section>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="modal-submit">Submit</button>
                     </div>
-                </form>    
-            </div><!-- end modal body -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="modal-submit">Submit</button>
+            </div>
         </div>
     </div>
-  </div>
+</div>
 
     <!-- View Modal -->
   <section>

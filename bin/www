@@ -118,20 +118,9 @@ var linebotParser = [
 ];
 var channelIds = [-1, -1];
 var keywords = [];
-var keywordsReply = [];
+var kReply = [];
 
 const io = require('socket.io').listen(server);
-
-io.sockets.on('update keywords', (data) => {
-  console.log('in update keywords');
-  keywords.push(data.message);
-  keywordsReply.push(data.reply);
-  console.log(keywords);
-  console.log(keywordsReply);
-});
-
-
-
 
 ///////////////// 接收訊息 /////////////////
 //==============FACEBOOK MESSAGE==============
@@ -368,14 +357,15 @@ function bot_on_message(event) {
     }
 
     function keywordsReply(msg){
-      for (var i; i<keywords.length; i++){
+      for (var i in keywords){
       switch(msg.trim()){
-        case keywords[i]:
-          msgObj.message = reply[i];
+        case i:
+          msgObj.msg = keywords[i];
+          msgObj.id = receiverId;
+          msgObj.room = channelId;
+          msg.msgtime = msgObj.time; 
           emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);    
-          console.log('theres are for keywords');
-          console.log(keywords[i]);
-          console.log(reply[i]);      
+          io.sockets.emit('reply keywords to front',msgObj); 
           } 
         }
       }
@@ -6321,6 +6311,22 @@ io.sockets.on('connection', (socket) => {
   //   socket.emit('push inside chat', thisAgentData);
   // });
 
+  //更新關鍵字回覆
+  socket.on('update keywords', (data) => {
+    console.log('exe update keywords')
+    keywords[data.message] = data.reply;
+    // kReply.push(data.reply);
+    console.log(keywords);
+});
+  socket.on('update subKeywords', (data) => {
+    console.log('exe update sub keywords')
+    keywords[data.message] = data.reply;
+
+    // keywords.push(data.message);
+    // kReply.push(data.reply);
+    console.log(keywords);
+});
+
   // 更新群組
   socket.on('update bot', (data) => {
     update_line_bot(data);
@@ -6602,7 +6608,7 @@ io.sockets.on('connection', (socket) => {
     }
     // 訊息傳到LINE
     if (agent_sendTo_receiver !== undefined ) { // 需要新增一個判斷式來分別出要傳訊息給哪一間聊天室
-      if(chanId === 'Line_1_room'){
+      if(chanId === '1522975413'){
         bot[0].push(agent_sendTo_receiver, message);
       } else if(chanId === 'Line_2_room') {
         console.log('send to room 2');
@@ -6716,7 +6722,7 @@ io.sockets.on('connection', (socket) => {
       }
       else {
         msgObj.message = msg;
-        if(chanId === 'Line_1_room'){
+        if(chanId === '1522975413'){
           emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
         } else if(chanId === 'Line_2_room') {
           emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
@@ -6960,7 +6966,6 @@ function send_to_firebase(obj, pictureUrl, channelId, receiverId, unRead){
   for( let prop in chatData ) {
     let data = chatData[prop];
     if( data.Profile.channelId===channelId && data.Profile.userId===receiverId) {
-      console.log("find user in database");
       let length = data.Messages.length;
       count_unread += data.Profile.unRead;
       let updateObj = {};

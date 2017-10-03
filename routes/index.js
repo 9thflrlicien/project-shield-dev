@@ -38,6 +38,13 @@ router.get('/message_autoreply', function(req, res, next) {
   res.render('message_autoreply', { title: 'keywords_reply' });
 });
 
+router.get('/message_overview', function(req, res, next) {
+  res.render('message_overview', { title: 'message_overview' });
+});
+
+router.get('/message_keywordsreply', function(req, res, next) {
+  res.render('message_keywordsreply', { title: 'message_keywordsreplya' });
+});
 //authentication
 router.get('/login', function(req, res, next) {
   res.render('login', { title: '登入' });
