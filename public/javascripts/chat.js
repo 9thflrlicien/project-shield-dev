@@ -262,6 +262,7 @@ $(document).ready(function() {
       else {
         clearInterval(timer_1);
         userId = auth.currentUser.uid;
+        loadKeywordsReply(userId);
         // console.log("userId = "+userId);
         database.ref('users/' + userId).once('value', snap => {
           // console.log(snap.val());
@@ -342,6 +343,7 @@ $(document).ready(function() {
     //   loadChatGroupName();
     // }, 1000);
   }
+
 
   socket.on('response line channel', (data) => {
     // console.log(data.chanId_1, data.chanId_2);
@@ -432,6 +434,11 @@ $(document).ready(function() {
     console.log('new user come in from www!');
     // console.log(data);
     userProfiles[data.userId] = data;
+  });
+
+  socket.on('reply keywords to front', function(data){
+    socket.emit('send message', data);
+    console.log('socket emit send message from js');
   });
 
   /*  =================================  */
@@ -2019,6 +2026,7 @@ function historyMsg_to_Str(messages) {
 } // end of historyMsg_to_Str
 
 function toAgentStr(msg, name, time) {
+  if (Array.isArray(msg)) msg.map(function(x){ msg = x})
   if (msg.startsWith("<a")) {
     return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
   } else {
@@ -2413,3 +2421,30 @@ function loadMessageInDisplayClient(msg){
     return msg;
   }
 }
+
+function loadKeywordsReply(userId){
+  database.ref('message-keywordsreply/' + userId).once('value', snap => {
+    let dataArray = snap.val();
+    setTimeout(function(){
+    for (var i in dataArray){
+          console.log(dataArray[i]);
+
+    socket.emit('update keywords', {
+      message: dataArray[i].taskMainK,
+      reply: dataArray[i].taskText
+    });
+
+    for (var n=0; n<dataArray[i].taskSubK.length; n++){
+      socket.emit('update subKeywords', {
+        message: dataArray[i].taskSubK[n],
+        reply: dataArray[i].taskText
+      });
+    }    
+   }
+}, 1000);
+
+  });
+  console.log('keywords sent to back');
+
+}
+

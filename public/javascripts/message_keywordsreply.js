@@ -35,11 +35,11 @@ $(document).ready(function() {
     if(window.location.pathname === '/message_keywordsreply'){
     setTimeout(loadKeywordsReply, 1000);
   }
-  var socket = io.connect();
-  socket.on('reply keywords to front', (data)=>{
-    socket.emit('send message', data);
-    console.log('socket emit send message from js');
-  })
+  // var socket = io.connect();
+  // socket.on('reply keywords to front', (data)=>{
+  //   socket.emit('send message', data);
+  //   console.log('socket emit send message from js');
+  // })
 
 
 
@@ -74,9 +74,9 @@ $(document).ready(function() {
 
   function modalSubmit() {
   let d = Date.now()
-  let mainKey = $('#modal-mainKey').val();
+  let mainKey = $('#modal-mainKey').val().trim();
   let subKey = $('#modal-subKey').val().split(",");
-  let text = $('#textinput').val();
+  let text = $('#textinput').val().split(",");
   let cate = $('#modal-category').val();
   if (cate == '狀態') $('.error_msg').show();
   else{
@@ -171,17 +171,18 @@ $(document).ready(function() {
               '</tr>'
             );
 
-             var socket = io.connect();
-            socket.emit('update keywords', {
-              message: dataArray[i].taskMainK,
-              reply: dataArray[i].taskText
-            });
-            for (var n=0; n<dataArray[i].taskSubK.length; n++){
-              socket.emit('update subKeywords', {
-                message: dataArray[i].taskSubK[n],
-                reply: dataArray[i].taskText
-              });
-            }
+            //  var socket = io.connect();
+            // socket.emit('update keywords', {
+            //   message: dataArray[i].taskMainK,
+            //   reply: dataArray[i].taskText
+            // });
+            
+            // for (var n=0; n<dataArray[i].taskSubK.length; n++){
+            //   socket.emit('update subKeywords', {
+            //     message: dataArray[i].taskSubK[n],
+            //     reply: dataArray[i].taskText
+            //   });
+            // }
 
           }else{
             $("#waiting").append(
@@ -265,11 +266,11 @@ function openEdit() {
 
 function modalEdit() {
   if (confirm('確認更改？')){
-  let key = $('#edit-id').text();
+  let key = $('#edit-id').text().trim();
   let userId = auth.currentUser.uid;
-  var mainKey = $('#edit-mainK').val(); //主關鍵字
+  var mainKey = $('#edit-mainK').val().trim(); //主關鍵字
   var subKey = $('#edit-subK').val().split(","); //副關鍵字
-  var text = $('#edit-taskContent').val(); //任務內容
+  var text = $('#edit-taskContent').val().split(","); //任務內容
   var cate = $('#edit-status').val(); //狀態
   var owne = $('#edit-owner').val(); //負責人
   //日期

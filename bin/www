@@ -364,8 +364,10 @@ function bot_on_message(event) {
           msgObj.id = receiverId;
           msgObj.room = channelId;
           msg.msgtime = msgObj.time; 
-          emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);    
+          emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1); 
+          console.log('to reply keywords to front...');   
           io.sockets.emit('reply keywords to front',msgObj); 
+          console.log('sent to chat.js');
           } 
         }
       }
@@ -6518,7 +6520,8 @@ io.sockets.on('connection', (socket) => {
   // 從SHIELD chat傳送訊息
   socket.on('send message', (data, callback) => {
     console.log(data);
-    let msg = data.msg.trim();
+    if (Array.isArray(data.msg)) var msg = data.msg;
+    else var msg = data.msg.trim();
     let agent_sendTo_receiver = data.id.trim();
     let msg_time = data.msgtime;
     let chanId = data.room;
@@ -6609,7 +6612,13 @@ io.sockets.on('connection', (socket) => {
     // 訊息傳到LINE
     if (agent_sendTo_receiver !== undefined ) { // 需要新增一個判斷式來分別出要傳訊息給哪一間聊天室
       if(chanId === '1522975413'){
-        bot[0].push(agent_sendTo_receiver, message);
+        if (Array.isArray(msg)){
+        for (var i=0; i<msg.length; i++){
+            bot[0].push(agent_sendTo_receiver, msg[i]);
+        }}else{
+          bot[0].push(agent_sendTo_receiver, msg);
+        }
+
       } else if(chanId === 'Line_2_room') {
         console.log('send to room 2');
         console.log(message);
