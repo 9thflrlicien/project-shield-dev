@@ -209,45 +209,15 @@ function del_cal() { //確定刪除事件
 }
 
 function reminder() { //事件開始時提醒
-    console.log('Check the reminder...');
+    //console.log('Check the reminder...');
     let current_datetime = new Date();
     let nowtime = ISODateTimeString(current_datetime).date + 'T' + ISODateTimeString(current_datetime).time; //convertTime(current_datetime)-8hours
-    console.log('nowtime= ' + nowtime);
+    //console.log('nowtime= ' + nowtime);
     socket.emit('reminder of calendar', { //呼叫www的判斷function
         userId: userId,
         nowtime: nowtime,
         email: auth.currentUser.email
     });
-
-    //若是在前端運行判斷式...
-    // database.ref('cal-events/'+userId).once('value', snap =>{
-    //   let data = snap.val();
-    //   for(let i in data){
-    //     if((data[i].start == nowtime) && (data[i].remind == false)){
-    //     //事件開始時間與現在時間相同，且此事件與上個提醒過的事件名稱不同
-    //     database.ref('cal-events/' + userId + '/' + i).update({remind:true});
-    //     //console.log(data[i].title);
-    //     alert('Your event "'+data[i].title+'" has started.');
-    //     socket.emit('reminder of calendar', { //呼叫www自動寄通知信
-    //       // userId : userId,
-    //       // keyId : i,
-    //       title : data[i].title,
-    //       email : auth.currentUser.email
-    //     });
-
-    //avoidremindagain = data[i].title;
-    //自動寄信完成後 將remind改為false
-
-    //clearTimeout(avoidremindagain);
-
-
-    // console.log(i);
-    // socket.on('set remind false', (keyId)=> {
-    //   console.log('set remind false!');
-    //   database.ref('cal-events/' + userId + '/' + keyId).update({remind:false});
-    // });
-    //}
-    //}
 }
 socket.on('pop up reminder', (title) => { //接收WWW的訊息 前端pop up提醒視窗
     alert('您的事件 "' + title + '" 已經開始, 系統將對您的登入Email寄出通知信');

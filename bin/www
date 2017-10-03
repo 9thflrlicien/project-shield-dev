@@ -6909,12 +6909,11 @@ io.sockets.on('connection', (socket) => {
             let data = snap.val();
             for (let i in data) {
                 //console.log(data[i].remind);
-                if ((data[i].start == info.nowtime) && (data[i].remind == false)) {
-                    //事件開始時間與現在時間相同，且此事件與上個提醒過的事件名稱不同
+                if ((data[i].start == info.nowtime) && (data[i].remind == false)) { //判斷事件是否到期且避免重複提醒
                     admin.database().ref('cal-events/' + info.userId + '/' + i).update({
-                        remind: true
+                        remind: true //true代表已提醒過
                     });
-                    socket.emit('pop up reminder', data[i].title);
+                    socket.emit('pop up reminder', data[i].title); //呼叫前端pop up提醒視窗
                     console.log('Event ' + data[i].start + ' started');
 
                     var mailOptions = { //信件內容
