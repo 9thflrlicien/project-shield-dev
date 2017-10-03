@@ -6267,6 +6267,16 @@ function bot_on_postback(event){
   });
 } // end of bot_on_postback
 
+function bot_on_follow(event){
+  console.log('bot on follow starts');
+  let follow_message = '感謝您將本帳號設為好友！\n 請輸入“Tini小精靈"讓我們的小幫手服務您！';
+  event.reply(follow_message).then(function (data) {
+		console.log('Success', data);
+	}).catch(function (error) {
+		console.log('Error', error);
+	});;
+} // end of bot_on_follow
+
 // 群組webhook
 app.post('/linehook1', function() {
   console.log("linehook1 arguments length = "+arguments.length);
@@ -6331,6 +6341,7 @@ io.sockets.on('connection', (socket) => {
       linebotParser[i] = bot[i].parser();
       bot[i].on('message', bot_on_message);
       bot[i].on('postback', bot_on_postback);
+      bot[i].on('follow', bot_on_follow);
 
       channelIds[i] = chanInfo[i].channelId;
 

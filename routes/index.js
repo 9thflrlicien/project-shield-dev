@@ -34,6 +34,15 @@ router.get('/setting', function(req, res, next) {
   res.render('setting', { title: '設定' });
 });
 
+// 訊息
+router.get('/message_overview', function(req, res, next) {
+  res.render('message_overview', { title: 'Message Overview' });
+});
+
+router.get('/message_addfriendreply', function(req, res, next) {
+  res.render('message_addfriendreply', { title: 'Message Add Friend Reply' });
+});
+
 //authentication
 router.get('/login', function(req, res, next) {
   res.render('login', { title: '登入' });

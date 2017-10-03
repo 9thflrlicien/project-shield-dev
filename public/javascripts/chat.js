@@ -26,7 +26,6 @@ $(document).ready(function() {
   var printAgent = $('#printAgent'); //agent welcome text
   var messageInput = $('#message'); //input for agent to send message
   var canvas = $("#canvas"); //panel of message canvas
-  var searchBox = $('#searchBox'); // search box
   var userId = "";
   var person = "agentColman"; //agent name
   var infoCanvas = $("#infoCanvas");
@@ -37,7 +36,6 @@ $(document).ready(function() {
 
   var userProfiles = []; //array which store all user's profile
   var buffer; //buffer which store now user's profile
-  var infoTable = $('.info_input_table'); //user info table
   var TagsData; //data of user info tags
 
   var filterDataBasic = { //option of filter age, recent_chat_time, first_chat_time
@@ -57,9 +55,6 @@ $(document).ready(function() {
   $(document).on('click', '#signout-btn', logout); // 登出
   $(document).on('click', '.tablinks', clickUserTablink); // 群組清單裡面選擇客戶
   $(document).on('click', '.topright', clickSpan);
-  $(document).on('click', '#userInfoBtn', showProfile);
-  $(document).on('click', '.userInfo-td[modify="true"]', editProfile);
-  $(document).on('click', '.edit-button', changeProfile);
   $(document).on('click', '#userInfo-submit', submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
   $(document).on('click', '#upImg', upImg); // 傳圖
@@ -68,9 +63,6 @@ $(document).ready(function() {
   $(document).on('click', '#submitMsg', submitMsg); // 訊息送出
   $(document).on('click', '#submitMemo', submitMemo);
   $(document).on('click', '.ticket_content',moreInfo) ;
-  // 群組名稱
-  // $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
-  // $(document).on('click', '#cls-cal-btn', cancelSubmit); // 取消編輯群組名稱
   $('#message').on('keydown', function(event){ // 按enter可以發送訊息
     if(event.keyCode == 13){
       document.getElementById('submitMsg').click();
@@ -90,30 +82,28 @@ $(document).ready(function() {
     $(this).children('i').toggle();
   });
   // user profile edit
-  $(document).on('click', '.userInfo-td[modify="false"]', function() {
-    if( $(this).find('input').length==0 ) {
-      //如果現在是非編輯狀態
-      // console.log(".userInfo-td click");
-      let val = $(this).text();        //抓目前的DATA
-      $(this).html('<input type="text" value="' +val + '"></input>'); //把element改成input，放目前的DATA進去
-      $(this).find('input').select();   //自動FOCUS該INPUT
-    }
+  $(document).on('click', '.userInfo-td[modify="true"] p#td-inner', function() {
+    // console.log(".userInfo-td click");
+    let val = $(this).text();        //抓目前的DATA
+    let td = $(this).parents('.userInfo-td');
+    td.html('<input id="td-inner" type="text" value="' +val + '"></input>'); //把element改成input，放目前的DATA進去
+    td.find('input').select();   //自動FOCUS該INPUT
   });
 
-  $(document).on('keypress', '.userInfo-td input', function(e) {
+  $(document).on('keypress', '.userInfo-td[modify="true"] input[type="text"]', function(e) {
     let code = (e.keyCode ? e.keyCode : e.which);
     if (code == 13) {
       //如果按了ENTER
-      console.log(".tag-name-input keypress");
+      console.log("input keypress");
       $(this).blur(); //就離開此INPUT，觸發on blur事件
     }
   });
-  $(document).on('blur', '.userInfo-td input', function() {
+  $(document).on('blur', '.userInfo-td[modify="true"] input[type="text"]', function() {
     //當USER離開此INPUT
     console.log(".userInfo-td-input blur");
     let val = $(this).val();  //抓INPUT裡的資料
-    if( !val ) val="new tag";
-    $(this).parent().html(val);   //將INPUT元素刪掉，把資料直接放上去
+    if( !val ) val="尚未輸入";
+    $(this).parent().html('<p id="td-inner">'+val+'</p>');   //將INPUT元素刪掉，把資料直接放上去
   });
   $('.hidden_group_name').mouseover(function() { // 秀群組名稱
     $(this).show();
@@ -144,13 +134,10 @@ $(document).ready(function() {
       $('.memo').css('margin-left', '0%');
     }
   ); // infoCanvas
-
   // ===============Colman=======================
-
   $(document).on('keyup', '.ticket_search_bar', function(e) {
       console.log(".ticket_search_bar key press");
       let searchStr = $(this).val();
-
       let trs = $(this).parents('table').find('tbody').find('tr');
       trs.each(function() {
         let text = $(this).text();
@@ -158,8 +145,39 @@ $(document).ready(function() {
         else $(this).show();
       });
   });
-  // ============Colman end======================
-
+  $(document).on('click', '.table-sort', function() {
+    let index = $(this).index();
+    let compare;
+    let icon = $(this).find('i');
+    if( icon.attr('class').indexOf('fa-sort-up')==-1 ) {
+      compare = sortUp;
+      icon.attr('class','fa fa-fw fa-sort-up');
+    }
+    else {
+      compare = sortDown;
+      icon.attr('class','fa fa-fw fa-sort-down');
+    }
+    $(this).siblings().find('i').attr('class','fa fa-fw fa-sort');
+    let trs = $(this).parents('table').find('tbody').find('tr');
+    for( let i=0; i<trs.length; i++ ) {
+      for( let j=i+1; j<trs.length; j++ ) {
+        let a = trs.eq(i).find('td').eq(index).text();
+        let b = trs.eq(j).find('td').eq(index).text();
+        if( compare( a, b ) ) {
+          let tmp = trs[i];
+          trs[i] = trs[j];
+          trs[j] = tmp;
+        }
+      }
+    }
+    trs.eq(1).parent().append(trs);
+    function sortUp( a, b ) {
+      return a>b;
+    }
+    function sortDown( a, b ) {
+      return a<b;
+    }
+  });
   $('.chatApp_item[open="true"]').click(function() {
     let thisRel = $(this).attr('rel');
     if(thisRel === 'All'){
@@ -176,13 +194,11 @@ $(document).ready(function() {
     } else if(thisRel === 'assigned'){
       $('.tablinks_area').find('b').hide();
       $('#指派負責人 #td-inner').each(function(index, el) {
-        // console.log(el);
         if($(this).text() !== '尚未輸入'){
           let id = $(this).parent().parent().parent().parent().parent().parent().attr('id');
           let room = $(this).parent().parent().parent().parent().parent().parent().attr('rel');
           let newId = id.substr(0, id.indexOf('-'));
           let newRoom = room.substr(0, room.indexOf('-'));
-          // console.log(newId, newRoom);
           $('[name="'+newId+'"][rel="'+newRoom+'"]').parent().show();
         }
       });
@@ -204,32 +220,54 @@ $(document).ready(function() {
       $('.tablinks_area').find('[rel="'+thisRel+'"]').parent().show();
     }
   });
-
+  // ============Colman end======================
   $(document).on("mouseenter", ".message", function() {
     $(this).find('.sender').show();
   });
   $(document).on("mouseleave", ".message", function() {
     $(this).find('.sender').hide();
   });
-
-  searchBox.on('keypress', function (e) {
+  $(document).on('click', '.profile-confirm button', function() {
+    let userId = $(this).parents('.card-group').attr('id');
+    userId = userId.substr(0,userId.length-5);
+    let method = $(this).attr('id');
+    if( method == "confirm" ) {
+      if ( confirm("Are you sure to change profile?") ) {
+        let data = {userId: userId};
+        let tds = $(this).parents('.card-group').find('.panelTable tbody td');
+        console.log(tds);
+        tds.each( function() {
+          let prop = $(this).attr('id');
+          let type = $(this).attr('type');
+          let value;
+          if( type=="text" ) value = $(this).find('#td-inner').text();
+          else if( type=="time") value = $(this).find('#td-inner').val();
+          else if( type=="single_select" ) value = $(this).find('#td-inner').val();
+          else if( type=="multi_select" ) value = $(this).find('.multiselect-selected-text').text();
+          console.log(prop+", "+value);
+          if( !value ) value = "";
+          data[prop] = value;
+        });
+        console.log(data);
+        socket.emit('update profile', data);
+      }
+    }
+    else {
+      console.log("can");
+    }
+  });
+  $('#searchBox').on('keypress', function (e) {
     let code = (e.keyCode ? e.keyCode : e.which);
     if (code != 13) return;
-
     let searchStr = $(this).val().toLowerCase();
     if( searchStr === "" ) {
       displayAll();
     } else {
-      // 搜尋displayClient所有的名字
-      // 搜尋所有canvas下的訊息 如果有match就在displayClient的message上顯示 "找到訊息"
-      // 把在離天是裡面的關鍵字標黃
-
       $('.tablinks').each( function() {
         let id = $(this).attr('name');
         let room = $(this).attr('rel');
         let panel = $("div #"+id+"-content[rel='"+room+"']");
         let color = "";
-
         // 客戶名單搜尋
         $(this).find('.client_name').each(function(){
           let text = $(this).text();
@@ -962,11 +1000,7 @@ $(document).ready(function() {
   } // end of agentName
 
   function displayMessage(data, channelId) {
-    // update canvas
-    // console.log(data);
-    // console.log(channelId+data.id);
     if (name_list.indexOf(channelId+data.id) !== -1) { //if its chated user
-      // console.log('returned user');
       let str;
 
       let designated_chat_room_msg_time = $("#" + data.id + "-content" + "[rel='"+channelId+"']").find(".message:last").attr('rel');
@@ -1043,9 +1077,6 @@ $(document).ready(function() {
         data.message +
         "</div>" +
         "<div class='unread_msg'>" + data.unRead + "</div>" +
-        // "<div class='agentImg_holder'>" +
-        // "<img src='http://www.boothcon.com.au/wp-content/uploads/2016/05/travel-agent-icon.png' alt='無法顯示相片'>" +
-        // "</div>" +
         "</button></b>"
       );
 
@@ -1059,61 +1090,61 @@ $(document).ready(function() {
         "<tbody>" +
         "<tr>" +
         "<th class='userInfo-th' id='nickname'>nickname</th>" +
-        "<td class='userInfo-td' id='nickname' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='nickname' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>" + data.name + "</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='年齡'>年齡</th>" +
-        "<td class='userInfo-td' id='年齡' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='年齡' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='性別'>性別</th>" +
-        "<td class='userInfo-td' id='性別' type='single_select' set='男,女' modify='false'>" +
+        "<td class='userInfo-td' id='性別' type='single_select' set='男,女' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='地區'>地區</th>" +
-        "<td class='userInfo-td' id='地區' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='地區' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='address'>address</th>" +
-        "<td class='userInfo-td' id='address' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='address' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='telephone'>telephone</th>" +
-        "<td class='userInfo-td' id='telephone' type='text' set='single' modify='false'>" +
+        "<td class='userInfo-td' id='telephone' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='備註'>備註</th>" +
-        "<td class='userInfo-td' id='備註' type='text' set='multi' modify='false'>" +
+        "<td class='userInfo-td' id='備註' type='text' set='multi' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='TAG'>TAG</th>" +
-        "<td class='userInfo-td' id='TAG' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='false'>" +
+        "<td class='userInfo-td' id='TAG' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='VIP等級'>VIP等級</th>" +
-        "<td class='userInfo-td' id='VIP等級' type='single_select' set='鑽石會員,白金會員,普通銅牌,超級普通會員' modify='false'>" +
+        "<td class='userInfo-td' id='VIP等級' type='single_select' set='鑽石會員,白金會員,普通銅牌,超級普通會員' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='下次聯絡客戶時間'>下次聯絡客戶時間</th>" +
-        "<td class='userInfo-td' id='下次聯絡客戶時間' type='time' set='' modify='false'>" +
+        "<td class='userInfo-td' id='下次聯絡客戶時間' type='time' set='' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "<p></p>" +
         "</td>" +
@@ -1152,13 +1183,13 @@ $(document).ready(function() {
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='客人的抱怨'>客人的抱怨</th>" +
-        "<td class='userInfo-td' id='客人的抱怨' type='text' set='multi' modify='false'>" +
+        "<td class='userInfo-td' id='客人的抱怨' type='text' set='multi' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='付費階段'>付費階段</th>" +
-        "<td class='userInfo-td' id='付費階段' type='single_select' set='等待報價,已完成報價，等待付費,已完成付費,要退錢' modify='false'>" +
+        "<td class='userInfo-td' id='付費階段' type='single_select' set='等待報價,已完成報價，等待付費,已完成付費,要退錢' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
@@ -1171,12 +1202,12 @@ $(document).ready(function() {
         '<table>'+
         '<thead>'+
         '<tr>'+
-        '<th> ID </th>'+
-        '<th> 姓名 </th>'+
-        '<th hidden> 內容 </th>'+
-        '<th> 狀態 </th>'+
-        '<th> 優先 </th>'+
-        '<th> 到期 </th>'+
+        '<th class="table-sort"> ID <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 客戶姓名 <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 內容 <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 狀態 <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 優先 <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th class="table-sort"> 到期 <i class="fa fa-fw fa-sort"></i></th>'+
         '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="Search"></th>'+
         '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
         '</tr>'+
@@ -1189,7 +1220,6 @@ $(document).ready(function() {
         '</div>' +
         '</div>'
       );
-
     }
   } // end of displayClient
 
@@ -1198,15 +1228,6 @@ $(document).ready(function() {
     let roomId = $(this).attr('rel'); // channelId
     let selectedId = [];
     let outerInfo, outerId, innerInfo;
-    // 先取得未讀訊息數量
-    // let unread_count = $(this).find('.unread_msg').text();
-    // let new_count = fbCount - unread_count;
-    // if(new_count > 0){
-    //   $('#FB>.unread_msg_count').text(new_count);
-    // } else {
-    //   $('#FB>.unread_msg_count').hide();
-    // }
-    // 把未讀訊息數歸零
     database.ref('chats/Data').once('value', outersnap => {
       outerInfo = outersnap.val();
       outerId = Object.keys(outerInfo);
@@ -1281,50 +1302,79 @@ $(document).ready(function() {
   } // end of clickSpan
 
   function loadPanelProfile(profile) {
-    for (let i in profile.email) {
-      socket.emit('get ticket', {
-        email: profile.email[i],
-        id: profile.userId
-      });
-    }
     let html = "<table class='panelTable'>";
     for (let i in TagsData) {
       let name = TagsData[i].name;
       let type = TagsData[i].type;
       let set = TagsData[i].set;
       let modify = TagsData[i].modify;
+      let data = profile[name];
       let tdHtml = "";
       if (name === '客戶編號') continue;
       if (name === '電子郵件') {
-        for (let i in profile[name]) {
-          tdHtml += '<p id="td-inner">' + profile[name][i] + '</p>';
-        }
-      } else if (type == 'text' || type == 'single_select') {
-        if (profile[name] != undefined && profile[name] != null && profile[name] != "") tdHtml = '<p id="td-inner">' + profile[name] + '</p>';
-        else tdHtml = '<p id="td-inner">尚未輸入</p>';
-      } else if (type == "time") {
-        if (profile[name] != undefined && profile[name] != null && profile[name] != "") {
-          let d = new Date(profile[name]);
-          tdHtml = '<p id="td-inner">' + d.getFullYear() + '/' + addZero(d.getMonth() + 1) + '/' + addZero(d.getDate()) + ' ' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()) + '<p>';
-        } else tdHtml = '<p id="td-inner">尚未輸入<p>';
-      } else if (type == 'multi_select') {
-        if (profile[name] == undefined || profile[name] == null || profile[name] == "") tdHtml = '<p id="td-inner">尚未輸入</p>';
-        else {
-          let arr = profile[name].split(",");
-          for (let i in arr) tdHtml += '<span id="td-inner" class="tagSpan">' + arr[i] + '</span></br>';
+        for (let i in data) {
+          tdHtml += '<p id="td-inner">' + data[i] + '</p>';
         }
       }
-      html +=
-      '<tr>' +
+      else if (type == 'text') {
+        if ( data ) {
+          tdHtml = '<p id="td-inner">' + data + '</p>';
+        }
+        else {
+          tdHtml = '<p id="td-inner">尚未輸入</p>';
+        }
+      }
+      else if (type == "time") {
+        if( modify ) tdHtml = '<input type="datetime-local" id="td-inner" ';
+        else tdHtml = '<input type="datetime-local" id="td-inner" readOnly ';
+        if( data ) {
+          d = new Date(data);
+          tdHtml += 'value="'
+          + d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate()) + 'T'
+          + addZero(d.getHours()) + ':' + addZero(d.getMinutes())+ '"';
+        }
+        tdHtml += ' ></input>';
+      }
+      else if (type == 'single_select') {
+        if( modify ) tdHtml = '<select id="td-inner">';
+        else tdHtml = '<select id="td-inner" disabled>';
+        if( !data ) tdHtml += '<option selected="selected" > 未選擇 </option>';
+        else tdHtml += '<option> 未選擇 </option>';
+        for (let j in set) {
+          if( set[j]!=data ) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
+          else tdHtml += '<option value="' + set[j] + '" selected="selected">' + set[j] + '</option>';
+        }
+        tdHtml += '</select>';
+      }
+      else if (type == 'multi_select') {
+        tdHtml = '<div class="btn-group" id="td-inner">';
+        if (modify == true) tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
+        else tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false" disabled>';
+        if( !data ) data = "";
+        tdHtml += '<span class="multiselect-selected-text">'+data+'</span><b class="caret"></b></button>' +
+        '<ul class="multiselect-container dropdown-menu">';
+        let selected = data.split(',');
+        for (let j in set) {
+          if( selected.indexOf(set[j])!=-1 ) tdHtml += '<li><input type="checkbox" value="' + set[j] + '" checked>' + set[j] + '</li>';
+          else tdHtml += '<li><input type="checkbox" value="' + set[j] + '">' + set[j] + '</li>';
+        }
+        tdHtml += '</ul></div>';
+      }
+      html += '<tr>' +
       '<th class="userInfo-th" id="' + name + '">' + name + '</th>' +
-      '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set + '" modify="false">' + tdHtml + '</td>';
+      '<td class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set + '" modify="' + modify + '">' + tdHtml + '</td>';
     }
     html += "</table>";
     return html;
   } // end of loadPanelProfile
-
   function pushInfo(data) {
     let profile = data.Profile;
+    for (let i in profile.email) {
+      socket.emit('get ticket', {
+        email: profile.email[i],
+        id: profile.userId
+      });
+    }
     infoCanvas.append(
       '<div class="card-group" id="' + profile.userId + '-info" rel="'+profile.channelId+'-info" style="display:none">' +
       '<div class="card-body" id="profile">' +
@@ -1332,6 +1382,10 @@ $(document).ready(function() {
       '<img src="' + profile.photo + '" alt="無法顯示相片" style="width:128px;height:128px;">' +
       "</div>" +
       loadPanelProfile(profile) +
+      '<div class="profile-confirm">'+
+      '<button type="button" class="btn btn-primary pull-right" id="confirm">Confirm</button>'+
+      '<button type="button" class="btn btn-default pull-right" id="cancel">Cancel</button>'+
+      '</div>' +
       '</div>' +
       '<div class="card-body" id="ticket" style="display:none; "></div>' +
       '<div class="card-body" id="todo" style="display:none; ">'+
@@ -1339,11 +1393,12 @@ $(document).ready(function() {
       '<table>'+
       '<thead>'+
       '<tr>'+
-      '<th> ID </th>'+
-      '<th> 姓名 </th>'+
-      '<th> 狀態 </th>'+
-      '<th> 優先 </th>'+
-      '<th> 到期 </th>'+
+      '<th class="table-sort"> ID <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 客戶姓名 <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 內容 <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 狀態 <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 優先 <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th class="table-sort"> 到期 <i class="fa fa-fw fa-sort"></i></th>'+
       '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="搜尋"></th>'+
       '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
       '</tr>'+
@@ -1357,7 +1412,6 @@ $(document).ready(function() {
       '</div>'
     );
   } // end of pushInfo
-
   function detecetScrollTop(ele) {
     if (ele.scrollTop() == 0) {
       let tail = parseInt(ele.attr('data-position'));
@@ -1596,7 +1650,6 @@ $(document).ready(function() {
       }
     }
   } // end of initialFilterWay
-
   function upImg() {
     var imgAtt = '/image ' + $('#attImgFill').val();
     // $('#message').val('<img src="' + imgAtt);
@@ -1616,7 +1669,6 @@ $(document).ready(function() {
     // console.log(sendObj.room);
     $('#attImgFill').val('');
   } // end of upImg
-
   function upVid() {
     var vidAtt = '/video ' + $('#attVidFill').val();
     let sendObj = {
@@ -1633,10 +1685,8 @@ $(document).ready(function() {
     } else {
       console.log('room ID or channel ID is undefined, please select a room');
     }
-
     $('#attVidFill').val('');
   } // end of upVid
-
   function upAud() {
     var audAtt = '/audio ' + $('#attAudFill').val();
     let sendObj = {
@@ -1655,7 +1705,6 @@ $(document).ready(function() {
     }
     $('#attAudFill').val('');
   } // upAud
-
 }); //document ready close tag
 
 function cancelSubmit(){
@@ -1704,7 +1753,6 @@ function closeIdleRoom() {
   convert_list = [];
   canvas_last_child_time_list = [];
 }
-
 function displayAll() {
   $('.tablinks').each(function() {
     let id = $(this).attr('name');
@@ -1714,7 +1762,6 @@ function displayAll() {
     $(this).find('.client_name').css({"color": "black", "background-color": ""});
   });
 } // end of displayAll
-
 function sortUsers(ref, up_or_down, operate) {
   let arr = $('#clients b');
   for (let i = 0; i < arr.length - 1; i++) {
@@ -1782,8 +1829,7 @@ function displayDate(date) {
   mm = gmt8.getMonth() + 1,
   dd = gmt8.getDate(),
   hr = gmt8.getHours(),
-  min = gmt8.getMinutes(),
-  sec = gmt8.getSeconds();
+  min = gmt8.getMinutes();
 
   return yy + "/" + mm + "/" + dd + " " + hr + ":" + min;
 } // end of displayDate
@@ -1794,121 +1840,6 @@ function sortRecentChatTime() {
   });
   sortRecentBool = !sortRecentBool;
 } // end of sortRecentChatTime
-
-
-function showProfile() {
-  console.log("show profile");
-  let target = $('.tablinks#selected').attr('rel'); //get useridd of current selected user
-  if (target == undefined) {
-    infoTable.html("please choose an user");
-    return;
-  }
-  // console.log("show profile of userId " + target);
-  reload_tags();
-  showTargetProfile(userProfiles[target]);
-} // end of showProfile
-
-function reload_tags() {
-  infoTable.empty();
-  for (let i in TagsData) {
-    let name = TagsData[i].name;
-    let type = TagsData[i].type;
-    let set = TagsData[i].set;
-    let modify = TagsData[i].modify;
-    let tdHtml = "";
-    if (type == 'text') tdHtml = '<p id="td-inner">尚未輸入<p>';
-    else if (type == "time" && modify == true) tdHtml = '<input type="datetime-local" id="td-inner"></input>';
-    else if (type == "time" && modify == false) tdHtml = '<input type="datetime-local" id="td-inner" readOnly></input>';
-    else if (type == 'single_select') {
-      if (modify == true) tdHtml = '<select id="td-inner">';
-      else tdHtml = '<select id="td-inner" disabled>';
-      for (let j in set) tdHtml += '<option value="' + set[j] + '">' + set[j] + '</option>';
-      tdHtml += '</select>';
-    } else if (type == 'multi_select') {
-      tdHtml = '<div class="btn-group" id="td-inner" data="">';
-      if (modify == true) tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false">';
-      else tdHtml += '<button type="button" data-toggle="dropdown" aria-expanded="false" disabled>';
-      tdHtml += '<span class="multiselect-selected-text"></span><b class="caret"></b></button>' +
-      '<ul class="multiselect-container dropdown-menu">';
-      // + '<li><button value="全選" id="select-all">全選</li>';
-      for (let j in set) tdHtml += '<li><input type="checkbox" value="' + set[j] + '">' + set[j] + '</li>';
-      tdHtml += '</ul></div>';
-    }
-    infoTable.append(
-      '<tr>' +
-      '<th class="userInfo-th" id="' + name + '">' + name + '</th>' +
-      '<th class="userInfo-td" id="' + name + '" type="' + type + '" set="' + set + '" modify="' + modify + '">' + tdHtml + '</th>' +
-      '<td class="edit-button yes" name="yes">yes</td>' +
-      '<td class="edit-button no" name="no">no</td>' +
-      '</tr>'
-    );
-    // prof_userName.append(prof_name);
-  }
-} // end of reload_tags
-
-function showTargetProfile(profile) {
-  buffer = JSON.parse(JSON.stringify(profile)); //clone object
-
-  var nick = buffer.nickname;
-  console.log(nick);
-  $('#prof_nick').text(nick);
-
-  $('.info_input_table .userInfo-td').each(function() {
-    let data = buffer[$(this).attr('id')];
-    let type = $(this).attr('type');
-    let inner = $(this).find('#td-inner');
-
-    if (data) {
-      if (type == 'text') inner.text(data);
-      else if (type == 'single_select') inner.val(data);
-      else if (type == "multi_select") {
-        inner.attr('data', data);
-        inner.find('.multiselect-selected-text').text(data);
-
-        let arr = data.split(',');
-        inner.find('input').each(function() {
-          if (arr.indexOf($(this).val()) != -1) $(this).prop('checked', true);
-          else $(this).prop('checked', false);
-        });
-      } else if (type == 'time') {
-        let d = new Date(data);
-        inner.val(d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate()) + 'T' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()));
-      }
-    } else { ///if undefined, load default string, not prev string
-      if (type == 'text') inner.text("尚未輸入");
-      else if (type == 'single_select') inner.val("");
-      else if (type == "multi_select") {
-        inner.attr('data', "");
-        inner.find('.multiselect-selected-text').text("");
-        inner.find('input').attr('checked', false);
-      } else if (type == 'time') inner.val("");
-    }
-  });
-} // end of showTargetProfile
-
-function editProfile() {
-  if ($(this).parent().children('.edit-button').is(':visible')) return;
-  else $(this).parent().children('.edit-button').show(); //show yes/no button
-  ///on click, off click has some strange bug, so change way ><
-
-  let type = $(this).attr('type');
-  let set = $(this).attr('set');
-  let text = $(this).find('#td-inner').text();
-
-  if (type == 'text') {
-    if (set == 'single') $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text + '" />');
-    else if (set == 'multi') $(this).empty().html('<textarea type="text" class="textarea" id="td-inner" rows="4" columns = "20" style="resize: none;" >' + text + '</textarea>');
-    else console.log("error 646");
-  } else if (type == 'single_select') {
-    //do nothing
-  } else if (type == 'time') {
-    //do nothing
-  } else if (type == 'multi_select') {
-    // $(this).empty().html('<input type="text" class="textarea" id="td-inner" value="' + text +'" />');
-  }
-  $(this).find('#td-inner').select();
-} // end of editProfile
-
 function multiselect_change() {
   let boxes = $(this).find('input');
   let arr = [];
@@ -1919,53 +1850,6 @@ function multiselect_change() {
   else arr = arr.join(',');
   $(this).parent().find($('.multiselect-selected-text')).text(arr);
 } // end of multiselect_change
-
-function changeProfile(edit) {
-  let td = $(this).parent().children('.userInfo-td');
-  let id = td.attr('id');
-  let type = td.attr('type');
-  let inner = td.find('#td-inner');
-
-  $(this).parent().children('.edit-button').hide(); //hide yes/no button
-
-  if ($(this).attr('name') == 'yes') { //confirm edit, change data in buffer instead of DB
-    let content;
-    if (type == "text") {
-      content = inner.val();
-      if (!content) content = "尚未輸入";
-      td.html('<p id="td-inner">' + content + '</p>');
-    } else if (type == 'single_select') content = inner.val();
-    else if (type == "multi_select") {
-      content = inner.find('.multiselect-selected-text').text();
-    } else if (type == "time") {
-      content = new Date(inner.val()).getTime();
-    }
-    buffer[id] = content;
-    // console.log("content = " + content);
-  } else { //deny edit, restore data before editing
-    let origin = buffer[id];
-    if (origin == undefined) origin = "";
-
-    if (type == "text") {
-      if (!origin) origin = "尚未輸入";
-      td.html('<p id="td-inner">' + origin + '</p>');
-    } else if (type == 'single_select') inner.val(origin);
-    else if (type == "multi_select") {
-      inner.find('.multiselect-selected-text').text(origin);
-
-      inner.find('input').prop('checked', false);
-      if (origin) {
-        let arr = origin.split(',');
-        for (let j in arr) inner.find('input[value="' + arr[j] + '"]').prop('checked', true);
-      }
-    } else if (type == "time") {
-      let d = new Date(origin);
-      console.log("date = " + d.toString());
-      inner.val(d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate()) + 'T' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()));
-    }
-  }
-} // end of changeProfile
-
 // function pushInsideMsg(data) {
 //   let messages = data.Messages;
 //   let profile = data.Profile;
@@ -2088,7 +1972,6 @@ function openTitle() {
   $(this).hide();
   $(this).siblings().show();
 } // end of openTitle
-
 function loadTable(userId){
   $('.ticket-content').empty();
   $('.ticket_memo').empty();
@@ -2126,7 +2009,6 @@ function loadTable(userId){
       }
     }
   );
-
   setTimeout(function(){
     for (var i=0; i<ticket_memo_list.length; i++){
       $.ajax(
@@ -2154,8 +2036,7 @@ function loadTable(userId){
       );
     }
   }, 500);
-}
-
+} // end of loadTable
 function updateStatus() {
   let select = $(".select"),
       editable = $(".edit"),
@@ -2164,7 +2045,6 @@ function updateStatus() {
   let obj = {} ;
   let id = $(this).attr("val") ;
   let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
-
   input.each(function () {$(this).blur();});
   for(let i=0;i<editable.length;i++){
     name = editable.eq(i).parent().children("th").text().split(" ") ;
@@ -2178,8 +2058,6 @@ function updateStatus() {
   }
   json += '"id":"'+id+'"}' ;
   obj = JSON.parse(json) ;
-
-
   客戶名 = obj.subject;
   客戶ID = obj.客戶ID;
   回覆人員 = obj.回覆人員;
@@ -2195,15 +2073,13 @@ function updateStatus() {
     if (!i.startsWith(0) && i.length == 1 || i.length == 10) i = '0'+i;
     new_time.push(i);
   });
-    new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
-    new_time.map(function(i){
-      if (i.length == 1) i = '0'+i;
-      new_time2.push(i);
-    })
-    new_time = new_time2.join(":");
-
+  new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
+  new_time.map(function(i){
+    if (i.length == 1) i = '0'+i;
+    new_time2.push(i);
+  });
+  new_time = new_time2.join(":");
   obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
-
   if(confirm("確定變更表單？")) {
     var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
     $.ajax({
@@ -2227,10 +2103,7 @@ function updateStatus() {
       }
     });
   }
-
-
-}
-
+} // end of updateStatus
 function statusNumberToText(status){
   switch(status) {
     case 5:
@@ -2246,7 +2119,6 @@ function statusNumberToText(status){
         return 'Open';
   }
 } // end of statusNumberToText
-
 function priorityNumberToText(priority){
   switch(priority) {
     case 4:
@@ -2262,7 +2134,6 @@ function priorityNumberToText(priority){
         return 'Low';
   }
 } // end of priorityNumberToText
-
 function dueDate(day) {
   let html = '' ;
   let nowTime = new Date().getTime() ;
@@ -2278,14 +2149,12 @@ function dueDate(day) {
   }
   return html ;
 } // end of dueDate
-
 function responderName(id) {
   for(let i in agentInfo){
     if(agentInfo[i].id == id) return agentInfo[i].contact.name ;
   }
   return "unassigned" ;
-}
-
+} // end of responderName
 function searchBar(){
   let content = $('.ticket-content tr');
   let val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
@@ -2295,10 +2164,7 @@ function searchBar(){
     return !~text1.indexOf(val);
   }).hide();
 } // end of searchBar
-
 function showSelect(prop,n) {
-  // let prop = $(this).parent().children("th").text() ;
-  // alert(prop) ;
   let html = "<select class='select'>" ;
   if(prop == 'priority'){
     html += "<option value="+n+">"+priorityNumberToText(n)+"</option>" ;
@@ -2306,7 +2172,6 @@ function showSelect(prop,n) {
       if(i == n) continue ;
       html += "<option value="+i+">"+priorityNumberToText(i)+"</option>" ;
     }
-
   }
   else if(prop == 'status'){
 
@@ -2326,19 +2191,15 @@ function showSelect(prop,n) {
   }
   html += "</select>" ;
   return html ;
-  // $(this).html(html);
 } // end of showSelect
-
 function moreInfo() {
   let display ;
   let i = $(this).attr('id');
   let Tinfo = ticketInfo[i];
   let Cinfo ;
   let Ainfo ;
-
   $("#ID_num").text(Tinfo.id) ;
   $("#ID_num").css("background-color",priorityColor(Tinfo.priority)) ;
-
   display =
   '<tr>'+
   '<th>responder</th>'+
@@ -2362,7 +2223,6 @@ function moreInfo() {
   '<th>last update</th>'+
   '<td>'+displayDate(Tinfo.updated_at)+'</td>'+
   '</tr>' ;
-
   for(let j in contactInfo){
     if(contactInfo[j].id == Tinfo.requester_id) {
       Cinfo = contactInfo[j] ;
@@ -2380,7 +2240,6 @@ function moreInfo() {
       break ;
     }
   }
-
   for(let j in agentInfo){
     if(agentInfo[j].id == Tinfo.requester_id) {
       Ainfo = agentInfo[j] ;
@@ -2398,18 +2257,22 @@ function moreInfo() {
       break ;
     }
   }
-
   $(".ticket_info_content").html('') ;
   $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority)) ;
   $(".modal-title").text(Tinfo.subject) ;
   $("#ticketInfo-submit").attr("val",Tinfo.id) ;
   $(".ticket_info_content").append(display);
 } // end of moreInfo
-
 function loadMessageInDisplayClient(msg){
   if(msg.length > 6){
     return msg = msg.substr(0, 6) + '...';
   } else {
     return msg;
   }
-}
+} // end of loadMessageInDisplayClient
+function cancelSubmit(){
+  $(this).hide();
+  $(this).siblings('#save-group-btn').hide();
+  $(this).siblings('[type="text"]').hide();
+  $(this).siblings('.myText').show();
+} // end of cancelSubmit
