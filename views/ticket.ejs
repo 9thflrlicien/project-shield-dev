@@ -13,50 +13,63 @@
     <div id="wrapper">
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-          <div class="navbar-header">
-              <a class="navbar-brand" href="/">Chatshier</a>
-          </div>
-          <!-- /.navbar-header -->
-          <ul class="nav navbar-top-links navbar-left">
-             <li>
-                <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i>聊天室</a>
-             </li>
-             <li>
-                <a href="/calendar">| <i class="fa fa-table fa-fw"></i>行事曆</a>
-             </li>
-             <li>
-                <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i>資訊主頁</a>
-             </li>
-             <li>
-                <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
-             </li>
-          </ul>
-          <ul class="nav navbar-top-links navbar-right">
-             <!-- /.dropdown -->
-             <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="fa fa-cog fa-lg"></i> <i class="fa fa-caret-down"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-user">
-                   <li><a href="/setting"><i class="fa fa-user fa-fw"></i> 設定</a></li>
-                   <li class="divider"></li>
-                   <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> 登出</a></li>
-                </ul>
-                <!-- /.dropdown-user -->
-             </li>
-             <!-- /.dropdown -->
-          </ul>
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">SHIELD</a>
+        </div>
+        <!-- /.navbar-header -->
+        <ul class="nav navbar-top-links navbar-left">
+          <li>
+            <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> 聊天室</a>
+          </li>
+          <li id="nav_message">
+            <a href="#">| <i class="fa fa-commenting fa-fw"></i> 訊息</a>
+          </li>
+          <li class="subTag" style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_overview"> 總覽</a>
+          </li>
+          <li class="subTag"  style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_autoreply"> 自動回覆</a>
+          </li>
+          <li class="subTag"  style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_keywordsreply"> 關鍵字回覆</a>
+          </li>
+          <li class="subTag"  style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_addFriendReply"> 加好友回覆</a>
+          </li>
+          <li>
+            <a href="/calendar">| <i class="fa fa-table fa-fw"></i> 行事曆</a>
+          </li>
+          <li>
+            <a href="/dashboard"><i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
+          </li>
+          <li>
+            <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
+          </li>
+        </ul>
+        <ul class="nav navbar-top-links navbar-right">
+          <!-- /.dropdown -->
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+              <li><a href="/setting"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
+              <li class="divider"></li>
+              <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+            </ul>
+            <!-- /.dropdown-user -->
+          </li>
+          <!-- /.dropdown -->
+        </ul>
+        <!-- /.navbar-top-links -->
       </nav>
     </div>
-
-
     <div class="add-btn">
       <a href="/tform" class="btn btn-default inner-add-complete">
-        <span class="fa fa-plus fa-fw"></span> 新增表單
+      <span class="fa fa-plus fa-fw"></span> 新增表單
       </a>
     </div>
     <input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="搜尋">
-
     <div class="main">
       <div class="ticket">
         <table>
@@ -77,7 +90,6 @@
     </div>
     <div >
       <p id="console">
-
       </p>
     </div>
     <div class="modal fade" id="ticketInfoModal" role="dialog">
@@ -91,28 +103,26 @@
                 <th style="display:none">subject</th>
                 <td class="modal-title edit">User NickName</td>
               </table>
-
             </div>
           </div>
           <div class="modal-body">
             <table class="info_input_table">
-
             </table>
           </div>
           <div class="modal-footer">
-              <button type="button" id="ticketInfo-delete" class="btn btn-danger" data-dismiss="modal">刪除</button>
-              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-              <button type="button" id="ticketInfo-submit" class="btn btn-success" data-dismiss="modal">確認</button>
+            <button type="button" id="ticketInfo-delete" class="btn btn-danger" data-dismiss="modal">刪除</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            <button type="button" id="ticketInfo-submit" class="btn btn-success" data-dismiss="modal">確認</button>
           </div>
         </div>
       </div>
     </div>
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
     <script src="javascripts/firebaseConfig.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/ticket.js"></script>
+    <script src="javascripts/navigation.js"></script>
   </body>
 </html>

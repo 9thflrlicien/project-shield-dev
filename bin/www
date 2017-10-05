@@ -38,17 +38,7 @@ const token = yelp.accessToken(yelp_id, yelp_secret).then(response => {
 }).catch(e => {
     console.log(e);
 });
-var z;
-var z2;
-var z3;
-var x;
-var x2;
-var x3;
-var y;
-var w;
-var w1;
-var w2;
-var n;
+var z,z2,z3,x,x2,x3,y,w,w1,w2,n;
 //yelp-search
 //抓日期
 var Today = new Date();
@@ -58,7 +48,8 @@ var YY = Today.getFullYear();
 var MM = (Today.getMonth() + 1);
 var DD = Today.getDate();
 var count = 0;
-
+// 群發
+var addFriendBroadcastMsg;
 //config
 var fb_bot = MessengerPlatform.create({
   pageID: '406189186430126',
@@ -117,8 +108,8 @@ var linebotParser = [
   }
 ];
 var channelIds = [-1, -1];
-
-
+var keywords = [];
+var Line_1_room,Line_2_room;
 ///////////////// 接收訊息 /////////////////
 //==============FACEBOOK MESSAGE==============
 app.post('/webhook', function (req, res) {
@@ -348,6 +339,7 @@ function bot_on_message(event) {
         survey(message_lineTochat); // 問卷
         appointment(message_lineTochat); // 預約
         commonquestions(message_lineTochat); // 常見問題
+        keywordsReply(message_lineTochat); //設定關鍵字
         // apiai(message_lineTochat);
       }
     }
@@ -6268,8 +6260,12 @@ function bot_on_postback(event){
 } // end of bot_on_postback
 
 function bot_on_follow(event){
-  console.log('bot on follow starts');
-  let follow_message = '感謝您將本帳號設為好友！\n 請輸入“Tini小精靈"讓我們的小幫手服務您！';
+  let follow_message;
+  if(addFriendBroadcastMsg === undefined || addFriendBroadcastMsg === ''){
+    follow_message = '感謝您將本帳號設為好友！';
+  } else {
+    follow_message = addFriendBroadcastMsg;
+  }
   event.reply(follow_message).then(function (data) {
 		console.log('Success', data);
 	}).catch(function (error) {
@@ -6292,21 +6288,24 @@ app.post('/linehook2', function() {
 */
 
 io.sockets.on('connection', (socket) => {
-
-  // socket.on('get inside chat', (data) => {
-  //   let thisAgentData = [];
-  //   for( let i in agentChatData ){
-  //     if( agentChatData[i].Profile.agent.indexOf(data.id) != -1 ) thisAgentData.push( agentChatData[i] );
-  //   }
-  //
-  //   socket.emit('push inside chat', thisAgentData);
-  // });
-
+  //更新關鍵字回覆
+  socket.on('update keywords', (data) => {
+    keywords[data.message] = data.reply;
+  });
+  socket.on('update subKeywords', (data) => {
+    keywords[data.message] = data.reply;
+  });
+  socket.on('update add friend message', data => {
+    addFriendBroadcastMsg = data.inp;
+    console.log(addFriendBroadcastMsg);
+  });
   // 更新群組
   socket.on('update bot', (data) => {
+    Line_1_room = data.line_1.channelId;
+    Line_2_room = data.line_1.channelId;
+    console.log(Line_1_room, Line_2_room);
     update_line_bot(data);
   });
-
   socket.on('request line channel', (userId)=> {
     console.log("userId = "+userId);
     firebase.database().ref('users/' + userId).once('value', snap => {
@@ -6314,42 +6313,51 @@ io.sockets.on('connection', (socket) => {
       if(chatInfo !== null){
         let chanId_1 = chatInfo.chanId_1;
         let chanId_2 = chatInfo.chanId_2;
+        let fbPageId = chatInfo.fbPageId;
         console.log("response line channel, channelId = "+chanId_1+', '+chanId_2);
         socket.emit('response line channel', {
           chanId_1: chanId_1,
-          chanId_2: chanId_2
+          chanId_2: chanId_2,
+          fbPageId: fbPageId
         });
       } else {
         console.log('chatInfo is null');
         socket.emit('response line channel', {
           chanId_1: '',
-          chanId_2: ''
+          chanId_2: '',
+          fbPageId: fbPageId
         });
       }
     });
   });
-
   function update_line_bot( chanInfo ) {
     console.log("update_line_bot");
     console.log("chanInfo: ");
     console.log(chanInfo);
-    if( bot[0] ) bot[0]._events = {};
-    if( bot[1] ) bot[1]._events = {};
-    for( let i=0; i<chanInfo.length; i++ ) {
-      console.log("update Line channel_"+i+" information.");
-      bot[i] = linebot(chanInfo[i]);
-      linebotParser[i] = bot[i].parser();
-      bot[i].on('message', bot_on_message);
-      bot[i].on('postback', bot_on_postback);
-      bot[i].on('follow', bot_on_follow);
-
-      channelIds[i] = chanInfo[i].channelId;
-
-      console.log('update done');
-    }
+    console.log("update Line channel_1 information.");
+    bot[0] = linebot(chanInfo.line_1);
+    linebotParser[0] = bot[0].parser();
+    bot[0].on('message', bot_on_message);
+    bot[0].on('postback', bot_on_postback);
+    bot[0].on('follow', bot_on_follow);
+    channelIds[0] = chanInfo.line_1.channelId;
+    console.log("update Line channel_2 information.");
+    bot[1] = linebot(chanInfo.line_2);
+    linebotParser[1] = bot[1].parser();
+    bot[1].on('message', bot_on_message);
+    bot[1].on('postback', bot_on_postback);
+    bot[1].on('follow', bot_on_follow);
+    channelIds[1] = chanInfo.line_2.channelId;
+    console.log("update fb channel information.");
+    var fb_bot = MessengerPlatform.create({
+      pageID: '406189186430126',
+      appID: '2000856436856651',
+      appSecret: '8fcb52e0a39a266bad6ea2eae22aa038',
+      validationToken: 'ee7b84f2219fb9e71738f33ab3c881b0',
+      pageToken: 'EAAcbxLEqV0sBAB4PEmkhaQRJyRTZBs5fm79r5eRt3hrt82OQ5hlDV4SwxoEzWNO05vpSxrY9czCmPjWHe63sZA2q3z2Cz6mP8kJs3k9DZCKml1YV4iQkwOuqZBaTdSTsYz9r7fTWzROZBqeBISHJ196FgcVhpuKPyTh5Vp7Cw4QZDZD'
+    });
+    channelIds[2] = chanInfo.fb.pageId;
   }
-
-
   // 新使用者
   socket.on('new user', (data, callback) => {
     console.log(data);
@@ -6362,12 +6370,10 @@ io.sockets.on('connection', (socket) => {
       users[socket.nickname] = socket;
     }
   });
-
   socket.on('get tags from chat', data => {
     console.log("tags socket");
     socket.emit('push tags to chat', tagsData);
   });
-
   // going to tags page
   socket.on('get tags from tags', data => {
     socket.emit('push tags to tags', tagsData);
@@ -6378,7 +6384,6 @@ io.sockets.on('connection', (socket) => {
     updateObj['/Data'] = data;
     tagsRef.update(updateObj);
   });
-
   socket.on('get json from back', (data, callback) => {
     console.log("chat data socket");
     let sendData = [];
@@ -6451,7 +6456,6 @@ io.sockets.on('connection', (socket) => {
     console.log('push json to front');
     console.log(sendData);
   });
-
   socket.on('upload history msg from front', data => {
     console.log(data);
     console.log('upload history msg of userId = '+data.userId+', head = '+data.head+', tail = '+data.tail);
@@ -6478,7 +6482,6 @@ io.sockets.on('connection', (socket) => {
       messages: sendData
     });
   });
-
   socket.on('read message', (data) => {
     console.log("agent read message of user "+data.id);
     for( let i in chatData ) {
@@ -6490,28 +6493,29 @@ io.sockets.on('connection', (socket) => {
       }
     }
   });
-
   // 從SHIELD chat傳送訊息
   socket.on('send message', (data, callback) => {
     console.log(data);
-    let msg = data.msg.trim();
+    let msg;
+    if (Array.isArray(data.msg)){
+      msg = data.msg;
+    }else{
+      msg = data.msg.trim();
+    }
     let agent_sendTo_receiver = data.id.trim();
     let msg_time = data.msgtime;
-    let chanId = data.room;
+    let chanId = data.channelId;
     console.log(chanId);
     console.log(agent_sendTo_receiver);
-
     if(socket.nickname !== undefined){
       agent_nickname = socket.nickname;
     } else {
       agent_nickname = 'agent';
     }
-
     var message;
     let nowTime = Date.now();
-
     {
-      if(chanId === 'FB_room'){
+      if(chanId === 'FB'){
         //------FACEBOOK----
         if (data.msg.startsWith('/image')) {
             let link = data.msg.substr(7);
@@ -6583,10 +6587,10 @@ io.sockets.on('connection', (socket) => {
       }
     }
     // 訊息傳到LINE
-    if (agent_sendTo_receiver !== undefined ) { // 需要新增一個判斷式來分別出要傳訊息給哪一間聊天室
-      if(chanId === 'Line_1_room'){
+    if (agent_sendTo_receiver !== undefined ){
+      if(chanId === Line_1_room){
         bot[0].push(agent_sendTo_receiver, message);
-      } else if(chanId === 'Line_2_room') {
+      }else if(chanId === Line_2_room){
         console.log('send to room 2');
         console.log(message);
         bot[1].push(agent_sendTo_receiver, message);
@@ -6604,7 +6608,6 @@ io.sockets.on('connection', (socket) => {
         break;
       }
     }
-
     // 傳到shield chat
     var msgObj = {
       owner: "agent",
@@ -6612,8 +6615,7 @@ io.sockets.on('connection', (socket) => {
       time: nowTime,
       message: "undefined_message"
     };
-
-    if(chanId === 'FB_room'){
+    if(chanId === 'FB'){
       //------FACEBOOK-------
       if (msg.startsWith('/image')){
           // msgObj.message = data.msg+'"/>';
@@ -6627,25 +6629,13 @@ io.sockets.on('connection', (socket) => {
           // msgObj.message = data.msg+ '" type="audio/mpeg"></audio>';
           emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
       }
-      // if (msg.startsWith('<img')){
-      //     msgObj.message = data.msg+'"/>';
-      //     emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
-      // }
-      // else if (msg.startsWith('<video')){
-      //     msgObj.message = data.msg+ '" type="video/mp4"></video>';
-      //     emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
-      // }
-      // else if (msg.startsWith('<audio')){
-      //     msgObj.message = data.msg+ '" type="audio/mpeg"></audio>';
-      //     emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
-      // }
     } else {
       // LINE
       if (msg.includes('/image')) {
         msgObj.message = '傳圖檔給客戶';
-        if(chanId === 'Line_1_room'){
+        if(chanId === Line_1_room){
           emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        } else if(chanId === 'Line_2_room') {
+        } else if(chanId === Line_2_room) {
           emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
         } else {
           console.log('push to fb')
@@ -6653,9 +6643,9 @@ io.sockets.on('connection', (socket) => {
       }
       else if (msg.includes('/audio')) {
         msgObj.message = '傳音檔給客戶';
-        if(chanId === 'Line_1_room'){
+        if(chanId === Line_1_room){
           emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        } else if(chanId === 'Line_2_room') {
+        } else if(chanId === Line_2_room) {
           emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
         } else {
           console.log('push to fb')
@@ -6663,9 +6653,9 @@ io.sockets.on('connection', (socket) => {
       }
       else if (msg.includes('/video')) {
         msgObj.message = '傳影檔給客戶';
-        if(chanId === 'Line_1_room'){
+        if(chanId === Line_1_room){
           emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        } else if(chanId === 'Line_2_room') {
+        } else if(chanId === Line_2_room) {
           emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
         } else {
           console.log('push to fb')
@@ -6677,9 +6667,9 @@ io.sockets.on('connection', (socket) => {
           urlStr += '"https://';
         }
         msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
-        if(chanId === 'Line_1_room'){
+        if(chanId === Line_1_room){
           emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        } else if(chanId === 'Line_2_room') {
+        } else if(chanId === Line_2_room) {
           emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
         } else {
           console.log('push to fb')
@@ -6688,9 +6678,9 @@ io.sockets.on('connection', (socket) => {
       }
       else if (msg.includes('/sticker')) {
         msgObj.message = 'Send sticker to user';
-        if(chanId === 'Line_1_room'){
+        if(chanId === Line_1_room){
           emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        } else if(chanId === 'Line_2_room') {
+        } else if(chanId === Line_2_room) {
           emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
         } else {
           console.log('push to fb')
@@ -6698,11 +6688,11 @@ io.sockets.on('connection', (socket) => {
       }
       else {
         msgObj.message = msg;
-        if(chanId === 'Line_1_room'){
+        if(chanId === Line_1_room){
           emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        } else if(chanId === 'Line_2_room') {
+        } else if(chanId === Line_2_room) {
           emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
-        } else if(chanId === 'FB_room') {
+        } else if(chanId === 'FB') {
           emitIO_and_pushDB(msgObj, null, channelIds[2], agent_sendTo_receiver, 0);
         } else {
           console.log('sending error in line 1514')
@@ -6710,7 +6700,6 @@ io.sockets.on('connection', (socket) => {
       }
     }
   });//sent message
-
   socket.on('get profile', (id, callback) => {
     console.log("get profile");
     console.log(id);
@@ -6721,7 +6710,6 @@ io.sockets.on('connection', (socket) => {
       }
     }
   });
-
   socket.on('update profile', (data, callback) => {
     console.log("update profile");
     for( let i in chatData ) {
@@ -6736,7 +6724,6 @@ io.sockets.on('connection', (socket) => {
       }
     }
   });
-
   // // This is for Agent Chat
   // socket.on('get json from agentChat', (data) => {
   //   let thisAgentData = [];
@@ -7166,7 +7153,6 @@ function loadFbProfile(obj, psid) {
     }); //fb_bot
 
 } //loadFbProfile
-
 function isUrl(str) {
   if(str.indexOf('.com') !== -1 ) return true;
   else if(str.indexOf('.edu') !== -1 ) return true;
@@ -7175,11 +7161,21 @@ function isUrl(str) {
   else if(str.indexOf('.org') !== -1 ) return true;
   return false;
 } // end of isUrl
-
-
-
-
-
+function keywordsReply(msg) {
+  for (var i in keywords) {
+    switch (msg.trim()) {
+      case i:
+        msgObj.msg = keywords[i];
+        msgObj.id = receiverId;
+        msgObj.room = channelId;
+        msg.msgtime = msgObj.time;
+        emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
+        console.log('to reply keywords to front...');
+        io.sockets.emit('reply keywords to front', msgObj);
+        console.log('sent to chat.js');
+    }
+  }
+} // end of keywordsReply
 // EXPRESS functions and app use, KEEP THEM AT THE BOTTOM
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

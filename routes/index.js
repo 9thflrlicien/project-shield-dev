@@ -18,10 +18,6 @@ router.get('/dashboard', function(req, res, next) {
   res.render('dashboard', { title: 'Chatshier分析表' });
 });
 
-router.get('/tag', function(req, res, next) {
-  res.render('tag', { title: 'Chatshier標籤' });
-});
-
 router.get('/ticket', function(req, res, next) {
   res.render('ticket', { title: 'Chatshier待辦事項' });
 });
@@ -35,12 +31,20 @@ router.get('/setting', function(req, res, next) {
 });
 
 // 訊息
-router.get('/message_overview', function(req, res, next) {
-  res.render('message_overview', { title: 'Message Overview' });
+router.get('/message_autoreply', function(req, res, next) {
+  res.render('message_autoreply', { title: 'keywords_reply' });
 });
 
-router.get('/message_addfriendreply', function(req, res, next) {
-  res.render('message_addfriendreply', { title: 'Message Add Friend Reply' });
+router.get('/message_overview', function(req, res, next) {
+  res.render('message_overview', { title: 'message_overview' });
+});
+
+router.get('/message_keywordsreply', function(req, res, next) {
+  res.render('message_keywordsreply', { title: 'message_keywordsreplya' });
+});
+
+router.get('/message_addFriendReply', function(req, res, next) {
+  res.render('message_addFriendReply', { title: 'Chatshier訊息後台' });
 });
 
 //authentication

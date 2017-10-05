@@ -289,20 +289,17 @@ $(document).ready(function() {
       });
     }
   }); //end searchBox change func
-
   if (window.location.pathname === '/chat') {
     socket.emit("get tags from chat");
     let timer_1 = setInterval( function() {
       if( !auth.currentUser ) {
-        // console.log("currentUser not loaded yet!");
         return;
       }
       else {
         clearInterval(timer_1);
         userId = auth.currentUser.uid;
-        // console.log("userId = "+userId);
+        loadKeywordsReply(userId);
         database.ref('users/' + userId).once('value', snap => {
-          // console.log(snap.val());
           let name1 = snap.val().name1;
           let name2 = snap.val().name2;
           let id1 = snap.val().chanId_1;
@@ -430,15 +427,10 @@ $(document).ready(function() {
   });
 
   socket.on('upload history msg from back', data => {
-    // console.log(data);
-    // console.log('get uploaded history msg');
     let msgContent = $('#' + data.userId + '-content' + '[rel="'+data.roomId+'"]');
-    // console.log(msgContent);
-
     let origin_height = msgContent[0].scrollHeight;
     msgContent.find('.message:first').remove();
     msgContent.find('.message-day:lt(3)').remove();
-
     msgContent.prepend(historyMsg_to_Str(data.messages));
     let now_height = msgContent[0].scrollHeight;
     msgContent.animate({
@@ -465,13 +457,15 @@ $(document).ready(function() {
       console.log("new user!!! push into name_list!");
     }
   });
-
   socket.on('new user profile', function(data) {
     console.log('new user come in from www!');
     // console.log(data);
     userProfiles[data.userId] = data;
   });
-
+  socket.on('reply keywords to front', function(data){
+    socket.emit('send message', data);
+    console.log('socket emit send message from js');
+  });
   /*  =================================  */
 
   socket.on("push tags to chat", data => {
@@ -721,6 +715,7 @@ $(document).ready(function() {
     // let font_weight = profile.unRead ? "bold" : "normal"; //if last msg is by user, then assume the msg is unread by agent
     let font_weight = "normal";
     let lastMsgStr;
+    if (Array.isArray(lastMsg.message)) lastMsg.message.map(function(x){ lastMsg.message = x})
     if(lastMsg.message.startsWith('<a')){
       lastMsgStr = '<br><div id="msg" style="font-weight: ' + font_weight + '; font-size:8px; margin-left:12px;">' + '客戶傳送檔案' + "</div>";
     } else {
@@ -1657,7 +1652,7 @@ $(document).ready(function() {
       id: "",
       msg: imgAtt,
       msgtime: Date.now(),
-      room: $(this).parent().parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      room: $(this).parent().parent().parent().parent().siblings('#user').find('#selected').attr('rel'),
       channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
     };
     sendObj.id = $("#user-rooms option:selected").val();
@@ -1679,7 +1674,6 @@ $(document).ready(function() {
       channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
     };
     sendObj.id = $("#user-rooms option:selected").val();
-    // socket.emit('send message', sendObj); //socket.emit
     if(sendObj.room !== undefined && sendObj.room !== '' && sendObj.channelId !== undefined && sendObj.channelId !== ''){
       socket.emit('send message', sendObj); //socket.emit
     } else {
@@ -1697,7 +1691,6 @@ $(document).ready(function() {
       channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
     };
     sendObj.id = $("#user-rooms option:selected").val();
-    // socket.emit('send message', sendObj); //socket.emit
     if(sendObj.room !== undefined && sendObj.room !== '' && sendObj.channelId !== undefined && sendObj.channelId !== ''){
       socket.emit('send message', sendObj); //socket.emit
     } else {
@@ -1903,6 +1896,7 @@ function historyMsg_to_Str(messages) {
 } // end of historyMsg_to_Str
 
 function toAgentStr(msg, name, time) {
+  if (Array.isArray(msg)) msg.map(function(x){ msg = x});
   if (msg.startsWith("<a")) {
     return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
   } else {
@@ -2276,3 +2270,22 @@ function cancelSubmit(){
   $(this).siblings('[type="text"]').hide();
   $(this).siblings('.myText').show();
 } // end of cancelSubmit
+function loadKeywordsReply(userId){
+  database.ref('message-keywordsreply/' + userId).once('value', snap => {
+    let dataArray = snap.val();
+    setTimeout(function() {
+      for (var i in dataArray) {
+        socket.emit('update keywords', {
+          message: dataArray[i].taskMainK,
+          reply: dataArray[i].taskText
+        });
+        for (var n = 0; n < dataArray[i].taskSubK.length; n++) {
+          socket.emit('update subKeywords', {
+            message: dataArray[i].taskSubK[n],
+            reply: dataArray[i].taskText
+          });
+        }
+      }
+    }, 1000);
+  });
+}

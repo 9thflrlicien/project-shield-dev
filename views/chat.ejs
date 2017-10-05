@@ -16,43 +16,57 @@
     <div id="wrapper">
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-          <div class="navbar-header">
-              <a class="navbar-brand" href="/">Chatshier</a>
-          </div>
-          <!-- /.navbar-header -->
-          <ul class="nav navbar-top-links navbar-left">
-            <li>
-              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> 聊天室</a>
-            </li>
-            <li>
-              <a href="/calendar">| <i class="fa fa-table fa-fw"></i> 行事曆</a>
-            </li>
-            <li>
-              <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
-            </li>
-            <li>
-              <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
-            </li>
-          </ul>
-          <ul class="nav navbar-top-links navbar-right">
-            <!-- /.dropdown -->
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="fa fa-cog fa-lg"></i> <i class="fa fa-caret-down"></i>
-              </a>
-              <ul class="dropdown-menu dropdown-user">
-                <li><a href="/setting"><i class="fa fa-user fa-fw"></i>設定</a></li>
-                <li class="divider"></li>
-                <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i>登出</a></li>
-              </ul>
-              <!-- /.dropdown-user -->
-            </li>
-            <!-- /.dropdown -->
-          </ul>
-          <!-- /.navbar-top-links -->
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">SHIELD</a>
+        </div>
+        <!-- /.navbar-header -->
+        <ul class="nav navbar-top-links navbar-left">
+          <li>
+            <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> 聊天室</a>
+          </li>
+          <li id="nav_message">
+            <a href="#">| <i class="fa fa-commenting fa-fw"></i> 訊息</a>
+          </li>
+          <li class="subTag" style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_overview"> 總覽</a>
+          </li>
+          <li class="subTag"  style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_autoreply"> 自動回覆</a>
+          </li>
+          <li class="subTag"  style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_keywordsreply"> 關鍵字回覆</a>
+          </li>
+          <li class="subTag"  style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_addFriendReply"> 加好友回覆</a>
+          </li>
+          <li>
+            <a href="/calendar">| <i class="fa fa-table fa-fw"></i> 行事曆</a>
+          </li>
+          <li>
+            <a href="/dashboard"><i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
+          </li>
+          <li>
+            <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
+          </li>
+        </ul>
+        <ul class="nav navbar-top-links navbar-right">
+          <!-- /.dropdown -->
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+              <li><a href="/setting"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
+              <li class="divider"></li>
+              <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+            </ul>
+            <!-- /.dropdown-user -->
+          </li>
+          <!-- /.dropdown -->
+        </ul>
+        <!-- /.navbar-top-links -->
       </nav>
     </div>
-
     <div id="chatHome">
       <div class="chatArea">
         <div id="chatApp" class="colume" >
@@ -115,13 +129,11 @@
             <ol class="list-group" id="clients"></ol>
           </div>
         </div>
-
         <div id="chat" class="contentPanel" style="background-color: /*#c2d4dd*/;width:30%;">
           <div class="chat_prof">
             <h4 id="prof_nick"></h4>
           </div>
-          <section id="canvas">
-          </section>
+          <section id="canvas"></section>
           <div id="send-message">
             <div class="uploadArea" style="float:bottom">
               <div  id="showAttImg" >
@@ -130,8 +142,8 @@
                   <!-- <input type='file' accept='image/*' id="imageUPload"/> -->
                 </div>
                 <button id="upImg">
-                  <i class="fa fa-upload" aria-hidden="true"></i>
-                  <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
+                <i class="fa fa-upload" aria-hidden="true"></i>
+                <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
                 </button>
               </div>
               <div  id="showAttVid" >
@@ -140,8 +152,8 @@
                   <!-- <input type='file' accept='video/*' id="videoUPload"/> -->
                 </div>
                 <button id="upVid">
-                  <i class="fa fa-upload" aria-hidden="true"></i>
-                  <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
+                <i class="fa fa-upload" aria-hidden="true"></i>
+                <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
                 </button>
               </div>
               <div  id="showAttAud" >
@@ -150,8 +162,8 @@
                   <!-- <input type='file' accept='audio/*' id="audioUPload"/> -->
                 </div>
                 <button id="upAud">
-                  <i class="fa fa-upload" aria-hidden="true"></i>
-                  <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
+                <i class="fa fa-upload" aria-hidden="true"></i>
+                <i class="fa fa-spinner" aria-hidden="true" style="display:none"></i>
                 </button>
               </div>
             </div>
@@ -171,7 +183,6 @@
             </div>
           </div>
         </div>
-
         <div style="float:left!important;width: 30%;border-left:solid 1px lightgrey;float:right;" class="enterprise" id="內部聊天室">
           <div class="chat_prof_head"></div>
           <div class="chat_prof">
@@ -189,7 +200,6 @@
             <input type="submit"/>
           </form>
         </div>
-
         <div id="infoPanel" class="colume">
           <div class="card text-center">
             <div class="card-header">
@@ -204,16 +214,18 @@
             </div>
             <div id="infoCanvas"></div>
           </div>
-
           <div class="memo">
-            <div class="ticket_memo"><div class="memo_content"><p>請先新增表單才能使用備註</p></div></div>
+            <div class="ticket_memo">
+              <div class="memo_content">
+                <p>請先新增表單才能使用備註</p>
+              </div>
+            </div>
             <div class="submemo">
               <input placeholder="輸入備註..." style="width:65%; height:50px;border:0" size="35" id="message_memo" />
               <input type="button" id="submitMemo" />
             </div>
           </div>
         </div>
-
         <div class="modal fade" id="ticketInfoModal" role="dialog">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -225,23 +237,20 @@
                     <th style="display:none">內容</th>
                     <td class="modal-title edit">用戶代號</td>
                   </table>
-
                 </div>
               </div>
               <div class="modal-body">
                 <table class="ticket_info_content">
-
                 </table>
               </div>
               <div class="modal-footer">
                 <button type="button" id="ticketInfo-submit" class="btn btn-default" data-dismiss="modal" style="background-color: greenyellow;">Confirm</button>
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               </div>
             </div>
           </div>
         </div>
       </div>
-
       <!-- 新增todo表單-->
       <div class="modal fade" id="addTicketModal" role="dialog">
         <div class="modal-dialog">
@@ -254,7 +263,6 @@
                   <th style="display:none">內容</th>
                   <td class="modal-title edit">用戶代號</td>
                 </table>
-
               </div>
             </div>
             <div class="modal-body">
@@ -310,7 +318,6 @@
                       <option>急</option>
                     </select>
                   </div>
-
                   <!-- 說明 -->
                   <div class="form-group row">
                     <label for="description">說明</label>
@@ -326,21 +333,19 @@
                 </form>
               </div>
             </div>
-
           </div>
         </div>
       </div>
-
       <!-- end -->
-
     </div>
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+    <script src="javascripts/sb-admin-2.js"></script>
     <script src="javascripts/firebaseConfig.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src="javascripts/navigation.js"></script>
     <script src="javascripts/chat.js"></script>
-    <script src="javascripts/sb-admin-2.js"></script>
   </body>
 </html>
