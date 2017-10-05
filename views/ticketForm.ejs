@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= title %></title>
-
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="stylesheets/sb-admin-2.css">
@@ -16,55 +15,57 @@
     <div id="wrapper">
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-          <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                  <span class="sr-only">Toggle navigation</span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-              </button>
-              <a class="navbar-brand" href="/">SHIELD</a>
-          </div>
-          <!-- /.navbar-header -->
-          <ul class="nav navbar-top-links navbar-left">
-
-            <li>
-              <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
-            </li>
-            <li>
-              <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> Chat</a>
-            </li>
-            <li>
-              <a href="/tag">| <i class="fa fa-commenting fa-fw"></i> Tag</a>
-            </li>
-            <li>
-              <a href="/calendar">| <i class="fa fa-table fa-fw"></i> Calendar</a>
-            </li>
-            <li>
-              <a href="/ticket">| <i class="fa fa-ticket fa-fw"></i> Support</a>
-            </li>
-
-          </ul>
-          <ul class="nav navbar-top-links navbar-right">
-            <!-- /.dropdown -->
-            <li class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
-              </a>
-              <ul class="dropdown-menu dropdown-user">
-                <li><a href="/profile"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
-                <li class="divider"></li>
-                <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
-              </ul>
-              <!-- /.dropdown-user -->
-            </li>
-            <!-- /.dropdown -->
-          </ul>
-          <!-- /.navbar-top-links -->
-
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">SHIELD</a>
+        </div>
+        <!-- /.navbar-header -->
+        <ul class="nav navbar-top-links navbar-left">
+          <li>
+            <a href="/chat" class="active">| <i class="fa fa-commenting fa-fw"></i> 聊天室</a>
+          </li>
+          <li id="nav_message">
+            <a href="#">| <i class="fa fa-commenting fa-fw"></i> 訊息</a>
+          </li>
+          <li class="subTag" style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_overview"> 總覽</a>
+          </li>
+          <li class="subTag"  style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_autoreply"> 自動回覆</a>
+          </li>
+          <li class="subTag"  style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_keywordsreply"> 關鍵字回覆</a>
+          </li>
+          <li class="subTag"  style="display:none; font-size: 12px; line-height: auto;">
+            <a href="/message_addFriendReply"> 加好友回覆</a>
+          </li>
+          <li>
+            <a href="/calendar">| <i class="fa fa-table fa-fw"></i> 行事曆</a>
+          </li>
+          <li>
+            <a href="/dashboard"><i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
+          </li>
+          <li>
+            <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
+          </li>
+        </ul>
+        <ul class="nav navbar-top-links navbar-right">
+          <!-- /.dropdown -->
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+              <li><a href="/setting"><i class="fa fa-user fa-fw"></i> User Profile</a></li>
+              <li class="divider"></li>
+              <li><a href="/login" id="signout-btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+            </ul>
+            <!-- /.dropdown-user -->
+          </li>
+          <!-- /.dropdown -->
+        </ul>
+        <!-- /.navbar-top-links -->
       </nav>
     </div>
-
     <!-- Form -->
     <div id="form-wrap">
       <!-- 任務內容 -->
@@ -108,23 +109,22 @@
         <div class="form-group row">
           <label for="status">狀態</label>
           <select class="form-control" id="form-status">
-            <option value="Open">Open</option>
-            <option value="Pending">Pending</option>
-            <option value="Resolved">Resolved</option>
-            <option value="Closed">Closed</option>
-          </select> 
+            <option>Open</option>
+            <option>Pending</option>
+            <option>Resolved</option>
+            <option>Closed</option>
+          </select>
         </div>
         <!-- 緊急 -->
         <div class="form-group row">
           <label for="priority">優先</label>
           <select class="form-control" id="form-priority">
-            <option value="Low">低</option>
-            <option value="Medium">中</option>
-            <option value="High">高</option>
-            <option value="Urgent">急</option>
+            <option>低</option>
+            <option>中</option>
+            <option>高</option>
+            <option>急</option>
           </select>
         </div>
-
         <!-- 說明 -->
         <div class="form-group row">
           <label for="description">說明</label>
@@ -139,8 +139,6 @@
         <br />
       </form>
     </div>
-
-
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
@@ -148,5 +146,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/ticket.js"></script>
     <script src="javascripts/sb-admin-2.js"></script>
+    <script src="javascripts/navigation.js"></script>
   </body>
 </html>
