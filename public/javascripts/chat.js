@@ -2427,7 +2427,7 @@ function loadKeywordsReply(userId){
     let dataArray = snap.val();
     setTimeout(function(){
     for (var i in dataArray){
-          console.log(dataArray[i]);
+          // console.log(dataArray[i]);
 
     socket.emit('update keywords', {
       message: dataArray[i].taskMainK,

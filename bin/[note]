@@ -1,0 +1,23 @@
+[note]
++新增keywordsreply.ejs/js＆routes
++chat.js新增function loadKeywordsReply()
++在if (window.location.pathname === '/chat')，else下面加 loadKeywordsReply(userId);
++在www io.sockets.on(){...加兩個socket.on:
+update keywords, update subKeywords 
++在www新增var keywords = [];
++在linebotdemo,survey,appointment,commonquestions下面加一個keywordsReply(message_lineTochat)
++加function keywordsReply()
++chat.js加一個socket.on 'reply keywords to front'
++chat.js 在function toAgentStr()加一個條件式 if (Array.isArray(msg)) //給同時傳送多個訊息使用 
++www socket.on('send message')下面加 if (Array.isArray(data.msg)) var msg = data.msg;
++www在if (agent_sendTo_receiver !== undefined ) 處加
+      if(chanId === '1522975413{LINE ROOM ID}'){
+        if (Array.isArray(msg)){
+        for (var i=0; i<msg.length; i++){
+            bot[0].push(agent_sendTo_receiver, msg[i]);
+        }}else{
+          bot[0].push(agent_sendTo_receiver, msg);
+        }
+
+*那個chanId的地方我暫時先這樣用，因為Line_1_room這一份好像沒有找到設定的地方
+

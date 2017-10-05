@@ -118,7 +118,6 @@ var linebotParser = [
 ];
 var channelIds = [-1, -1];
 var keywords = [];
-var kReply = [];
 
 const io = require('socket.io').listen(server);
 
@@ -6315,18 +6314,10 @@ io.sockets.on('connection', (socket) => {
 
   //更新關鍵字回覆
   socket.on('update keywords', (data) => {
-    console.log('exe update keywords')
     keywords[data.message] = data.reply;
-    // kReply.push(data.reply);
-    console.log(keywords);
 });
   socket.on('update subKeywords', (data) => {
-    console.log('exe update sub keywords')
     keywords[data.message] = data.reply;
-
-    // keywords.push(data.message);
-    // kReply.push(data.reply);
-    console.log(keywords);
 });
 
   // 更新群組
