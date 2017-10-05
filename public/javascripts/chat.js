@@ -288,18 +288,18 @@ $(document).ready(function() {
           {
             $('#line1 p').text(name1);
             $('#line2 p').text(name2);
-            socket.emit('update bot', [
-              {
+            socket.emit('update bot', {
+              line_1: {
                 channelId: id1,
                 channelSecret: secret1,
                 channelAccessToken: token1
               },
-              {
+              line_2: {
                 channelId: id2,
                 channelSecret: secret2,
                 channelAccessToken: token2
-              },
-            ]);
+              }
+            });
             $('.error').append('您其中一個LINE群組還沒有做聊天設定，如有需要請至Settings做設定。');
             setTimeout(() => {
               $('.error').text('');
@@ -404,8 +404,8 @@ $(document).ready(function() {
   });
 
   socket.on('new message', (data) => {
-    // console.log("receive socket! data = ");
-    // console.log(data);
+    console.log("receive socket! data = ");
+    console.log(data);
     // if www push "new message"
     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
     // owner = "user", "agent" ; name = "Colman", "Ted", others...
@@ -666,7 +666,7 @@ $(document).ready(function() {
     else {
       historyMsgStr += NO_HISTORY_MSG; //history message string head
     }
-
+    console.log(historyMsg);
     historyMsgStr += historyMsg_to_Str(historyMsg);
     // end of history message
 
