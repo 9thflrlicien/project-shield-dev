@@ -332,18 +332,25 @@ $(document).ready(function() {
           {
             $('#line1 p').text(name1);
             $('#line2 p').text(name2);
-            socket.emit('update bot', [
-              {
-                channelId: id1,
-                channelSecret: secret1,
-                channelAccessToken: token1
+            socket.emit('update bot', {
+              line_1: {
+                channelId: chanId_1,
+                channelSecret: chanSecret_1,
+                channelAccessToken: chanAT_1
               },
-              {
-                channelId: id2,
-                channelSecret: secret2,
-                channelAccessToken: token2
+              line_2: {
+                channelId: chanId_2,
+                channelSecret: chanSecret_2,
+                channelAccessToken: chanAT_2
               },
-            ]);
+              fb: {
+                pageID: fbPageId,
+                appID: fbAppId,
+                appSecret: fbAppSecret,
+                validationToken: fbValidToken,
+                pageToken: fbPageToken
+              },
+            });
             $('.error').append('您其中一個LINE群組還沒有做聊天設定，如有需要請至Settings做設定。');
             setTimeout(() => {
               $('.error').text('');
@@ -352,18 +359,25 @@ $(document).ready(function() {
           } else {
             $('#line1 p').text(name1);
             $('#line2 p').text(name2);
-            socket.emit('update bot', [
-              {
-                channelId: id1,
-                channelSecret: secret1,
-                channelAccessToken: token1
+            socket.emit('update bot', {
+              line_1: {
+                channelId: chanId_1,
+                channelSecret: chanSecret_1,
+                channelAccessToken: chanAT_1
               },
-              {
-                channelId: id2,
-                channelSecret: secret2,
-                channelAccessToken: token2
+              line_2: {
+                channelId: chanId_2,
+                channelSecret: chanSecret_2,
+                channelAccessToken: chanAT_2
               },
-            ]);
+              fb: {
+                pageID: fbPageId,
+                appID: fbAppId,
+                appSecret: fbAppSecret,
+                validationToken: fbValidToken,
+                pageToken: fbPageToken
+              },
+            });
           }
         });
         agentName();
