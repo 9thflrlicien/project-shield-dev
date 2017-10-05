@@ -5404,7 +5404,7 @@ io.sockets.on('connection', (socket) => {
       linebotParser[0] = bot[0].parser();
       bot[0].on('message', bot_on_message);
       bot[0].on('postback', bot_on_postback);
-      channelIds[0] = chanInfo.line_1.channelId;
+      Line_1_room = chanInfo.line_1.channelId;
     }
 
     if( chanInfo.hasOwnProperty("line_2") ) {
@@ -5413,7 +5413,7 @@ io.sockets.on('connection', (socket) => {
       linebotParser[1] = bot[1].parser();
       bot[1].on('message', bot_on_message);
       bot[1].on('postback', bot_on_postback);
-      channelIds[1] = chanInfo.line_2.channelId;
+      Line_2_room = chanInfo.line_2.channelId;
     }
     if( chanInfo.hasOwnProperty("fb") ) {
       console.log("update fb channel information.");
@@ -5584,38 +5584,39 @@ io.sockets.on('connection', (socket) => {
       agent_nickname = 'agent';
     }
 
-    var message;
-    let nowTime = Date.now();
-
+    //====send to fb or line====//
     {
       if(chanId === 'FB'){
         //------FACEBOOK----
         if (data.msg.startsWith('/image')) {
           let link = data.msg.substr(7);
-          console.log('this is link');
+          console.log('this is image');
           console.log(link);
 
-          fb_bot.sendImageMessage(data.id, link, true);
+          fb_bot.sendImageMessage(agent_sendTo_receiver, link, true);
         }
         else if (data.msg.startsWith('/video')) {
           let link = data.msg.substr(7);
-          console.log('this is link');
+          console.log('this is video');
           console.log(link);
 
-          fb_bot.sendVideoMessage(data.id, link, true);
+          fb_bot.sendVideoMessage(agent_sendTo_receiver, link, true);
         }
         else if (data.msg.startsWith('/audio')) {
           let link = data.msg.substr(7);
-          console.log('this is link');
+          console.log('this is audio');
           console.log(link);
 
-          fb_bot.sendAudioMessage(data.id, link, true);
+          fb_bot.sendAudioMessage(agent_sendTo_receiver, link, true);
         }
         else {
-          fb_bot.sendTextMessage(data.id, data.msg);
+          fb_bot.sendTextMessage(agent_sendTo_receiver, data.msg);
         }
       }
       else {
+        console.log("==LINE");
+        ///its to line
+        let message = {};
         if(msg.includes('/image')){
           console.log('got image');
           let link = msg.substr(7);
@@ -5661,38 +5662,36 @@ io.sockets.on('connection', (socket) => {
             text: msg
           };
         }
+
+        if( !agent_sendTo_receiver ) {
+          console.log("agent_sendTo_receiver undefined!");
+          agent_sendTo_receiver = "agent_sendTo_receiver undefined!";
+        }
+        if(chanId === Line_1_room){
+          console.log('send to room 1, message: ');
+          console.log(message);
+          bot[0].push(agent_sendTo_receiver, message);
+        }
+        else if(chanId === Line_2_room) {
+          console.log('send to room 2, message: ');
+          console.log(message);
+          bot[1].push(agent_sendTo_receiver, message);
+        }
       }
-    }
-    // 訊息傳到LINE
-    if (agent_sendTo_receiver !== undefined ) { // 需要新增一個判斷式來分別出要傳訊息給哪一間聊天室
-      if(chanId === 'Line_1_room'){
-        bot[0].push(agent_sendTo_receiver, message);
-      }
-      else if(chanId === 'Line_2_room') {
-        console.log('send to room 2');
-        console.log(message);
-        bot[1].push(agent_sendTo_receiver, message);
-      }
-      else {
-        console.log('push to fb');
-      }
-    }
-    else {
-      console.log("agent_sendTo_receiver undefined!");
     }
 
-    for( let i in chatData ) {
-      if( chatData[i].Profile.userId === data.id ) {
-        var unRead_fromProfile = chatData[i].Profile.unRead;
-        break;
-      }
-    }
+    // for( let i in chatData ) {
+    //   if( chatData[i].Profile.userId === data.id ) {
+    //     var unRead_fromProfile = chatData[i].Profile.unRead;
+    //     break;
+    //   }
+    // }
 
     // 傳到shield chat
     var msgObj = {
       owner: "agent",
       name: agent_nickname,
-      time: nowTime,
+      time: msg_time,
       message: "undefined_message"
     };
 
@@ -5710,6 +5709,10 @@ io.sockets.on('connection', (socket) => {
         // msgObj.message = data.msg+ '" type="audio/mpeg"></audio>';
         emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
       }
+      else {
+        msgObj.message = data.msg;
+        emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
+      }
       // if (msg.startsWith('<img')){
       //     msgObj.message = data.msg+'"/>';
       //     emitIO_and_pushDB(msgObj, null, 'FB', agent_sendTo_receiver, 0);
@@ -5724,87 +5727,36 @@ io.sockets.on('connection', (socket) => {
       // }
     }
     else {
-      // LINE
+      // -----LINE-----
+      let channelId = -1;
+      if( chanId === Line_1_room ) channelId = Line_1_room;
+      else if( chanId === Line_2_room ) channelId = Line_2_room;
+      else console.log("chanId not found error 8787");
+
       if (msg.includes('/image')) {
         msgObj.message = '傳圖檔給客戶';
-        if(chanId === 'Line_1_room'){
-          emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        }
-        else if(chanId === 'Line_2_room') {
-          emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
-        }
-        else {
-          console.log('push to fb')
-        }
       }
       else if (msg.includes('/audio')) {
         msgObj.message = '傳音檔給客戶';
-        if(chanId === 'Line_1_room'){
-          emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        }
-        else if(chanId === 'Line_2_room') {
-          emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
-        }
-        else {
-          console.log('push to fb')
-        }
       }
       else if (msg.includes('/video')) {
         msgObj.message = '傳影檔給客戶';
-        if(chanId === 'Line_1_room'){
-          emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        }
-        else if(chanId === 'Line_2_room') {
-          emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
-        }
-        else {
-          console.log('push to fb')
-        }
       }
       else if ( isUrl(msg) ) {
         let urlStr = '<a href=';
         if (msg.indexOf('https') !== -1 || msg.indexOf('http') !== -1) {
-          urlStr += '"https://';
+          urlStr += '"http://';
         }
         msgObj.message = urlStr + msg + '/" target="_blank">' + msg + '</a>';
-        if(chanId === 'Line_1_room'){
-          emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        }
-        else if(chanId === 'Line_2_room') {
-          emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
-        }
-        else {
-          console.log('push to fb')
-        }
-
       }
       else if (msg.includes('/sticker')) {
         msgObj.message = 'Send sticker to user';
-        if(chanId === 'Line_1_room'){
-          emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        }
-        else if(chanId === 'Line_2_room') {
-          emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
-        }
-        else {
-          console.log('push to fb')
-        }
       }
       else {
         msgObj.message = msg;
-        if(chanId === 'Line_1_room'){
-          emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
-        }
-        else if(chanId === 'Line_2_room') {
-          emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
-        }
-        else if(chanId === 'FB') {
-          emitIO_and_pushDB(msgObj, null, channelIds[2], agent_sendTo_receiver, 0);
-        }
-        else {
-          console.log('sending error in line 1514! chanId = '+chanId);
-        }
       }
+      
+      emitIO_and_pushDB(msgObj, null, channelId, agent_sendTo_receiver, 0);
     }
   });//sent message
 
@@ -6042,7 +5994,7 @@ function send_to_firebase(obj, pictureUrl, channelId, receiverId, unRead){
   for( let prop in chatData ) {
     let data = chatData[prop];
     if( data.Profile.channelId===channelId && data.Profile.userId===receiverId) {
-      console.log("find user in database");
+      console.log("find user in database, prop = "+prop);
       let length = data.Messages.length;
       count_unread += data.Profile.unRead;
       let updateObj = {};
@@ -6251,7 +6203,8 @@ function loadFbProfile(obj, psid) {
             平均每次聊天時間: 1,
             聊天次數: 1,
             unRead: 1,
-            photo: obj.prof_pic
+            photo: obj.prof_pic,
+            channelId: "FB"
           },
           Messages: [obj]
         };
