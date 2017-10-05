@@ -364,23 +364,25 @@ $(document).ready(function() {
       fbValidToken: fbValidToken,
       fbPageToken: fbPageToken
     });
-    io.connect().emit('update bot', [
-      {
+    socket.emit('update bot', {
+      line_1: {
         channelId: chanId_1,
         channelSecret: chanSecret_1,
         channelAccessToken: chanAT_1
       },
-      {
+      line_2: {
         channelId: chanId_2,
         channelSecret: chanSecret_2,
         channelAccessToken: chanAT_2
       },
-      {
-        channelId: chanId_2,
-        channelSecret: chanSecret_2,
-        channelAccessToken: chanAT_2
+      fb: {
+        pageID: fbPageId,
+        appID: fbAppId,
+        appSecret: fbAppSecret,
+        validationToken: fbValidToken,
+        pageToken: fbPageToken
       },
-    ]);
+    });
 
     $('#error-message').hide();
     profClear();

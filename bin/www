@@ -6304,16 +6304,19 @@ io.sockets.on('connection', (socket) => {
       if(chatInfo !== null){
         let chanId_1 = chatInfo.chanId_1;
         let chanId_2 = chatInfo.chanId_2;
+        let fbPageId = chatInfo.fbPageId;
         console.log("response line channel, channelId = "+chanId_1+', '+chanId_2);
         socket.emit('response line channel', {
           chanId_1: chanId_1,
-          chanId_2: chanId_2
+          chanId_2: chanId_2,
+          fbPageId: fbPageId
         });
       } else {
         console.log('chatInfo is null');
         socket.emit('response line channel', {
           chanId_1: '',
-          chanId_2: ''
+          chanId_2: '',
+          fbPageId: fbPageId
         });
       }
     });
@@ -6323,19 +6326,27 @@ io.sockets.on('connection', (socket) => {
     console.log("update_line_bot");
     console.log("chanInfo: ");
     console.log(chanInfo);
-    if( bot[0] ) bot[0]._events = {};
-    if( bot[1] ) bot[1]._events = {};
-    for( let i=0; i<chanInfo.length; i++ ) {
-      console.log("update Line channel_"+i+" information.");
-      bot[i] = linebot(chanInfo[i]);
-      linebotParser[i] = bot[i].parser();
-      bot[i].on('message', bot_on_message);
-      bot[i].on('postback', bot_on_postback);
 
-      channelIds[i] = chanInfo[i].channelId;
+    console.log("update Line channel_1 information.");
+    bot[0] = linebot(chanInfo.line_1);
+    linebotParser[0] = bot[0].parser();
+    bot[0].on('message', bot_on_message);
+    bot[0].on('postback', bot_on_postback);
+    channelIds[0] = chanInfo.line_1.channelId;
 
-      console.log('update done');
-    }
+    console.log("update Line channel_2 information.");
+    bot[1] = linebot(chanInfo.line_2);
+    linebotParser[1] = bot[1].parser();
+    bot[1].on('message', bot_on_message);
+    bot[1].on('postback', bot_on_postback);
+    channelIds[1] = chanInfo.line_2.channelId;
+
+    console.log("update fb channel information.");
+    fb_bot = MessengerPlatform.create(chanInfo.fb);
+    // fb_bot.webhook('/webhook'); //不知道這句要不要
+    channelIds[2] = chanInfo.fb.pageId;
+
+    console.log('update done');
   }
 
 
