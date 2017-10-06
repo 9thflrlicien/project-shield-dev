@@ -94,7 +94,6 @@ function loadTable(){
 
 }
 
-
 function showInput() {
   let prop = $(this).parent().children("th").text() ;
   let original = $(this).text() ;
@@ -168,15 +167,26 @@ function updateStatus() {
   var new_time=[];
   var new_time2=[];
   time_list.map(function(i){
-    if (!i.startsWith(0) && i.length == 1 || i.length == 10) i = '0'+i;
+    if (i.length == 1 || i.length >5 && !i.startsWith(0)) i = '0'+i;
     new_time.push(i);
   });
-    new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
-    new_time.map(function(i){
-      if (i.length == 1) i = '0'+i;
-      new_time2.push(i);
-    })
-    new_time = new_time2.join(":");
+  new_time = new_time.join("-").split(" ");
+  if (new_time[1].length < 8){
+      new_time[1].split(":").map(function(x){
+        if (x.length == 1) new_time[1] = new_time[1].replace(x,'0'+x);
+      });
+  };
+  new_time = new_time.join("T")+"Z";
+// .split(":");
+//     new_time.map(function(i){
+//       console.log(i);
+//       if (i.length == 12 && i.endsWith('0')) i = i+'0';
+//       if (i.length==1 || i.length ==2 && i.endsWith('Z')) i = '0'+i;
+//       new_time2.push(i);
+//     })
+//     new_time = new_time2.join(":");
+    console.log(new_time);
+    console.log(客戶名);
 
   obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
 
@@ -200,7 +210,7 @@ function updateStatus() {
       error:  function(jqXHR, tranStatus) {
         alert("表單更新失敗，請重試");
         console.log(jqXHR.responseText)
-      }
+      }       
     });
   }
 
@@ -569,3 +579,59 @@ function searchBar(){
     return !~text1.indexOf(val);
   }).hide();
 }
+//=========[SORT CLOSE]=========
+function sortCloseTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = $(".ticket-content");
+  switching = true;
+  //Set the sorting direction to ascending:
+  dir = "asc";
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.find('tr');
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 0; i < (rows.length-1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].childNodes[n];
+      y = rows[i + 1].childNodes[n];
+      /*check if the two rows should switch place,
+      based on the direction, asc or desc:*/
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      //Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /*If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again.*/
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+

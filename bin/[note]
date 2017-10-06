@@ -1,0 +1,59 @@
+[note]
++chat.js新增function loadKeywordsReply()
++在if (window.location.pathname === '/chat')，else下面加 loadKeywordsReply(userId);
++在www io.sockets.on(){...加兩個socket.on:
+update keywords, update subKeywords 
++在www新增var keywords = [];
++在linebotdemo,survey,appointment,commonquestions下面加一個keywordsReply(message_lineTochat)
++加function keywordsReply()
++chat.js加一個socket.on 'reply keywords to front'
++chat.js 在function toAgentStr()加一個條件式 if (Array.isArray(msg)) //給同時傳送多個訊息使用 
++www socket.on('send message')下面加 if (Array.isArray(data.msg)) var msg = data.msg;
++www在if (agent_sendTo_receiver !== undefined ) 處加
+      if(chanId === '1522975413{LINE ROOM ID}'){
+        if (Array.isArray(msg)){
+        for (var i=0; i<msg.length; i++){
+            bot[0].push(agent_sendTo_receiver, msg[i]);
+        }}else{
+          bot[0].push(agent_sendTo_receiver, msg);
+        }
+
+*那個chanId的地方我暫時先這樣用，因為Line_1_room這一份好像沒有找到設定的地方
+
+-setting，編輯聊天室帳號，編輯完的確認沒有功能
+-chat group字體反白的部分，UI可以改一下
+-chat.js新增一個lastMsg的條件：  if (Array.isArray(lastMsg.message)) lastMsg.message.map(function(x){ lastMsg.message = x})
+
+-新訊息進來在總排列的地方沒有跳到最上面
+-chatApp icon那邊需要跳出提醒標
+-facebook第一組傳的unread是對的，line第一組傳的unread是錯的，後來unread直接消失
+-訊息、圖片都無法傳送
+-編輯user profile，取消無法按
+-client tab訊息字體大小可改一下
+-facebook圖片訊息的大小跟line不一樣
+-接收圖片/貼圖，clientTab那裡顯示的不是“用戶傳送了一張圖片/貼圖”之類的
+
+-----171006----
+ticket.js 更新
+showInput()
+hideInput()
+updateStatus()
+sortCloseTable()
+
+ticket.ejs更新
+sortCloseTable()
+
+chat.js更新
+-在display新增  '<th>客戶ID</th>'+
+  '<td class="edit">'+Tinfo.subject+'</td>'+
+  '</tr><tr>'+
+-  更改$(".modal-title").text(Tinfo.requester.name);
+- showInput()
+-hideInput()
+-updateStatus()
+-document.on處要加showInput()
+hideInput()
+updateStatus()
+keypress inner
+
+加入message_overview.ejs/js 確認一下‘+新增訊息’的位置有沒有跑掉

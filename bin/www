@@ -21,7 +21,6 @@ var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 //Create HTTP server.
 var server = http.createServer(app);
-const io = require('socket.io').listen(server);
 // Listen on provided port, on all network interfaces.
 server.listen(port);
 server.on('error', onError);
@@ -106,6 +105,7 @@ var FD_ENDPOINT = "fongyu";
 var users = {};
 var agent_nickname = 'agent';
 
+
 // LINE bot設定
 var bot = [];
 var linebotParser = [
@@ -117,7 +117,9 @@ var linebotParser = [
   }
 ];
 var channelIds = [-1, -1];
+var keywords = [];
 
+const io = require('socket.io').listen(server);
 
 ///////////////// 接收訊息 /////////////////
 //==============FACEBOOK MESSAGE==============
@@ -348,9 +350,27 @@ function bot_on_message(event) {
         survey(message_lineTochat); // 問卷
         appointment(message_lineTochat); // 預約
         commonquestions(message_lineTochat); // 常見問題
+        keywordsReply(message_lineTochat); //設定關鍵字
         // apiai(message_lineTochat);
       }
     }
+
+    function keywordsReply(msg){
+      for (var i in keywords){
+      switch(msg.trim()){
+        case i:
+          msgObj.msg = keywords[i];
+          msgObj.id = receiverId;
+          msgObj.room = channelId;
+          msg.msgtime = msgObj.time; 
+          emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1); 
+          console.log('to reply keywords to front...');   
+          io.sockets.emit('reply keywords to front',msgObj); 
+          console.log('sent to chat.js');
+          } 
+        }
+      }
+    
 
     // functions
     function linebotdemo(msg){
@@ -6292,6 +6312,14 @@ io.sockets.on('connection', (socket) => {
   //   socket.emit('push inside chat', thisAgentData);
   // });
 
+  //更新關鍵字回覆
+  socket.on('update keywords', (data) => {
+    keywords[data.message] = data.reply;
+});
+  socket.on('update subKeywords', (data) => {
+    keywords[data.message] = data.reply;
+});
+
   // 更新群組
   socket.on('update bot', (data) => {
     update_line_bot(data);
@@ -6483,7 +6511,8 @@ io.sockets.on('connection', (socket) => {
   // 從SHIELD chat傳送訊息
   socket.on('send message', (data, callback) => {
     console.log(data);
-    let msg = data.msg.trim();
+    if (Array.isArray(data.msg)) var msg = data.msg;
+    else var msg = data.msg.trim();
     let agent_sendTo_receiver = data.id.trim();
     let msg_time = data.msgtime;
     let chanId = data.room;
@@ -6573,8 +6602,14 @@ io.sockets.on('connection', (socket) => {
     }
     // 訊息傳到LINE
     if (agent_sendTo_receiver !== undefined ) { // 需要新增一個判斷式來分別出要傳訊息給哪一間聊天室
-      if(chanId === 'Line_1_room'){
-        bot[0].push(agent_sendTo_receiver, message);
+      if(chanId === '1522975413'){
+        if (Array.isArray(msg)){
+        for (var i=0; i<msg.length; i++){
+            bot[0].push(agent_sendTo_receiver, msg[i]);
+        }}else{
+          bot[0].push(agent_sendTo_receiver, msg);
+        }
+
       } else if(chanId === 'Line_2_room') {
         console.log('send to room 2');
         console.log(message);
@@ -6687,7 +6722,7 @@ io.sockets.on('connection', (socket) => {
       }
       else {
         msgObj.message = msg;
-        if(chanId === 'Line_1_room'){
+        if(chanId === '1522975413'){
           emitIO_and_pushDB(msgObj, null, channelIds[0], agent_sendTo_receiver, 0);
         } else if(chanId === 'Line_2_room') {
           emitIO_and_pushDB(msgObj, null, channelIds[1], agent_sendTo_receiver, 0);
@@ -6931,7 +6966,6 @@ function send_to_firebase(obj, pictureUrl, channelId, receiverId, unRead){
   for( let prop in chatData ) {
     let data = chatData[prop];
     if( data.Profile.channelId===channelId && data.Profile.userId===receiverId) {
-      console.log("find user in database");
       let length = data.Messages.length;
       count_unread += data.Profile.unRead;
       let updateObj = {};
