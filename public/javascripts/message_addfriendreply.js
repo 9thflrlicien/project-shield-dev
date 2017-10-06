@@ -1,4 +1,6 @@
 var socket = io.connect();
+var dataArray = [];
+var msgArray
 $(document).ready(function(){
   $(document).on('click', '#signout-btn', logout); //登出
   $(document).on('click', '#save', modalSubmit );
@@ -8,28 +10,30 @@ $(document).ready(function(){
 });
 function loadFriendsReply(){
   let userId = auth.currentUser.uid;
+  dataArray = []; // empty the array first
+  msgArray = []; // get a new array to emit
   database.ref('message-addfriendsreply/' + userId).on('value', snap => {
-    let dataArray = [];
     let testVal = snap.val();
-    let myIds = Object.keys(testVal);
-    for (var i = 0; i < myIds.length; i++){
-      dataArray.push(snap.child(myIds[i]).val());
-      let loadMsg = '<!--TEXT AREA -->' +
-          '<tr id="'+myIds[i]+'">' +
-            '<th style="padding:1%; margin:2% 1% 2% 1%; background-color: #ddd">請輸入文字:</th>' +
-          '</tr>' +
-          '<tr id="'+myIds[i]+'">' +
-            '<td style="background-color: #ddd">' +
-              '<span style="float:right" id="delete">X</span>' +
-              '<form style="padding:1%; margin:1%">' +
-                '<input id="'+myIds[i]+'" style="width:100%;height:100px" value="'+dataArray[i].taskText+'" />' +
-              '</form>' +
-            '</td>' +
-          '</tr>';
-      $('#MsgCanvas').append(loadMsg);
-      // if (i === (myIds.length - 1)){
-      //   // $('#inputText').val(dataArray[i].taskText); //狀態
-      // }
+    if(testVal !== null){
+      let myIds = Object.keys(testVal);
+      for (var i = 0; i < myIds.length; i++){
+        dataArray.push(snap.child(myIds[i]).val());
+        let loadMsg = '<!--TEXT AREA -->' +
+            '<tr id="'+myIds[i]+'">' +
+              '<th style="padding:1%; margin:2% 1% 2% 1%; background-color: #ddd">請輸入文字:</th>' +
+            '</tr>' +
+            '<tr id="'+myIds[i]+'">' +
+              '<td style="background-color: #ddd">' +
+                '<span style="float:right" id="delete">X</span>' +
+                '<form style="padding:1%; margin:1%">' +
+                  '<input id="'+myIds[i]+'" style="width:100%;height:100px" value="'+dataArray[i].taskText+'" />' +
+                '</form>' +
+              '</td>' +
+            '</tr>';
+        $('#MsgCanvas').append(loadMsg);
+        msgArray.push(dataArray[i].taskText);
+      }
+      emitToServer(msgArray);
     }
   });
 } // end of loadFriendsReply
@@ -50,7 +54,7 @@ function addMsgCanvas(){
 } // end of addMsgCanvas
 function delMsgCanvas(){ // 如果只是新增一個空的tr再刪除會止移除第二個tr
   if($(this).parent().parent().attr('id') === undefined){
-    window.reload();
+    location.reload();
   }else{
     let id = $(this).parent().parent().attr('id');
     let uid = auth.currentUser.uid;
@@ -62,17 +66,22 @@ function delMsgCanvas(){ // 如果只是新增一個空的tr再刪除會止移�
   }
 } // end of delMsgCanvas
 function modalSubmit(){ // 送出新增
-  let MsgInfo = {
-    currentDateTime:Date.now(),
-    inp:$('#textinput').val(),
-    currentUserEmail:auth.currentUser.email.toString()
+  let newMsg = $('#textinput').val();
+  if(newMsg.trim() !== ''){
+    dataArray.push(newMsg);
+    let MsgInfo = {
+      currentDateTime:Date.now(),
+      inp:newMsg,
+      currentUserEmail:auth.currentUser.email.toString()
+    }
+    writeUserData(MsgInfo);
+    //塞入資料庫並重整
+    alert('Saved!');
+    $('#MsgCanvas').empty();
+    loadFriendsReply();
+  }else{
+    alert('Please fill in the space');
   }
-  writeUserData(MsgInfo);
-  //塞入資料庫並重整
-  alert('Saved!');
-  emitToServer(MsgInfo);
-  $('#MsgCanvas').empty();
-  loadFriendsReply();
 } // end of modalSubmit
 function writeUserData(obj){ // 寫進資料庫
   let userId = auth.currentUser.uid;

@@ -14,7 +14,7 @@
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
-          <a class="navbar-brand" href="/">SHIELD</a>
+          <a class="navbar-brand" href="/">Chatshier</a>
         </div>
         <!-- /.navbar-header -->
         <ul class="nav navbar-top-links navbar-left">
@@ -40,7 +40,7 @@
             <a href="/calendar">| <i class="fa fa-table fa-fw"></i> 行事曆</a>
           </li>
           <li>
-            <a href="/dashboard"><i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
+            <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
           </li>
           <li>
             <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
@@ -75,12 +75,12 @@
         <table>
           <thead>
             <tr>
-              <th> ID </th>
-              <th> 客戶姓名 </th>
-              <th> 內容 </th>
-              <th> 狀態 </th>
-              <th> 優先 </th>
-              <th> 到期時間 </th>
+              <th onclick="sortCloseTable(0)"> ID </th>
+              <th onclick="sortCloseTable(1)"> 客戶姓名 </th>
+              <th onclick="sortCloseTable(2)"> 內容 </th>
+              <th onclick="sortCloseTable(3)"> 狀態 </th>
+              <th onclick="sortCloseTable(4)"> 優先 </th>
+              <th onclick="sortCloseTable(5)"> 到期時間 </th>
             </tr>
           </thead>
           <tbody class="ticket-content">
@@ -123,6 +123,5 @@
     <script src="javascripts/firebaseConfig.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="javascripts/ticket.js"></script>
-    <script src="javascripts/navigation.js"></script>
   </body>
 </html>

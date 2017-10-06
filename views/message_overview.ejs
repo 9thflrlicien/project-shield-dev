@@ -21,7 +21,7 @@
       <!-- Navigation -->
       <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
-          <a class="navbar-brand" href="/">SHIELD</a>
+          <a class="navbar-brand" href="/">Chatshier</a>
         </div>
         <!-- /.navbar-header -->
         <ul class="nav navbar-top-links navbar-left">
@@ -47,7 +47,7 @@
             <a href="/calendar">| <i class="fa fa-table fa-fw"></i> 行事曆</a>
           </li>
           <li>
-            <a href="/dashboard"><i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
+            <a href="/dashboard">| <i class="fa fa-dashboard fa-fw"></i> 資訊主頁</a>
           </li>
           <li>
             <a href="/ticket">| <i class="fa fa-check-square-o fa-fw"></i> 待辦事項</a>
@@ -82,7 +82,7 @@
         5. History功能未做(緩）<br/>
         6. draft欄上UI空格暫未解決<br/>
         7. 時間功能待續<br/>    </p> -->
-      <button type="button" style="margin:2% 0 2% 0" class="btn btn-default inner-add" data-toggle="modal" data-target="#quickAdd">
+      <button type="button" style="float:right;margin:2% 5%" class="btn btn-default inner-add" data-toggle="modal" data-target="#quickAdd">
       <span class="fa fa-plus fa-fw"></span> 新增訊息
       </button>
       <div class="tab">
@@ -102,16 +102,16 @@
             </div>
             <div class="modal-body">
               <!-- Form Content -->
-              <form>
-                <div class="form-group">
-                  <label for="modal-task-name" class="col-2 col-form-label">篩選發送:</label>
-                  <div class="col-4">
-              <form >
-              <input type="checkbox" name="Dateandtime" value="Time"> 全部發送
-              <br>
-              <input type="checkbox" name="SendNow" value="SendNow"> <a id="setlimit" rel="limituser">限制發送對象</a><br>
-              </form>
-              </div>
+              <div class="form-group">
+                <label for="modal-task-name" class="col-2 col-form-label">篩選發送:</label>
+                <div class="col-4">
+                  <div class="radio">
+                    <label><input type="radio" name="who-send" value="all" checked="true" onclick="document.getElementById('limituser').style.display='none'">全部發送</label>
+                  </div>
+                  <div class="radio">
+                    <label><input type="radio" name="who-send" value="somebody" onclick="document.getElementById('limituser').style.display=''">限制發送對象</label>
+                  </div>
+                </div>
               </div>
               <!-- LIMIT USER -->
               <div id="limituser" style="display:none; background-color: lightblue">
@@ -143,43 +143,29 @@
               <!-- 時間 -->
               <div class="form-group">
                 <label for="modal-datetime">設定傳送時間:</label><br>
-                <form style="padding:3px; height:80px">
-                  <input type="checkbox" name="Dateandtime" value="Time"> 傳送時間:
-                  <input type="datetime-local" id="sendTime" style="width:35%" />
-                  <br>
-                  <input style="padding:1px" type="checkbox" name="SendNow" value="SendNow"> 立刻傳送
-                </form>
+                <div class="radio">
+                  <label><input type="radio" name="when-send" value="now" checked="true">立刻傳送</label>
+                </div>
+                <div class="radio">
+                  <label><input type="radio" name="when-send" value="sometime" >傳送時間:</label>
+                  <input type="datetime-local" class="form-control" id="sendTime" style="width:45% ; display:inline" value="2017-12-01T00:00" />
+                </div>
               </div>
               <!--  傳送到主頁  -->
               <div class="form-group">
                 <label for="modal-datetime">同時傳送到主頁:</label>
-                <form style="padding:3px; height:80px">
-                  <p>註：一次只能上傳一則訊息到主頁</p>
-                  <input style="margin: 1%;" type="checkbox" name="yes" value="yes"> 是<br>
-                  <input style="margin: 1%;" type="checkbox" name="no" value="no"> 否<br>
-                </form>
+                <p>註：一次只能上傳一則訊息到主頁</p>
+                <div class="radio">
+                  <label><input type="radio" name="homepage-send" value="true" checked="true">是</label>
+                </div>
+                <div class="radio">
+                  <label><input type="radio" name="homepage-send" value="false" >否</label>
+                </div>
               </div>
               <section>
                 <!--TEXT AREA -->
                 <div>
-                  <table id="inputText">
-                  </table>
-                  <!--EMOJI PLUGINS(UNDONE) -->
-                  <div id="emos" style="display:none; position:fixed; padding:5%; background-color: lightgrey; width:30%; height:30%">
-                    <button class="tablinks" id="emojis" rel="(moonwink)"><img/></button>
-                    <button class="tablinks" id="emojis">Emoji</button>
-                    <button class="tablinks" id="emojis">Emoji</button>
-                    <button class="tablinks" id="emojis">Emoji</button>
-                    <button class="tablinks" id="emojis">Emoji</button>
-                    <button class="tablinks" rel="Appointment">Emoji</button>
-                    <button class="tablinks" rel="Appointment">Emoji</button>
-                    <button class="tablinks" rel="Appointment">Emoji</button>
-                    <button class="tablinks" rel="Appointment">Emoji</button>
-                    <button class="tablinks" rel="Appointment">Emoji</button>
-                    <button class="tablinks" rel="Appointment">Emoji</button>
-                    <button class="tablinks" rel="Appointment">Emoji</button>
-                    <button class="tablinks" rel="Appointment">Emoji</button>
-                  </div>
+                  <table id="inputText"></table>
                 </div>
                 <!--STICKER -->
                 <div id="sticker" style="display:none">
@@ -248,7 +234,6 @@
                 <button type="button" class="btn btn-primary" id="modal-draft">存成草稿</button>
                 <button type="button" class="btn btn-primary" id="modal-submit">確認</button>
               </div>
-              </form>
             </div>
           </div>
         </div>
@@ -282,26 +267,57 @@
             </select>
           </div>
         </div>
-        <div class="tab">
-          <button class="tablinks_sort" style="width:5%">No.</button>
-          <button class="tablinks_sort" style="width:20%">內容</button>
-          <button class="tablinks_sort" style="width:10%">分類</button>
-          <button class="tablinks_sort" style="width:15%">標籤(optional)</button>
-          <button class="tablinks_sort" style="width:10%">狀態</button>
-          <button class="tablinks_sort" style="width:20%">預約</button>
+        <div class="tab" style="display:block; margin:0 ;padding:0">
+          <table class="table table-border tab_th" style="margin:0">
+            <tr style="margin:0;">
+              <th style="margin:0;width:5%">
+                <a href="#" class="tablinks_sort">
+                  <div>No.</div>
+                </a>
+              </th>
+              <th style="margin:0;width:20%">
+                <a href="#" class="tablinks_sort">
+                  <div>內容</div>
+                </a>
+              </th>
+              <th style="margin:0;width:10%">
+                <a href="#" class="tablinks_sort">
+                  <div>分類</div>
+                </a>
+              </th>
+              <th style="margin:0;width:15%">
+                <a href="#" class="tablinks_sort">
+                  <div>標籤(optional)</div>
+                </a>
+              </th>
+              <th style="margin:0;width:10%">
+                <a href="#" class="tablinks_sort">
+                  <div>狀態</div>
+                </a>
+              </th>
+              <th style="margin:0;width:10%">
+                <a href="#" class="tablinks_sort">
+                  <div>預約</div>
+                </a>
+              </th>
+              <th style="margin:0;width:10%">
+                <div></div>
+              </th>
+            </tr>
+          </table>
         </div>
       </section>
       <section>
         <div id="Appointment" class="tabcontent" style="display:block; margin:0 ;padding:0 ">
-          <div class="tabcontent" style="display:block" >
-            <table style="margin:0">
+          <div class="table tabcontent" style="display:block;padding:0" >
+            <table class="table table-border" style="margin:0">
               <tbody id="data-appointment"></tbody>
             </table>
           </div>
         </div>
         <div id="Draft" class="tabcontent" style="display:none; margin:0 ;padding:0 ">
-          <div class="tabcontent" style="display:block;  margin:0 ;padding:0">
-            <table>
+          <div class="table tabcontent" style="display:block;  margin:0 ;padding:0">
+            <table class="table table-border">
               <tbody id="data-draft"></tbody>
             </table>
           </div>
@@ -342,22 +358,22 @@
                   <!-- 編號 -->
                   <div class="form-group">
                     <label for="task-name" class="col-2 col-form-label">篩選發送:  </label>
-                    <span id="view-lmtuser">-</span>
+                    <input disabled="disabled" class="form-control" id="view-lmtuser" value="-">
                   </div>
                   <!-- 任務內容 -->
                   <div class="form-group">
                     <label for="task-name" class="col-2 col-form-label">任務內容:  </label>
-                    <span id="view-textinput"></span>
+                    <input disabled="disabled" class="form-control" id="view-textinput" value="">
                   </div>
                   <!-- 狀態 -->
                   <div class="form-group">
                     <label for="status">狀態:  </label>
-                    <span id="view-stat"></span>
+                    <input disabled="disabled" class="form-control" id="view-stat" value="111">
                   </div>
                   <!-- 負責人 -->
                   <div class="form-group">
                     <label for="owner" class="col-2 col-form-label">負責人:  </label>
-                    <span id="view-owne"></span>
+                    <input disabled="disabled" class="form-control" id="view-owne" value="">
                   </div>
                 </form>
               </div>
@@ -477,9 +493,6 @@
       border-collapse: collapse;
       width: 100%;
       }
-      th{
-      width:15%;
-      }
       td, th {
       border: 1px solid #dddddd;
       text-align: left;
@@ -494,7 +507,7 @@
       height:auto;
       }
       /* Style the buttons inside the tab */
-      div.tab button {
+      div.tab .tablinks {
       background-color: inherit;
       float: left;
       border: none;
@@ -505,11 +518,11 @@
       font-size: 17px;
       }
       /* Change background color of buttons on hover */
-      div.tab button:hover {
+      div.tab .tablinks:hover {
       background-color: #ddd;
       }
       /* Create an active/current tablink class */
-      div.tab button.active {
+      div.tab .tablinks.active {
       background-color: #ccc;
       }
       /* Style the tab content */
@@ -527,6 +540,11 @@
       font-size: 20px;
       }
       .topright:hover {color: red;}
+      .tab_th a{
+      font-size: 16px;
+      color: #363636;
+      text-decoration:none;
+      }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>

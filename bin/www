@@ -15,7 +15,21 @@ var MessengerPlatform = require('facebook-bot-messenger'); // facebook串接
 var apiai = require('apiai');
 var fs = require('fs');
 var unirest = require('unirest'); // 來單使用套件
-
+var admin = require("firebase-admin"); //firebase admin SDK
+var serviceAccount = require("../firebase-adminsdk.json"); //firebase admin requires .json auth
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://shield-dev-91210.firebaseio.com"
+});
+//提醒事件自動寄信
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({ //信箱憑證
+    service: 'gmail',
+    auth: { //此欄位可更改 目前先用我的信箱寄
+        user: '9thflr.wuyuan@gmail.com',
+        pass: 'susan1018'
+    }
+});
 // Get port from environment and store in Express.
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
@@ -51,13 +65,13 @@ var count = 0;
 // 群發
 var addFriendBroadcastMsg;
 //config
-var fb_bot = MessengerPlatform.create({
-  pageID: '406189186430126',
-  appID: '2000856436856651',
-  appSecret: '8fcb52e0a39a266bad6ea2eae22aa038',
-  validationToken: 'ee7b84f2219fb9e71738f33ab3c881b0',
-  pageToken: 'EAAcbxLEqV0sBAB4PEmkhaQRJyRTZBs5fm79r5eRt3hrt82OQ5hlDV4SwxoEzWNO05vpSxrY9czCmPjWHe63sZA2q3z2Cz6mP8kJs3k9DZCKml1YV4iQkwOuqZBaTdSTsYz9r7fTWzROZBqeBISHJ196FgcVhpuKPyTh5Vp7Cw4QZDZD'
-});
+// var fb_bot = MessengerPlatform.create({
+//   pageID: '406189186430126',
+//   appID: '2000856436856651',
+//   appSecret: '8fcb52e0a39a266bad6ea2eae22aa038',
+//   validationToken: 'ee7b84f2219fb9e71738f33ab3c881b0',
+//   pageToken: 'EAAcbxLEqV0sBAB4PEmkhaQRJyRTZBs5fm79r5eRt3hrt82OQ5hlDV4SwxoEzWNO05vpSxrY9czCmPjWHe63sZA2q3z2Cz6mP8kJs3k9DZCKml1YV4iQkwOuqZBaTdSTsYz9r7fTWzROZBqeBISHJ196FgcVhpuKPyTh5Vp7Cw4QZDZD'
+// });
 var config = {
   apiKey: "AIzaSyAr1ic8lr_asYZTwwIjBNp3uiqFdu1QJKI",
   authDomain: "shield-dev-91210.firebaseapp.com",
@@ -107,7 +121,7 @@ var linebotParser = [
     console.log("Enter channel_2 information first");
   }
 ];
-var channelIds = [-1, -1];
+var channelIds = [-1, -1, -1];
 var keywords = [];
 var Line_1_room,Line_2_room;
 ///////////////// 接收訊息 /////////////////
@@ -155,6 +169,7 @@ app.post('/webhook', function (req, res) {
 //==============LINE MESSAGE==============
 function bot_on_message(event) {
   let channelId = this.options.channelId; // line群組ID
+  console.log(channelId);
   let message_type = event.message.type; // line訊息類別 text, location, image, video...
   let message_lineTochat = event.message.text; // line訊息內容
   let receiverId = event.source.userId; // line客戶ID
@@ -6184,8 +6199,7 @@ function bot_on_postback(event){
         emitIO_and_pushDB(msgObj, pictureUrl, channelId, receiverId, 1);
         //bot.push(obj.id,msgObj.message);
         event.reply({ type: 'text', text: msgObj.message });
-      }
-      else{
+      }else{
         event.reply({
           "type": "template",
           "altText": "問券調查part1",
@@ -6255,31 +6269,27 @@ function bot_on_postback(event){
         }
       }
     }
-
   });
 } // end of bot_on_postback
 
 function bot_on_follow(event){
-  let follow_message;
-  if(addFriendBroadcastMsg === undefined || addFriendBroadcastMsg === ''){
-    follow_message = '感謝您將本帳號設為好友！';
-  } else {
+  let follow_message = [];
+  if(addFriendBroadcastMsg === []){
+    follow_message.push('感謝您將本帳號設為好友！');
+  }else{
+    follow_message = [];
     follow_message = addFriendBroadcastMsg;
   }
-  event.reply(follow_message).then(function (data) {
-		console.log('Success', data);
-	}).catch(function (error) {
-		console.log('Error', error);
-	});;
+  event.reply(follow_message);
 } // end of bot_on_follow
 
 // 群組webhook
 app.post('/linehook1', function() {
-  console.log("linehook1 arguments length = "+arguments.length);
+  // console.log("linehook1 arguments length = "+arguments.length);
   linebotParser[0](arguments[0], arguments[1], arguments[2]);
 });
 app.post('/linehook2', function() {
-  console.log("linehook2 arguments length = "+arguments.length);
+  // console.log("linehook2 arguments length = "+arguments.length);
   linebotParser[1](arguments[0], arguments[1], arguments[2]);
 });
 
@@ -6296,25 +6306,22 @@ io.sockets.on('connection', (socket) => {
     keywords[data.message] = data.reply;
   });
   socket.on('update add friend message', data => {
-    addFriendBroadcastMsg = data.inp;
+    addFriendBroadcastMsg = data;
     console.log(addFriendBroadcastMsg);
   });
   // 更新群組
   socket.on('update bot', (data) => {
     Line_1_room = data.line_1.channelId;
     Line_2_room = data.line_2.channelId;
-    console.log(Line_1_room, Line_2_room);
     update_line_bot(data);
   });
   socket.on('request line channel', (userId)=> {
-    console.log("userId = "+userId);
     firebase.database().ref('users/' + userId).once('value', snap => {
       let chatInfo = snap.val();
       if(chatInfo !== null){
         let chanId_1 = chatInfo.chanId_1;
         let chanId_2 = chatInfo.chanId_2;
         // let fbPageId = chatInfo.fbPageId;
-        console.log("response line channel, channelId = "+chanId_1+', '+chanId_2);
         socket.emit('response line channel', {
           chanId_1: chanId_1,
           chanId_2: chanId_2,
@@ -6331,36 +6338,37 @@ io.sockets.on('connection', (socket) => {
     });
   });
   function update_line_bot( chanInfo ) {
-    console.log("update_line_bot");
-    console.log("chanInfo: ");
-    console.log(chanInfo);
-    console.log("update Line channel_1 information.");
-    bot[0] = linebot(chanInfo.line_1);
-    linebotParser[0] = bot[0].parser();
-    bot[0].on('message', bot_on_message);
-    bot[0].on('postback', bot_on_postback);
-    bot[0].on('follow', bot_on_follow);
-    channelIds[0] = chanInfo.line_1.channelId;
-    console.log("update Line channel_2 information.");
-    bot[1] = linebot(chanInfo.line_2);
-    linebotParser[1] = bot[1].parser();
-    bot[1].on('message', bot_on_message);
-    bot[1].on('postback', bot_on_postback);
-    bot[1].on('follow', bot_on_follow);
-    channelIds[1] = chanInfo.line_2.channelId;
-    console.log("update fb channel information.");
-    var fb_bot = MessengerPlatform.create({
-      pageID: '406189186430126',
-      appID: '2000856436856651',
-      appSecret: '8fcb52e0a39a266bad6ea2eae22aa038',
-      validationToken: 'ee7b84f2219fb9e71738f33ab3c881b0',
-      pageToken: 'EAAcbxLEqV0sBAB4PEmkhaQRJyRTZBs5fm79r5eRt3hrt82OQ5hlDV4SwxoEzWNO05vpSxrY9czCmPjWHe63sZA2q3z2Cz6mP8kJs3k9DZCKml1YV4iQkwOuqZBaTdSTsYz9r7fTWzROZBqeBISHJ196FgcVhpuKPyTh5Vp7Cw4QZDZD'
-    });
-    channelIds[2] = chanInfo.fb.pageId;
+    // console.log("update_line_bot");
+    // console.log("chanInfo: ");
+    // console.log(chanInfo);
+    if( chanInfo.hasOwnProperty("line_1") ) {
+      console.log("update Line channel_1 information.");
+      bot[0] = linebot(chanInfo.line_1);
+      linebotParser[0] = bot[0].parser();
+      bot[0].on('message', bot_on_message);
+      bot[0].on('postback', bot_on_postback);
+      Line_1_room = chanInfo.line_1.channelId;
+      channelIds[0] = chanInfo.line_1.channelId;
+    }
+    if( chanInfo.hasOwnProperty("line_2") ) {
+      console.log("update Line channel_2 information.");
+      bot[1] = linebot(chanInfo.line_2);
+      linebotParser[1] = bot[1].parser();
+      bot[1].on('message', bot_on_message);
+      bot[1].on('postback', bot_on_postback);
+      Line_2_room = chanInfo.line_2.channelId;
+      channelIds[1] = chanInfo.line_2.channelId;
+    }
+    if( chanInfo.hasOwnProperty("fb") ) {
+      console.log("update fb channel information.");
+      fb_bot = MessengerPlatform.create(chanInfo.fb);
+      channelIds[2] = 'FB';
+    }
+    console.log('update done');
   }
   // 新使用者
   socket.on('new user', (data, callback) => {
-    console.log(data);
+    // console.log(data);
     if (data in users) {
       callback(false);
     }
@@ -6371,7 +6379,7 @@ io.sockets.on('connection', (socket) => {
     }
   });
   socket.on('get tags from chat', data => {
-    console.log("tags socket");
+    // console.log("tags socket");
     socket.emit('push tags to chat', tagsData);
   });
   // going to tags page
@@ -6379,20 +6387,20 @@ io.sockets.on('connection', (socket) => {
     socket.emit('push tags to tags', tagsData);
   });
   socket.on('update tags', data => {
-    console.log(data);
+    // console.log(data);
     let updateObj = {};
     updateObj['/Data'] = data;
     tagsRef.update(updateObj);
   });
   socket.on('get json from back', (data, callback) => {
-    console.log("chat data socket");
+    // console.log("chat data socket");
     let sendData = [];
     for( let i in chatData ) {
-      console.log("i="+i);
+      // console.log("i="+i);
       let profile = chatData[i].Profile;
       let _lastMsg = chatData[i].Messages[ chatData[i].Messages.length-1 ];
       if( profile.recentChat != _lastMsg.time ) {
-        console.log( "ID = "+profile.userId+" update time!");
+        // console.log( "ID = "+profile.userId+" update time!");
         profile.recentChat = _lastMsg.time;
 
         let timeArr = chatData[i].Messages.map( function(ele) {
@@ -6437,7 +6445,7 @@ io.sockets.on('connection', (socket) => {
         });
       }
 
-      console.log("update done or no need up");
+      // console.log("update done or no need up");
       let msgs = chatData[i].Messages;
       let position = 0;
       if( msgs.length>20 ) {
@@ -6449,16 +6457,16 @@ io.sockets.on('connection', (socket) => {
         position: position,
         Profile: profile
       });
-      console.log("push done");
+      // console.log("push done");
     }
     // console.log(sendData);
     socket.emit('push json to front', sendData);
-    console.log('push json to front');
-    console.log(sendData);
+    // console.log('push json to front');
+    // console.log(sendData);
   });
   socket.on('upload history msg from front', data => {
-    console.log(data);
-    console.log('upload history msg of userId = '+data.userId+', head = '+data.head+', tail = '+data.tail);
+    // console.log(data);
+    // console.log('upload history msg of userId = '+data.userId+', head = '+data.head+', tail = '+data.tail);
     let userId = data.userId;
     let roomId = data.roomId;
     let head = data.head;
@@ -6474,8 +6482,8 @@ io.sockets.on('connection', (socket) => {
         break;
       }
     }
-    console.log("sendData = ");
-    console.log(sendData);
+    // console.log("sendData = ");
+    // console.log(sendData);
     socket.emit('upload history msg from back', {
       userId: userId,
       roomId: roomId,
@@ -6483,7 +6491,7 @@ io.sockets.on('connection', (socket) => {
     });
   });
   socket.on('read message', (data) => {
-    console.log("agent read message of user "+data.id);
+    // console.log("agent read message of user "+data.id);
     for( let i in chatData ) {
       if( chatData[i].Profile.userId == data.id ) {
         newDBRef.child(i).child("Profile").update({
@@ -6495,7 +6503,7 @@ io.sockets.on('connection', (socket) => {
   });
   // 從SHIELD chat傳送訊息
   socket.on('send message', (data, callback) => {
-    console.log(data);
+    // console.log(data);
     let msg;
     if (Array.isArray(data.msg)){
       msg = data.msg;
@@ -6505,8 +6513,8 @@ io.sockets.on('connection', (socket) => {
     let agent_sendTo_receiver = data.id.trim();
     let msg_time = data.msgtime;
     let chanId = data.channelId;
-    console.log(chanId);
-    console.log(agent_sendTo_receiver);
+    // console.log(chanId);
+    // console.log(agent_sendTo_receiver);
     if(socket.nickname !== undefined){
       agent_nickname = socket.nickname;
     } else {
@@ -6589,6 +6597,8 @@ io.sockets.on('connection', (socket) => {
     // 訊息傳到LINE
     if (agent_sendTo_receiver !== undefined ){
       if(chanId === Line_1_room){
+        console.log('send to room 1');
+        console.log(message);
         bot[0].push(agent_sendTo_receiver, message);
       }else if(chanId === Line_2_room){
         console.log('send to room 2');
@@ -6724,6 +6734,48 @@ io.sockets.on('connection', (socket) => {
       }
     }
   });
+  socket.on('reminder of calendar', (info) => {
+        //console.log(info.nowtime+' function in!');
+        //console.log('Server is checking the reminder...');
+        //console.log(info.nowtime);
+        admin.database().ref('cal-events/' + info.userId).once('value', snap => {
+            let data = snap.val();
+            for (let i in data) {
+                //console.log(data[i].remind);
+                if ((data[i].start == info.nowtime) && (data[i].remind == false)) { //判斷事件是否到期且避免重複提醒
+                    admin.database().ref('cal-events/' + info.userId + '/' + i).update({
+                        remind: true //true代表已提醒過
+                    });
+                    socket.emit('pop up reminder', data[i].title); //呼叫前端pop up提醒視窗
+                    console.log('calendar event ' + data[i].start + ' started');
+
+                    var mailOptions = { //信件內容
+                        from: '9thflr.wuyuan@gmail.com',
+                        to: info.email,
+                        subject: 'Your event "' + data[i].title + '" has started.',
+                        text: 'Your event "' + data[i].title + '" has started at ' + data[i].start
+                    };
+                    //自動寄信function
+                    transporter.sendMail(mailOptions, function(error, info) {
+                        if (error) {
+                            console.log(error);
+                        } else {
+                            console.log('Email sent: ' + info.response);
+                        }
+                    });
+
+                    var avoidremindagain = setTimeout(function() { //事件提醒後60秒內不再提醒
+                        //console.log('Waiting for 60 seconds to set remind false');
+                        admin.database().ref('cal-events/' + info.userId + '/' + i).update({
+                            remind: false
+                        });
+                        clearTimeout(avoidremindagain);
+                    }, 60000);
+
+                }
+            }
+        }); //console.log(info.nowtime+' function out');
+    });
   // // This is for Agent Chat
   // socket.on('get json from agentChat', (data) => {
   //   let thisAgentData = [];
@@ -7005,7 +7057,7 @@ function loadFbProfile(obj, psid) {
             //Checking if there are any image attachments
             if (obj.message.attachments[0].type === "image") {
                 var imageURL = obj.message.attachments[0].payload.url;
-                obj.message = '<img src="' + imageURL + '"/>';
+                obj.message = '<img src="' + imageURL + '" style="height:100px;width:100px;"/>';
             } //if image
             else if (obj.message.attachments[0].type === "video") {
                 var videoURL = obj.message.attachments[0].payload.url;
@@ -7127,6 +7179,7 @@ function loadFbProfile(obj, psid) {
                         性別: obj.gend,
                         telephone: "",
                         address: "",
+                        channelId: 'FB',
                         firstChat: nowTime,
                         首次聊天時間: nowTime,
                         recentChat: nowTime,

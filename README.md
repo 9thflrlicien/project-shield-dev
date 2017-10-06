@@ -15,11 +15,11 @@
 2017/10/02 Calendar UI - LCE <br />
 2017/10/02 Chat頁面個人資料修改優化 - CKK <br />
 2017/10/03 to do 通知功能 - WYA <br />
+2017/10/06 新增FB群組資訊至setting頁面 - CKK <br />
+2017/10/06 Line@ manager後台功能總覽 - WWY <br />
+2017/10/06 Line@ manager加入好友後訊息傳輸 - TED <br />
 <br />
 ## Issues report<br />
 2017/09/27 API.ai bug修正 - TED <br />
-2017/10/02 新增FB群組資訊至setting頁面 - CKK <br />
-2017/10/02 Line@ manager後台功能總覽 - WWY <br />
-2017/10/02 Line@ manager加入好友後訊息傳輸 - TED <br />
 2017/10/02 Line@ manager自動回覆訊息(包含ai) - WWY <br />
 2017/10/02 Line@ manager時效性訊息 - WWY <br />

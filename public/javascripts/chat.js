@@ -13,15 +13,15 @@ const NO_HISTORY_MSG = "<p class='message-day' style='text-align: center'><stron
 "-沒有更舊的歷史訊息-" +
 "</i></strong></p>";
 
-var ticketInfo = {} ;
-var contactInfo = {} ;
-var agentInfo = {} ;
+var ticketInfo = {};
+var contactInfo = {};
+var agentInfo = {};
 var socket = io.connect();
 
 var yourdomain = 'fongyu';
 var api_key = 'UMHU5oqRvapqkIWuOdT8';
 
-$(document).ready(function() {
+$(document).ready(function(){
   var socket = io.connect(); //socket
   var printAgent = $('#printAgent'); //agent welcome text
   var messageInput = $('#message'); //input for agent to send message
@@ -55,14 +55,20 @@ $(document).ready(function() {
   $(document).on('click', '#signout-btn', logout); // 登出
   $(document).on('click', '.tablinks', clickUserTablink); // 群組清單裡面選擇客戶
   $(document).on('click', '.topright', clickSpan);
-  $(document).on('click', '#userInfo-submit', submitProfile);
   $(document).on('change', '.multiselect-container', multiselect_change);
   $(document).on('click', '#upImg', upImg); // 傳圖
   $(document).on('click', '#upVid', upVid); // 傳影
   $(document).on('click', '#upAud', upAud); // 傳音
   $(document).on('click', '#submitMsg', submitMsg); // 訊息送出
-  $(document).on('click', '#submitMemo', submitMemo);
-  $(document).on('click', '.ticket_content',moreInfo) ;
+  $(document).on('click', '#form-submit', submitAdd) //新增ticket
+  $(document).on('click', '#submitMemo', submitMemo); // 新增ticket備註
+  $(document).on('click', '.ticket_content',moreInfo);
+  $(document).on('click', "#ticketInfo-submit", updateStatus);
+  $(document).on('click', '.edit', showInput);
+  $(document).on('focusout', '.inner', hideInput);
+  $(document).on('keypress', '.inner',function (e) {
+    if(e.which == 13) $(this).blur() ;
+  });
   $('#message').on('keydown', function(event){ // 按enter可以發送訊息
     if(event.keyCode == 13){
       document.getElementById('submitMsg').click();
@@ -73,24 +79,23 @@ $(document).ready(function() {
       document.getElementById('submitMemo').click();
     }
   });
-  $(document).on('click', '.dropdown-menu', function(event) {
+  $(document).on('click', '.dropdown-menu', function(event){
     event.stopPropagation();
   });
   $(document).on('click', '.nav-link', toggleInfoPanel); // 客戶資料tab更換
-  $(document).on('click', '.filterArea h4', function() {
+  $(document).on('click', '.filterArea h4', function(){
     $(this).siblings().toggle(200, 'easeInOutCubic');
     $(this).children('i').toggle();
   });
   // user profile edit
-  $(document).on('click', '.userInfo-td[modify="true"] p#td-inner', function() {
+  $(document).on('click', '.userInfo-td[modify="true"] p#td-inner', function(){
     // console.log(".userInfo-td click");
     let val = $(this).text();        //抓目前的DATA
     let td = $(this).parents('.userInfo-td');
     td.html('<input id="td-inner" type="text" value="' +val + '"></input>'); //把element改成input，放目前的DATA進去
     td.find('input').select();   //自動FOCUS該INPUT
   });
-
-  $(document).on('keypress', '.userInfo-td[modify="true"] input[type="text"]', function(e) {
+  $(document).on('keypress', '.userInfo-td[modify="true"] input[type="text"]', function(e){
     let code = (e.keyCode ? e.keyCode : e.which);
     if (code == 13) {
       //如果按了ENTER
@@ -98,14 +103,14 @@ $(document).ready(function() {
       $(this).blur(); //就離開此INPUT，觸發on blur事件
     }
   });
-  $(document).on('blur', '.userInfo-td[modify="true"] input[type="text"]', function() {
+  $(document).on('blur', '.userInfo-td[modify="true"] input[type="text"]', function(){
     //當USER離開此INPUT
     console.log(".userInfo-td-input blur");
     let val = $(this).val();  //抓INPUT裡的資料
     if( !val ) val="尚未輸入";
     $(this).parent().html('<p id="td-inner">'+val+'</p>');   //將INPUT元素刪掉，把資料直接放上去
   });
-  $('.hidden_group_name').mouseover(function() { // 秀群組名稱
+  $('.hidden_group_name').mouseover(function(){ // 秀群組名稱
     $(this).show();
   })
   // 傳圖，音，影檔功能
@@ -125,17 +130,17 @@ $(document).ready(function() {
   });//onclick_show
 
   $("#infoCanvas").hover(
-    function() {
+    function(){
       $(this).css('width', '500px');
       $('.memo').css('margin-left', '30%');
     },
-    function() {
+    function(){
       $(this).css('width', '100%');
       $('.memo').css('margin-left', '0%');
     }
   ); // infoCanvas
   // ===============Colman=======================
-  $(document).on('keyup', '.ticket_search_bar', function(e) {
+  $(document).on('keyup', '.ticket_search_bar', function(e){
       console.log(".ticket_search_bar key press");
       let searchStr = $(this).val();
       let trs = $(this).parents('table').find('tbody').find('tr');
@@ -145,25 +150,24 @@ $(document).ready(function() {
         else $(this).show();
       });
   });
-  $(document).on('click', '.table-sort', function() {
+  $(document).on('click', '.table-sort', function(){
     let index = $(this).index();
     let compare;
     let icon = $(this).find('i');
-    if( icon.attr('class').indexOf('fa-sort-up')==-1 ) {
+    if( icon.attr('class').indexOf('fa-sort-up')==-1 ){
       compare = sortUp;
       icon.attr('class','fa fa-fw fa-sort-up');
-    }
-    else {
+    }else{
       compare = sortDown;
       icon.attr('class','fa fa-fw fa-sort-down');
     }
     $(this).siblings().find('i').attr('class','fa fa-fw fa-sort');
     let trs = $(this).parents('table').find('tbody').find('tr');
-    for( let i=0; i<trs.length; i++ ) {
-      for( let j=i+1; j<trs.length; j++ ) {
+    for( let i=0; i<trs.length; i++ ){
+      for( let j=i+1; j<trs.length; j++ ){
         let a = trs.eq(i).find('td').eq(index).text();
         let b = trs.eq(j).find('td').eq(index).text();
-        if( compare( a, b ) ) {
+        if( compare( a, b ) ){
           let tmp = trs[i];
           trs[i] = trs[j];
           trs[j] = tmp;
@@ -171,29 +175,29 @@ $(document).ready(function() {
       }
     }
     trs.eq(1).parent().append(trs);
-    function sortUp( a, b ) {
+    function sortUp( a, b ){
       return a>b;
     }
-    function sortDown( a, b ) {
+    function sortDown( a, b ){
       return a<b;
     }
   });
-  $('.chatApp_item[open="true"]').click(function() {
+  $('.chatApp_item[open="true"]').click(function(){
     let thisRel = $(this).attr('rel');
     if(thisRel === 'All'){
       $('.tablinks_area').find('b').show();
-    } else if(thisRel === 'unread'){
-      $('.tablinks_area').find('.unread_msg').each(function(index, el) {
+    }else if(thisRel === 'unread'){
+      $('.tablinks_area').find('.unread_msg').each(function(index, el){
         // console.log($(this).text());
         if($(this).text() === '0'){
           $(this).parent().parent().hide();
-        } else {
+        }else{
           $(this).parent().parent().show();
         }
       });
-    } else if(thisRel === 'assigned'){
+    }else if(thisRel === 'assigned'){
       $('.tablinks_area').find('b').hide();
-      $('#指派負責人 #td-inner').each(function(index, el) {
+      $('#指派負責人 #td-inner').each(function(index, el){
         if($(this).text() !== '尚未輸入'){
           let id = $(this).parent().parent().parent().parent().parent().parent().attr('id');
           let room = $(this).parent().parent().parent().parent().parent().parent().attr('rel');
@@ -204,66 +208,64 @@ $(document).ready(function() {
       });
     } else if(thisRel === 'unassigned'){
       $('.tablinks_area').find('b').hide();
-      $('#指派負責人 #td-inner').each(function(index, el) {
+      $('#指派負責人 #td-inner').each(function(index, el){
         // console.log(el);
         if($(this).text() === '尚未輸入'){
           let id = $(this).parent().parent().parent().parent().parent().parent().attr('id');
           let room = $(this).parent().parent().parent().parent().parent().parent().attr('rel');
           let newId = id.substr(0, id.indexOf('-'));
           let newRoom = room.substr(0, room.indexOf('-'));
-          // console.log(newId, newRoom);
           $('[name="'+newId+'"][rel="'+newRoom+'"]').parent().show();
         }
       });
-    } else {
+    }else{
       $('.tablinks_area').find('b').hide();
       $('.tablinks_area').find('[rel="'+thisRel+'"]').parent().show();
     }
   });
   // ============Colman end======================
-  $(document).on("mouseenter", ".message", function() {
+  $(document).on("mouseenter", ".message", function(){
     $(this).find('.sender').show();
   });
-  $(document).on("mouseleave", ".message", function() {
+  $(document).on("mouseleave", ".message", function(){
     $(this).find('.sender').hide();
   });
-  $(document).on('click', '.profile-confirm button', function() {
+  $(document).on('click', '.profile-confirm button', function(){
     let userId = $(this).parents('.card-group').attr('id');
     userId = userId.substr(0,userId.length-5);
     let method = $(this).attr('id');
-    if( method == "confirm" ) {
-      if ( confirm("Are you sure to change profile?") ) {
+    if( method == "confirm" ){
+      if ( confirm("Are you sure to change profile?") ){
         let data = {userId: userId};
         let tds = $(this).parents('.card-group').find('.panelTable tbody td');
         console.log(tds);
-        tds.each( function() {
+        tds.each( function(){
           let prop = $(this).attr('id');
           let type = $(this).attr('type');
           let value;
-          if( type=="text" ) value = $(this).find('#td-inner').text();
+          if(type=="text") value = $(this).find('#td-inner').text();
           else if( type=="time") value = $(this).find('#td-inner').val();
           else if( type=="single_select" ) value = $(this).find('#td-inner').val();
           else if( type=="multi_select" ) value = $(this).find('.multiselect-selected-text').text();
-          console.log(prop+", "+value);
           if( !value ) value = "";
           data[prop] = value;
         });
-        console.log(data);
         socket.emit('update profile', data);
+      }else{
+
       }
-    }
-    else {
-      console.log("can");
+    }else{
+      console.log("cancelled");
     }
   });
-  $('#searchBox').on('keypress', function (e) {
+  $('#searchBox').on('keypress', function (e){
     let code = (e.keyCode ? e.keyCode : e.which);
     if (code != 13) return;
     let searchStr = $(this).val().toLowerCase();
-    if( searchStr === "" ) {
+    if( searchStr === "" ){
       displayAll();
-    } else {
-      $('.tablinks').each( function() {
+    }else{
+      $('.tablinks').each( function(){
         let id = $(this).attr('name');
         let room = $(this).attr('rel');
         let panel = $("div #"+id+"-content[rel='"+room+"']");
@@ -271,14 +273,14 @@ $(document).ready(function() {
         // 客戶名單搜尋
         $(this).find('.client_name').each(function(){
           let text = $(this).text();
-          if( text.toLowerCase().indexOf(searchStr)!=-1 ) {
+          if(text.toLowerCase().indexOf(searchStr)!=-1){
             $(this).css({'color': COLOR.FIND, 'background-color': COLOR.FINDBACK});
           }
         });
         // 聊天室搜尋
-        panel.find(".message").each(function() {
+        panel.find(".message").each(function(){
           let text = $(this).find('.content').text();
-          if( text.toLowerCase().indexOf(searchStr)!=-1 ) {
+          if(text.toLowerCase().indexOf(searchStr)!=-1){
             // displayMessage match的字標黃
             $(this).find('.content').css({'color': COLOR.FIND, 'background-color': COLOR.FINDBACK});
             // displayClient顯示"找到訊息"並標紅
@@ -289,10 +291,15 @@ $(document).ready(function() {
       });
     }
   }); //end searchBox change func
-  if (window.location.pathname === '/chat') {
+  $('#addTicketModal').on('show.bs.modal', function(){
+    let getId = $('.card-group[style="display:block"]').attr('id');
+    let realId = getId.substr(0, getId.indexOf('-'));
+    $('#form-uid').val(realId);
+  });
+  if (window.location.pathname === '/chat'){
     socket.emit("get tags from chat");
-    let timer_1 = setInterval( function() {
-      if( !auth.currentUser ) {
+    let timer_1 = setInterval( function(){
+      if(!auth.currentUser){
         return;
       }
       else {
@@ -302,12 +309,18 @@ $(document).ready(function() {
         database.ref('users/' + userId).once('value', snap => {
           let name1 = snap.val().name1;
           let name2 = snap.val().name2;
+          let fbName = snap.val().fbName;
           let id1 = snap.val().chanId_1;
           let id2 = snap.val().chanId_2;
           let secret1 = snap.val().chanSecret_1;
           let secret2 = snap.val().chanSecret_2;
           let token1 = snap.val().chanAT_1;
           let token2 = snap.val().chanAT_2;
+          let fbPageId = snap.val().fbPageId;
+          let fbAppId = snap.val().fbAppId;
+          let fbAppSecret = snap.val().fbAppSecret;
+          let fbValidToken = snap.val().fbValidToken;
+          let fbPageToken = snap.val().fbPageToken;
           if((name1 === undefined || name1 === null || name1 === '' ||
               id1 === undefined || id1 === null || id1 === '' ||
               secret1 === undefined || secret1 === null || secret1 === '' ||
@@ -315,7 +328,14 @@ $(document).ready(function() {
               (name2 === undefined || name2 === null || name2 === '' ||
               id2 === undefined || id2 === null || id2 === '' ||
               secret2 === undefined || secret2 === null || secret2 === '' ||
-              token2 === undefined || token2 === null || token2 === '' ))
+              token2 === undefined || token2 === null || token2 === '' )&&
+              (fbName === undefined || fbName === null || fbName === '' ||
+              fbPageId === undefined || fbPageId === null || fbPageId === '' ||
+              fbAppId === undefined || fbAppId === null || fbAppId === '' ||
+              fbAppSecret === undefined || fbAppSecret === null || fbAppSecret === '' ||
+              fbValidToken === undefined || fbValidToken === null || fbValidToken === '' ||
+              fbPageToken === undefined || fbPageToken === null || fbPageToken === '')
+            )
           {
             $('.error').append('您還沒有做聊天設定，請至Settings做設定。');
             setTimeout(() => {
@@ -328,20 +348,27 @@ $(document).ready(function() {
                     (name2 === undefined || name2 === null || name2 === '' ||
                       id2 === undefined || id2 === null || id2 === '' ||
                       secret2 === undefined || secret2 === null || secret2 === '' ||
-                      token2 === undefined || token2 === null || token2 === ''))
+                      token2 === undefined || token2 === null || token2 === '')||
+                      (fbName === undefined || fbName === null || fbName === '' ||
+                      fbPageId === undefined || fbPageId === null || fbPageId === '' ||
+                      fbAppId === undefined || fbAppId === null || fbAppId === '' ||
+                      fbAppSecret === undefined || fbAppSecret === null || fbAppSecret === '' ||
+                      fbValidToken === undefined || fbValidToken === null || fbValidToken === '' ||
+                      fbPageToken === undefined || fbPageToken === null || fbPageToken === ''))
           {
             $('#line1 p').text(name1);
             $('#line2 p').text(name2);
+            $('#fbname p').text(fbName);
             socket.emit('update bot', {
               line_1: {
-                channelId: chanId_1,
-                channelSecret: chanSecret_1,
-                channelAccessToken: chanAT_1
+                channelId: id1,
+                channelSecret: secret1,
+                channelAccessToken: token1
               },
               line_2: {
-                channelId: chanId_2,
-                channelSecret: chanSecret_2,
-                channelAccessToken: chanAT_2
+                channelId: id2,
+                channelSecret: secret2,
+                channelAccessToken: token2
               },
               fb: {
                 pageID: fbPageId,
@@ -351,7 +378,7 @@ $(document).ready(function() {
                 pageToken: fbPageToken
               },
             });
-            $('.error').append('您其中一個LINE群組還沒有做聊天設定，如有需要請至Settings做設定。');
+            $('.error').append('您其中一個群組還沒有做聊天設定，如有需要請至Settings做設定。');
             setTimeout(() => {
               $('.error').text('');
             }, 10000);
@@ -359,16 +386,17 @@ $(document).ready(function() {
           } else {
             $('#line1 p').text(name1);
             $('#line2 p').text(name2);
+            $('#fbname p').text(fbName);
             socket.emit('update bot', {
               line_1: {
-                channelId: chanId_1,
-                channelSecret: chanSecret_1,
-                channelAccessToken: chanAT_1
+                channelId: id1,
+                channelSecret: secret1,
+                channelAccessToken: token1
               },
               line_2: {
-                channelId: chanId_2,
-                channelSecret: chanSecret_2,
-                channelAccessToken: chanAT_2
+                channelId: id2,
+                channelSecret: secret2,
+                channelAccessToken: token2
               },
               fb: {
                 pageID: fbPageId,
@@ -381,15 +409,9 @@ $(document).ready(function() {
           }
         });
         agentName();
-        // loadChatRoom();
-        // console.log("Start loading Line channel...");
         socket.emit('request line channel', userId);
       }
     }, 10);
-
-    // setTimeout(() => { // 載入群組名稱
-    //   loadChatGroupName();
-    // }, 1000);
   }
 
   socket.on('response line channel', (data) => {
@@ -456,8 +478,6 @@ $(document).ready(function() {
   });
 
   socket.on('new message', (data) => {
-    // console.log("receive socket! data = ");
-    // console.log(data);
     // if www push "new message"
     // console.log("Message get! identity=" + data.owner + ", name=" + data.name);
     // owner = "user", "agent" ; name = "Colman", "Ted", others...
@@ -473,7 +493,6 @@ $(document).ready(function() {
   });
   socket.on('new user profile', function(data) {
     console.log('new user come in from www!');
-    // console.log(data);
     userProfiles[data.userId] = data;
   });
   socket.on('reply keywords to front', function(data){
@@ -739,11 +758,9 @@ $(document).ready(function() {
     // console.log(lastMsg.message.length);
 
     let msgTime = '<div style="float:right;font-size:8px; font-weight:normal">' + toTimeStr_minusQuo(lastMsg.time) + '</div>';
-
-    if(profile.VIP等級 !== undefined){ // VIP優先放進 VIP欄位
+    if(typeof(profile.VIP等級) === "string" && profile.VIP等級 !== "未選擇"){ // VIP優先放進 VIP欄位
       if( profile.channelId === undefined ){
         profile.channelId = "FB";
-        // fbCount += profile.unRead;
       }
       if(profile.unRead > 0){
         $('#vip_list').prepend(
@@ -1021,15 +1038,14 @@ $(document).ready(function() {
 
       $("#" + data.id + "-content" + "[rel='"+channelId+"']").append(str); //push message into right canvas
       $('#' + data.id + '-content' + "[rel='"+channelId+"']").scrollTop($('#' + data.id + '-content' + '[rel="'+channelId+'"]')[0].scrollHeight); //scroll to down
-    } //close if
-    else { //if its never chated user
+    }else{ //if its new user
       let historyMsgStr = NO_HISTORY_MSG;
 
       if (data.owner == "agent") historyMsgStr += toAgentStr(data.message, data.name, data.time);
       else historyMsgStr += toUserStr(data.message, data.name, data.time);
 
       canvas.append( //new a canvas
-        '<div id="' + data.id + '" class="tabcontent" style="display: none;">' +
+        '<div id="' + data.id + '" rel="'+channelId+'" class="tabcontent" style="display: none;">' +
         '<span class="topright">x&nbsp;</span>' +
         '<div id="' + data.id + '-content" rel="'+channelId+'" class="messagePanel">' +
         historyMsgStr +
@@ -1039,30 +1055,20 @@ $(document).ready(function() {
       $('#user-rooms').append('<option value="' + data.id + '">' + data.name + '</option>'); //new a option in select bar
     }
   } // end of displayMessage
-
-  function displayClient(data, channelId) {
-    // console.log(data);
-    // console.log(channelId+data.id);
-    // console.log(data.message);
-    //update tablinks
+  function displayClient(data, channelId){
     let font_weight = data.owner == "user" ? "bold" : "normal"; //if msg is by user, mark it unread
-
-    // console.log(name_list);
-    // console.log(name_list.indexOf(channelId+data.id) > -1);
-    if (name_list.indexOf(data.channelId+data.id) > -1) {
+    if (name_list.indexOf(channelId+data.id) > -1){
       let target = $('.tablinks_area').find(".tablinks[name='" + data.id + "'][rel='"+channelId+"']");
-      // console.log(target);
-      // console.log(data.message);
-      if(data.message.startsWith('<a')){ // 判斷客戶傳送的是檔案還是文字
-        target.find("#msg").html(toTimeStr(data.time) + '客戶傳送檔案').css("font-weight", font_weight); // 未讀訊息字體變大
-      } else {
+      if(data.message.startsWith('<a')){ // 判斷客戶傳送的是檔案，貼圖還是文字
+        target.find("#msg").html(toTimeStr(data.time) + '檔案').css("font-weight", font_weight); // 未讀訊息字體變大
+      }else if(data.message.startsWith('<img')){
+        target.find("#msg").html(toTimeStr(data.time) + '貼圖').css("font-weight", font_weight); // 未讀訊息字體變大
+      }else{
         target.find("#msg").html(toTimeStr(data.time) + "<span class='client_name'>" + loadMessageInDisplayClient(data.message) + "</span>").css("font-weight", font_weight); // 未讀訊息字體變大
       }
       target.find('.unread_msg').html(data.unRead).css("display", "block"); // 未讀訊息數顯示出來
       target.attr("data-recentTime", data.time);
       // update tablnks's last msg
-      // console.log('data.unRead on line 400');
-      // console.log(data.unRead);
       if (data.unRead == 0 || data.unRead == false || data.unRead == 'undefined') {
         target.find('.unread_msg').html(data.unRead).css("display", "none");
       }
@@ -1071,26 +1077,24 @@ $(document).ready(function() {
       let ele = target.parents('b'); //buttons to b
       ele.remove();
        $('.tablinks_area>#clients').prepend(ele);
-    }
-    else { //new user, make a tablinks
+    }else{ //new user, make a tablinks
       // pictureUrl
       console.log('new user');
-
-      $('.tablinks_area[rel="'+channelId+'"]>.list-group:first').prepend(
+      $('#clients').prepend(
         "<b><button style='text-align:left' name='" + data.id + "' rel='" + channelId + "' class='tablinks'>" +
         "<div class='img_holder'>" +
         "<img src='" + data.pictureUrl + "' alt='無法顯示相片'>" +
         "</div>" +
         "<div class='msg_holder'>" +
         "<span class='client_name'>" + data.name + "</span>" +
-        data.message +
+        "<br />"+
+        "<div id='msg' style='font-weight: normal; font-size:8px; margin-left:12px;'>"+data.message+"</div>" +
         "</div>" +
-        "<div class='unread_msg'>" + data.unRead + "</div>" +
+        "<div class='unread_msg'>1</div>" +
         "</button></b>"
       );
-
       infoCanvas.append(
-        '<div class="card-group" id="' + data.id + '-info" style="display:none">' +
+        '<div class="card-group" id="' + data.id + '-info" rel="'+channelId+'-info" style="display:none">' +
         '<div class="card-body" id="profile">' +
         "<div class='photoContainer'>" +
         '<img src="' + data.pictureUrl + '" alt="無法顯示相片" style="width:128px;height:128px;">' +
@@ -1098,9 +1102,21 @@ $(document).ready(function() {
         "<table class='panelTable'>" +
         "<tbody>" +
         "<tr>" +
-        "<th class='userInfo-th' id='nickname'>nickname</th>" +
-        "<td class='userInfo-td' id='nickname' type='text' set='single' modify='true'>" +
+        "<th class='userInfo-th' id='姓名'>姓名</th>" +
+        "<td class='userInfo-td' id='姓名' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>" + data.name + "</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='電子郵件'>電子郵件</th>" +
+        "<td class='userInfo-td' id='電子郵件' type='text' set='multi' modify='true'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
+        "</td>" +
+        "</tr>" +
+        "<tr>" +
+        "<th class='userInfo-th' id='電話'>電話</th>" +
+        "<td class='userInfo-td' id='電話' type='text' set='single' modify='true'>" +
+        "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
@@ -1112,7 +1128,11 @@ $(document).ready(function() {
         "<tr>" +
         "<th class='userInfo-th' id='性別'>性別</th>" +
         "<td class='userInfo-td' id='性別' type='single_select' set='男,女' modify='true'>" +
-        "<p id='td-inner'>尚未輸入</p>" +
+        "<select id='td-inner'>"+
+        "<option> 未選擇 </option>"+
+        "<option value='男'>男</option>"+
+        "<option value='女'>女</option>"+
+        "</select>"+
         "</td>" +
         "</tr>" +
         "<tr>" +
@@ -1122,14 +1142,14 @@ $(document).ready(function() {
         "</td>" +
         "</tr>" +
         "<tr>" +
-        "<th class='userInfo-th' id='address'>address</th>" +
-        "<td class='userInfo-td' id='address' type='text' set='single' modify='true'>" +
+        "<th class='userInfo-th' id='住址'>住址</th>" +
+        "<td class='userInfo-td' id='住址' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
         "<tr>" +
-        "<th class='userInfo-th' id='telephone'>telephone</th>" +
-        "<td class='userInfo-td' id='telephone' type='text' set='single' modify='true'>" +
+        "<th class='userInfo-th' id='電話'>電話</th>" +
+        "<td class='userInfo-td' id='電話' type='text' set='single' modify='true'>" +
         "<p id='td-inner'>尚未輸入</p>" +
         "</td>" +
         "</tr>" +
@@ -1140,36 +1160,53 @@ $(document).ready(function() {
         "</td>" +
         "</tr>" +
         "<tr>" +
-        "<th class='userInfo-th' id='TAG'>TAG</th>" +
-        "<td class='userInfo-td' id='TAG' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='true'>" +
-        "<p id='td-inner'>尚未輸入</p>" +
+        "<th class='userInfo-th' id='標籤'>標籤</th>" +
+        "<td class='userInfo-td' id='標籤' type='multi_select' set='奧客,未付費,廢話多,敢花錢,常客,老闆的好朋友,外國人,窮學生,花東團abc123,台南團abc456' modify='true'>" +
+        "<div class='btn-group' id='td-inner'>"+
+        "<button type='button' data-toggle='dropdown' aria-expanded='false'><span class='multiselect-selected-text'>奧客</span><b class='caret'></b></button>"+
+        "<ul class='multiselect-container dropdown-menu'>"+
+        "<li><input type='checkbox' value='奧客' checked=''>奧客</li>"+
+        "<li><input type='checkbox' value='未付費'>未付費</li>"+
+        "<li><input type='checkbox' value='廢話多'>廢話多</li>"+
+        "<li><input type='checkbox' value='敢花錢'>敢花錢</li>"+
+        "<li><input type='checkbox' value='常客'>常客</li>"+
+        "<li><input type='checkbox' value='老闆的好朋友'>老闆的好朋友</li>"+
+        "<li><input type='checkbox' value='外國人'>外國人</li>"+
+        "<li><input type='checkbox' value='窮學生'>窮學生</li>"+
+        "<li><input type='checkbox' value='花東團abc123'>花東團abc123</li>"+
+        "<li><input type='checkbox' value='台南團abc456'>台南團abc456</li>"+
+        "</ul>"+
+        "</div>"+
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='VIP等級'>VIP等級</th>" +
         "<td class='userInfo-td' id='VIP等級' type='single_select' set='鑽石會員,白金會員,普通銅牌,超級普通會員' modify='true'>" +
-        "<p id='td-inner'>尚未輸入</p>" +
+        "<select id='td-inner'>"+
+        "<option> 未選擇 </option>"+
+        "<option value='鑽石會員'>鑽石會員</option>"+
+        "<option value='白金會員'>白金會員</option>"+
+        "<option value='普通銅牌'>普通銅牌</option>"+
+        "<option value='超級普通會員'>超級普通會員</option>"+
+        "</select>"+
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='下次聯絡客戶時間'>下次聯絡客戶時間</th>" +
         "<td class='userInfo-td' id='下次聯絡客戶時間' type='time' set='' modify='true'>" +
-        "<p id='td-inner'>尚未輸入</p>" +
-        "<p></p>" +
+        "<input type='datetime-local' id='td-inner'>"+
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='首次聊天時間'>首次聊天時間</th>" +
         "<td class='userInfo-td' id='首次聊天時間' type='time' set='' modify='false'>" +
-        "<p id='td-inner'></p>" +
-        "<p></p>" +
+        "<input type='datetime-local' id='td-inner' readonly='' value=''>"+
         "</td>" +
         "</tr>" +
         "<tr>" +
         "<th class='userInfo-th' id='上次聊天時間'>上次聊天時間</th>" +
         "<td class='userInfo-td' id='上次聊天時間' type='time' set='' modify='false'>" +
-        "<p id='td-inner'></p>" +
-        "<p></p>" +
+        "<input type='datetime-local' id='td-inner' readonly='' value=''>"+
         "</td>" +
         "</tr>" +
         "<tr>" +
@@ -1199,11 +1236,26 @@ $(document).ready(function() {
         "<tr>" +
         "<th class='userInfo-th' id='付費階段'>付費階段</th>" +
         "<td class='userInfo-td' id='付費階段' type='single_select' set='等待報價,已完成報價，等待付費,已完成付費,要退錢' modify='true'>" +
-        "<p id='td-inner'>尚未輸入</p>" +
+        "<select id='td-inner'>"+
+        "<option> 未選擇 </option>"+
+        "<option value='等待報價'>等待報價</option>"+
+        "<option value='已完成報價，等待付費'>已完成報價，等待付費</option>"+
+        "<option value='已完成付費'>已完成付費</option>"+
+        "<option value='要退錢'>要退錢</option>"+
+        "</select>"+
         "</td>" +
         "</tr>" +
+        "<tr>"+
+        "<th class='userInfo-th' id='指派負責人'>指派負責人</th>"+
+        "<td class='userInfo-td' id='指派負責人' type='text' set='single' modify='true'>"+
+        "<p id='td-inner'>尚未輸入</p>"+
+        "</td>"+
+        "</tr>"+
         "</tbody>" +
         "</table>" +
+        '<div class="profile-confirm">'+
+        '<button type="button" class="btn btn-primary pull-right" id="confirm">Confirm</button>'+
+        '</div>' +
         '</div>' +
         '<div class="card-body" id="ticket" style="display:none; "></div>' +
         '<div class="card-body" id="todo" style="display:none; ">'+
@@ -1211,14 +1263,14 @@ $(document).ready(function() {
         '<table>'+
         '<thead>'+
         '<tr>'+
-        '<th class="table-sort"> ID <i class="fa fa-fw fa-sort"></i></th>'+
-        '<th class="table-sort"> 客戶姓名 <i class="fa fa-fw fa-sort"></i></th>'+
-        '<th class="table-sort"> 內容 <i class="fa fa-fw fa-sort"></i></th>'+
-        '<th class="table-sort"> 狀態 <i class="fa fa-fw fa-sort"></i></th>'+
-        '<th class="table-sort"> 優先 <i class="fa fa-fw fa-sort"></i></th>'+
-        '<th class="table-sort"> 到期 <i class="fa fa-fw fa-sort"></i></th>'+
+        '<th onclick="sortCloseTable(0)"> ID </th>'+
+        '<th onclick="sortCloseTable(1)"> 姓名 </th>'+
+        '<th onclick="sortCloseTable(2)"hidden> 內容 </th>'+
+        '<th onclick="sortCloseTable(3)"> 狀態 </th>'+
+        '<th onclick="sortCloseTable(4)"> 優先 </th>'+
+        '<th onclick="sortCloseTable(5)"> 到期 </th>'+
         '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="Search"></th>'+
-        '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
+        '<th><a id="'+data.id+'-modal" data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
         '</tr>'+
         '</thead>'+
         '<tbody class="ticket-content">'+
@@ -1233,7 +1285,7 @@ $(document).ready(function() {
   } // end of displayClient
 
   function clickUserTablink() {
-    let userId = $(this).attr('name');
+    let userId = $(this).attr('name'); // ID
     let roomId = $(this).attr('rel'); // channelId
     let selectedId = [];
     let outerInfo, outerId, innerInfo;
@@ -1393,7 +1445,6 @@ $(document).ready(function() {
       loadPanelProfile(profile) +
       '<div class="profile-confirm">'+
       '<button type="button" class="btn btn-primary pull-right" id="confirm">Confirm</button>'+
-      '<button type="button" class="btn btn-default pull-right" id="cancel">Cancel</button>'+
       '</div>' +
       '</div>' +
       '<div class="card-body" id="ticket" style="display:none; "></div>' +
@@ -1402,14 +1453,13 @@ $(document).ready(function() {
       '<table>'+
       '<thead>'+
       '<tr>'+
-      '<th class="table-sort"> ID <i class="fa fa-fw fa-sort"></i></th>'+
-      '<th class="table-sort"> 客戶姓名 <i class="fa fa-fw fa-sort"></i></th>'+
-      '<th class="table-sort"> 內容 <i class="fa fa-fw fa-sort"></i></th>'+
-      '<th class="table-sort"> 狀態 <i class="fa fa-fw fa-sort"></i></th>'+
-      '<th class="table-sort"> 優先 <i class="fa fa-fw fa-sort"></i></th>'+
-      '<th class="table-sort"> 到期 <i class="fa fa-fw fa-sort"></i></th>'+
+      '<th onclick="sortCloseTable(0)"> ID </th>'+
+      '<th onclick="sortCloseTable(1)"> 姓名 </th>'+
+      '<th onclick="sortCloseTable(3)"> 狀態 </th>'+
+      '<th onclick="sortCloseTable(4)"> 優先 </th>'+
+      '<th onclick="sortCloseTable(5)"> 到期 </th>'+
       '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="搜尋"></th>'+
-      '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
+      '<th><a id="'+profile.userId+'-modal" data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
       '</tr>'+
       '</thead>'+
       '<tbody class="ticket-content">'+
@@ -1538,19 +1588,6 @@ $(document).ready(function() {
     }
 
   } // end of submitMsg
-
-  function submitProfile() {
-    if ($('.edit-button:visible').length > 0) {
-      alert('please check all tags change');
-    } else if (confirm("Are you sure to change profile?")) {
-      // console.log(buffer);
-      socket.emit('update profile', buffer);
-      $('.modal').modal('hide');
-      userProfiles[buffer.userId] = JSON.parse(JSON.stringify(buffer)); //clone object
-      $('.tablinks[rel=' + buffer.userId + ']').find('#nick').text(buffer.nickname);
-    }
-  } // end of submitProfile
-
   function initialFilterSilder() {
     $('.filterSlider').slider({
       orientation: "vertical",
@@ -1684,7 +1721,7 @@ $(document).ready(function() {
       id: "",
       msg: vidAtt,
       msgtime: Date.now(),
-      room: $(this).parent().parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      room: $(this).parent().parent().parent().parent().siblings('#user').find('#selected').attr('rel'),
       channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
     };
     sendObj.id = $("#user-rooms option:selected").val();
@@ -1701,7 +1738,7 @@ $(document).ready(function() {
       id: "",
       msg: audAtt,
       msgtime: Date.now(),
-      room: $(this).parent().parent().parent().parent().siblings('#user').find('.tablinks_area[style="display: block;"]').attr('id'),
+      room: $(this).parent().parent().parent().parent().siblings('#user').find('#selected').attr('rel'),
       channelId: $(this).parent().parent().parent().siblings('#canvas').find('[style="display: block;"]').attr('rel')
     };
     sendObj.id = $("#user-rooms option:selected").val();
@@ -1911,7 +1948,7 @@ function historyMsg_to_Str(messages) {
 
 function toAgentStr(msg, name, time) {
   if (Array.isArray(msg)) msg.map(function(x){ msg = x});
-  if (msg.startsWith("<a")) {
+  if (msg.startsWith("<a")||msg.startsWith("<img")) {
     return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
   } else {
     return '<p class="message" rel="' + time + '" style="text-align: right;line-height:250%" title="' + toDateStr(time) + '"><span  class="sendTime">' + toTimeStr(time) + '</span><span class="content" style="border:1px solid #b5e7a0; padding:8px; border-radius:10px; background-color:#b5e7a0">  ' + msg + '</span><strong><span class="sender">: ' + name + '</span></strong><br/></p>';
@@ -1919,9 +1956,9 @@ function toAgentStr(msg, name, time) {
 } // end of toAgentStr
 
 function toUserStr(msg, name, time) {
-  if (msg.startsWith("<a")) {
+  if (msg.startsWith("<a")||msg.startsWith("<img")){
     return '<p style="line-height:250%" class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + ': </span></strong><span class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
-  } else {
+  }else{
     return '<p style="line-height:250%" class="message" rel="' + time + '" title="' + toDateStr(time) + '"><strong><span class="sender">' + name + ': </span></strong><span style="border:1px solid lightgrey;background-color:lightgrey; padding:8px; border-radius:10px" class="content">  ' + msg + '</span><span class="sendTime">' + toTimeStr(time) + '</span><br/></p>';
   }
 } // end of toUserStr
@@ -2045,73 +2082,6 @@ function loadTable(userId){
     }
   }, 500);
 } // end of loadTable
-function updateStatus() {
-  let select = $(".select"),
-      editable = $(".edit"),
-      input = $("input");
-  let name, value, json = '{' ;
-  let obj = {} ;
-  let id = $(this).attr("val") ;
-  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
-  input.each(function () {$(this).blur();});
-  for(let i=0;i<editable.length;i++){
-    name = editable.eq(i).parent().children("th").text().split(" ") ;
-    value = editable.eq(i).text() ;
-    json += '"'+name[0]+'":"'+value+'",';
-  }
-  for(let i=0;i<select.length;i++){
-    name = select.eq(i).parent().parent().children("th").text() ;
-    value = select.eq(i).val() ;
-    json += '"'+name+'":'+value+','
-  }
-  json += '"id":"'+id+'"}' ;
-  obj = JSON.parse(json) ;
-  客戶名 = obj.subject;
-  客戶ID = obj.客戶ID;
-  回覆人員 = obj.回覆人員;
-  優先 = parseInt(obj.優先);
-  狀態 = parseInt(obj.狀態);
-  描述 = obj.描述;
-  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期;
-  else 到期時間 = obj.到期時間即期;
-  var time_list = 到期時間.split("/");
-  var new_time=[];
-  var new_time2=[];
-  time_list.map(function(i){
-    if (!i.startsWith(0) && i.length == 1 || i.length == 10) i = '0'+i;
-    new_time.push(i);
-  });
-  new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
-  new_time.map(function(i){
-    if (i.length == 1) i = '0'+i;
-    new_time2.push(i);
-  });
-  new_time = new_time2.join(":");
-  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
-  if(confirm("確定變更表單？")) {
-    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
-    $.ajax({
-      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
-      type: 'PUT',
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      headers: {
-          "Authorization": "Basic " + btoa(api_key + ":x")
-      },
-      data: obj,
-      success:  function(data, textStatus, jqXHR) {
-        alert("表單已更新");
-        setTimeout(() => {
-        location.reload();
-       }, 500)
-      },
-      error:  function(jqXHR, tranStatus) {
-        alert("表單更新失敗，請重試");
-        console.log(jqXHR.responseText)
-      }
-    });
-  }
-} // end of updateStatus
 function statusNumberToText(status){
   switch(status) {
     case 5:
@@ -2210,25 +2180,28 @@ function moreInfo() {
   $("#ID_num").css("background-color",priorityColor(Tinfo.priority)) ;
   display =
   '<tr>'+
-  '<th>responder</th>'+
+  '<th>客戶ID</th>'+
+  '<td class="edit">'+Tinfo.subject+'</td>'+
+  '</tr><tr>'+
+  '<th>負責人</th>'+
   '<td>'+showSelect('responder',Tinfo.responder_id)+'</td>'+
   '</tr><tr>'+
-  '<th>priority</th>'+
+  '<th>優先</th>'+
   '<td>'+showSelect('priority',Tinfo.priority)+'</td>'+
   '</tr><tr>'+
-  '<th>status</th>'+
+  '<th>狀態</th>'+
   '<td>'+showSelect('status',Tinfo.status)+'</td>'+
   '</tr><tr>'+
-  '<th>description</th>'+
+  '<th>描述</th>'+
   '<td class="edit">'+Tinfo.description_text+'</td>'+
   '</tr><tr>'+
-  '<th>due date '+dueDate(Tinfo.due_by)+'</th>'+
-  '<td class="edit">'+displayDate(Tinfo.due_by)+'</td>'+
+  '<th class="edit">到期時間'+dueDate(Tinfo.due_by)+'</th>'+
+  '<td>'+displayDate(Tinfo.due_by)+'</td>'+
   '</tr><tr>'+
-  '<th>creat date</th>'+
+  '<th>建立日</th>'+
   '<td>'+displayDate(Tinfo.created_at)+'</td>'+
   '</tr><tr>'+
-  '<th>last update</th>'+
+  '<th>最後更新</th>'+
   '<td>'+displayDate(Tinfo.updated_at)+'</td>'+
   '</tr>' ;
   for(let j in contactInfo){
@@ -2265,10 +2238,10 @@ function moreInfo() {
       break ;
     }
   }
-  $(".ticket_info_content").html('') ;
-  $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority)) ;
-  $(".modal-title").text(Tinfo.subject) ;
-  $("#ticketInfo-submit").attr("val",Tinfo.id) ;
+  $(".ticket_info_content").html('');
+  $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority));
+  $(".modal-title").text(Tinfo.requester.name);
+  $("#ticketInfo-submit").attr("val",Tinfo.id);
   $(".ticket_info_content").append(display);
 } // end of moreInfo
 function loadMessageInDisplayClient(msg){
@@ -2302,4 +2275,291 @@ function loadKeywordsReply(userId){
       }
     }, 1000);
   });
-}
+} // end of loadKeywordsReply
+function submitAdd(){
+  let name = $('#form-name').val();
+  let uid = $('#form-uid').val();//因為沒有相關可用的string，暫時先儲存在to_emails這個功能下面
+  let email = $('#form-email').val();
+  let phone = $('#form-phone').val();
+  let status = $('#form-status option:selected').text();
+  let priority = $('#form-priority option:selected').text();
+  let description = $('#form-description').val();
+  ticket_data = '{ "description": "'+description+'", "name" : "'+name+'",  "subject": "'+uid+'", "email": "'+email+'", "phone": "'+phone+'", "priority": '+priorityTextToMark(priority)+', "status": '+statusTextToMark(status)+'}';
+  console.log(ticket_data);
+  // 驗證
+  let email_reg = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+[^<>()\.,;:\s@\"]{2,})$/;
+  let phone_reg = /\b[0-9]+\b/;
+  if(!email_reg.test(email)){
+    $('#error').append('請輸入正確的email格式');
+    $('#form-email').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-email').css('border', '1px solid #ccc');
+    }, 3000);
+  } else if(!phone_reg.test(phone)) {
+    $('#error').append('請輸入正確的電話格式');
+    $('#form-phone').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-phone').css('border', '1px solid #ccc');
+    }, 3000);
+  } else if($('#form-uid').val().trim() === '') {
+    $('#error').append('請輸入客戶ID');
+    $('#form-subject').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-subject').css('border', '1px solid #ccc');
+    }, 3000);
+  } else if($('#form-description').val().trim() === '') {
+    $('#error').append('請輸入內容');
+    $('#form-description').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-description').css('border', '1px solid #ccc');
+    }, 3000);
+  } else if($('#form-name').val().trim() === '') {
+    $('#error').append('請輸入客戶姓名');
+    $('#form-name').css('border', '1px solid red');
+    setTimeout(() => {
+      $('#error').empty();
+      $('#form-description').css('border', '1px solid #ccc');
+    }, 3000);
+  } else {
+
+    let nowTime = new Date().getTime();
+    let dueDate = nowTime+ 86400000*3;
+
+    let start = ISODateTimeString(nowTime);
+    let end = ISODateTimeString(dueDate)
+    let userId = auth.currentUser.uid;
+
+//把事件儲存到calendar database，到期時間和ticket一樣設定三天
+    database.ref('cal-events/' + userId).push({
+        title: name+": "+description.substring(0,10)+"...",
+        start: start,
+        end: end,
+        description: description,
+        allDay: false
+      });
+
+    setTimeout(function(){
+      $.ajax(
+      {
+        url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets",
+        type: 'POST',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+        },
+        data: ticket_data,
+        success: function(data, textStatus, jqXHR) {
+          console.log('ticket created');
+        },
+        error: function(jqXHR, tranStatus) {
+          x_request_id = jqXHR.getResponseHeader('X-Request-Id');
+          response_text = jqXHR.responseText;
+          console.log(response_text)
+        }
+      }
+    );
+    }, 2000);
+
+    $('#form-name').val('');
+    $('#form-uid').val('');
+    $('#form-subject').val('');
+    $('#form-email').val('');
+    $('#form-phone').val('');
+    $('#form-description').val('');
+
+    setTimeout(() => {
+      location.href = '/chat';
+    }, 5000)
+  }
+
+} // end of submitAdd
+function priorityTextToMark(priority){
+  switch(priority) {
+    case 'Urgent':
+        return 4;
+        break;
+    case 'High':
+        return 3;
+        break;
+    case 'Medium':
+        return 2;
+        break;
+    default:
+        return 1;
+  }
+} // end of priorityTextToMark
+
+function statusTextToMark(status){
+  switch(status) {
+    case 'Closed':
+        return 5;
+        break;
+    case 'Resolved':
+        return 4;
+        break;
+    case 'Pending':
+        return 3;
+        break;
+    default:
+        return 2;
+  }
+} // end of statusTextToMark
+function ISODateTimeString(d) {
+  d = new Date(d);
+  function pad(n) {return n<10 ? '0'+n : n}
+  return d.getFullYear()+'-'
+       + pad(d.getMonth()+1)+'-'
+       + pad(d.getDate())+'T'
+       + pad(d.getHours())+':'
+       + pad(d.getMinutes());
+} // end of ISODateTimeString
+function sortCloseTable(n) {
+  console.log('sorting exe');
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = $(".ticket-content");
+  console.log(table.value);
+  console.log(table.innerHTML);
+  switching = true;
+  //Set the sorting direction to ascending:
+  dir = "asc";
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.find('tr');
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 0; i < (rows.length-1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].childNodes[n];
+      y = rows[i + 1].childNodes[n];
+      /*check if the two rows should switch place,
+      based on the direction, asc or desc:*/
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      //Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /*If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again.*/
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+} // end of sortCloseTable
+function showInput() {
+  let prop = $(this).parent().children("th").text() ;
+  let original = $(this).text() ;
+  if(prop.indexOf('due date') != -1 ){
+    let day = new Date(original) ;
+    day = Date.parse(day)+8*60*60*1000 ;
+    day = new Date(day) ;
+    // console.log(day);
+    $(this).html(
+      "<input type='datetime-local' class='inner' value='"+
+      day.toJSON().substring(0,23)
+      +"'></input>"
+    );
+  }
+  else if(prop == 'description'){
+    $(this).html(
+      "<textarea  class='inner' rows=4' cols='50'>"+
+      original+
+      "</textarea>"
+    );
+  }
+  else{
+    $(this).html(
+      "<input type='text' class='inner' value='"+
+      original+
+      "' autofocus>"
+    );
+  }
+} // end of showInput
+function hideInput() {
+  let change = $(this).val();
+  if($(this).attr('type')== 'datetime-local'){
+    $(this).parent().html(displayDate(change)) ;
+  }
+  $(this).parent().html(change) ;
+} // end of hideInput
+function updateStatus() {
+  let select = $(".select"),
+      editable = $(".edit"),
+      input = $("input");
+  let name, value, json = '{' ;
+  let obj = {} ;
+  let id = $(this).attr("val") ;
+  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
+  input.each(function () {$(this).blur();});
+  for(let i=0;i<editable.length;i++){
+    name = editable.eq(i).parent().children("th").text().split(" ") ;
+    value = editable.eq(i).text() ;
+    json += '"'+name[0]+'":"'+value+'",';
+  }
+  for(let i=0;i<select.length;i++){
+    name = select.eq(i).parent().parent().children("th").text() ;
+    value = select.eq(i).val() ;
+    json += '"'+name+'":'+value+','
+  }
+  json += '"id":"'+id+'"}';
+  obj = JSON.parse(json);
+  客戶名 = obj.subject;
+  客戶ID = obj.客戶ID;
+  回覆人員 = obj.回覆人員;
+  優先 = parseInt(obj.優先);
+  狀態 = parseInt(obj.狀態);
+  描述 = obj.描述;
+  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'"}';
+  if(confirm("確定變更表單？")) {
+    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
+    $.ajax({
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
+      type: 'PUT',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      data: obj,
+      success:  function(data, textStatus, jqXHR) {
+        alert("表單已更新");
+        setTimeout(() => {
+        location.reload();
+       }, 500)
+      },
+      error:  function(jqXHR, tranStatus) {
+        alert("表單更新失敗，請重試");
+        console.log(jqXHR.responseText)
+      }
+    });
+  }
+} // end of updateStatus
