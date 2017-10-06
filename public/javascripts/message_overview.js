@@ -108,7 +108,7 @@ var name_list = []; //list of all users
         console.log('error profInfo == null')
       }else{
         for (let i in profInfo){
-          var room; 
+          var room;
           if (profInfo[i].Profile.channelId == chanId1) room = 'Line_1_room';
           else if (profInfo[i].Profile.channelId == chanId2) room = 'Line_2_room';
           else room = profInfo[i].Profile.channelId;
@@ -168,11 +168,11 @@ function saveDraft(){
   let d = Date.now();
   let text = $('#textinput').val();
   let status = 'draft';
-  let send_time = $('#sendTime').val();
+  // let send_time = $('#sendTime').val();
   // let send_time = $('#sendTime');
 
 
-  writeUserData_draft(d, auth.currentUser.uid, text, send_time, status, auth.currentUser.email.toString());
+  writeUserData_draft(auth.currentUser.uid, text, status, auth.currentUser.email.toString());
 
   //塞入資料庫並重整
   $('#quickAdd').modal('hide');
@@ -185,12 +185,12 @@ function saveDraft(){
 }
 
 
-  function writeUserData_draft(d, userId, text, send_time, status, email) {
+  function writeUserData_draft(userId, text, status, email) {
   database.ref('message-overview/' + userId).push({
     taskContent: text,
     owner: auth.currentUser.email,
     taskStatus: status,
-    taskTime: send_time
+    // taskTime: send_time
   });
 }
 
@@ -211,35 +211,34 @@ function saveDraft(){
   '</form>'+
   '</td>'+
   '</tr>'+
-  '<tr><th style="padding:1.5%; background-color: #ddd">'+
-      '<button class="tablinks" rel="emos">Emoji</button></th></tr></div>');
+  '</div>');
 
 }
 
 
 
   function modalSubmit() {
-  let d = Date.now();
+  // let d = Date.now();
   let text = $('#textinput').val();
-  let status = 'reserved';
-  let send_time = $('#sendTime').val();
-  writeUserData(d, auth.currentUser.uid, send_time, text,  status, auth.currentUser.email.toString());
+  let status = '保存';
+  // let send_time = $('#sendTime').val();
+  writeUserData(auth.currentUser.uid, text, status, auth.currentUser.email.toString());
 
   //塞入資料庫並重整
   $('#quickAdd').modal('hide');
   $('#textinput').val('');
   $('#sendTime').val(''); //
 
-  alert('Saved!');
+  alert('變更已儲存!');
 
-  // loadOverReply();
+  loadOverReply();
 }
 
 
-  function writeUserData(d, userId, send_time, text, status, email) {
+  function writeUserData(userId, text, status, email) {
   database.ref('message-overview/' + userId).push({
     taskContent: text,
-    taskTime: send_time,
+    // taskTime: send_time,
     owner: auth.currentUser.email,
     taskStatus: status,
 
@@ -248,17 +247,15 @@ function saveDraft(){
 
 
 
-        function clickLmtUser(){
-          console.log('clickLmtUser exe');
-
-        var target = $(this).attr('rel');
-      if ($("#"+target).is(':visible')){
+  function clickLmtUser(){
+    console.log('clickLmtUser exe');
+    var target = $(this).attr('rel');
+    if ($("#"+target).is(':visible')){
       $("#"+target).hide();
     }else{
-    $("#"+target).show();
+      $("#"+target).show();
+    }
   }
-
-      }
 
       function clickMsg(){
         var target = $(this).attr('rel');
@@ -290,8 +287,8 @@ function saveDraft(){
           '<td class="msgDetail" style="margin:0;width:10%">' + 'text' + '</td>' +
           '<td class="msgDetail" style="margin:0;width:15%">-</td>' +
           '<td class="msgDetail" style="margin:0;width:10%">'+dataArray[i].taskStatus+'</td>'+
-          '<td class="msgDetail" style="color:red; margin:0; width:20%">'+dataArray[i].taskTime+'</td>' +
-          '<td style="margin:0">' +
+          '<td class="msgDetail" style="color:red; margin:0; width:10%">'+dataArray[i].taskTime+'</td>' +
+          '<td style="margin:0;width:10%">' +
           '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>編輯  </b></a>' +
           '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>檢視  </b></a>' +
           '<a href="#" id="deleBtn"><b>刪除</b></a>' +
@@ -308,8 +305,8 @@ function saveDraft(){
             '<td class="msgDetail" style="margin:0;width:10%">' + 'text' + '</td>' +
             '<td class="msgDetail" style="margin:0;width:15%">-</td>' +
             '<td class="msgDetail" style="margin:0;width:10%">'+dataArray[i].taskStatus+'</td>'+
-            '<td class="msgDetail" style="color:red; margin:0; width:20%">'+dataArray[i].taskTime+'</td>' +
-            '<td style="margin:0">' +
+            '<td class="msgDetail" style="color:red; margin:0; width:10%">'+dataArray[i].taskTime+'</td>' +
+            '<td style="margin:0;width:10%">' +
             '<a href="#" id="editBtn" data-toggle="modal" data-target="#editModal"><b>編輯  </b></a>' +
             '<a href="#" id="viewBtn" data-toggle="modal" data-target="#viewModal"><b>檢視  </b></a>' +
             '<a href="#" id="deleBtn"><b>刪除</b></a>' +
@@ -343,15 +340,15 @@ function loadView() {
     let testVal = snap.val();
     console.log(testVal);
     // 重複出現值 要抓出來
-    $('#view-id').append(key); //編號
-    $('#view-textinput').append(testVal.taskContent); //任務內容
-    $('#view-stat').append(testVal.taskStatus); //狀態
-    $('#view-owne').append(testVal.owner); //負責人
-    $('#view-desc').append(testVal.description); //說明
-    $('#view-inir').append(testVal.initiator); //建立人
-    $('#view-inid').append(testVal.initDate); //建立日期
-    $('#view-modr').append(testVal.modifier); //修改人
-    $('#view-modd').append(testVal.modiDate); //修改日期
+    $('#view-id').val(key); //編號
+    $('#view-textinput').val(testVal.taskContent); //任務內容
+    $('#view-stat').val(testVal.taskStatus); //狀態
+    $('#view-owne').val(testVal.owner); //負責人
+    $('#view-desc').val(testVal.description); //說明
+    $('#view-inir').val(testVal.initiator); //建立人
+    $('#view-inid').val(testVal.initDate); //建立日期
+    $('#view-modr').val(testVal.modifier); //修改人
+    $('#view-modd').val(testVal.modiDate); //修改日期
     $('#message').val(testVal.taskContent); //內容加到群發的地方
 
   });

@@ -67,7 +67,15 @@ $(document).ready(function() {
   $(document).on('click', '#upAud', upAud); // 傳音
   $(document).on('click', '#submitMsg', submitMsg); // 訊息送出
   $(document).on('click', '#submitMemo', submitMemo);
-  $(document).on('click', '.ticket_content',moreInfo) ;
+  $(document).on('click', '.ticket_content',moreInfo);
+  $(document).on('click', "#ticketInfo-submit", updateStatus);
+  $(document).on('click', '.edit', showInput);
+  $(document).on('focusout', '.inner', hideInput);
+  $(document).on('keypress', '.inner',function (e) {
+    if(e.which == 13) $(this).blur() ;
+  });
+
+
   // 群組名稱
   // $(document).on('dblclick', '.myText', openTitle); // 點開編輯群組名稱
   // $(document).on('click', '#cls-cal-btn', cancelSubmit); // 取消編輯群組名稱
@@ -1178,12 +1186,12 @@ $(document).ready(function() {
         '<table>'+
         '<thead>'+
         '<tr>'+
-        '<th> ID </th>'+
-        '<th> 姓名 </th>'+
-        '<th hidden> 內容 </th>'+
-        '<th> 狀態 </th>'+
-        '<th> 優先 </th>'+
-        '<th> 到期 </th>'+
+        '<th onclick="sortCloseTable(0)"> ID </th>'+
+        '<th onclick="sortCloseTable(1)"> 姓名 </th>'+
+        '<th onclick="sortCloseTable(2)"hidden> 內容 </th>'+
+        '<th onclick="sortCloseTable(3)"> 狀態 </th>'+
+        '<th onclick="sortCloseTable(4)"> 優先 </th>'+
+        '<th onclick="sortCloseTable(5)"> 到期 </th>'+
         '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="Search"></th>'+
         '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
         '</tr>'+
@@ -1346,11 +1354,11 @@ $(document).ready(function() {
       '<table>'+
       '<thead>'+
       '<tr>'+
-      '<th> ID </th>'+
-      '<th> 姓名 </th>'+
-      '<th> 狀態 </th>'+
-      '<th> 優先 </th>'+
-      '<th> 到期 </th>'+
+      '<th onclick="sortCloseTable(0)"> ID </th>'+
+      '<th onclick="sortCloseTable(1)"> 姓名 </th>'+
+      '<th onclick="sortCloseTable(3)"> 狀態 </th>'+
+      '<th onclick="sortCloseTable(4)"> 優先 </th>'+
+      '<th onclick="sortCloseTable(5)"> 到期 </th>'+
       '<th><input type="text" class="ticket_search_bar" id="exampleInputAmount" value="" placeholder="搜尋"></th>'+
       '<th><a data-toggle="modal" data-target="#addTicketModal"><span class="fa fa-plus fa-fw"></span> 新增表單</a></th>'+
       '</tr>'+
@@ -2164,81 +2172,6 @@ function loadTable(userId){
   }, 500);
 }
 
-function updateStatus() {
-  let select = $(".select"),
-      editable = $(".edit"),
-      input = $("input");
-  let name, value, json = '{' ;
-  let obj = {} ;
-  let id = $(this).attr("val") ;
-  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
-
-  input.each(function () {$(this).blur();});
-  for(let i=0;i<editable.length;i++){
-    name = editable.eq(i).parent().children("th").text().split(" ") ;
-    value = editable.eq(i).text() ;
-    json += '"'+name[0]+'":"'+value+'",';
-  }
-  for(let i=0;i<select.length;i++){
-    name = select.eq(i).parent().parent().children("th").text() ;
-    value = select.eq(i).val() ;
-    json += '"'+name+'":'+value+','
-  }
-  json += '"id":"'+id+'"}' ;
-  obj = JSON.parse(json) ;
-
-
-  客戶名 = obj.subject;
-  客戶ID = obj.客戶ID;
-  回覆人員 = obj.回覆人員;
-  優先 = parseInt(obj.優先);
-  狀態 = parseInt(obj.狀態);
-  描述 = obj.描述;
-  if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期;
-  else 到期時間 = obj.到期時間即期;
-  var time_list = 到期時間.split("/");
-  var new_time=[];
-  var new_time2=[];
-  time_list.map(function(i){
-    if (!i.startsWith(0) && i.length == 1 || i.length == 10) i = '0'+i;
-    new_time.push(i);
-  });
-    new_time = (new_time.join("-").split(" ").join("T")+"Z").split(":");
-    new_time.map(function(i){
-      if (i.length == 1) i = '0'+i;
-      new_time2.push(i);
-    })
-    new_time = new_time2.join(":");
-
-  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'", "due_by": "'+new_time+'"}';
-
-  if(confirm("確定變更表單？")) {
-    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
-    $.ajax({
-      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
-      type: 'PUT',
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      headers: {
-          "Authorization": "Basic " + btoa(api_key + ":x")
-      },
-      data: obj,
-      success:  function(data, textStatus, jqXHR) {
-        alert("表單已更新");
-        setTimeout(() => {
-        location.reload();
-       }, 500)
-      },
-      error:  function(jqXHR, tranStatus) {
-        alert("表單更新失敗，請重試");
-        console.log(jqXHR.responseText)
-      }
-    });
-  }
-
-
-}
-
 function statusNumberToText(status){
   switch(status) {
     case 5:
@@ -2349,25 +2282,28 @@ function moreInfo() {
 
   display =
   '<tr>'+
-  '<th>responder</th>'+
+  '<th>客戶ID</th>'+
+  '<td class="edit">'+Tinfo.subject+'</td>'+
+  '</tr><tr>'+
+  '<th>負責人</th>'+
   '<td>'+showSelect('responder',Tinfo.responder_id)+'</td>'+
   '</tr><tr>'+
-  '<th>priority</th>'+
+  '<th>優先</th>'+
   '<td>'+showSelect('priority',Tinfo.priority)+'</td>'+
   '</tr><tr>'+
-  '<th>status</th>'+
+  '<th>狀態</th>'+
   '<td>'+showSelect('status',Tinfo.status)+'</td>'+
   '</tr><tr>'+
-  '<th>description</th>'+
+  '<th>描述</th>'+
   '<td class="edit">'+Tinfo.description_text+'</td>'+
   '</tr><tr>'+
-  '<th>due date '+dueDate(Tinfo.due_by)+'</th>'+
-  '<td class="edit">'+displayDate(Tinfo.due_by)+'</td>'+
+  '<th class="edit">到期時間'+dueDate(Tinfo.due_by)+'</th>'+
+  '<td>'+displayDate(Tinfo.due_by)+'</td>'+
   '</tr><tr>'+
-  '<th>creat date</th>'+
+  '<th>建立日</th>'+
   '<td>'+displayDate(Tinfo.created_at)+'</td>'+
   '</tr><tr>'+
-  '<th>last update</th>'+
+  '<th>最後更新</th>'+
   '<td>'+displayDate(Tinfo.updated_at)+'</td>'+
   '</tr>' ;
 
@@ -2409,7 +2345,7 @@ function moreInfo() {
 
   $(".ticket_info_content").html('') ;
   $(".modal-header").css("border-bottom","3px solid "+priorityColor(Tinfo.priority)) ;
-  $(".modal-title").text(Tinfo.subject) ;
+  $(".modal-title").text(Tinfo.requester.name) ;
   $("#ticketInfo-submit").attr("val",Tinfo.id) ;
   $(".ticket_info_content").append(display);
 } // end of moreInfo
@@ -2445,6 +2381,189 @@ function loadKeywordsReply(userId){
 
   });
   console.log('keywords sent to back');
+
+}
+
+//=========[SORT CLOSE]=========
+function sortCloseTable(n) {
+  console.log('sorting exe');
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = $(".ticket-content");
+  console.log(table.value);
+  console.log(table.innerHTML);
+  switching = true;
+  //Set the sorting direction to ascending:
+  dir = "asc";
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.find('tr');
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 0; i < (rows.length-1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].childNodes[n];
+      y = rows[i + 1].childNodes[n];
+      /*check if the two rows should switch place,
+      based on the direction, asc or desc:*/
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      //Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /*If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again.*/
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+
+function showInput() {
+  let prop = $(this).parent().children("th").text() ;
+  let original = $(this).text() ;
+  if(prop.indexOf('due date') != -1 ){
+    let day = new Date(original) ;
+    day = Date.parse(day)+8*60*60*1000 ;
+    day = new Date(day) ;
+    // console.log(day);
+    $(this).html(
+      "<input type='datetime-local' class='inner' value='"+
+      day.toJSON().substring(0,23)
+      +"'></input>"
+    );
+  }
+  else if(prop == 'description'){
+    $(this).html(
+      "<textarea  class='inner' rows=4' cols='50'>"+
+      original+
+      "</textarea>"
+    );
+  }
+  else{
+    $(this).html(
+      "<input type='text' class='inner' value='"+
+      original+
+      "' autofocus>"
+    );
+  }
+}
+function hideInput() {
+  let change = $(this).val();
+  if($(this).attr('type')== 'datetime-local'){
+    $(this).parent().html(displayDate(change)) ;
+  }
+  $(this).parent().html(change) ;
+}
+
+function updateStatus() {
+  let select = $(".select"),
+      editable = $(".edit"),
+      input = $("input");
+  let name, value, json = '{' ;
+  let obj = {} ;
+  let id = $(this).attr("val") ;
+  let 客戶名, 客戶ID, 回覆人員, 優先, 狀態, 描述, 到期時間;
+
+  input.each(function () {$(this).blur();});
+  for(let i=0;i<editable.length;i++){
+    name = editable.eq(i).parent().children("th").text().split(" ") ;
+    value = editable.eq(i).text() ;
+    json += '"'+name[0]+'":"'+value+'",';
+  }
+  for(let i=0;i<select.length;i++){
+    name = select.eq(i).parent().parent().children("th").text() ;
+    value = select.eq(i).val() ;
+    json += '"'+name+'":'+value+','
+  }
+  json += '"id":"'+id+'"}' ;
+  obj = JSON.parse(json) ;
+
+
+  客戶名 = obj.subject;
+  客戶ID = obj.客戶ID;
+  回覆人員 = obj.回覆人員;
+  優先 = parseInt(obj.優先);
+  狀態 = parseInt(obj.狀態);
+  描述 = obj.描述;
+  // if (obj.到期時間過期 !== undefined) 到期時間 = obj.到期時間過期;
+  // else 到期時間 = obj.到期時間即期;
+  // var time_list = 到期時間.split("/");
+  // console.log(time_list);
+  // var new_time=[];
+  // var new_time2=[];
+  // time_list.map(function(i){
+  //   if (i.length == 1 || i.length >5 && !i.startsWith(0)) i = '0'+i;
+  //   new_time.push(i);
+  // });
+  // new_time = new_time.join("-").split(" ");
+  // console.log(new_time);
+  // if (new_time[1].length < 8){
+  //     new_time[1].split(":").map(function(x){
+  //       if (x.length == 1) new_time[1] = new_time[1].replace(x,'0'+x);
+  //     });
+  // };
+  // new_time = new_time.join("T")+"Z";
+// .split(":");
+//     new_time.map(function(i){
+//       console.log(i);
+//       if (i.length == 12 && i.endsWith('0')) i = i+'0';
+//       if (i.length==1 || i.length ==2 && i.endsWith('Z')) i = '0'+i;
+//       new_time2.push(i);
+//     })
+//     new_time = new_time2.join(":");
+
+
+  obj = '{"name": "'+客戶名+'", "subject": "'+客戶ID+'", "status": '+狀態+', "priority": '+優先+', "description": "'+描述+'"}';
+
+  if(confirm("確定變更表單？")) {
+    var ticket_id = $(this).parent().siblings().children().find('#ID_num').text();
+    $.ajax({
+      url: "https://"+yourdomain+".freshdesk.com/api/v2/tickets/"+ticket_id,
+      type: 'PUT',
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      headers: {
+          "Authorization": "Basic " + btoa(api_key + ":x")
+      },
+      data: obj,
+      success:  function(data, textStatus, jqXHR) {
+        alert("表單已更新");
+        setTimeout(() => {
+        location.reload();
+       }, 500)
+      },
+      error:  function(jqXHR, tranStatus) {
+        alert("表單更新失敗，請重試");
+        console.log(jqXHR.responseText)
+      }       
+    });
+  }
+
 
 }
 
