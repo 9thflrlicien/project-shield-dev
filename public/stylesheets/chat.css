@@ -405,6 +405,37 @@ input[type="range"]:active::-webkit-slider-thumb:after {
   float:right;
   margin-top:20px;
 }
+
+.unread_msg_count_all{
+  position: absolute;
+  top: 15px;
+  left: 40px;
+  border:1px solid limegreen;
+  border-radius:50px;
+  width:20px;
+  height:20px;
+  background-color:limegreen;
+  color:black;
+  text-align:center;
+  float:right;
+  margin-top:20px;
+}
+
+.unread_msg_count{
+  position: absolute;
+  top: 15px;
+  left: 40px;
+  border:1px solid limegreen;
+  border-radius:50px;
+  width:20px;
+  height:20px;
+  background-color:limegreen;
+  color:black;
+  text-align:center;
+  float:right;
+  margin-top:20px;
+}
+
 .tablinks_head{
   font-size:14px;
   font-weight:bold;

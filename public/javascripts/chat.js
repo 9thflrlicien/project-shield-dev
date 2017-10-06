@@ -5,6 +5,7 @@ var user_list = []; // user list for checking on idle chat rooms
 var fbCount = 0;
 var line1Count = 0;
 var line2Count = 0;
+var totalCount = 0;
 
 const LOADING_MSG_AND_ICON = "<p class='message-day' style='text-align: center'><strong><i>" +
 "Loading History Messages..." +
@@ -767,6 +768,9 @@ $(document).ready(function() {
           "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
           "</button></b>"
         ); //new a tablinks
+        //20170929 - Welly
+        console.log(profile.channelId);
+        updateTotalUnread(profile.channelId,profile.unRead);
       } else {
         $('#vip_list').prepend(
           "<b><button style='text-align:left' class='tablinks'" +
@@ -789,6 +793,9 @@ $(document).ready(function() {
           "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
           "</button></b>"
         ); //new a tablinks
+
+        //20170929 - Welly
+        console.log(profile.channelId); 
       }
 
     } else if(profile.channelId === undefined || profile.channelId === "FB"){
@@ -818,6 +825,10 @@ $(document).ready(function() {
           "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
           "</button></b>"
         ); //new a tablinks
+
+        //20170929 - Welly
+        console.log(profile.channelId);
+        updateTotalUnread(profile.channelId,profile.unRead);
       } else {
         $('#clients').append(
           "<b><button style='text-align:left' class='tablinks'" +
@@ -840,6 +851,9 @@ $(document).ready(function() {
           "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
           "</button></b>"
         ); //new a tablinks
+
+        //20170929 - Welly
+        console.log(profile.channelId);
       }
     } else if(profile.channelId === room_list[0]){
       if(profile.unRead > 0){
@@ -864,6 +878,10 @@ $(document).ready(function() {
           "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
           "</button></b>"
         ); //new a tablinks
+        //20170929 - Welly
+        console.log(profile.channelId);
+        updateTotalUnread(profile.channelId,profile.unRead);
+
       } else {
         $('#clients').append(
           "<b><button style='text-align:left' class='tablinks'" +
@@ -886,6 +904,9 @@ $(document).ready(function() {
           "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
           "</button></b>"
         ); //new a tablinks
+        //20170929 - Welly
+        console.log(profile.channelId);
+        
       }
     } else if(profile.channelId === room_list[1]){
       if(profile.unRead > 0){
@@ -910,6 +931,10 @@ $(document).ready(function() {
           "<div class='unread_msg' style='display:block;'>" + profile.unRead + "</div>" +
           "</button></b>"
         ); //new a tablinks
+        //20170929 - Welly
+        console.log(profile.channelId);
+        updateTotalUnread(profile.channelId,profile.unRead);
+
       } else {
         $('#clients').append(
           "<b><button style='text-align:left' class='tablinks'" +
@@ -932,6 +957,10 @@ $(document).ready(function() {
           "<div class='unread_msg' style='display:none;'>" + profile.unRead + "</div>" +
           "</button></b>"
         ); //new a tablinks
+        
+        //20170929 - Welly
+        console.log(profile.channelId);
+        
       }
     }
 
@@ -1067,6 +1096,10 @@ $(document).ready(function() {
         target.find('.unread_msg').html(data.unRead).css("display", "none");
       }
       n++;
+
+      //20170929 - Welly
+      console.log(channelId);
+      updateTotalUnread(channelId,data.unRead);
 
       let ele = target.parents('b'); //buttons to b
       ele.remove();
@@ -1252,6 +1285,30 @@ $(document).ready(function() {
         });
       }
     });
+
+    //20170929 - Welly
+    let unreadCount = $(this).find('.unread_msg').text();
+    if(unreadCount > 0)
+      unreadCount = (-unreadCount);
+    console.log("press tablink unreadcount = " + unreadCount);
+    updateTotalUnread(roomId,unreadCount);  
+    console.log("room ID = " + roomId);
+    console.log("fbCount = " + fbCount);
+    console.log("line1Count = " + line1Count);
+    console.log("line2Count = " + line2Count); 
+    console.log("unread_count = " +unreadCount);
+    console.log("totalCount = " + totalCount);
+    if(line1Count <= 0)
+    {
+      $('#Line_1>.unread_msg_count').hide();
+    };
+    // let new_count = fbCount - unread_count;
+    // if(new_count > 0){
+    //   $('#FB>.unread_msg_count').text(new_count);
+    // } else {
+    //   $('#FB>.unread_msg_count').hide();
+    // }
+    //end of 20170929 Welly
 
     $(this).find('.unread_msg').text('0');
 
@@ -2302,4 +2359,51 @@ function loadKeywordsReply(userId){
       }
     }, 1000);
   });
+}
+
+//20170930 - Welly
+function updateTotalUnread(chanid, unreadnum){
+  console.log("unreadnum = " + unreadnum);
+  switch(chanid){
+    case "FB":
+      fbCount += parseInt(unreadnum);
+      if(fbCount > 0){
+        $('#FB>.unread_msg_count').text(fbCount);
+      }
+      else{
+        $('#FB>.unread_msg_count').hide();
+      }
+      break;
+    case room_list[0]:
+      line1Count += parseInt(unreadnum);
+      if(line1Count > 0){
+        console.log("should display line1");
+        $('#Line_1>.unread_msg_count').text(line1Count);
+      }
+      else{
+        console.log("should not display line1");
+        $('#Line_1>.unread_msg_count').hide();
+      }
+      break;
+    case room_list[1]:
+      line2Count += parseInt(unreadnum);
+      if(line2Count > 0){
+        console.log("should display line2");
+        $('#Line_2>.unread_msg_count').text(line2Count);
+      }
+      else{
+        console.log("should not display line2");
+        $('#Line_2>.unread_msg_count').hide();
+      }
+      break;
+  }
+  totalCount += parseInt(unreadnum);
+  if(totalCount > 0){
+    console.log("should display total");
+   $('#All>.unread_msg_count').text(totalCount);
+  }
+  else{
+    console.log("should not display total");
+   $('#All>.unread_msg_count').hide();
+  }
 }
