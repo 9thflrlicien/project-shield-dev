@@ -244,7 +244,7 @@ function ISODateString(d) {
         '00:00';
 }
 
-function ISODateTimeString(d) {
+function ISODateTimeString(d) { //轉換時間
     d = new Date(d);
 
     function pad(n) {
@@ -256,7 +256,7 @@ function ISODateTimeString(d) {
         pad(d.getDate());
     finalDate.time = pad(d.getHours()) + ':' +
         pad(d.getMinutes());
-    return finalDate;
+    return finalDate; //finalDate為物件
 }
 
 function convertTime(date) {

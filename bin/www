@@ -17,7 +17,7 @@ var fs = require('fs');
 var unirest = require('unirest'); // 來單使用套件
 
 var admin = require("firebase-admin"); //firebase admin SDK
-var serviceAccount = require("./../firebase-adminsdk.json");
+var serviceAccount = require("./../firebase-adminsdk.json"); //firebase admin requires .json auth
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -28,7 +28,7 @@ admin.initializeApp({
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({ //信箱憑證
     service: 'gmail',
-    auth: {
+    auth: { //此欄位可更改 目前先用我的信箱寄
         user: '9thflr.wuyuan@gmail.com',
         pass: 'susan1018'
     }
@@ -119,11 +119,11 @@ tagsRef.on('value', snapshot => {
     // ...
 });
 
-const calref = admin.database().ref().child('cal-events');
-calref.on('value', snapshot => {
-    EventData = snapshot.val();
-    console.log("Events data loading complete!");
-});
+// const calref = admin.database().ref().child('cal-events');
+// calref.on('value', snapshot => {
+//     EventData = snapshot.val();
+//     console.log("Events data loading complete!");
+// });
 
 var ticket = {};
 var API_KEY = "VAxM08x35ThAOEqIgvOF";
@@ -6914,7 +6914,7 @@ io.sockets.on('connection', (socket) => {
                         remind: true //true代表已提醒過
                     });
                     socket.emit('pop up reminder', data[i].title); //呼叫前端pop up提醒視窗
-                    console.log('Event ' + data[i].start + ' started');
+                    console.log('calendar event ' + data[i].start + ' started');
 
                     var mailOptions = { //信件內容
                         from: '9thflr.wuyuan@gmail.com',
@@ -6932,12 +6932,11 @@ io.sockets.on('connection', (socket) => {
                     });
 
                     var avoidremindagain = setTimeout(function() { //事件提醒後60秒內不再提醒
-                        console.log('Waiting for 60 seconds to set remind false');
+                        //console.log('Waiting for 60 seconds to set remind false');
                         admin.database().ref('cal-events/' + info.userId + '/' + i).update({
                             remind: false
                         });
                         clearTimeout(avoidremindagain);
-                        //socket.emit('set remind false', i);
                     }, 60000);
 
                 }
