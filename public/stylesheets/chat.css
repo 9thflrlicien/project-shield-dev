@@ -1,4 +1,4 @@
-.hidden_group_name{
+f.hidden_group_name{
   display: none;
   position: absolute;
   background-color: #fff5ce;
@@ -405,26 +405,10 @@ input[type="range"]:active::-webkit-slider-thumb:after {
   float:right;
   margin-top:20px;
 }
-
-.unread_msg_count_all{
+.unread_msg_count_backup{
   position: absolute;
   top: 15px;
-  left: 40px;
-  border:1px solid limegreen;
-  border-radius:50px;
-  width:20px;
-  height:20px;
-  background-color:limegreen;
-  color:black;
-  text-align:center;
-  float:right;
-  margin-top:20px;
-}
-
-.unread_msg_count{
-  position: absolute;
-  top: 15px;
-  left: 40px;
+  left: 20px;
   border:1px solid limegreen;
   border-radius:50px;
   width:20px;
@@ -561,11 +545,12 @@ html,body{
 }
 .unread_msg_count{
   position: absolute;
+  border:1px solid limegreen;
   top: 40px;
   left: 40px;
   height: 20px;
   width: 20px;
-  background-color: red;
+  background-color: limegreen;
   border-radius: 50%;
   z-index: 999;
   display: none;

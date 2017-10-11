@@ -1291,17 +1291,17 @@ $(document).ready(function() {
     if(unreadCount > 0)
       unreadCount = (-unreadCount);
     console.log("press tablink unreadcount = " + unreadCount);
-    updateTotalUnread(roomId,unreadCount);  
+    updateTotalUnread(roomId,unreadCount);
+    //don't know why the value of totalCount would become NaN 
+    if(isNaN(totalCount))
+      totalCount = 0;  
     console.log("room ID = " + roomId);
     console.log("fbCount = " + fbCount);
     console.log("line1Count = " + line1Count);
     console.log("line2Count = " + line2Count); 
-    console.log("unread_count = " +unreadCount);
+    console.log("unread_count = " + unreadCount);
     console.log("totalCount = " + totalCount);
-    if(line1Count <= 0)
-    {
-      $('#Line_1>.unread_msg_count').hide();
-    };
+    
     // let new_count = fbCount - unread_count;
     // if(new_count > 0){
     //   $('#FB>.unread_msg_count').text(new_count);
@@ -2363,21 +2363,35 @@ function loadKeywordsReply(userId){
 
 //20170930 - Welly
 function updateTotalUnread(chanid, unreadnum){
+  var v;
   console.log("unreadnum = " + unreadnum);
   switch(chanid){
     case "FB":
-      fbCount += parseInt(unreadnum);
+      if(parseInt(unreadnum)-1 == fbCount)
+        v = 1;
+      else
+        v = parseInt(unreadnum);
+      fbCount += v;
+
       if(fbCount > 0){
+        $('#FB>.unread_msg_count').css("display","block");
         $('#FB>.unread_msg_count').text(fbCount);
       }
       else{
         $('#FB>.unread_msg_count').hide();
       }
       break;
+
     case room_list[0]:
-      line1Count += parseInt(unreadnum);
+      if(parseInt(unreadnum)-1 == line1Count)
+        v = 1;
+      else
+        v = parseInt(unreadnum);
+      line1Count += v;
+
       if(line1Count > 0){
         console.log("should display line1");
+        $('#Line_1>.unread_msg_count').css("display","block");
         $('#Line_1>.unread_msg_count').text(line1Count);
       }
       else{
@@ -2385,10 +2399,17 @@ function updateTotalUnread(chanid, unreadnum){
         $('#Line_1>.unread_msg_count').hide();
       }
       break;
+
     case room_list[1]:
-      line2Count += parseInt(unreadnum);
+      if(parseInt(unreadnum)-1 == line2Count)
+        v = 1;
+      else
+        v = parseInt(unreadnum);
+      line2Count += v;
+      
       if(line2Count > 0){
         console.log("should display line2");
+        $('#Line_2>.unread_msg_count').css("display","block");
         $('#Line_2>.unread_msg_count').text(line2Count);
       }
       else{
@@ -2397,13 +2418,17 @@ function updateTotalUnread(chanid, unreadnum){
       }
       break;
   }
-  totalCount += parseInt(unreadnum);
+  totalCount += v;
   if(totalCount > 0){
     console.log("should display total");
    $('#All>.unread_msg_count').text(totalCount);
+   origin_text = "未讀\n";
+   $('#all_unread>#all_unread_num').text(origin_text + totalCount);
   }
   else{
     console.log("should not display total");
    $('#All>.unread_msg_count').hide();
+   origin_text = "未讀\n";
+   $('#all_unread>#all_unread_num').text(origin_text);
   }
 }
